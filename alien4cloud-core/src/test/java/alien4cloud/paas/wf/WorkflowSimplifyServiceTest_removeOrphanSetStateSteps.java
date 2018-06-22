@@ -158,7 +158,8 @@ public class WorkflowSimplifyServiceTest_removeOrphanSetStateSteps {
         assertFollowedOnlyBy(node1_create, node1_created);
         assertFollowedOnlyBy(node1_created, node1_configuring);
         assertFollowedOnlyBy(node1_configuring, node1_configure);
-        assertFollowedOnlyBy(node1_configure, node1_starting);
+        assertFollowedOnlyBy(node1_configure, node1_configured);
+        assertFollowedOnlyBy(node1_configured, node1_starting);
         assertFollowedOnlyBy(node1_starting, node1_start);
         assertFollowedOnlyBy(node1_start, node1_started);
     }

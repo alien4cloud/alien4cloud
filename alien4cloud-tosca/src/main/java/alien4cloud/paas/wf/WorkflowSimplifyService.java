@@ -23,6 +23,8 @@ import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkfl
 import org.alien4cloud.tosca.model.workflow.declarative.NodeOperationDeclarativeWorkflow;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+
 import alien4cloud.paas.wf.util.NodeSubGraphFilter;
 import alien4cloud.paas.wf.util.SimpleGraphConsumer;
 import alien4cloud.paas.wf.util.SubGraph;
@@ -97,12 +99,11 @@ public class WorkflowSimplifyService {
         Map<String, NodeOperationDeclarativeWorkflow> standardOps = dwf.getNodeWorkflows().get(workflow.getName()).getOperations();
         Set<String> allOps = standardOps.keySet();
 		Collection<WorkflowStep> steps = workflow.getSteps().values();
-		Set<String> actualOps = steps.stream()
-										.filter(step -> step.getActivity() instanceof CallOperationWorkflowActivity)
-										.map(step -> ((CallOperationWorkflowActivity) step.getActivity()).getOperationName())
-										.collect(Collectors.toSet());
-        allOps.removeAll(actualOps);
-        Set<String> blackListOps = allOps;
+		Set<String> actualOps = steps.stream().filter(step -> step.getActivity() instanceof CallOperationWorkflowActivity)
+                                              .map(step -> ((CallOperationWorkflowActivity) step.getActivity()).getOperationName())
+                                              .collect(Collectors.toSet());
+
+        Set<String> blackListOps = Sets.difference(allOps, actualOps);
 
         // 2. Find the black list of states
         Set<String> blackListStates = new HashSet<>();
@@ -114,31 +115,13 @@ public class WorkflowSimplifyService {
         // 3. Remove the black list of state operations
         List<String> blackListSteps = new ArrayList<>();
 		steps.stream().filter(step -> step.getActivity() instanceof SetStateWorkflowActivity).forEach(step -> {
-
             String stateName = ((SetStateWorkflowActivity) step.getActivity()).getStateName();
             if (blackListStates.contains(stateName)) {
             	// Reconnect the pointer
 				String currentStepName = step.getName();
 				WorkflowStep nextStep = findNextStep(steps, currentStepName);
 				WorkflowStep preStep = findPreStep(steps, step);
-				if (nextStep == null && preStep == null) {
-                    step.getOnSuccess().clear();
-                    step.getPrecedingSteps().clear();
-				} else if (preStep == null) {
-					// Delete the head and reset the next step as the new head
-                    step.getOnSuccess().clear();
-					nextStep.getPrecedingSteps().clear();
-				} else if (nextStep == null) {
-					// Delete the tail and reset the precedent step as the new tail
-                    step.getOnSuccess().clear();
-                    preStep.getOnSuccess().clear();
-				} else {
-                    step.getOnSuccess().clear();
-                    preStep.getOnSuccess().clear();
-                    preStep.getOnSuccess().add(nextStep.getName());
-					nextStep.getPrecedingSteps().clear();
-					nextStep.getPrecedingSteps().add(preStep.getName());
-				}
+				step.destructSelf(preStep, nextStep);
                 blackListSteps.add(currentStepName);
             }
         });
