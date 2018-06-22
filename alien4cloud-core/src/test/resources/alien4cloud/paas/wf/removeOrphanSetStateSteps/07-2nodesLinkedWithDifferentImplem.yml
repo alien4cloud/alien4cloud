@@ -69,6 +69,8 @@ initial:
       state: started
       to:
         - node2_initial
+        - node2_add_target
+        - node2_add_source
     node2_initial:
       node: node2
       state: initial
@@ -204,6 +206,8 @@ expected:
       state: started
       to:
         - node2_initial
+        - node2_add_target
+        - node2_add_source
     node2_initial:
       node: node2
       state: initial
