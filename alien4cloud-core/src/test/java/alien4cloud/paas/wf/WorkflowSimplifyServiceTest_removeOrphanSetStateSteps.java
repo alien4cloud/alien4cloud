@@ -5,6 +5,7 @@ import alien4cloud.paas.wf.model.WorkflowDescription;
 import alien4cloud.paas.wf.model.WorkflowTest;
 import alien4cloud.paas.wf.model.WorkflowTestDescription;
 import alien4cloud.paas.wf.model.WorkflowTestUtils;
+import alien4cloud.paas.wf.util.WorkflowGraphUtils;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.CollectionUtils;
@@ -52,7 +53,10 @@ public class WorkflowSimplifyServiceTest_removeOrphanSetStateSteps {
 
     private void doTest(String testName, WorkflowTest test) {
         log.info("Testing {}", testName);
+        log.debug("Initial workflow : " + WorkflowUtils.debugWorkflow(test.getInitial()));
         workflowSimplifyService.removeOrphanSetStateSteps(test.getInitial(), defaultDeclarativeWorkflows);
+        log.debug("Actual workflow : " + WorkflowUtils.debugWorkflow(test.getInitial()));
+        log.debug("Excpected workflow : " + WorkflowUtils.debugWorkflow(test.getExpected()));
         WorkflowTestUtils.assertSame(test.getExpected(), test.getInitial());
     }
 
@@ -73,7 +77,7 @@ public class WorkflowSimplifyServiceTest_removeOrphanSetStateSteps {
             WorkflowStep wfStep = null;
             if (StringUtils.isNoneEmpty(step.getRelation())) {
                 wfStep = WorkflowUtils.addRelationshipOperationStep(workflow, step.getNode(), step.getRelation(), step.getInterf(), step.getOperation(), "");
-            } if (StringUtils.isNoneEmpty(step.getInterf())) {
+            } else if (StringUtils.isNoneEmpty(step.getInterf())) {
                 wfStep = WorkflowUtils.addOperationStep(workflow, step.getNode(), step.getInterf(), step.getOperation());
             } else if (StringUtils.isNoneEmpty(step.getState())) {
                 wfStep = WorkflowUtils.addStateStep(workflow, step.getNode(), step.getState());
