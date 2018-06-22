@@ -81,13 +81,15 @@ public class WorkflowSimplifyService {
         doWithNode(topologyContext, (subGraph, workflow) -> removeUnnecessarySteps(topologyContext, workflow, subGraph));
         if (topologyContext.getDSLVersion().equals(ToscaParser.ALIEN_DSL_200)) {
             // only this DSL is compatible with this feature
-            doWithNode(topologyContext, (subGraph, workflow) -> removeOrphanSetStateSteps(topologyContext, workflow));
+            removeOrphanSetStateSteps(topologyContext);
         }
     }
 
-    private void removeOrphanSetStateSteps(TopologyContext topologyContext, Workflow workflow) {
+    private void removeOrphanSetStateSteps(TopologyContext topologyContext) {
         DefaultDeclarativeWorkflows dwf = workflowsBuilderService.getDeclarativeWorkflows(topologyContext.getDSLVersion());
-        removeOrphanSetStateSteps(workflow, dwf);
+        topologyContext.getTopology().getWorkflows().values().forEach(workflow -> {
+            removeOrphanSetStateSteps(workflow, dwf);
+        });
     }
 
     protected void removeOrphanSetStateSteps(Workflow workflow, DefaultDeclarativeWorkflows dwf) {
