@@ -51,6 +51,8 @@ initial:
     node1_configured:
       node: node1
       state: configured
+      to:
+        - node1_starting
     node1_starting:
       node: node1
       state: starting
@@ -65,7 +67,8 @@ initial:
     node1_started:
       node: node1
       state: started
-
+      to:
+        - node2_initial
     node2_initial:
       node: node2
       state: initial
@@ -80,7 +83,7 @@ initial:
       node: node2
       state: created
       to:
-        - node1_configuring
+        - node2_configuring
     node2_configuring:
       node: node2
       state: configuring
@@ -183,6 +186,8 @@ expected:
     node1_configured:
       node: node1
       state: configured
+      to:
+        - node1_starting
     node1_starting:
       node: node1
       state: starting
@@ -197,7 +202,8 @@ expected:
     node1_started:
       node: node1
       state: started
-
+      to:
+        - node2_initial
     node2_initial:
       node: node2
       state: initial
