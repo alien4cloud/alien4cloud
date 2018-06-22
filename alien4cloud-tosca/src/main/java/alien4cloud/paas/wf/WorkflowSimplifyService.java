@@ -89,6 +89,10 @@ public class WorkflowSimplifyService {
 
     private void removeOrphanSetStateSteps(TopologyContext topologyContext, Workflow workflow) {
         DefaultDeclarativeWorkflows dwf = workflowsBuilderService.getDeclarativeWorkflows(topologyContext.getDSLVersion());
+        removeOrphanSetStateSteps(workflow, dwf);
+    }
+
+    protected void removeOrphanSetStateSteps(Workflow workflow, DefaultDeclarativeWorkflows dwf) {
         // 1. Find the black list of operations
         Map<String, NodeOperationDeclarativeWorkflow> standardOps = dwf.getNodeWorkflows().get(workflow.getName()).getOperations();
         Set<String> allOps = standardOps.keySet();
