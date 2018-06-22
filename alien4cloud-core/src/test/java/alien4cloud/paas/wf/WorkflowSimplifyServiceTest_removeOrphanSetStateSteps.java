@@ -1,20 +1,34 @@
 package alien4cloud.paas.wf;
 
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
+import alien4cloud.paas.wf.model.WorkflowDescription;
+import alien4cloud.paas.wf.model.WorkflowTest;
+import alien4cloud.paas.wf.model.WorkflowTestDescription;
+import alien4cloud.paas.wf.model.WorkflowTestUtils;
 import alien4cloud.paas.wf.util.WorkflowUtils;
+import alien4cloud.utils.AlienUtils;
+import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.YamlParserUtil;
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkflows;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
 
 /**
  * Created by xdegenne on 22/06/2018.
  */
+@Slf4j
 public class WorkflowSimplifyServiceTest_removeOrphanSetStateSteps {
 
     WorkflowSimplifyService workflowSimplifyService = new WorkflowSimplifyService();
@@ -27,147 +41,63 @@ public class WorkflowSimplifyServiceTest_removeOrphanSetStateSteps {
     }
 
     @Test
-    public void testSimpliest() {
-        Workflow workflow = new Workflow();
-        workflow.setName("install");
-        WorkflowStep node1_initial = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.INITIAL);
-        WorkflowStep node1_started = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.STARTED);
-        WorkflowStep node1_starting = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.STARTING);
-        WorkflowUtils.linkSteps(node1_initial, node1_starting);
-        WorkflowUtils.linkSteps(node1_starting, node1_started);
-
-        workflowSimplifyService.removeOrphanSetStateSteps(workflow, defaultDeclarativeWorkflows);
-        WorkflowUtils.debugWorkflow(workflow);
-        Assert.assertEquals("We should only have 1 step here", 1, workflow.getSteps().size());
+    public void test() throws IOException {
+        PathMatchingResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+        Resource[] resources = resourcePatternResolver.getResources("alien4cloud/paas/wf/removeOrphanSetStateSteps/*.yml");
+        for (Resource resource : resources) {
+            WorkflowTest test = parseWorkflow(resource);
+            doTest(resource.getFilename(), test);
+        }
     }
 
-    @Test
-    public void testSimpliest2nodes() {
-        Workflow workflow = new Workflow();
-        workflow.setName("install");
-        WorkflowStep node1_initial = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.INITIAL);
-        WorkflowStep node1_started = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.STARTED);
-        WorkflowStep node1_starting = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.STARTING);
-        WorkflowStep node2_initial = WorkflowUtils.addStateStep(workflow, "node2", ToscaNodeLifecycleConstants.INITIAL);
-        WorkflowStep node2_started = WorkflowUtils.addStateStep(workflow, "node2", ToscaNodeLifecycleConstants.STARTED);
-        WorkflowStep node2_starting = WorkflowUtils.addStateStep(workflow, "node2", ToscaNodeLifecycleConstants.STARTING);
-        WorkflowUtils.linkSteps(node1_initial, node1_starting);
-        WorkflowUtils.linkSteps(node1_starting, node1_started);
-        WorkflowUtils.linkSteps(node2_initial, node2_starting);
-        WorkflowUtils.linkSteps(node2_starting, node2_started);
-
-        workflowSimplifyService.removeOrphanSetStateSteps(workflow, defaultDeclarativeWorkflows);
-        WorkflowUtils.debugWorkflow(workflow);
-        Assert.assertEquals("We should only have 2 step here", 2, workflow.getSteps().size());
+    private void doTest(String testName, WorkflowTest test) {
+        log.info("Testing {}", testName);
+        workflowSimplifyService.removeOrphanSetStateSteps(test.getInitial(), defaultDeclarativeWorkflows);
+        WorkflowTestUtils.assertSame(test.getExpected(), test.getInitial());
     }
 
-    @Test
-    public void testSimpliest2nodesLinked() {
-        Workflow workflow = new Workflow();
-        workflow.setName("install");
-        WorkflowStep node1_initial = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.INITIAL);
-        WorkflowStep node1_started = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.STARTED);
-        WorkflowStep node1_starting = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.STARTING);
-        WorkflowStep node2_initial = WorkflowUtils.addStateStep(workflow, "node2", ToscaNodeLifecycleConstants.INITIAL);
-        WorkflowStep node2_started = WorkflowUtils.addStateStep(workflow, "node2", ToscaNodeLifecycleConstants.STARTED);
-        WorkflowStep node2_starting = WorkflowUtils.addStateStep(workflow, "node2", ToscaNodeLifecycleConstants.STARTING);
-        WorkflowUtils.linkSteps(node1_initial, node1_starting);
-        WorkflowUtils.linkSteps(node1_starting, node1_started);
-        WorkflowUtils.linkSteps(node1_started, node2_initial);
-        WorkflowUtils.linkSteps(node2_initial, node2_starting);
-        WorkflowUtils.linkSteps(node2_starting, node2_started);
-
-        workflowSimplifyService.removeOrphanSetStateSteps(workflow, defaultDeclarativeWorkflows);
-        WorkflowUtils.debugWorkflow(workflow);
-        Assert.assertEquals("We should only have 2 step here", 2, workflow.getSteps().size());
-        assertFollowedOnlyBy(node1_initial, node2_initial);
+    private WorkflowTest parseWorkflow(Resource testFileResource) throws IOException {
+        WorkflowTestDescription wt = YamlParserUtil.parse(testFileResource.getInputStream(), WorkflowTestDescription.class);
+        String workflowName = wt.getName();
+        Workflow initial = buildWorkflow(workflowName, wt.getInitial());
+        Workflow expected = buildWorkflow(workflowName, wt.getExpected());
+        return new WorkflowTest(initial, expected);
     }
 
-    @Test
-    public void test1NodeStart() {
+    private Workflow buildWorkflow(String workflowName, WorkflowDescription wd) {
         Workflow workflow = new Workflow();
-        workflow.setName("install");
-        WorkflowStep node1_initial = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.INITIAL);
-        WorkflowStep node1_starting = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.STARTING);
-        WorkflowStep node1_start = WorkflowUtils.addOperationStep(workflow, "node1", ToscaNodeLifecycleConstants.STANDARD, ToscaNodeLifecycleConstants.START);
-        WorkflowStep node1_started = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.STARTED);
-        WorkflowUtils.linkSteps(node1_initial, node1_starting);
-        WorkflowUtils.linkSteps(node1_starting, node1_start);
-        WorkflowUtils.linkSteps(node1_start, node1_started);
-
-        workflowSimplifyService.removeOrphanSetStateSteps(workflow, defaultDeclarativeWorkflows);
-        WorkflowUtils.debugWorkflow(workflow);
-        Assert.assertEquals("We should only have 4 step here", 4, workflow.getSteps().size());
-        assertFollowedOnlyBy(node1_initial, node1_starting);
-        assertFollowedOnlyBy(node1_starting, node1_start);
-        assertFollowedOnlyBy(node1_start, node1_started);
-    }
-
-    @Test
-    public void test1NodeNoOperation() {
-        Workflow workflow = new Workflow();
-        workflow.setName("install");
-        WorkflowStep node1_initial = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.INITIAL);
-        WorkflowStep node1_creating = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.CREATING);
-        WorkflowStep node1_created = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.CREATED);
-        WorkflowStep node1_configuring = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.CONFIGURING);
-        WorkflowStep node1_configured = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.CONFIGURED);
-        WorkflowStep node1_starting = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.STARTING);
-        WorkflowStep node1_started = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.STARTED);
-        WorkflowUtils.linkSteps(node1_initial, node1_creating);
-        WorkflowUtils.linkSteps(node1_creating, node1_created);
-        WorkflowUtils.linkSteps(node1_created, node1_configuring);
-        WorkflowUtils.linkSteps(node1_configuring, node1_configured);
-        WorkflowUtils.linkSteps(node1_configured, node1_starting);
-        WorkflowUtils.linkSteps(node1_starting, node1_started);
-
-        workflowSimplifyService.removeOrphanSetStateSteps(workflow, defaultDeclarativeWorkflows);
-        WorkflowUtils.debugWorkflow(workflow);
-        Assert.assertEquals("We should only have 1 step here", 1, workflow.getSteps().size());
-    }
-
-    @Test
-    public void test1NodeAllOperations() {
-        Workflow workflow = new Workflow();
-        workflow.setName("install");
-        WorkflowStep node1_initial = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.INITIAL);
-        WorkflowStep node1_creating = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.CREATING);
-        WorkflowStep node1_create = WorkflowUtils.addOperationStep(workflow, "node1", ToscaNodeLifecycleConstants.STANDARD, ToscaNodeLifecycleConstants.CREATE);
-        WorkflowStep node1_created = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.CREATED);
-        WorkflowStep node1_configuring = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.CONFIGURING);
-        WorkflowStep node1_configure = WorkflowUtils.addOperationStep(workflow, "node1", ToscaNodeLifecycleConstants.STANDARD, ToscaNodeLifecycleConstants.CONFIGURE);
-        WorkflowStep node1_configured = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.CONFIGURED);
-        WorkflowStep node1_starting = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.STARTING);
-        WorkflowStep node1_start = WorkflowUtils.addOperationStep(workflow, "node1", ToscaNodeLifecycleConstants.STANDARD, ToscaNodeLifecycleConstants.START);
-        WorkflowStep node1_started = WorkflowUtils.addStateStep(workflow, "node1", ToscaNodeLifecycleConstants.STARTED);
-        WorkflowUtils.linkSteps(node1_initial, node1_creating);
-        WorkflowUtils.linkSteps(node1_creating, node1_create);
-        WorkflowUtils.linkSteps(node1_create, node1_created);
-        WorkflowUtils.linkSteps(node1_created, node1_configuring);
-        WorkflowUtils.linkSteps(node1_configuring, node1_configure);
-        WorkflowUtils.linkSteps(node1_configure, node1_configured);
-        WorkflowUtils.linkSteps(node1_configured, node1_starting);
-        WorkflowUtils.linkSteps(node1_starting, node1_start);
-        WorkflowUtils.linkSteps(node1_start, node1_started);
-
-        workflowSimplifyService.removeOrphanSetStateSteps(workflow, defaultDeclarativeWorkflows);
-        WorkflowUtils.debugWorkflow(workflow);
-        Assert.assertEquals("All steps should remain", 10, workflow.getSteps().size());
-        assertFollowedOnlyBy(node1_initial, node1_creating);
-        assertFollowedOnlyBy(node1_creating, node1_create);
-        assertFollowedOnlyBy(node1_create, node1_created);
-        assertFollowedOnlyBy(node1_created, node1_configuring);
-        assertFollowedOnlyBy(node1_configuring, node1_configure);
-        assertFollowedOnlyBy(node1_configure, node1_configured);
-        assertFollowedOnlyBy(node1_configured, node1_starting);
-        assertFollowedOnlyBy(node1_starting, node1_start);
-        assertFollowedOnlyBy(node1_start, node1_started);
-    }
-
-    private void assertFollowedOnlyBy(WorkflowStep step1, WorkflowStep step2) {
-        Assert.assertEquals(String.format("%s should have 1 successor", step1.getName()), 1, step1.getOnSuccess().size());
-        Assert.assertTrue(String.format("%s should be succeeded by %s", step1.getName(), step2.getName()), step1.getOnSuccess().contains(step2.getName()));
-        Assert.assertTrue(String.format("%s should be preceeded by %s", step2.getName(), step1.getName()), step2.getPrecedingSteps().contains(step1.getName()));
+        workflow.setName(workflowName);
+        Map<String, WorkflowStep> stepsPerId = Maps.newHashMap();
+        // a first iteration to build steps
+        AlienUtils.safe(wd.getSteps()).forEach((id, step) -> {
+            WorkflowStep wfStep = null;
+            if (StringUtils.isNoneEmpty(step.getRelation())) {
+                wfStep = WorkflowUtils.addRelationshipOperationStep(workflow, step.getNode(), step.getRelation(), step.getInterf(), step.getOperation(), "");
+            } if (StringUtils.isNoneEmpty(step.getInterf())) {
+                wfStep = WorkflowUtils.addOperationStep(workflow, step.getNode(), step.getInterf(), step.getOperation());
+            } else if (StringUtils.isNoneEmpty(step.getState())) {
+                wfStep = WorkflowUtils.addStateStep(workflow, step.getNode(), step.getState());
+            } else {
+                log.warn("Unrecognized step {}, will be ignored !", id);
+                Assert.fail("Unrecognized step !");
+            }
+            if (wfStep != null) {
+                stepsPerId.put(id, wfStep);
+            }
+        });
+        // a second iteration to build links between steps
+        AlienUtils.safe(wd.getSteps()).forEach((id, step) -> {
+            WorkflowStep from = stepsPerId.get(id);
+            AlienUtils.safe(step.getTo()).forEach(to -> {
+                WorkflowStep toStep = stepsPerId.get(to);
+                if (toStep == null) {
+                    log.warn("Link between {} -> {} not valid !", id, to);
+                    Assert.fail("Invalid step link !");
+                }
+                WorkflowUtils.linkSteps(from, toStep);
+            });
+        });
+        return workflow;
     }
 
 }
