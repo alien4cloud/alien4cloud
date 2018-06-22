@@ -7,7 +7,10 @@ import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameCon
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
 import static org.alien4cloud.tosca.utils.ToscaTypeUtils.isOfType;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -447,4 +450,12 @@ public class WorkflowUtils {
         return generateNewWfStepNameWithPrefix("", existingStepNames, newStepNames, stepName);
     }
 
+    public static WorkflowStep findStep(Collection<WorkflowStep> steps, String name) {
+        List<WorkflowStep> result = findSteps(steps, new HashSet<>(Arrays.asList(name)));
+        return result.size() == 0 ? null : result.get(0);
+    }
+
+    public static List<WorkflowStep> findSteps(Collection<WorkflowStep> steps, Set<String> names) {
+        return steps.stream().filter(step -> names.contains(step.getName())).collect(Collectors.toList());
+    }
 }
