@@ -1,17 +1,8 @@
 package alien4cloud.paas.wf;
 
-import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
-import alien4cloud.paas.wf.model.WorkflowDescription;
-import alien4cloud.paas.wf.model.WorkflowTest;
-import alien4cloud.paas.wf.model.WorkflowTestDescription;
-import alien4cloud.paas.wf.model.WorkflowTestUtils;
-import alien4cloud.paas.wf.util.WorkflowGraphUtils;
-import alien4cloud.paas.wf.util.WorkflowUtils;
-import alien4cloud.utils.AlienUtils;
-import alien4cloud.utils.CollectionUtils;
-import alien4cloud.utils.YamlParserUtil;
-import com.google.common.collect.Maps;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.Map;
+
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkflows;
@@ -22,9 +13,16 @@ import org.junit.Test;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
+import com.google.common.collect.Maps;
+
+import alien4cloud.paas.wf.model.WorkflowDescription;
+import alien4cloud.paas.wf.model.WorkflowTest;
+import alien4cloud.paas.wf.model.WorkflowTestDescription;
+import alien4cloud.paas.wf.model.WorkflowTestUtils;
+import alien4cloud.paas.wf.util.WorkflowUtils;
+import alien4cloud.utils.AlienUtils;
+import alien4cloud.utils.YamlParserUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by xdegenne on 22/06/2018.

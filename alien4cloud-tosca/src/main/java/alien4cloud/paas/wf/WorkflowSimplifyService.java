@@ -101,14 +101,17 @@ public class WorkflowSimplifyService {
         Collection<WorkflowStep> steps = workflow.getSteps().values();
         List<String> blackListSteps = new ArrayList<>();
         steps.stream().filter(step -> step.getActivity() instanceof SetStateWorkflowActivity).forEach(step -> {
-            if (step.getPrecedingSteps().size() == 1 && step.getOnSuccess().size() == 1) {
+            if (step.getPrecedingSteps().size() <= 1 && step.getOnSuccess().size() == 1) {
                 WorkflowStep nextStep = WorkflowUtils.findSteps(steps, step.getOnSuccess()).get(0);
-                WorkflowStep preStep = WorkflowUtils.findSteps(steps, step.getPrecedingSteps()).get(0);
+                WorkflowStep preStep = step.getPrecedingSteps().size() == 0 ? null : WorkflowUtils.findSteps(steps, step.getPrecedingSteps()).get(0);
                 if (isPairStep(step, nextStep, pairs)) {
                     blackListSteps.add(step.getName());
                     blackListSteps.add(nextStep.getName());
                     // reconnect the pre steps and the following steps of the second step in pairs
-                    preStep.removeFollowing(step.getName());
+                    if (preStep != null) {
+                        preStep.removeFollowing(step.getName());
+                        step.removePreceding(preStep.getName());
+                    }
                     nextStep.getOnSuccess().forEach(name -> {
                         WorkflowStep nextNextStep = WorkflowUtils.findStep(steps, name);
                         if (nextNextStep != null) {
@@ -116,6 +119,7 @@ public class WorkflowSimplifyService {
                             WorkflowUtils.linkSteps(preStep, nextNextStep);
                         }
                     });
+                    nextStep.getOnSuccess().clear();
                 }
             }
         });
