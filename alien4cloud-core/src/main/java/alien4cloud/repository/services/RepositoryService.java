@@ -74,6 +74,7 @@ public class RepositoryService {
 
     /**
      * Try to resolve an artifact from all configured resolver plugins and repositories
+     * This can be ignored with a4c_ignore.
      *
      * @param artifactReference reference of the artifact inside the repository
      * @param repositoryURL     the repository's URL
@@ -83,7 +84,7 @@ public class RepositoryService {
      */
     public String resolveArtifact(String artifactReference, String repositoryURL, String repositoryType, Map<String, Object> credentials) {
         if ("a4c_ignore".equals(repositoryType)) {
-            return null;
+            return "a4c_ignore";
         }
         for (IConfigurableArtifactResolver configurableArtifactResolver : registeredResolvers.values()) {
             String resolvedArtifact = configurableArtifactResolver.resolveArtifact(artifactReference, repositoryURL, repositoryType, credentials);
