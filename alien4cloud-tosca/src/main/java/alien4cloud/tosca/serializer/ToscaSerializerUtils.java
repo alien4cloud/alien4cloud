@@ -278,19 +278,18 @@ public class ToscaSerializerUtils {
         }
     }
 
-    public static boolean hasRepositories(String topologyArchiveName, String topologyArchiveVersion, Topology topology) {
+    public static boolean hasRepositories(Topology topology) {
         // we don't support node types in Editor context, just check the node templates
         for (NodeTemplate node : safe(topology.getNodeTemplates()).values()) {
             for (DeploymentArtifact artifact : safe(node.getArtifacts()).values()) {
-                // Only consider artifact of the topology
-                if (isInternalRepoArtifact(artifact, topologyArchiveName, topologyArchiveVersion)) {
+                if (StringUtils.isNotBlank(artifact.getArtifactRepository()) && StringUtils.isNotBlank(artifact.getRepositoryName())) {
                     return true;
                 }
             }
             for (Interface anInterface : safe(node.getInterfaces()).values()) {
                 for (Operation operation : safe(anInterface.getOperations()).values()) {
                     if (operation.getImplementationArtifact() != null
-                            && isInternalRepoArtifact(operation.getImplementationArtifact(), topologyArchiveName, topologyArchiveVersion)) {
+                            && StringUtils.isNotBlank(operation.getImplementationArtifact().getArtifactRepository()) && StringUtils.isNotBlank(operation.getImplementationArtifact().getRepositoryName())) {
                         return true;
                     }
                 }
@@ -301,18 +300,17 @@ public class ToscaSerializerUtils {
                 .anyMatch(deploymentArtifact -> StringUtils.isNotBlank(deploymentArtifact.getRepositoryName()));
     }
 
-    private static boolean isInternalRepoArtifact(AbstractArtifact artifact, String topologyArchiveName, String topologyArchiveVersion) {
-        return (topologyArchiveName.equals(artifact.getArchiveName()) && topologyArchiveVersion.equals(artifact.getArchiveVersion()))
-                && StringUtils.isNotBlank(artifact.getArtifactRepository()) && StringUtils.isNotBlank(artifact.getRepositoryName());
+    private static boolean doesRepositoryAlreadyExist(StringBuilder sb, String repositoryName) {
+        return sb.indexOf(repositoryName + ":") != -1;
     }
 
-    public static String formatRepositories(String topologyArchiveName, String topologyArchiveVersion, Topology topology) {
+    public static String formatRepositories(Topology topology) {
         StringBuilder buffer = new StringBuilder();
         Set<String> repositoriesName = Sets.newHashSet();
         for (NodeTemplate node : safe(topology.getNodeTemplates()).values()) {
             for (DeploymentArtifact artifact : safe(node.getArtifacts()).values()) {
                 // Only generate repositories for the current topology
-                if (isInternalRepoArtifact(artifact, topologyArchiveName, topologyArchiveVersion)) {
+                if (StringUtils.isNotBlank(artifact.getArtifactRepository()) && StringUtils.isNotBlank(artifact.getRepositoryName()) && !doesRepositoryAlreadyExist(buffer, artifact.getRepositoryName())) {
                     buffer.append("  ").append(artifact.getRepositoryName()).append(":");
                     buffer.append("\n").append(formatRepository(artifact, 2)).append("\n");
                 }
@@ -320,7 +318,8 @@ public class ToscaSerializerUtils {
             for (Interface anInterface : safe(node.getInterfaces()).values()) {
                 for (Operation operation : safe(anInterface.getOperations()).values()) {
                     if (operation.getImplementationArtifact() != null
-                            && isInternalRepoArtifact(operation.getImplementationArtifact(), topologyArchiveName, topologyArchiveVersion)) {
+                            && StringUtils.isNotBlank(operation.getImplementationArtifact().getArtifactRepository()) && StringUtils.isNotBlank(operation.getImplementationArtifact().getRepositoryName())
+                            && !doesRepositoryAlreadyExist(buffer, operation.getImplementationArtifact().getRepositoryName())) {
                         buffer.append("  ").append(operation.getImplementationArtifact().getRepositoryName()).append(":");
                         buffer.append("\n").append(formatRepository(operation.getImplementationArtifact(), 2)).append("\n");
                     }
