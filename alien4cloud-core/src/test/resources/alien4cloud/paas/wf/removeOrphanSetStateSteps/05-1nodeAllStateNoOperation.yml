@@ -1,0 +1,42 @@
+description:
+name: install
+initial:
+  steps:
+    node1_initial:
+      node: node1
+      state: initial
+      to:
+        - node1_creating
+    node1_creating:
+      node: node1
+      state: creating
+      to:
+        - node1_created
+    node1_created:
+      node: node1
+      state: created
+      to:
+        - node1_configuring
+    node1_configuring:
+      node: node1
+      state: configuring
+      to:
+        - node1_configured
+    node1_configured:
+      node: node1
+      state: configured
+      to:
+        - node1_starting
+    node1_starting:
+      node: node1
+      state: starting
+      to:
+        - node1_started
+    node1_started:
+      node: node1
+      state: started
+expected:
+  steps:
+    node1_initial:
+      node: node1
+      state: initial

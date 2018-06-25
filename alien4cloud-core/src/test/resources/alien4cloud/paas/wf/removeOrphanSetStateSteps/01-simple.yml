@@ -1,0 +1,22 @@
+description:
+name: install
+initial:
+  steps:
+    node1_initial:
+      node: node1
+      state: initial
+      to:
+        - node1_creating
+    node1_creating:
+      node: node1
+      state: creating
+      to:
+        - node1_created
+    node1_created:
+      node: node1
+      state: created
+expected:
+  steps:
+    node1_initial:
+      node: node1
+      state: initial
