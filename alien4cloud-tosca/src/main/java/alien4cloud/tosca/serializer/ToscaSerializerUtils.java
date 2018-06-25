@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
@@ -51,6 +52,7 @@ import com.google.common.collect.Sets;
 /**
  * Tools for serializing in YAML/TOSCA. ALl methods should be static but did not found how to use statics from velocity.
  */
+@Slf4j
 public class ToscaSerializerUtils {
 
     public boolean collectionIsNotEmpty(Collection<?> c) {
@@ -278,18 +280,19 @@ public class ToscaSerializerUtils {
         }
     }
 
-    public static boolean hasRepositories(Topology topology) {
+    public static boolean hasRepositories(String topologyArchiveName, String topologyArchiveVersion, Topology topology) {
         // we don't support node types in Editor context, just check the node templates
         for (NodeTemplate node : safe(topology.getNodeTemplates()).values()) {
             for (DeploymentArtifact artifact : safe(node.getArtifacts()).values()) {
-                if (StringUtils.isNotBlank(artifact.getArtifactRepository()) && StringUtils.isNotBlank(artifact.getRepositoryName())) {
+                // Only consider artifact of the topology
+                if (checkAndWarnIfNotInternalRepoArtifact(artifact, topologyArchiveName, topologyArchiveVersion)) {
                     return true;
                 }
             }
             for (Interface anInterface : safe(node.getInterfaces()).values()) {
                 for (Operation operation : safe(anInterface.getOperations()).values()) {
                     if (operation.getImplementationArtifact() != null
-                            && StringUtils.isNotBlank(operation.getImplementationArtifact().getArtifactRepository()) && StringUtils.isNotBlank(operation.getImplementationArtifact().getRepositoryName())) {
+                            && checkAndWarnIfNotInternalRepoArtifact(operation.getImplementationArtifact(), topologyArchiveName, topologyArchiveVersion)) {
                         return true;
                     }
                 }
@@ -300,17 +303,27 @@ public class ToscaSerializerUtils {
                 .anyMatch(deploymentArtifact -> StringUtils.isNotBlank(deploymentArtifact.getRepositoryName()));
     }
 
+    private static boolean checkAndWarnIfNotInternalRepoArtifact(AbstractArtifact artifact, String topologyArchiveName, String topologyArchiveVersion) {
+        if (StringUtils.isNotBlank(artifact.getArtifactRepository()) && StringUtils.isNotBlank(artifact.getRepositoryName())) {
+            if (!topologyArchiveName.equals(artifact.getArchiveName()) || !topologyArchiveVersion.equals(artifact.getArchiveVersion())) {
+                log.warn("The artifact [archive name:{}, version:{}] is not internal to topology [archive name:{}, version:{}] but its repository will nevertheless be serialized.", artifact.getArchiveName(), artifact.getArchiveVersion(), topologyArchiveName, topologyArchiveVersion);
+            }
+            return true;
+        }
+        return false;
+    }
+
     private static boolean doesRepositoryAlreadyExist(StringBuilder sb, String repositoryName) {
         return sb.indexOf(repositoryName + ":") != -1;
     }
 
-    public static String formatRepositories(Topology topology) {
+    public static String formatRepositories(String topologyArchiveName, String topologyArchiveVersion, Topology topology) {
         StringBuilder buffer = new StringBuilder();
         Set<String> repositoriesName = Sets.newHashSet();
         for (NodeTemplate node : safe(topology.getNodeTemplates()).values()) {
             for (DeploymentArtifact artifact : safe(node.getArtifacts()).values()) {
                 // Only generate repositories for the current topology
-                if (StringUtils.isNotBlank(artifact.getArtifactRepository()) && StringUtils.isNotBlank(artifact.getRepositoryName()) && !doesRepositoryAlreadyExist(buffer, artifact.getRepositoryName())) {
+                if (checkAndWarnIfNotInternalRepoArtifact(artifact, topologyArchiveName, topologyArchiveVersion)  && !doesRepositoryAlreadyExist(buffer, artifact.getRepositoryName())) {
                     buffer.append("  ").append(artifact.getRepositoryName()).append(":");
                     buffer.append("\n").append(formatRepository(artifact, 2)).append("\n");
                 }
@@ -318,7 +331,7 @@ public class ToscaSerializerUtils {
             for (Interface anInterface : safe(node.getInterfaces()).values()) {
                 for (Operation operation : safe(anInterface.getOperations()).values()) {
                     if (operation.getImplementationArtifact() != null
-                            && StringUtils.isNotBlank(operation.getImplementationArtifact().getArtifactRepository()) && StringUtils.isNotBlank(operation.getImplementationArtifact().getRepositoryName())
+                            && checkAndWarnIfNotInternalRepoArtifact(operation.getImplementationArtifact(), topologyArchiveName, topologyArchiveVersion)
                             && !doesRepositoryAlreadyExist(buffer, operation.getImplementationArtifact().getRepositoryName())) {
                         buffer.append("  ").append(operation.getImplementationArtifact().getRepositoryName()).append(":");
                         buffer.append("\n").append(formatRepository(operation.getImplementationArtifact(), 2)).append("\n");

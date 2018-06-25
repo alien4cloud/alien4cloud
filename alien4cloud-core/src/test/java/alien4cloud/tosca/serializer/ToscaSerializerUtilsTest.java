@@ -283,7 +283,7 @@ public class ToscaSerializerUtilsTest {
         deploymentArtifact.setArtifactRef("aaa/bbb.zip");
         deploymentArtifact.setArtifactType("tosca.artifacts.File");
         node.getArtifacts().put("local_war", deploymentArtifact);
-        Assert.assertFalse(ToscaSerializerUtils.hasRepositories(topology));
+        Assert.assertFalse(ToscaSerializerUtils.hasRepositories("test", "1.0", topology));
         String deploymentArtifactExport = ToscaSerializerUtils.formatArtifact(deploymentArtifact, 2);
         Assert.assertEquals("    file: aaa/bbb.zip\n    type: tosca.artifacts.File", deploymentArtifactExport);
 
@@ -298,9 +298,9 @@ public class ToscaSerializerUtilsTest {
         deploymentArtifact2.getRepositoryCredential().put("user", "my_user");
         deploymentArtifact2.getRepositoryCredential().put("token", "password");
         node.getArtifacts().put("http_war", deploymentArtifact2);
-        Assert.assertTrue(ToscaSerializerUtils.hasRepositories(topology));
+        Assert.assertTrue(ToscaSerializerUtils.hasRepositories("test", "1.0", topology));
         String deploymentArtifact2Export = ToscaSerializerUtils.formatArtifact(deploymentArtifact2, 1);
-        String repositoriesExport = ToscaSerializerUtils.formatRepositories( topology);
+        String repositoriesExport = ToscaSerializerUtils.formatRepositories("test", "1.0", topology);
         Assert.assertEquals("  file: aaa/bbb.zip\n  type: tosca.artifacts.File\n  repository: my_company", deploymentArtifact2Export);
         Assert.assertEquals("  my_company:\n    url: http://my_company.org\n    type: http\n    credential:\n      token: password\n      user: my_user",
                 repositoriesExport);
@@ -313,8 +313,8 @@ public class ToscaSerializerUtilsTest {
         deploymentArtifact3.setRepositoryURL("http://my_company.org");
         deploymentArtifact3.setArtifactRepository("maven");
         node.getArtifacts().put("http_war2", deploymentArtifact3);
-        Assert.assertTrue(ToscaSerializerUtils.hasRepositories(topology));
-        repositoriesExport = ToscaSerializerUtils.formatRepositories( topology);
+        Assert.assertTrue(ToscaSerializerUtils.hasRepositories("test", "1.0", topology));
+        repositoriesExport = ToscaSerializerUtils.formatRepositories("test", "1.0", topology);
         Assert.assertEquals(
                 "  my_company:\n    url: http://my_company.org\n    type: http\n    credential:\n      token: password\n      user: my_user\n  my_companyBis:\n    url: http://my_company.org\n    type: maven",
                 repositoriesExport);
@@ -327,8 +327,8 @@ public class ToscaSerializerUtilsTest {
         deploymentArtifact4.setRepositoryURL("http://my_company.org");
         deploymentArtifact4.setArtifactRepository("http");
         node.getArtifacts().put("http_war3", deploymentArtifact4);
-        Assert.assertTrue(ToscaSerializerUtils.hasRepositories(topology));
-        repositoriesExport = ToscaSerializerUtils.formatRepositories(topology);
+        Assert.assertTrue(ToscaSerializerUtils.hasRepositories("test", "1.0", topology));
+        repositoriesExport = ToscaSerializerUtils.formatRepositories("test", "1.0", topology);
         Assert.assertEquals(
                 "  my_company:\n    url: http://my_company.org\n    type: http\n    credential:\n      token: password\n      user: my_user\n  my_companyBis:\n    url: http://my_company.org\n    type: maven",
                 repositoriesExport);
