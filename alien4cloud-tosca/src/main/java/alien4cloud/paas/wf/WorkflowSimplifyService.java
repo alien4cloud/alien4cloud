@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.annotation.Resource;
 
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
@@ -102,29 +104,40 @@ public class WorkflowSimplifyService {
         // and then remove them
         Collection<WorkflowStep> steps = workflow.getSteps().values();
         List<String> blackListSteps = new ArrayList<>();
-        steps.stream().filter(step -> step.getActivity() instanceof SetStateWorkflowActivity).forEach(step -> {
-            if (step.getPrecedingSteps().size() <= 1 && step.getOnSuccess().size() == 1) {
-                WorkflowStep nextStep = WorkflowUtils.findSteps(steps, step.getOnSuccess()).get(0);
-                WorkflowStep preStep = step.getPrecedingSteps().size() == 0 ? null : WorkflowUtils.findSteps(steps, step.getPrecedingSteps()).get(0);
-                if (isPairStep(step, nextStep, pairs)) {
-                    blackListSteps.add(step.getName());
-                    blackListSteps.add(nextStep.getName());
-                    // reconnect the pre steps and the following steps of the second step in pairs
-                    if (preStep != null) {
-                        preStep.removeFollowing(step.getName());
-                        step.removePreceding(preStep.getName());
+        steps.stream()
+                .filter(step -> step.getActivity() instanceof SetStateWorkflowActivity)
+                .filter(new Predicate<WorkflowStep>() {
+                    @Override
+                    public boolean test(WorkflowStep step) {
+                        String stateName = ((SetStateWorkflowActivity) step.getActivity()).getStateName();
+                        // deleting & deleted should not be blacklisted
+                        // (Cfy wants nodes to be in state deleted in order to be able to delete deployment without force)
+                        return !(ToscaNodeLifecycleConstants.DELETING.equals(stateName) || ToscaNodeLifecycleConstants.DELETED.equals(stateName));
                     }
-                    nextStep.getOnSuccess().forEach(name -> {
-                        WorkflowStep nextNextStep = WorkflowUtils.findStep(steps, name);
-                        if (nextNextStep != null) {
-                            nextNextStep.removePreceding(nextStep.getName());
-                            WorkflowUtils.linkSteps(preStep, nextNextStep);
+                })
+                .forEach(step -> {
+                    if (step.getPrecedingSteps().size() <= 1 && step.getOnSuccess().size() == 1) {
+                        WorkflowStep nextStep = WorkflowUtils.findSteps(steps, step.getOnSuccess()).get(0);
+                        WorkflowStep preStep = step.getPrecedingSteps().size() == 0 ? null : WorkflowUtils.findSteps(steps, step.getPrecedingSteps()).get(0);
+                        if (isPairStep(step, nextStep, pairs)) {
+                            blackListSteps.add(step.getName());
+                            blackListSteps.add(nextStep.getName());
+                            // reconnect the pre steps and the following steps of the second step in pairs
+                            if (preStep != null) {
+                                preStep.removeFollowing(step.getName());
+                                step.removePreceding(preStep.getName());
+                            }
+                            nextStep.getOnSuccess().forEach(name -> {
+                                WorkflowStep nextNextStep = WorkflowUtils.findStep(steps, name);
+                                if (nextNextStep != null) {
+                                    nextNextStep.removePreceding(nextStep.getName());
+                                    WorkflowUtils.linkSteps(preStep, nextNextStep);
+                                }
+                            });
+                            nextStep.getOnSuccess().clear();
                         }
-                    });
-                    nextStep.getOnSuccess().clear();
-                }
-            }
-        });
+                    }
+                });
 
         // 3. Remove the black list of state operations
         blackListSteps.forEach(name -> workflow.getSteps().remove(name));
