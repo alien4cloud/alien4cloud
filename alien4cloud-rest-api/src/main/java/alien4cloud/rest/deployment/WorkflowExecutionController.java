@@ -16,6 +16,7 @@ import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -74,6 +75,10 @@ public class WorkflowExecutionController {
 
         // populate step instances
         for (WorkflowStepInstance stepInstance : stepsResult.getData()) {
+            if (StringUtils.isEmpty(stepInstance.getStepId())) {
+                // FIXME: understand in which circumstances this id can be null
+                continue;
+            }
             _stepsInstanceIds.put(stepInstance.getId(), stepInstance);
             List<WorkflowStepInstance> workflowStepInstances = result.getStepInstances().get(stepInstance.getStepId());
             if (workflowStepInstances == null) {
@@ -91,8 +96,11 @@ public class WorkflowExecutionController {
                     result.setLastKnownExecutingTask(task);
                 }
             }
+            if (task.getWorkflowStepInstanceId() == null) {
+                continue;
+            }
             WorkflowStepInstance workflowStepInstance = _stepsInstanceIds.get(task.getWorkflowStepInstanceId());
-            if (workflowStepInstance == null) {
+            if (workflowStepInstance == null || StringUtils.isEmpty(workflowStepInstance.getId()) ) {
                 // this task is not related to any workflow step instance, just forget it
                 continue;
             }
