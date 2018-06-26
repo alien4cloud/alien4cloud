@@ -1,0 +1,57 @@
+description: A mock with 2 nodes
+name: install
+initial:
+  steps:
+    S:
+      node: node1
+      state: initial
+      to:
+        - C
+        - D
+        - A
+    C:
+      node: node2
+      state: initial
+      to:
+        - D
+        - B
+    A:
+      node: node1
+      state: creating
+      to:
+        - D
+        - B
+    D:
+      node: node2
+      state: started
+    B:
+      node: node2
+      state: creating
+      to:
+        - D
+expected:
+  steps:
+    S:
+      node: node1
+      state: initial
+      to:
+        - C
+        - A
+    C:
+      node: node2
+      state: initial
+      to:
+        - B
+    A:
+      node: node1
+      state: creating
+      to:
+        - B
+    D:
+      node: node2
+      state: started
+    B:
+      node: node2
+      state: creating
+      to:
+        - D

@@ -1,0 +1,44 @@
+description:
+name: install
+initial:
+  steps:
+    node1_initial:
+      node: node1
+      state: initial
+      to:
+        - node1_creating
+    node1_creating:
+      node: node1
+      state: creating
+      to:
+        - node1_create
+    node1_create:
+      node: node1
+      interf: tosca.interfaces.node.lifecycle.Standard
+      operation: create
+      to:
+        - node1_created
+    node1_created:
+      node: node1
+      state: created
+expected:
+  steps:
+    node1_initial:
+      node: node1
+      state: initial
+      to:
+        - node1_creating
+    node1_creating:
+      node: node1
+      state: creating
+      to:
+        - node1_create
+    node1_create:
+      node: node1
+      interf: tosca.interfaces.node.lifecycle.Standard
+      operation: create
+      to:
+        - node1_created
+    node1_created:
+      node: node1
+      state: created

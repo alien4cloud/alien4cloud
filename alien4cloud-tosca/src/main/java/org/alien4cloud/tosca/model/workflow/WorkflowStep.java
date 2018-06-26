@@ -101,26 +101,4 @@ public abstract class WorkflowStep {
         this.onSuccess.removeAll(followings);
     }
 
-    public void removeAllPointer() {
-        this.onSuccess.clear();
-        this.precedingSteps.clear();
-    }
-
-    public void destructSelf(WorkflowStep preStep, WorkflowStep nextStep) {
-        removeAllPointer();
-        if (nextStep == null && preStep == null) {
-            return;
-        } else if (preStep == null) {
-            // Delete the head and reset the next step as the new head
-            nextStep.removePreceding(name);
-        } else if (nextStep == null) {
-            // Delete the tail and reset the precedent step as the new tail
-            preStep.removeFollowing(name);
-        } else {
-            preStep.removeFollowing(name);
-            preStep.addFollowing(nextStep.getName());
-            nextStep.removePreceding(name);
-            nextStep.addPreceding(preStep.getName());
-        }
-    }
 }

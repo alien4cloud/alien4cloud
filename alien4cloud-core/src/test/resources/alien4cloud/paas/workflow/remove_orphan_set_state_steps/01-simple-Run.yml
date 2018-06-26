@@ -1,0 +1,14 @@
+description:
+name: run
+initial:
+  steps:
+    node1_submitted:
+      node: node1
+      state: submitted
+      to:
+        - node1_executed
+    node1_executed:
+      node: node1
+      state: executed
+expected:
+  steps:

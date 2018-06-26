@@ -7,12 +7,14 @@ import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameCon
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
 import static org.alien4cloud.tosca.utils.ToscaTypeUtils.isOfType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -457,5 +459,36 @@ public class WorkflowUtils {
 
     public static List<WorkflowStep> findSteps(Collection<WorkflowStep> steps, Set<String> names) {
         return steps.stream().filter(step -> names.contains(step.getName())).collect(Collectors.toList());
+    }
+
+    /**
+     * Find all the possible paths from start to the given step
+     * @param steps All the steps
+     * @param stepName Given step name
+     * @return A list of paths
+     */
+    public static List<List<WorkflowStep>> findPathsFromStart(Collection<WorkflowStep> steps, String stepName) {
+        List<List<WorkflowStep>> result = new ArrayList<>();
+        rFindPathsFromStart(result, new Stack<>(), steps, findStep(steps, stepName));
+        return result;
+    }
+
+    private static void rFindPathsFromStart(List<List<WorkflowStep>> result, Stack<WorkflowStep> path,
+            Collection<WorkflowStep> steps, WorkflowStep step) {
+        path.push(step);
+        List<WorkflowStep> preSteps = findSteps(steps, step.getPrecedingSteps());
+        if (preSteps.isEmpty()) {
+            // If there is no more preceding step, it means reaching the start of path
+            result.add(new ArrayList<>(path));
+        }
+        preSteps.forEach(pre -> rFindPathsFromStart(result, path, steps, pre));
+    }
+
+    /**
+     * Remove the edge between preStep and step
+     */
+    public static void removeEdge(WorkflowStep preStep, WorkflowStep step) {
+        preStep.removeFollowing(step.getName());
+        step.removePreceding(preStep.getName());
     }
 }
