@@ -7,14 +7,12 @@ import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameCon
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
 import static org.alien4cloud.tosca.utils.ToscaTypeUtils.isOfType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -462,26 +460,24 @@ public class WorkflowUtils {
     }
 
     /**
-     * Find all the possible paths from start to the given step
+     * Find all the name of preceding nodes of the given step
      * @param steps All the steps
      * @param stepName Given step name
-     * @return A list of paths
+     * @return A set of preceding node names
      */
-    public static List<List<WorkflowStep>> findPathsFromStart(Collection<WorkflowStep> steps, String stepName) {
-        List<List<WorkflowStep>> result = new ArrayList<>();
-        rFindPathsFromStart(result, new Stack<>(), steps, findStep(steps, stepName));
+    public static Set<String> findAllPrecedences(Collection<WorkflowStep> steps, String stepName) {
+        Set<String> result = new HashSet<>();
+        rFindAllPrecedences(result, steps, findStep(steps, stepName));
         return result;
     }
 
-    private static void rFindPathsFromStart(List<List<WorkflowStep>> result, Stack<WorkflowStep> path,
-            Collection<WorkflowStep> steps, WorkflowStep step) {
-        path.push(step);
-        List<WorkflowStep> preSteps = findSteps(steps, step.getPrecedingSteps());
-        if (preSteps.isEmpty()) {
-            // If there is no more preceding step, it means reaching the start of path
-            result.add(new ArrayList<>(path));
+    private static void rFindAllPrecedences(Set<String> result, Collection<WorkflowStep> steps, WorkflowStep step) {
+        if (step == null) {
+            return;
         }
-        preSteps.forEach(pre -> rFindPathsFromStart(result, path, steps, pre));
+        result.add(step.getName());
+        List<WorkflowStep> preSteps = findSteps(steps, step.getPrecedingSteps());
+        preSteps.forEach(pre -> rFindAllPrecedences(result, steps, pre));
     }
 
     /**

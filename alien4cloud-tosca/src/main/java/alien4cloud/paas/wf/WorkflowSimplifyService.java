@@ -98,25 +98,22 @@ public class WorkflowSimplifyService {
         steps.forEach(step -> {
             // 1. If the current node has more than one preceding node, kick off the work
             if (step.getPrecedingSteps().size() > 1) {
-                // 2. For each preceding node, get all the paths from start to this node
-                Map<String, List<List<WorkflowStep>>> pathsMap = new HashMap<>();
+                // 2. For each preceding node, get all the precedences of this node
+                Map<String, Set<String>> precedencesMap = new HashMap<>();
                 step.getPrecedingSteps().forEach(preName -> {
-                    List<List<WorkflowStep>> paths = WorkflowUtils.findPathsFromStart(steps, preName);
-                    pathsMap.put(preName, paths);
+                    Set<String> precedences = WorkflowUtils.findAllPrecedences(steps, preName);
+                    precedencesMap.put(preName, precedences);
                 });
 
                 // 3. For each preceding node,
                 // if the precedent node is contained in any other precedences ancestor set,
                 // remove the connection (between precedent and current)
                 step.getPrecedingSteps().forEach(preName -> {
-                    WorkflowStep preStep = WorkflowUtils.findStep(steps, preName);
-					List<String> otherStepNames = new ArrayList<>(step.getPrecedingSteps());
+					Set<String> otherStepNames = new HashSet<>(step.getPrecedingSteps());
 					otherStepNames.remove(preName);
-					List<WorkflowStep> otherPreSteps = WorkflowUtils.findSteps(steps, new HashSet<>(otherStepNames));
-
-					if (containedInOtherPaths(pathsMap, preStep, otherPreSteps)) {
+					if (containedInOtherPaths(precedencesMap, preName, otherStepNames)) {
 						// Add the edge between precedent and current to blacklist
-						blacklists.add(new WorkflowStep[] { preStep, step });
+						blacklists.add(new WorkflowStep[] { WorkflowUtils.findStep(steps, preName), step });
 					}
                 });
             }
@@ -125,24 +122,15 @@ public class WorkflowSimplifyService {
 		blacklists.forEach(pair -> WorkflowUtils.removeEdge(pair[0], pair[1]));
     }
 
-    private boolean containedInOtherPaths(Map<String, List<List<WorkflowStep>>> pathsMap, WorkflowStep step, List<WorkflowStep> otherSteps) {
-		for (WorkflowStep otherPreStep : otherSteps) {
-			List<List<WorkflowStep>> otherPaths = pathsMap.get(otherPreStep.getName());
-			if (containsStep(otherPaths, step)) {
+    private boolean containedInOtherPaths(Map<String, Set<String>> precedencesMap, String step, Set<String> otherSteps) {
+		for (String otherPreStep : otherSteps) {
+			Set<String> otherPaths = precedencesMap.get(otherPreStep);
+			if (otherPaths.contains(step)) {
 				return true;
 			}
 		}
 		return false;
 	}
-
-    private boolean containsStep(List<List<WorkflowStep>> otherPaths, WorkflowStep preStep) {
-        for (List<WorkflowStep> p : otherPaths) {
-            if (p.contains(preStep)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private void removeOrphanSetStateSteps(TopologyContext topologyContext) {
         DefaultDeclarativeWorkflows dwf = workflowsBuilderService.getDeclarativeWorkflows(topologyContext.getDSLVersion());
