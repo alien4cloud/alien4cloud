@@ -4,10 +4,12 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -26,16 +28,15 @@ public class TranslationConfigurationService {
      * List the supported languages with the prefix set in config from the path.
      */
     public Set<String> getSupportedLanguages() {
-        Set supportedLanguages = Sets.newHashSet();
-        ClassPathResource pathToLanguages = new ClassPathResource("data/languages");
-        File folder = pathToLanguages.getFile();
-        File[] listOfFiles = folder.listFiles();
+        Set<String> supportedLanguages = new HashSet<>();
 
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile() && listOfFiles[i].getName().contains(prefixLanguageFromConfig)) {
-                supportedLanguages.add(listOfFiles[i].getName().split(prefixLanguageFromConfig)[1].split("\\.")[0].substring(1));
-            }
+        ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        Resource[] resources = resolver.getResources("classpath*:data/languages/" + prefixLanguageFromConfig + "*.json");
+
+        for (int i = 0 ; i < resources.length ; i++) {
+            supportedLanguages.add(resources[i].getFilename().split(prefixLanguageFromConfig)[1].split("\\.")[0].substring(1));
         }
+
         return supportedLanguages;
     }
 
