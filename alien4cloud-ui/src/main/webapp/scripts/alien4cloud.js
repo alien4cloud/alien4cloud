@@ -76,6 +76,7 @@ define(function(require) {
         // Default language to load
         $translateProvider.translations({CODE: defaultLanguage});
         $translateProvider.preferredLanguage(defaultLanguage);
+        $translateProvider.useCookieStorage();
 
         /*
         * When running in grunt mode, hashPrefix is set to empty so that we can load translation files as is
