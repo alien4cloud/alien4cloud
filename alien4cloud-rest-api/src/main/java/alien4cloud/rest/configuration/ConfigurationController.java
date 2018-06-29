@@ -26,7 +26,7 @@ public class ConfigurationController {
     @Resource
     TranslationConfigurationService translationConfigurationService;
 
-    @Value("${languages.default:us}")
+    @Value("${languages.default:en-us}")
     private String defaultLanguageFromConfig;
     @Value("${languages.prefix:locale}")
     private String prefixLanguageFromConfig;
