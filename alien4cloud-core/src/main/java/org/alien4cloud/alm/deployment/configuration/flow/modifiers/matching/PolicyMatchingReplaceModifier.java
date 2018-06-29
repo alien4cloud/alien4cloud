@@ -1,6 +1,8 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
+import static alien4cloud.utils.AlienConstants.GROUP_ALL;
 import static alien4cloud.utils.AlienUtils.safe;
+import static org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext.DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY;
 
 import java.util.List;
 import java.util.Map;
@@ -8,7 +10,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import alien4cloud.model.deployment.matching.ILocationMatch;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
 import alien4cloud.plugin.exception.MissingPluginException;
 import alien4cloud.tosca.context.ToscaContext;
@@ -37,12 +39,10 @@ public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifi
      * Add locations dependencies
      */
     @Override
+	@SuppressWarnings("unchecked")
     protected void init(Topology topology, FlowExecutionContext context) {
-        List<ILocationMatch> locations = (List<ILocationMatch>) context.getExecutionCache().get(FlowExecutionContext.LOCATION_MATCH_CACHE_KEY);
-        for (ILocationMatch location : locations) {
-            // FIXME manage conflicting dependencies by fetching types from latest version
-            topology.getDependencies().addAll(location.getLocation().getDependencies());
-        }
+		Location location = ((Map<String, Location>) context.getExecutionCache().get(DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY)).get(GROUP_ALL);
+		topology.getDependencies().addAll(location.getDependencies());
         ToscaContext.get().resetDependencies(topology.getDependencies());
     }
 
