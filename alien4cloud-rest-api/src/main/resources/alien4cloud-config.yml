@@ -151,5 +151,5 @@ features:
   editor_auto_completion: true
 
 languages:
-  default: fr-fr
+  default: en-us
   prefix: locale
