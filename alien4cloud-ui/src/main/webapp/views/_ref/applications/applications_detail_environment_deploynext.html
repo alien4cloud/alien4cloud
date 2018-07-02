@@ -21,10 +21,19 @@
             </div>
         </div>
     </div>
-    <div class="row" ng-if="deploymentTopologyDTO.validation.infoList['LOG'].length > 0">
-        <div class="col-md-12">
-            <div class="text-info" ng-repeat="task in deploymentTopologyDTO.validation.infoList['LOG']">
-                <i class="fa fa-info fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+
+    <span class=" text-info "
+          ng-init="isLogListCollapsed = true"
+          ng-click="isLogListCollapsed = !isLogListCollapsed"
+          ng-show="deploymentTopologyDTO.validation.infoList['LOG'].length > 0">
+             <i ng-class="{'fa fa-angle-double-down fa-lg' : isLogListCollapsed,  'fa fa-angle-double-up fa-lg' : !isLogListCollapsed }"></i>
+             <i class="fa fa-info"></i>
+    <div ng-if="deploymentTopologyDTO.validation.infoList['LOG'].length > 0" uib-collapse="isLogListCollapsed">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-info" ng-repeat="task in deploymentTopologyDTO.validation.infoList['LOG']">
+                    <i class="fa fa-info fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+                </div>
             </div>
         </div>
     </div>
