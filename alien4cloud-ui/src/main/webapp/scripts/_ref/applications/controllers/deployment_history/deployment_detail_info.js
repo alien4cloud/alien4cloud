@@ -13,10 +13,20 @@ define(function (require) {
         $scope.executionStatusTextCss = alienUtils.getExecutionStatusTextCss;
 
         $scope.displayLogs = function(executionId) {
-          $state.go('applications.detail.environment.history.detail.logs', {
-            'deploymentId': deploymentDTO.data.deployment.id,
-            'executionId': executionId
-          });
+          var logURL = 'applications.detail.environment.history.detail.logs';
+            if ($state.href(logURL)) {
+                $state.go(logURL, {
+                  'deploymentDTO': deploymentDTO.data,
+                  'deploymentId': deploymentDTO.data.deployment.id,
+                  'environmentId': deploymentDTO.data.deployment.environmentId,
+                  'id': deploymentDTO.data.source.id,
+                  'executionId': executionId
+                });
+            } else {
+              // TODO: Show an error message that the log plugin has not been uploaded.
+              console.log("The log plugin has not been uploaded.")
+            }
+
         };
 
         $scope.displayTasks = function(execution) {
