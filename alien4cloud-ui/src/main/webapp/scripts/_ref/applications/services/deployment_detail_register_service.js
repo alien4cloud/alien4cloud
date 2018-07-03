@@ -84,7 +84,6 @@ define(function (require) {
 
     // execution tasks state
     var detailInfoTaskListState = detailState + '.tasks';
-    console.log("detailInfoTaskListState: " + detailInfoTaskListState);
     states.state(detailInfoTaskListState, {
       url: '/execution/:executionId',
       templateUrl: 'views/_ref/applications/deployment_history/deployment_detail_tasks.html',

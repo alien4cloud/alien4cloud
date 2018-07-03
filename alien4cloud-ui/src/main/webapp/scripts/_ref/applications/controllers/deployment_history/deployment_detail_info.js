@@ -8,7 +8,6 @@ define(function (require) {
     ['$scope', '$state', 'deploymentDTO', 'searchServiceFactory',
       function ($scope, $state, deploymentDTO, searchServiceFactory) {
 
-        console.log("State is : " + $state.current.name);
         $scope.deploymentDTO = deploymentDTO.data;
         $scope.executionStatusIconCss = alienUtils.getExecutionStatusIconCss;
         $scope.executionStatusTextCss = alienUtils.getExecutionStatusTextCss;
@@ -21,10 +20,15 @@ define(function (require) {
         };
 
         $scope.displayTasks = function(execution) {
-          console.log("Will display tasks for exec " + execution.id);
+          // Attention: should pass all the param needed for the next state
+          // which is not always being the children of current state
           $state.go('applications.detail.environment.history.detail.tasks', {
+            'deploymentDTO': deploymentDTO.data,
+            'deploymentId': deploymentDTO.data.deployment.id,
+            'environmentId': deploymentDTO.data.deployment.environmentId,
+            'id': deploymentDTO.data.source.id,
             'execution': execution,
-            'executionId': execution.id,
+            'executionId': execution.id
           });
         };
 
