@@ -8,23 +8,37 @@ define(function (require) {
     ['$scope', '$state', 'deploymentDTO', 'searchServiceFactory',
       function ($scope, $state, deploymentDTO, searchServiceFactory) {
 
-        console.log("State is : " + $state.current.name);
         $scope.deploymentDTO = deploymentDTO.data;
         $scope.executionStatusIconCss = alienUtils.getExecutionStatusIconCss;
         $scope.executionStatusTextCss = alienUtils.getExecutionStatusTextCss;
 
         $scope.displayLogs = function(executionId) {
-          $state.go('applications.detail.environment.history.detail.logs', {
-            'deploymentId': deploymentDTO.data.deployment.id,
-            'executionId': executionId
-          });
+          var logURL = 'applications.detail.environment.history.detail.logs';
+            if ($state.href(logURL)) {
+                $state.go(logURL, {
+                  'deploymentDTO': deploymentDTO.data,
+                  'deploymentId': deploymentDTO.data.deployment.id,
+                  'environmentId': deploymentDTO.data.deployment.environmentId,
+                  'id': deploymentDTO.data.source.id,
+                  'executionId': executionId
+                });
+            } else {
+              // TODO: Show an error message that the log plugin has not been uploaded.
+              console.log("The log plugin has not been uploaded.")
+            }
+
         };
 
         $scope.displayTasks = function(execution) {
-          console.log("Will display tasks for exec " + execution.id);
+          // Attention: should pass all the param needed for the next state
+          // which is not always being the children of current state
           $state.go('applications.detail.environment.history.detail.tasks', {
+            'deploymentDTO': deploymentDTO.data,
+            'deploymentId': deploymentDTO.data.deployment.id,
+            'environmentId': deploymentDTO.data.deployment.environmentId,
+            'id': deploymentDTO.data.source.id,
             'execution': execution,
-            'executionId': execution.id,
+            'executionId': execution.id
           });
         };
 
