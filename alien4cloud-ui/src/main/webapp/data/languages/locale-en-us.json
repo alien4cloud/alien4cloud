@@ -983,9 +983,9 @@
   },
   "INSTANCE" : "Instance",
   "MAIN" : {
-    "CONTACT" : "Please contact your Alien4Cloud administrator.",
+    "CONTACT" : "Please contact your Alien4Cloud  administrator.",
     "RESTRICTED_END" : "to access to this resource.",
-    "RESTRICTED_START" : "You don't have enough privileges ",
+    "RESTRICTED_START" : "You are not enough",
     "WELCOME" : "Welcome on ALIEN 4 Cloud"
   },
   "MODAL" : {

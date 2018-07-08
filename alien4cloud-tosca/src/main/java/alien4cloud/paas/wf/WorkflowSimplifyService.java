@@ -81,7 +81,7 @@ public class WorkflowSimplifyService {
     public void simplifyWorkflow(TopologyContext topologyContext) {
         doWithNode(topologyContext, (subGraph, workflow) -> flattenWorkflow(topologyContext, subGraph));
         doWithNode(topologyContext, (subGraph, workflow) -> removeUnnecessarySteps(topologyContext, workflow, subGraph));
-        if (ToscaParser.ALIEN_DSL_200.equals(topologyContext.getDSLVersion())) {
+        if (topologyContext.getDSLVersion().equals(ToscaParser.ALIEN_DSL_200)) {
             // only this DSL is compatible with this feature
             removeOrphanSetStateSteps(topologyContext);
             removeUselessEdges(topologyContext);
