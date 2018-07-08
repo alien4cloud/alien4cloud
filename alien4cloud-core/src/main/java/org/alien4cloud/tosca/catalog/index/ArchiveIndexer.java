@@ -28,6 +28,7 @@ import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -79,6 +80,9 @@ public class ArchiveIndexer {
     private TopologySubstitutionService topologySubstitutionService;
     @Inject
     private IArchiveIndexerAuthorizationFilter archiveIndexerAuthorizationFilter;
+
+    @Value("${features.archive_indexer_lock_used_archive:#{true}}")
+    private boolean lockUsedArchive;
 
     /**
      * Check that a CSAR name/version does not already exists in the repository and eventually throw an AlreadyExistException.
@@ -190,7 +194,9 @@ public class ArchiveIndexer {
         checkNotReleased(currentIndexedArchive);
         // In the current version of alien4cloud we must prevent from overriding an archive that is used in a deployment as we still use catalog information at
         // runtime.
-        checkNotUsedInActiveDeployment(currentIndexedArchive);
+        if (lockUsedArchive) {
+            checkNotUsedInActiveDeployment(currentIndexedArchive);
+        }
         // FIXME If the archive already exists but can be indexed we should actually call an editor operation to keep git tracking, or should we just prevent
         // that ?
 
