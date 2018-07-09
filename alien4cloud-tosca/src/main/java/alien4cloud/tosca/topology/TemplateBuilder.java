@@ -1,12 +1,12 @@
 package alien4cloud.tosca.topology;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.context.ToscaContextual;
+import alien4cloud.utils.CloneUtil;
+import alien4cloud.utils.PropertyUtil;
+import alien4cloud.utils.services.ConstraintPropertyService;
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -31,14 +31,12 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.utils.CloneUtil;
-import alien4cloud.utils.PropertyUtil;
-import alien4cloud.utils.services.ConstraintPropertyService;
-import lombok.extern.slf4j.Slf4j;
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Utility to create a Node Template by merging Node Type and Node Template data.
@@ -106,6 +104,10 @@ public class TemplateBuilder {
 
         if (templateToMerge != null && templateToMerge.getRelationships() != null) {
             nodeTemplate.setRelationships(templateToMerge.getRelationships());
+        }
+
+        if (templateToMerge != null && templateToMerge.getTags() != null) {
+            nodeTemplate.setTags(templateToMerge.getTags());
         }
 
         return nodeTemplate;

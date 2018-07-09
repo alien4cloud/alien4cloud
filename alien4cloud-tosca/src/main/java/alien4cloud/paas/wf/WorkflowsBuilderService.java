@@ -4,6 +4,7 @@ import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameCon
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.RUN;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -52,7 +53,7 @@ public class WorkflowsBuilderService {
     private CustomWorkflowBuilder customWorkflowBuilder;
 
     @Resource
-    private WorkflowSimplifyService workflowFlattenService;
+    private WorkflowSimplifyService workflowSimplifyService;
 
     private Map<String, DefaultDeclarativeWorkflows> defaultDeclarativeWorkflowsPerDslVersion;
 
@@ -65,10 +66,14 @@ public class WorkflowsBuilderService {
         this.defaultDeclarativeWorkflowsPerDslVersion = new HashMap<>();
         this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.NORMATIVE_DSL_100, loadDefaultDeclarativeWorkflow("declarative-workflows-2.0.0.yml"));
         this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.NORMATIVE_DSL_100_URL, loadDefaultDeclarativeWorkflow("declarative-workflows-2.0.0.yml"));
-        this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.ALIEN_DSL_200, loadDefaultDeclarativeWorkflow("declarative-workflows-2.0.0.yml"));
+        this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.ALIEN_DSL_200, loadDefaultDeclarativeWorkflow("declarative-workflows-2.0.0-jobs.yml"));
         this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.ALIEN_DSL_120, loadDefaultDeclarativeWorkflow("declarative-workflows-old.yml"));
         this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.ALIEN_DSL_130, loadDefaultDeclarativeWorkflow("declarative-workflows-old.yml"));
         this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.ALIEN_DSL_140, loadDefaultDeclarativeWorkflow("declarative-workflows-old.yml"));
+    }
+
+    public DefaultDeclarativeWorkflows getDeclarativeWorkflows(String dslVersion) {
+        return defaultDeclarativeWorkflowsPerDslVersion.get(dslVersion);
     }
 
     public TopologyContext initWorkflows(TopologyContext topologyContext) {
@@ -89,6 +94,9 @@ public class WorkflowsBuilderService {
         if (!wfs.containsKey(STOP)) {
             initStandardWorkflow(STOP, topologyContext);
         }
+        if (!wfs.containsKey(RUN)) {
+            initStandardWorkflow(RUN, topologyContext);
+        }
         postProcessTopologyWorkflows(topologyContext);
         return topologyContext;
     }
@@ -96,11 +104,21 @@ public class WorkflowsBuilderService {
     public void postProcessTopologyWorkflows(TopologyContext topologyContext) {
         topologyContext.getTopology().getUnprocessedWorkflows().putAll(topologyContext.getTopology().getWorkflows().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> WorkflowUtils.cloneWorkflow(entry.getValue()))));
-        workflowFlattenService.simplifyWorkflow(topologyContext);
+        workflowSimplifyService.simplifyWorkflow(topologyContext);
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             workflowValidator.validate(topologyContext, wf);
         }
         debugWorkflow(topologyContext.getTopology());
+    }
+
+    public void refreshTopologyWorkflows(TopologyContext tc) {
+        // Copy the original workflow than put them into the simplified workflow map
+        tc.getTopology().getWorkflows().putAll(WorkflowUtils.cloneWorkflowMap(tc.getTopology().getUnprocessedWorkflows()));
+        workflowSimplifyService.simplifyWorkflow(tc);
+        for (Workflow wf : tc.getTopology().getWorkflows().values()) {
+            workflowValidator.validate(tc, wf);
+        }
+        debugWorkflow(tc.getTopology());
     }
 
     private void initStandardWorkflow(String name, TopologyContext topologyContext) {

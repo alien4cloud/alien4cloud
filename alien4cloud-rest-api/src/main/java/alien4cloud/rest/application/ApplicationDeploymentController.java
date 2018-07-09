@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import alien4cloud.rest.application.model.MonitoredDeploymentDTO;
 import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
 import org.alien4cloud.git.GitLocationDao;
 import org.alien4cloud.git.LocalGitManager;
@@ -18,6 +19,7 @@ import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.elasticsearch.common.joda.time.DateTime;
 import org.elasticsearch.common.joda.time.DateTimeZone;
 import org.hibernate.validator.constraints.NotBlank;
@@ -254,6 +256,37 @@ public class ApplicationDeploymentController {
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.APPLICATION_USER);
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
         return RestResponseBuilder.<Deployment> builder().data(deployment).build();
+    }
+
+    /**
+     * Get the active deployment monitoring data.
+     *
+     * @param applicationId id of the topology
+     * @return the active deployment
+     */
+    @ApiOperation(value = "Get active deployment for the given application on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/active-deployment-monitored", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<MonitoredDeploymentDTO> getActiveDeploymentMonitored(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        // get the topology from the version and the cloud from the environment
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.APPLICATION_USER);
+        Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
+        ApplicationTopologyVersion topologyVersion = applicationVersionService
+                .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
+        Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
+
+        MonitoredDeploymentDTO monitoredDeploymentDTO = new MonitoredDeploymentDTO();
+        monitoredDeploymentDTO.setDeployment(deployment);
+        Map<String, Integer> stepInstanceCount = toscaContextualAspect.execInToscaContext(() -> TopologyUtils.estimateWorkflowStepInstanceCount(topology), true, topology);
+        monitoredDeploymentDTO.setWorkflowExpectedStepInstanceCount(stepInstanceCount);
+
+        return RestResponseBuilder.<MonitoredDeploymentDTO> builder().data(monitoredDeploymentDTO).build();
+    }
+
+    private Map<String, Integer> countNodeInstance(Topology topology) {
+        return TopologyUtils.estimateWorkflowStepInstanceCount(topology);
     }
 
     @ApiOperation(value = "Get current secret provider configuration for the given application on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")

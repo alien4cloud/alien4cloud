@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="WARN" monitorInterval="15">
     <Appenders>
         <Console name="STDOUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.S} %-5p [%t] %c{1}:%L - %m%n" />
         </Console>
         <File name="FILE" fileName="alien4cloud.log">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.S} %-5p [%t] %c{1}:%L - %m%n" />
         </File>
     </Appenders>
     <Loggers>
@@ -14,6 +14,7 @@
             <AppenderRef ref="FILE" />
         </root>
         <logger name="springfox.documentation" level="warn"/>
+        <logger name="org.ystia.yorc.alien4cloud.plugin.LogListenerTask" level="trace"/>
         <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="warn"/>
         <logger name="org.alien4cloud.git.LocalGitManager" level="debug"/>
         <logger name="org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhaseModifiersExecutor"

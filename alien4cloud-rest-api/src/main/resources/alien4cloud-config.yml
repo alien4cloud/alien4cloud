@@ -149,3 +149,8 @@ logs_deployment_appender:
 
 features:
   editor_auto_completion: true
+  archive_indexer_lock_used_archive: false
+
+languages:
+  default: en-us
+  prefix: locale

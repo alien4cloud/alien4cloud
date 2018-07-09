@@ -14,6 +14,7 @@
             <th>{{'ORCHESTRATORS.LOCATIONS.MODIFIER.PLUGIN_BEAN' | translate}}</th>
             <th>{{'ORCHESTRATORS.LOCATIONS.MODIFIER.PHASE' | translate}}</th>
             <th></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -21,6 +22,24 @@
             <td>{{modifier.pluginId}}</td>
             <td>{{modifier.beanName}}</td>
             <td>{{modifier.phase}}</td>
+            <td>
+              <div
+                      class="editable-discreet"
+                      editable-number="$index"
+                      buttons="yes"
+                      onbeforesave="moveModifier($index, $data)"
+                      e-step="1"
+                      e-min="0"
+                      e-max="{{locationModifiers.length - 1}}"
+                      e-required
+                      e-onkeypress="if (event.which==13) {$('#scaleEditableInput button.btn-primary').click(); event.preventDefault();}">
+                {{$index}}
+                <span id="scaleEditableButton" class="btn btn-primary btn-xs"
+                      uib-tooltip="">
+                  <i class="fa fa-bars"></i>
+                </span>
+              </div>
+            </td>
             <td>
               <delete-confirm id="delete-modif_{{$index}}" func="deleteModifier($index)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
               </delete-confirm>

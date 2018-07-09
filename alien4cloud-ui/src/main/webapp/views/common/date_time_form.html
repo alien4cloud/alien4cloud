@@ -1,5 +1,5 @@
 <div class="input-group" ng-class="{'has-error': dateConfig.dateInValid}">
-  <input type="text" class="form-control" placeholder="{{fieldName | translate}} ({{dateFormat}})"
+  <input type="text" class="form-control" placeholder="{{fieldName | translate}}"
          ng-model="dateConfig.dateText"
          ng-change="dateChanged(dateConfig.dateText)"
          uib-tooltip="{{fieldName | translate}}" tooltip-append-to-body="true">

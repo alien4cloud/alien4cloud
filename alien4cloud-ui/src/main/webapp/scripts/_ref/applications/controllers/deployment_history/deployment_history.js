@@ -15,7 +15,7 @@ define(function (require) {
         $scope.queryManager = {
           query: ''
         };
-        $scope.searchService = searchServiceFactory(searchServiceUrl, true, $scope.queryManager, 30, 50, true, null, historyConf.searchParam);
+        $scope.searchService = searchServiceFactory(searchServiceUrl, true, $scope.queryManager, 15, 50, true, null, historyConf.searchParam);
         $scope.searchService.search();
         $scope.queryManager.onSearchCompleted = function(searchResult) {
           $scope.deployments = searchResult.data.data;

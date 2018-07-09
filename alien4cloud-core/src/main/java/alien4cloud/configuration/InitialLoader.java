@@ -133,17 +133,9 @@ public class InitialLoader {
 
         try {
             List<Path> plugins = FileUtil.listFiles(alienPluginsInitPath, ".+\\.(zip)");
-            for (Path plugin : plugins) {
-                try {
-                    pluginManager.uploadPlugin(plugin);
-                } catch (AlreadyExistException e) {
-                    log.debug("Plugin {} has already been uploaded.", plugin.toString());
-                } catch (PluginLoadingException | MissingPlugingDescriptorFileException e) {
-                    log.error("Failed to load plugin from init folder. File {}", plugin.toString(), e);
-                }
-            }
+            pluginManager.uploadInitPlugins(plugins);
         } catch (IOException e) {
-            log.error("Failed to load initial archives", e);
+            log.error("Failed to load initial plugins", e);
         }
     }
 }

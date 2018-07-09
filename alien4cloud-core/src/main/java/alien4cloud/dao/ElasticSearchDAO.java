@@ -5,6 +5,9 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
+import alien4cloud.model.runtime.Execution;
+import alien4cloud.model.runtime.Task;
+import alien4cloud.model.runtime.WorkflowStepInstance;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
@@ -89,6 +92,9 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
                 AbstractLocationResourceTemplate.class);
 
         initIndice(Deployment.class);
+        initIndice(Execution.class);
+        initIndice(Task.class);
+        initIndice(WorkflowStepInstance.class);
         initIndice(CsarGitRepository.class);
 
         initIndice(DeploymentInputs.class);

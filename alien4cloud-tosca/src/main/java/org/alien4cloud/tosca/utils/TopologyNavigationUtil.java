@@ -8,11 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.PolicyTemplate;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.templates.*;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -44,6 +40,24 @@ public final class TopologyNavigationUtil {
             return null;
         }
         return topology.getNodeTemplates().get(host.getTarget());
+    }
+
+    public static int getDefaultInstanceCount(Topology topology, NodeTemplate template, int multiplicator) {
+        Capability scalableCapability = TopologyUtils.getScalableCapability(topology, template.getName(), false);
+        int defaultInstanceCount = 1;
+        if (scalableCapability != null) {
+            ScalingPolicy scalingPolicy = TopologyUtils.getScalingPolicy(scalableCapability);
+            if (!ScalingPolicy.NOT_SCALABLE_POLICY.equals(scalingPolicy)) {
+                defaultInstanceCount = scalingPolicy.getInitialInstances();
+            }
+        }
+        // now look for the host
+        NodeTemplate host = getImmediateHostTemplate(topology, template);
+        if (host != null) {
+            return getDefaultInstanceCount(topology, host, multiplicator * defaultInstanceCount);
+        } else {
+            return multiplicator * defaultInstanceCount;
+        }
     }
 
     public static NodeTemplate getImmediateHostTemplate(Topology topology, NodeTemplate template, IToscaTypeFinder toscaTypeFinder) {

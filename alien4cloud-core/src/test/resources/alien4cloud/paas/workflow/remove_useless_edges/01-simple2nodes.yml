@@ -1,0 +1,43 @@
+description:
+name: install
+initial:
+  steps:
+    D:
+      node: node1
+      state: initial
+      to:
+        - C
+    C:
+      node: node1
+      state: created
+    A:
+      node: node2
+      state: initial
+      to:
+        - C
+        - B
+    B:
+      node: node2
+      state: creating
+      to:
+        - C
+expected:
+  steps:
+    D:
+      node: node1
+      state: initial
+      to:
+        - C
+    C:
+      node: node1
+      state: created
+    A:
+      node: node2
+      state: initial
+      to:
+        - B
+    B:
+      node: node2
+      state: creating
+      to:
+        - C

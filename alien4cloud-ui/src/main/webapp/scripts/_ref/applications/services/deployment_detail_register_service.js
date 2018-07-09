@@ -6,6 +6,7 @@ define(function (require) {
   var _ = require('lodash');
   require('scripts/_ref/applications/controllers/deployment_history/deployment_history');
   require('scripts/_ref/applications/controllers/deployment_history/deployment_detail_info');
+  require('scripts/_ref/applications/controllers/deployment_history/deployment_detail_tasks');
 
   return function(prefix, getSearchParam) {
 
@@ -80,5 +81,26 @@ define(function (require) {
         priority: 100
       }
     });
+
+    // execution tasks state
+    var detailInfoTaskListState = detailState + '.tasks';
+    states.state(detailInfoTaskListState, {
+      url: '/execution/:executionId',
+      templateUrl: 'views/_ref/applications/deployment_history/deployment_detail_tasks.html',
+      controller: 'DeploymentExecutionDetailInfoCtrl',
+      onEnter: ['breadcrumbsService','$filter','$state', function(breadcrumbsService, $filter, $state) {
+        breadcrumbsService.putConfig({
+          state: detailInfoTaskListState,
+          text: function () {
+            return (_.defined($state.params.execution.workflowName)) ? $state.params.execution.workflowName : $state.params.execution.id;
+          }
+        });
+      }],
+      params: {
+        execution: null,
+        executionId: null
+      }
+    });
+
   };
 });

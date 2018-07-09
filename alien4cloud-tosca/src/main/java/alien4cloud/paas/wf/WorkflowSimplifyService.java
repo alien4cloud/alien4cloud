@@ -1,7 +1,9 @@
 package alien4cloud.paas.wf;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -10,16 +12,24 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
+import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
+import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkflows;
+import org.alien4cloud.tosca.model.workflow.declarative.NodeOperationDeclarativeWorkflow;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.wf.util.NodeSubGraphFilter;
 import alien4cloud.paas.wf.util.SimpleGraphConsumer;
 import alien4cloud.paas.wf.util.SubGraph;
 import alien4cloud.paas.wf.util.SubGraphFilter;
 import alien4cloud.paas.wf.util.WorkflowGraphUtils;
 import alien4cloud.paas.wf.util.WorkflowStepWeightComparator;
+import alien4cloud.paas.wf.util.WorkflowUtils;
+import alien4cloud.tosca.parser.ToscaParser;
 import alien4cloud.utils.AlienUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +37,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class WorkflowSimplifyService {
+
+    @Resource
+    private WorkflowsBuilderService workflowsBuilderService;
 
     private interface DoWithNodeCallBack {
         void doWithNode(SubGraph subGraph, Workflow workflow);
@@ -68,6 +81,116 @@ public class WorkflowSimplifyService {
     public void simplifyWorkflow(TopologyContext topologyContext) {
         doWithNode(topologyContext, (subGraph, workflow) -> flattenWorkflow(topologyContext, subGraph));
         doWithNode(topologyContext, (subGraph, workflow) -> removeUnnecessarySteps(topologyContext, workflow, subGraph));
+        if (ToscaParser.ALIEN_DSL_200.equals(topologyContext.getDSLVersion())) {
+            // only this DSL is compatible with this feature
+            removeOrphanSetStateSteps(topologyContext);
+            removeUselessEdges(topologyContext);
+        }
+    }
+
+    private void removeUselessEdges(TopologyContext topologyContext) {
+        topologyContext.getTopology().getWorkflows().values().forEach(this::removeUselessEdges);
+    }
+
+    protected void removeUselessEdges(Workflow wf) {
+		List<WorkflowStep[]> blacklists = new ArrayList<>();
+        Collection<WorkflowStep> steps = wf.getSteps().values();
+        steps.forEach(step -> {
+            // 1. If the current node has more than one preceding node, kick off the work
+            if (step.getPrecedingSteps().size() > 1) {
+                // 2. For each preceding node, get all the precedences of this node
+                Map<String, Set<String>> precedencesMap = new HashMap<>();
+                step.getPrecedingSteps().forEach(preName -> {
+                    Set<String> precedences = WorkflowUtils.findAllPrecedences(steps, preName);
+                    precedencesMap.put(preName, precedences);
+                });
+
+                // 3. For each preceding node,
+                // if the precedent node is contained in any other precedences ancestor set,
+                // remove the connection (between precedent and current)
+                step.getPrecedingSteps().forEach(preName -> {
+					Set<String> otherStepNames = new HashSet<>(step.getPrecedingSteps());
+					otherStepNames.remove(preName);
+					if (containedInOtherPaths(precedencesMap, preName, otherStepNames)) {
+						// Add the edge between precedent and current to blacklist
+						blacklists.add(new WorkflowStep[] { WorkflowUtils.findStep(steps, preName), step });
+					}
+                });
+            }
+        });
+        // 4. Remove the edges in blacklist
+		blacklists.forEach(pair -> WorkflowUtils.removeEdge(pair[0], pair[1]));
+    }
+
+    private boolean containedInOtherPaths(Map<String, Set<String>> precedencesMap, String step, Set<String> otherSteps) {
+		for (String otherPreStep : otherSteps) {
+			Set<String> otherPaths = precedencesMap.get(otherPreStep);
+			if (otherPaths.contains(step)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+    private void removeOrphanSetStateSteps(TopologyContext topologyContext) {
+        DefaultDeclarativeWorkflows dwf = workflowsBuilderService.getDeclarativeWorkflows(topologyContext.getDSLVersion());
+        topologyContext.getTopology().getWorkflows().values().forEach(workflow -> removeOrphanSetStateSteps(workflow, dwf));
+    }
+
+    protected void removeOrphanSetStateSteps(Workflow workflow, DefaultDeclarativeWorkflows dwf) {
+        // 1. Find all the set state operation pairs
+        Map<String, String> pairs = new HashMap<>();
+        Map<String, NodeOperationDeclarativeWorkflow> standardOps = dwf.getNodeWorkflows().get(workflow.getName()).getOperations();
+        standardOps.values().forEach(a -> pairs.put(a.getPrecedingState(), a.getFollowingState()));
+
+        // 2. Iterate the current workflow to find the matched pairs
+        // and then remove them
+        Collection<WorkflowStep> steps = workflow.getSteps().values();
+        List<String> blackListSteps = new ArrayList<>();
+        steps.stream()
+                .filter(step -> step.getActivity() instanceof SetStateWorkflowActivity)
+                .filter(step -> {
+                    String stateName = ((SetStateWorkflowActivity) step.getActivity()).getStateName();
+                    // deleting & deleted should not be blacklisted
+                    // (Cfy wants nodes to be in state deleted in order to be able to delete deployment without force)
+                    return !(ToscaNodeLifecycleConstants.DELETING.equals(stateName) || ToscaNodeLifecycleConstants.DELETED.equals(stateName));
+                })
+                .forEach(step -> {
+                    if (step.getPrecedingSteps().size() <= 1 && step.getOnSuccess().size() == 1) {
+                        WorkflowStep nextStep = WorkflowUtils.findSteps(steps, step.getOnSuccess()).get(0);
+                        WorkflowStep preStep = step.getPrecedingSteps().size() == 0 ? null : WorkflowUtils.findSteps(steps, step.getPrecedingSteps()).get(0);
+                        if (isPairStep(step, nextStep, pairs)) {
+                            blackListSteps.add(step.getName());
+                            blackListSteps.add(nextStep.getName());
+                            // reconnect the pre steps and the following steps of the second step in pairs
+                            if (preStep != null) {
+                                preStep.removeFollowing(step.getName());
+                                step.removePreceding(preStep.getName());
+                            }
+                            nextStep.getOnSuccess().forEach(name -> {
+                                WorkflowStep nextNextStep = WorkflowUtils.findStep(steps, name);
+                                if (nextNextStep != null) {
+                                    nextNextStep.removePreceding(nextStep.getName());
+                                    WorkflowUtils.linkSteps(preStep, nextNextStep);
+                                }
+                            });
+                            nextStep.getOnSuccess().clear();
+                        }
+                    }
+                });
+
+        // 3. Remove the black list of state operations
+        blackListSteps.forEach(name -> workflow.getSteps().remove(name));
+    }
+
+    private boolean isPairStep(WorkflowStep step, WorkflowStep nextStep, Map<String, String> pairs) {
+        if (nextStep == null || !(nextStep.getActivity() instanceof SetStateWorkflowActivity)) {
+            return false;
+        }
+        String currentState = ((SetStateWorkflowActivity) step.getActivity()).getStateName();
+        String nextState = ((SetStateWorkflowActivity) nextStep.getActivity()).getStateName();
+        String expectedState = pairs.get(currentState);
+        return nextState.equals(expectedState);
     }
 
     private void removeUnnecessarySteps(TopologyContext topologyContext, Workflow workflow, SubGraph subGraph) {
@@ -167,6 +290,7 @@ public class WorkflowSimplifyService {
     }
 
     private void doWithNode(TopologyContext topologyContext, DoWithNodeCallBack callBack) {
+        // workflows with custom modifications are not processed
         AlienUtils.safe(topologyContext.getTopology().getWorkflows()).values().stream().filter(workflow -> !workflow.isHasCustomModifications())
                 .forEach(workflow -> AlienUtils.safe(topologyContext.getTopology().getNodeTemplates()).keySet().forEach(nodeId -> {
                     SubGraphFilter stepFilter = new NodeSubGraphFilter(workflow, nodeId, topologyContext.getTopology());

@@ -100,4 +100,5 @@ public abstract class WorkflowStep {
     public void removeAllFollowings(Set<String> followings) {
         this.onSuccess.removeAll(followings);
     }
+
 }

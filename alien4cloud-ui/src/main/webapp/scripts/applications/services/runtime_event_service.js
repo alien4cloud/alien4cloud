@@ -128,6 +128,7 @@ define(function (require) {
         * Callback triggered when an event is received.
         */
         onPAASEvent: function(type, event) {
+          console.log("----- Received an event of type " + type + " - " + event.eventType)
           event.rawType = type;
           this.enrichPAASEvent(event);
           this.scope.events.data.push(event);

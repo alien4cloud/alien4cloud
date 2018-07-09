@@ -179,6 +179,79 @@ public class PluginManager {
     }
 
     /**
+     * upload initial plugins
+     *
+     * This method allow to upload plugins from init plugins directory at bootstrap
+     * Each plugin is unzipped and enabled but only plugins with no missing dependencies are loaded
+     * Plugins with missing dependencies'll be loaded at initialization phase (alien4cloud.plugin.PluginManager#initialize())
+     * if any dependency still missing, they'll be disabled
+     *
+     * @param uploadedPluginsPath
+     * @throws IOException
+     */
+    public void uploadInitPlugins(List<Path> uploadedPluginsPath) throws IOException {
+        for (Path uploadedPluginPath : uploadedPluginsPath) {
+            // load the plugin descriptor
+            FileSystem fs = FileSystems.newFileSystem(uploadedPluginPath, null);
+            PluginDescriptor descriptor;
+            try {
+                try {
+                    descriptor = YamlParserUtil.parseFromUTF8File(fs.getPath(PLUGIN_DESCRIPTOR_FILE), PluginDescriptor.class);
+                } catch (IOException e) {
+                    if (e instanceof NoSuchFileException) {
+                        throw new MissingPlugingDescriptorFileException();
+                    } else {
+                        throw e;
+                    }
+                }
+
+                String pluginPathId = getPluginPathId();
+                Plugin plugin = new Plugin(descriptor, pluginPathId);
+
+                // check plugin already exists and is loaded
+                if (pluginContexts.get(plugin.getId()) != null) {
+                    log.warn("Uploading Plugin [ {} ] impossible (already exists and enabled)", plugin.getId());
+                    throw new AlreadyExistException("A plugin with the given id already exists and is enabled.");
+                }
+
+                Plugin oldPlugin = alienDAO.findById(Plugin.class, plugin.getId());
+                if (oldPlugin != null) {
+                    // remove all files for the old plugin but keep configuration.
+                    removePlugin(plugin.getId(), false);
+                }
+
+                Path pluginPath = getPluginPath(pluginPathId);
+                FileUtil.unzip(uploadedPluginPath, pluginPath);
+
+                // copy ui directory in case it exists
+                Path pluginUiSourcePath = pluginPath.resolve(UI_DIRECTORY);
+                Path pluginUiPath = getPluginUiPath(pluginPathId);
+                if (Files.exists(pluginUiSourcePath)) {
+                    FileUtil.copy(pluginUiSourcePath, pluginUiPath);
+                }
+                if (oldPlugin == null || oldPlugin.isEnabled()) {
+                    // If plugin has missing dependencies, the plugin will be loaded lately at the initialization phase.
+                    if (getMissingDependencies(plugin).size() == 0) {
+                        log.info("Enabling plugin <" + plugin.getId() + ">");
+                        loadPlugin(plugin);
+                        log.info("Plugin <" + plugin.getId() + "> has been enabled.");
+                    } else {
+                        log.warn("Plugin {} can't be loaded right now because some dependencies are missing. Let's wait for initialization when its dependencies could be loaded", plugin.getId());
+                    }
+                    plugin.setEnabled(true);
+                }
+                alienDAO.save(plugin);
+            } catch (AlreadyExistException e) {
+                log.debug("Plugin {} has already been uploaded.", uploadedPluginPath.toString());
+            } catch (PluginLoadingException | MissingPlugingDescriptorFileException e) {
+                log.error("Failed to load plugin from init folder. File {}", uploadedPluginPath.toString(), e);
+            } finally {
+                fs.close();
+            }
+        }
+    }
+
+    /**
      * Upload a plugin from a given path.
      *
      * @param uploadedPluginPath The path of the plugin to upload.<br>
@@ -341,7 +414,6 @@ public class PluginManager {
         log.info("Enabling plugin <" + plugin.getId() + ">");
         loadPlugin(plugin);
         plugin.setEnabled(true);
-        plugin.setConfigurable(isPluginConfigurable(plugin.getId()));
         alienDAO.save(plugin);
         log.info("Plugin <" + plugin.getId() + "> has been enabled.");
     }
@@ -355,6 +427,8 @@ public class PluginManager {
             Path pluginPath = getPluginPath(plugin.getPluginPathId());
             Path pluginUiPath = getPluginUiPath(plugin.getPluginPathId());
             loadPlugin(plugin, pluginPath, pluginUiPath);
+            plugin.setConfigurable(isPluginConfigurable(plugin.getId()));
+            alienDAO.save(plugin);
         } catch (Exception e) {
             log.error("Failed to load plugin <" + plugin.getId() + ">. Alien will not enable this plugin.", e);
             throw new PluginLoadingException("Failed to load plugin [ " + plugin.getId() + " ]. " + e.getMessage(), e);
@@ -471,8 +545,11 @@ public class PluginManager {
 
         for (String dependency : plugin.getDescriptor().getDependencies()) {
             ManagedPlugin dependencyPlugin = this.pluginContexts.get(dependency);
-            for (Entry<String, Object> exposed : dependencyPlugin.getExposedBeans().entrySet()) {
-                pluginContext.getBeanFactory().registerSingleton(exposed.getKey(), exposed.getValue());
+            if (dependencyPlugin != null) {
+                log.trace("Registering dependency {}", dependency);
+                for (Entry<String, Object> exposed : dependencyPlugin.getExposedBeans().entrySet()) {
+                    pluginContext.getBeanFactory().registerSingleton(exposed.getKey(), exposed.getValue());
+                }
             }
         }
     }

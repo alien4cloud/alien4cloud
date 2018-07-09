@@ -27,25 +27,10 @@
           <b class="caret"></b>
         </a>
         <ul class="dropdown-menu navbar-logout-dropdown" uib-dropdown-menu role="menu">
-          <li>
-            <a ng-click="changeLanguage('fr-fr')" name="link-language-fr">
-              <img src="images/flags/iso/fr-fr.svg" class="language flag"> Français
+          <li ng-repeat="(code, language) in supportedLanguages">
+            <a ng-click="changeLanguage(code)" name="link-language-{{code}}">
+              <img src="images/flags/iso/{{code}}.svg" class="language flag"> {{language}}
             </a>
-          </li>
-          <li>
-            <a ng-click="changeLanguage('en-us')" name="link-language-us">
-                <img src="images/flags/iso/en-us.svg"  class="language flag"> English
-            </a>
-          </li>
-          <li>
-            <a ng-click="changeLanguage('ja-jp')" name="link-language-jp">
-                <img src="images/flags/iso/ja-jp.svg" class="language flag"> 日本語
-            </a>
-          </li>
-          <li>
-            <a ng-click="changeLanguage('zh-cn')" name="link-language-cn">
-                <img src="images/flags/iso/zh-cn.svg" class="language flag"> 中文
-              </a>
           </li>
           <li role="presentation" class="divider"></li>
           <li>

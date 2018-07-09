@@ -71,6 +71,78 @@ define(function () {
           return '';
       }
     },
+    getTaskStatusIconCss: function(task) {
+      switch (_.get(task, 'status')) {
+        case 'SUCCEEDED':
+          return 'fa-circle text-success';
+        case 'FAILED':
+          return 'fa-circle text-danger';
+        case 'CANCELLED':
+          return 'fa-circle text-warning';
+        case 'SCHEDULED':
+        case 'STARTED':
+          return 'fa-spinner fa-spin text-primary';
+        default:
+          return '';
+      }
+    },
+    getTaskStatusTextCss: function(task) {
+      switch (_.get(task, 'status')) {
+        case 'SUCCEEDED':
+          return 'text-success';
+        case 'FAILED':
+          return 'text-danger';
+        case 'CANCELLED':
+          return 'text-warning';
+        case 'SCHEDULED':
+        case 'STARTED':
+          return 'text-primary';
+        default:
+          return '';
+      }
+    },
+    getExecutionStatusIconCss: function(execution) {
+      switch (_.get(execution, 'status')) {
+        case 'SUCCEEDED':
+          return (execution.hasFailedTasks) ? 'fa-exclamation-circle text-success' : 'fa-circle text-success';
+        case 'FAILED':
+          return 'fa-circle text-danger';
+        case 'CANCELLED':
+          return 'fa-circle text-warning';
+        case 'RUNNING':
+          return 'fa-spinner fa-spin text-primary';
+        default:
+          return '';
+      }
+    },
+    getExecutionStatusTextCss: function(execution) {
+      switch (_.get(execution, 'status')) {
+        case 'SUCCEEDED':
+          return 'text-success';
+        case 'FAILED':
+          return 'text-danger';
+        case 'RUNNING':
+          return 'text-primary';
+        case 'CANCELLED':
+          return 'text-warning';
+        default:
+          return 'text-warning';
+      }
+    },
+    getExecutionStatusCss: function(executionStatus) {
+      switch (executionStatus) {
+        case 'SUCCEEDED':
+          return 'success';
+        case 'FAILED':
+          return 'danger';
+        case 'RUNNING':
+          return 'info';
+        case 'CANCELLED':
+          return 'warning';
+        default:
+          return 'warning';
+      }
+    },
     getStatusColor: function(environmentDTO) {
       return colors[_.get(environmentDTO, 'status')];
     }

@@ -18,7 +18,7 @@ import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.variable.AlienContextVariables;
 import org.alien4cloud.tosca.variable.InputsMappingFileVariableResolver;
-import org.alien4cloud.tosca.variable.QuickFileStorageService;
+import org.alien4cloud.tosca.variable.service.QuickFileStorageService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
@@ -55,7 +55,9 @@ public class PreconfiguredInputsModifier implements ITopologyModifier {
 
         AlienContextVariables alienContextVariables = new AlienContextVariables();
         alienContextVariables.setApplicationEnvironment(environment);
-        alienContextVariables.setLocation(locations.values().stream().findFirst().get());
+        if (locations != null) {
+            alienContextVariables.setLocation(locations.values().stream().findFirst().get());
+        }
         alienContextVariables.setApplication(environmentContext.getApplication());
 
         // TODO: avoid reloading every time - find a way to know the last update on files (git hash ?)

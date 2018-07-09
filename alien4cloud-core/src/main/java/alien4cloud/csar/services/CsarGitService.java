@@ -1,20 +1,23 @@
 package alien4cloud.csar.services;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
+import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
+import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.git.RepositoryManager;
+import alien4cloud.model.components.CSARSource;
+import alien4cloud.model.git.CsarGitCheckoutLocation;
+import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.tosca.parser.ParsingContext;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingException;
+import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.AlienConstants;
+import alien4cloud.utils.FileUtil;
+import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.exception.UploadExceptionUtil;
 import org.alien4cloud.tosca.catalog.index.CsarService;
@@ -27,23 +30,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 
-import com.google.common.collect.Lists;
-
-import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
-import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.GitException;
-import alien4cloud.git.RepositoryManager;
-import alien4cloud.model.components.CSARSource;
-import alien4cloud.model.git.CsarGitCheckoutLocation;
-import alien4cloud.model.git.CsarGitRepository;
-import alien4cloud.tosca.parser.ParsingException;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.utils.AlienConstants;
-import alien4cloud.utils.FileUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.yaml.snakeyaml.error.Mark;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -129,7 +124,7 @@ public class CsarGitService {
             git = RepositoryManager.cloneOrCheckout(tempDirPath, csarGitRepository.getRepositoryUrl(), csarGitRepository.getUsername(),
                     csarGitRepository.getPassword(), csarGitCheckoutLocation.getBranchId(), csarGitRepository.getId());
             // if the repository is persistent we also have to pull to get the latest version
-            if (csarGitRepository.isStoredLocally() && !RepositoryManager.isATag(git, csarGitCheckoutLocation.getBranchId())) {
+            if (csarGitRepository.isStoredLocally() && RepositoryManager.isBranch(git, csarGitCheckoutLocation.getBranchId())) {
                 // try to pull
                 log.debug("Pull local repository");
                 RepositoryManager.pull(git, csarGitRepository.getUsername(), csarGitRepository.getPassword());

@@ -10,7 +10,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditorFileService;
 import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.variable.QuickFileStorageService;
+import org.alien4cloud.tosca.variable.service.QuickFileStorageService;
 import org.alien4cloud.tosca.variable.ScopeVariableExpressionDTO;
 import org.alien4cloud.tosca.variable.model.Variable;
 import org.apache.commons.collections4.CollectionUtils;

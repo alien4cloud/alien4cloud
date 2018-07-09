@@ -15,7 +15,8 @@
                 <i class="fa fa-power-off"></i> {{'APPLICATIONS.WF.title' | translate}}
               </span>
             </div>
-            <div>
+            <div class="well wfbox">
+              <div class="row">
               <div class="col-md-7">
                 <select name="wf-select" id="wf-select" ng-model="currentWorkflowName" ng-change="workflows.setCurrentWorkflowName(currentWorkflowName)">
                   <option ng-repeat="w in topology.topology.workflows" value="{{w.name}}" ng-selected="w.name === currentWorkflowName">{{w.name}}</option>
@@ -29,6 +30,55 @@
                 </button>
               </div>
             </div>
+          </div>
+            <!-- The displayed step -->
+            <div class="well wfbox" ng-if="previewWorkflowStep">
+                <div class="pull-left break-word"><b>{{previewWorkflowStep.name}}</b></div>
+                <i class="fa pull-right">{{workflows.getStepActivityTypeIcon(previewWorkflowStep)}}</i>
+                <div class="pull-right" ng-if="pinnedWorkflowStep && pinnedWorkflowStep===previewWorkflowStep">
+                  <a id="wfUnpinStep"
+                     class="btn btn-default btn-sm"
+                     uib-tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
+                     tooltip-append-to-body="true" ng-click="workflows.unpinCurrent()">
+                    <i class="fa fa-unlock"></i>
+                  </a>
+                </div>
+                <span class="clearfix"></span>
+                <div class="row">
+                  <div class="col-md-3">
+                    <img ng-if="!previewWorkflowStep.targetRelationship" ng-src="img?id={{workflows.getStepNodeIcon(previewWorkflowStep)}}&quality=QUALITY_64" />
+                    <span ng-if="previewWorkflowStep.targetRelationship" >
+                   <img ng-show="!onTargetImage" ng-mouseleave="onSourceImage = false" ng-mouseenter="onSourceImage = true; onTargetImage = false" ng-src="img?id={{workflows.getStepNodeIcon(previewWorkflowStep)}}&quality=QUALITY_64" class="wf-source-rel-img"/>
+                   <img ng-show="!onSourceImage" ng-mouseleave="onTargetImage = false" ng-mouseenter="onTargetImage = true; onSourceImage = false" ng-src="img?id={{workflows.getStepTargetNodeIcon(previewWorkflowStep)}}&quality=QUALITY_64" class="wf-target-rel-img"/>
+                 </span>
+                  </div>
+                  <div class="col-md-9">
+                    <span ng-if="!previewWorkflowStep.targetRelationship && previewWorkflowStep.target">{{'COMMON.NODE' | translate}}: <b class="break-word">{{previewWorkflowStep.target}}</b><br></span>
+                    <span ng-if="previewWorkflowStep.targetRelationship">
+                    {{'COMMON.SOURCE' | translate}}: <b class="break-word">{{previewWorkflowStep.target}}</b><br>
+                    {{'COMMON.RELATIONSHIP' | translate}}: <b class="break-word">{{previewWorkflowStep.targetRelationship}}</b><br>
+                    {{'COMMON.TARGET' | translate}}: <b class="break-word">{{workflows.getTargetNodeForRelationshipStep(previewWorkflowStep)}}</b><br>
+                  </span>
+                    <span ng-init="previewWorkflowStepHost=workflows.getStepHost(previewWorkflowStep)" ng-if="previewWorkflowStepHost">{{'APPLICATIONS.WF.host' | translate}}: <b class="break-word">{{previewWorkflowStepHost}}</b><br></span>
+                    {{'APPLICATIONS.WF.activity' | translate}}: <b>{{ 'APPLICATIONS.WF.' + workflows.getStepActivityType(previewWorkflowStep) | translate}}</b><br>
+                  </div>
+                </div>
+                <div class="row" ng-repeat="(k,v) in workflows.getStepActivityDetails(previewWorkflowStep)">
+                  <div class="col-md-3">{{'APPLICATIONS.WF.' + k | translate}}: </div>
+                  <div class="col-md-9 wfActivityDetail"><b>{{v}}</b></div>
+                </div>
+              </div>
+              <div class="well wfbox" ng-if="(previewWorkflowStep || pinnedWorkflowStep) && _.isNotEmpty(workflows.getPreviewedStepTasks())">
+                <div class="row" ng-repeat="task in workflows.getPreviewedStepTasks()" >
+                  <div class="col-md-9">{{ task.instanceId }}</div>
+                  <div class="col-md-1">
+                    <i class="fa {{workflows.getTaskStatusIconCss(task)}}"></i>
+                  </div>
+                  <div class="col-md-2 clickable">
+                    <i class="fa fa-newspaper-o" ng-click="displayLogs(task)"></i>
+                  </div>
+                </div>
+              </div>
           </div>
         </div>
       </div>

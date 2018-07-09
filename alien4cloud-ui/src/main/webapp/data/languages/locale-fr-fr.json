@@ -4,12 +4,17 @@
     "APPLICATION_ROLES" : "Rôles d'application",
     "ARCHIVE_NAME" : "Nom d'archive (Id)",
     "DEPLOY" : "Déployer",
+    "EXECUTION" : {
+      "HISTORY" : {
+        "DESCRIPTION" : "Liste des exécutions"
+      }
+    },
     "DEPLOYMENT" : {
       "HISTORY" : {
-        "DEPLOYED_AT" : "Déploié à",
-        "DEPLOYER" : "Déploieur",
+        "DEPLOYED_AT" : "Déployé à",
+        "DEPLOYER" : "Déployé par",
         "DURATION" : "Durée",
-        "UNDEPLOYED_AT" : "Un-déploié à"
+        "UNDEPLOYED_AT" : "Désinstallé à"
       },
       "MATCHING" : {
         "NEW": "Nouveau modifier",
@@ -18,12 +23,12 @@
         "NODES_TITLE" : "Matching de noeuds",
         "POLICIES_TITLE" : "Matching de policies",
         "SERVICE" : "Détails du service",
-        "SERVICE_HELP" : "Les propriétés et attributs du service sélectioné sont affichées ci-dessous",
+        "SERVICE_HELP" : "Les propriétés et attributs du service sélectionné sont affichés ci-dessous",
         "SERVICE_UNDEPLOYED_HELP" : "Le service sélectionné n'est pas déployé. Cela peut causer des problèmes lors du déploiement en cas de choix de ce service pour remplacer le noeud selectionné."
       },
       "PROPERTIES" : {
         "REQUIRED" : "Obligatoire",
-        "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
+        "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeur fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
       },
       "VERSION" : "Version déployée"
     },
@@ -71,7 +76,7 @@
         "DATE" : "Date",
         "DEPLOYMENT_STATUS_MESSAGE" : "{{status | translate}}",
         "INSTANCES" : "Statut d'instance",
-        "INSTANCE_DELETED_MESSAGE" : "L'Instance {{nodeId}}/{{instanceId}} a été supprimé",
+        "INSTANCE_DELETED_MESSAGE" : "L'Instance {{nodeId}}/{{instanceId}} a été supprimée",
         "INSTANCE_STATE_MESSAGE" : "L'Etat de l'Instance {{nodeId}}/{{instanceId}} a changé à {{state}}",
         "MESSAGE" : "Message",
         "MESSAGES" : "Message",
@@ -102,7 +107,8 @@
       "RUNTIMEPROPS" : "Propriétés d'exécution",
       "SCALE" : "Scale",
       "SCALE_BUTTON" : "Scale le noeud",
-      "STATUS" : "Statut"
+      "STATUS" : "Statut",
+      "LOGS" : "Journaux"
     },
     "TOPOLOGY" : {
       "ADD_NODETEMPLATE" : "Ajouter un Noeud",
@@ -472,6 +478,8 @@
     "NAME" : "Nom",
     "NO" : "Non",
     "NODE" : "Noeud",
+    "INSTANCE" : "Instance",
+    "OPERATION" : "Opération",
     "OR" : "ou",
     "PASSWORD" : "Mot de passe",
     "PATH" : "Path",
@@ -485,7 +493,35 @@
     "TYPE" : "Type",
     "USERNAME" : "Nom d'utilisateur",
     "VERSION" : "Version",
-    "YES" : "Oui"
+    "YES" : "Oui",
+    "START_DATE" : "Date de début",
+    "END_DATE": "Date de fin",
+    "DURATION": "Durée",
+    "STATUS": "Statut"
+  },
+  "ENTITY" : {
+    "EXECUTION" : {
+      "WORKFLOW" : "Workflow",
+      "STATUS" : {
+        "VALUES" : {
+          "SUCCEEDED" : "Succès",
+          "FAILED" : "Echec",
+          "RUNNING" : "En cours",
+          "CANCELLED" : "Annulée"
+        }
+      }
+    },
+    "TASK" : {
+      "STATUS" : {
+        "VALUES" : {
+          "STARTED" : "Démarrée",
+          "SUCCEEDED" : "Succès",
+          "FAILED" : "Echec",
+          "SCHEDULED" : "Programmée",
+          "CANCELLED" : "Annulée"
+        }
+      }
+    }
   },
   "COMPONENTS" : {
     "ABSTRACT" : "Composant abstrait",
@@ -949,8 +985,8 @@
   "MAIN" : {
     "CONTACT" : "Veuillez contacter votre administrateur Alien4Cloud.",
     "RESTRICTED_END" : "pour accéder à cette ressource.",
-    "RESTRICTED_START" : "Vous n'êtes pas assez",
-    "WELCOME" : "Bienvenue sur"
+    "RESTRICTED_START" : "Vous de disposez pas des droits nécessaires ",
+    "WELCOME" : "Bienvenue sur ALIEN 4 Cloud"
   },
   "MODAL" : {
     "TITLE" : {
@@ -974,6 +1010,7 @@
   "NAVAPPLICATIONS" : {
     "MENU_DEPLOY_CURRENT" : "Gérer le déploiement actuel",
     "MENU_DEPLOY_CURRENT_INFO" : "Info",
+    "MENU_DEPLOY_CURRENT_EXEC" : "Exécutions",
     "MENU_DEPLOY_CURRENT_RUNTIME_EDITOR" : "Vue runtime",
     "MENU_DEPLOY_CURRENT_WORKFLOW_VIEWER" : "Workflow",
     "MENU_DEPLOY_NEXT" : "Préparer le prochain déploiement",

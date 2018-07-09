@@ -1,0 +1,85 @@
+<div class="row">
+    <!-- UNDEPLOY BUTTON -->
+    <a style="margin:20px;"
+            class="btn btn-danger"
+            ng-if="environment.environmentType !== 'PRODUCTION'"
+            ng-class="{'disabled' : isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])}"
+            ng-click="doUndeploy()">{{'APPLICATIONS.UNDEPLOY' | translate}}
+    </a>
+    <a style="margin:20px;"
+            class="btn btn-danger"
+            ng-if="environment.environmentType === 'PRODUCTION'"
+            ng-class="{'disabled' : isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])}"
+            confirm="{{ 'APPLICATIONS.UNDEPLOY_CONFIRM' | translate }}"
+            confirm-title="{{ 'COMMON.ATTENTION' | translate }}"
+            confirm-placement="right"
+            confirm-class="popover"
+            confirm-handler="doUndeploy()"
+            ng-click="$event.stopPropagation();">{{'APPLICATIONS.UNDEPLOY' | translate}}
+    </a>
+    <div class="col-md-12">
+      <div class="content-head" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">
+        <i class="fa fa-cog"></i> Reminder of current deployment
+      </div>
+      <div class="row grp-margin">
+        <div class="col-md-6">
+          <span class="detail-term"> {{'APPLICATIONS.APPLICATION' | translate }} : </span> <span class="inline-block">{{application.name}}</span>
+        </div>
+        <div class="col-md-6">
+          <span class="detail-term"> {{'COMMON.VERSION' | translate }} : </span> <span class="inline-block">{{topology.topology.archiveVersion}}</span>
+        </div>
+        <div class="col-md-6">
+          <span class="detail-term"> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate }} : </span> <span class="inline-block">{{environment.name}}</span>
+        </div>
+        <div class="col-md-6">
+          <span class="detail-term"> {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE' | translate }} : </span> <span class="inline-block">{{environment.environmentType}}</span>
+        </div>
+      </div>
+    </div>
+</div>
+<br/>
+<div class="row">
+    <div class="col-md-12">
+    <div class="content-head">
+        <i class="fa fa-film"></i> {{'APPLICATIONS.EXECUTION.HISTORY.DESCRIPTION' | translate}}
+    </div>
+    <empty-place-holder data="executions"></empty-place-holder>
+    <table ng-if="_.isNotEmpty(executions)" class="table table-striped">
+        <thead>
+        <tr>
+            <th><b>{{'ENTITY.EXECUTION.WORKFLOW' | translate}}</b></th>
+            <th><b>{{'COMMON.START_DATE' | translate}}</b></th>
+            <th><b>{{'COMMON.END_DATE' | translate}}</b></th>
+            <th><b>{{'COMMON.DURATION' | translate}}</b></th>
+            <th><b>{{'COMMON.STATUS' | translate}}</b></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="execution in executions">
+            <td class="clickable" ng-click="displayTasks(execution)">
+                {{ execution.workflowName || execution.workflowId }}
+            </td>
+            <td class="clickable" ng-click="displayTasks(execution)">
+                {{ execution.startDate | date:'medium' }}
+            </td>
+            <td class="clickable" ng-click="displayTasks(execution)">
+                {{ (execution.endDate | date:'medium') || '---' }}
+            </td>
+            <td class="clickable" ng-click="displayTasks(execution)">
+                {{ ((execution.endDate || now) - execution.startDate) | amDurationFormat : 'millisecond' }}
+            </td>
+            <td class="clickable" ng-click="displayTasks(execution)">
+                <i class="fa {{executionStatusIconCss(execution)}}"></i> <span class="{{executionStatusTextCss(execution)}}">{{'ENTITY.EXECUTION.STATUS.VALUES.' + execution.status | translate}}</span>
+            </td>
+            <td class="col-md-1 clickable">
+                <i class="fa fa-newspaper-o" ng-click="displayLogs(execution.id)"></i>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <pagination-directive pagination-info="searchService.pagination" />
+    </div>
+
+</div>

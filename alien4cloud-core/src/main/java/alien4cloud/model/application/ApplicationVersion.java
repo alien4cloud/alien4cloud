@@ -1,5 +1,6 @@
 package alien4cloud.model.application;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.alien4cloud.tosca.model.Csar;
@@ -55,7 +56,7 @@ public class ApplicationVersion implements IManagedSecuredResource {
     @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    private Map<String, ApplicationTopologyVersion> topologyVersions;
+    private LinkedHashMap<String, ApplicationTopologyVersion> topologyVersions;
 
     @StringField(includeInAll = false, indexType = IndexType.no)
     @JsonIgnore

@@ -1,15 +1,25 @@
 package alien4cloud.git;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-
+import alien4cloud.exception.GitConflictException;
+import alien4cloud.exception.GitException;
+import alien4cloud.exception.GitMergingStateException;
+import alien4cloud.exception.GitStateException;
+import alien4cloud.utils.FileUtil;
+import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jgit.api.*;
+import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.api.CleanCommand;
+import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.DeleteBranchCommand;
+import org.eclipse.jgit.api.FetchCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.RenameBranchCommand;
+import org.eclipse.jgit.api.TransportCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -18,16 +28,26 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.*;
+import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteConfig;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
-import com.google.common.collect.Lists;
-
-import alien4cloud.exception.GitConflictException;
-import alien4cloud.exception.GitException;
-import alien4cloud.exception.GitMergingStateException;
-import alien4cloud.exception.GitStateException;
-import alien4cloud.utils.FileUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Utility to manage git repositories.
@@ -216,17 +236,28 @@ public class RepositoryManager {
      * @param branch the branchId
      * @return <code>true</code> if the branchId refer to a tag, <code>false</code> otherwise.
      */
-    public static boolean isATag(Git repository, String branch) {
-        String fullBranchReference = getFullReference(repository, branch);
-        String[] segments = fullBranchReference.split("/");
-        return segments.length > 2 && branch.equals(segments[segments.length - 1]) && "tags".equals(segments[segments.length - 2]);
+    public static boolean isTag(Git repository, String branch) {
+        return getFullTagReference(repository, branch) == "" ? false : true;
     }
 
-    private static String addPrefixOnTag(Git repository, String branch) {
-        if (isATag(repository, branch)) {
-            return "tags/" + branch;
+    /**
+     * Check if a given branchId is a branch
+     *
+     * @param repository the Git repository
+     * @param branch the branchId
+     * @return <code>true</code> if the branchId refer to a branch, <code>false</code> otherwise.
+     */
+    public static boolean isBranch(Git repository, String branch) {
+        return getFullBranchReference(repository, branch) == "" ? false : true;
+    }
+    
+    private static String addPrefix(Git repository, String branch) {
+        if (isBranch(repository, branch)) {
+            return branch;
+        } else if (isTag(repository, branch)){
+            return "tags/" + branch; 
         }
-        return branch;
+        throw new GitException(String.format("branch %s does not exist", branch));
     }
 
     private static boolean branchExistsLocally(Git git, String branch) throws GitAPIException {
@@ -320,10 +351,10 @@ public class RepositoryManager {
                 checkoutCommand.setName(branch);
                 if (!branchExistsLocally(git, branch)) {
                     checkoutCommand.setCreateBranch(true);
-                    String fullReference = getFullReference(git, branch);
-                    boolean existRemotely = !fullReference.equals(branch);
+                    String fullReference = getFullBranchReference(git, branch);
+                    boolean existRemotely = !fullReference.isEmpty();
                     if (existRemotely) {
-                        checkoutCommand.setStartPoint(getFullReference(git, branch));
+                        checkoutCommand.setStartPoint(getFullBranchReference(git, branch));
                     } else {
                         checkoutCommand.setOrphan(true);
                     }
@@ -344,24 +375,36 @@ public class RepositoryManager {
         }
     }
 
-    private static String getFullReference(Git repository, String branch) {
+    private static String getFullTagReference(Git repository, String branch) {
         Map<String, Ref> refs = repository.getRepository().getAllRefs();
         for (String refId : refs.keySet()) {
             String[] segments = refId.split("/");
-            if (segments.length > 1 && branch.equals(segments[segments.length - 1])) {
+            if (segments.length > 1 && branch.equals(segments[segments.length - 1]) && "tags".equals(segments[1])) {
                 return refId;
             }
         }
-        return branch;
+        return "";
     }
 
+    private static String getFullBranchReference(Git repository, String branch) {
+        final String remoteName = "remotes/origin";
+        Map<String, Ref> refs = repository.getRepository().getAllRefs();
+        for (String refId : refs.keySet()) {
+            String[] segments = refId.split("/");
+            if (segments.length > 1 && branch.equals(segments[segments.length - 1]) && refId.contains(remoteName)) {
+                return refId;
+            }
+        }
+        return "";
+    }
+    
     private static void checkoutRepository(Git repository, String branch) {
         try {
-            String fullBranchReference = addPrefixOnTag(repository, branch);
+            String fullBranchReference = addPrefix(repository, branch);
             CheckoutCommand checkoutCommand = repository.checkout();
             checkoutCommand.setName(fullBranchReference);
-            if (!branchExistsLocally(repository, fullBranchReference)) {
-                checkoutCommand.setCreateBranch(true).setStartPoint(getFullReference(repository, branch));
+            if (isBranch(repository, branch) && !branchExistsLocally(repository, fullBranchReference)) {
+                checkoutCommand.setCreateBranch(true);
             }
             checkoutCommand.call();
         } catch (GitAPIException e) {

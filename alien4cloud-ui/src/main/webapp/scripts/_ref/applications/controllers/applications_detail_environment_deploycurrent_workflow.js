@@ -9,6 +9,8 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_workflows');
   require('scripts/topology/directives/workflow_rendering');
   require('scripts/_ref/applications/services/secret_display_modal');
+  require('scripts/applications/services/workflow_execution_services');
+
 
   states.state('applications.detail.environment.deploycurrent.workflow', {
     url: '/workflow',
@@ -24,8 +26,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentWorkflowCtrl',
-    ['$scope', 'topoEditDisplay', 'topoEditWf', 'applicationServices', 'breadcrumbsService', '$translate', '$state', 'secretDisplayModal', 'toaster',
-      function ($scope, topoEditDisplay, topoEditWf, applicationServices, breadcrumbsService, $translate, $state, secretDisplayModal, toaster) {
+    ['$scope', 'topoEditDisplay', 'topoEditWf', 'applicationServices', 'workflowExecutionServices', 'breadcrumbsService', '$translate', '$state', 'secretDisplayModal', 'toaster',
+      function ($scope, topoEditDisplay, topoEditWf, applicationServices, workflowExecutionServices, breadcrumbsService, $translate, $state, secretDisplayModal, toaster) {
 
         breadcrumbsService.putConfig({
           state : 'applications.detail.environment.deploycurrent.workflow',
@@ -37,16 +39,34 @@ define(function (require) {
           }
         });
 
+        $scope.wfViewMode = 'simple';
         $scope.displays = {
           workflows: { active: true, size: 400, selector: '#workflow-menu-box', only: ['workflows'] }
         };
         topoEditDisplay($scope, '#workflow-graph');
         topoEditWf($scope);
+        // set wf in 'runtime' mode ie. don't fill nodes when selected but regarding step states
+        $scope.workflows.setEditorMode('runtime');
+        $scope.isWaitingForMonitoringRefresh = false;
 
         $scope.$on('a4cRuntimeTopologyLoaded', function () {
           $scope.workflows.setCurrentWorkflowName('install');
         });
         $scope.workflows.setCurrentWorkflowName('install');
+
+        applicationServices.getActiveMonitoredDeployment.get({
+          applicationId: $scope.application.id,
+          applicationEnvironmentId: $scope.environment.id
+        }, undefined, function(success) {
+          if (_.defined(success.data)) {
+            $scope.activeDeployment = success.data.deployment;
+            $scope.refreshWorkflowMonitoring();
+          }
+        });
+
+        $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
+            $scope.refreshWorkflowMonitoring();
+        });
 
         applicationServices.getSecretProviderConfigurationsForCurrentDeployment.get({
           applicationId: $scope.application.id,
@@ -56,6 +76,34 @@ define(function (require) {
             $scope.secretProviderConfigurations = success.data;
           }
         });
+
+        $scope.displayLogs = function (task) {
+          $state.go('applications.detail.environment.deploycurrent.logs', {
+            'applicationId': $scope.application.id,
+            'applicationEnvironmentId': $scope.environment.id,
+            'taskId': task.id,
+            'executionId': $scope.workflowExecutionMonitoring.execution.id
+          });
+        },
+
+        $scope.refreshWorkflowMonitoring = function () {
+          if ($scope.isWaitingForMonitoringRefresh) {
+            return;
+          }
+          $scope.isWaitingForMonitoringRefresh = true;
+          workflowExecutionServices.get({
+            deploymentId: $scope.activeDeployment.id
+          }, function (result) {
+            $scope.isWaitingForMonitoringRefresh = false;$scope.workflowExecutionMonitoring = result.data;
+
+            $scope.workflows.setCurrentWorkflowName(result.data.execution.workflowName);
+
+            $scope.workflows.refreshGraph(true, true);
+          }, function(error) {
+            $scope.isWaitingForMonitoringRefresh = false;
+            console.log("No workflow execution found");
+          });
+        };
 
         $scope.launchWorkflow = function () {
           secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {

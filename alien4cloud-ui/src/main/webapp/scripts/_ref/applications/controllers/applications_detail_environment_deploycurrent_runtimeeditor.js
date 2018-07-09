@@ -224,6 +224,15 @@ define(function (require) {
       $scope.selectedInstance.id = id;
     };
 
+    $scope.displayLogs = function(id) {
+      console.log("Will display logs for " + id)
+      $state.go('applications.detail.environment.deploycurrent.logs', {
+        'applicationId': $scope.application.id,
+        'applicationEnvironmentId': $scope.environment.id,
+        'instanceId': id
+      });
+    };
+
     $scope.clearInstanceSelection = function() {
       delete $scope.selectedInstance;
     };

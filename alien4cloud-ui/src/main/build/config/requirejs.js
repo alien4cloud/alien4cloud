@@ -74,6 +74,7 @@ module.exports = function (grunt) {
           'angular-ui-router': 'empty:',
           'angular-translate-base': 'empty:',
           'angular-translate': 'empty:',
+          'angular-translate-storage-cookie': 'empty:',
           'angular-animate': 'empty:',
           'angular-xeditable': 'empty:',
           'angular-ui-select': 'empty:',

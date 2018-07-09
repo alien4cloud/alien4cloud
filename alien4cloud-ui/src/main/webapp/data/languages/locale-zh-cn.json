@@ -4,6 +4,11 @@
     "APPLICATION_ROLES" : "应用类型",
     "ARCHIVE_NAME" : "文件名（id）",
     "DEPLOY" : "部署",
+    "EXECUTION" : {
+      "HISTORY" : {
+        "DESCRIPTION" : "List of executions"
+      }
+    },
     "DEPLOYMENT" : {
       "HISTORY" : {
         "DEPLOYED_AT" : "部署在",
@@ -102,7 +107,8 @@
       "RUNTIMEPROPS" : "运行时属性",
       "SCALE" : "扩展",
       "SCALE_BUTTON" : "扩展这个节点",
-      "STATUS" : "状态"
+      "STATUS" : "状态",
+      "LOGS" : "Logs"
     },
     "TOPOLOGY" : {
       "ADD_NODETEMPLATE" : "添加节点模板",
@@ -470,6 +476,8 @@
     "NAME" : "名称",
     "NO" : "号",
     "NODE" : "节点",
+    "INSTANCE" : "Instance",
+    "OPERATION" : "Operation",
     "OR" : "或者",
     "PASSWORD" : "密码",
     "PATH" : "路径",
@@ -483,7 +491,35 @@
     "TYPE" : "类型",
     "USERNAME" : "用户名",
     "VERSION" : "版本",
-    "YES" : "是"
+    "YES" : "是",
+    "START_DATE" : "Start Date",
+    "END_DATE": "End Date",
+    "DURATION": "Duration",
+    "STATUS": "Status"
+  },
+  "ENTITY" : {
+    "EXECUTION" : {
+      "WORKFLOW" : "Workflow",
+      "STATUS" : {
+        "VALUES" : {
+          "SUCCEEDED" : "Succeeded",
+          "FAILED" : "Failed",
+          "RUNNING" : "Running",
+          "CANCELLED" : "Cancelled"
+        }
+      }
+    },
+    "TASK" : {
+      "STATUS" : {
+        "VALUES" : {
+          "STARTED" : "Started",
+          "SUCCEEDED" : "Succeeded",
+          "FAILED" : "Failed",
+          "SCHEDULED" : "Scheduled",
+          "CANCELLED" : "Cancelled"
+        }
+      }
+    }
   },
   "COMPONENTS" : {
     "ABSTRACT" : "抽象组件",
@@ -948,7 +984,7 @@
     "CONTACT" : "请联系您的Alien4Cloud管理员。",
     "RESTRICTED_END" : "访问此资源。",
     "RESTRICTED_START" : "您权限不够",
-    "WELCOME" : "欢迎来到"
+    "WELCOME" : "欢迎来到 ALIEN 4 Cloud"
   },
   "MODAL" : {
     "TITLE" : {
@@ -972,6 +1008,7 @@
   "NAVAPPLICATIONS" : {
     "MENU_DEPLOY_CURRENT" : "管理当前部署",
     "MENU_DEPLOY_CURRENT_INFO" : "信息",
+    "MENU_DEPLOY_CURRENT_EXEC" : "Executions",
     "MENU_DEPLOY_CURRENT_RUNTIME_EDITOR" : "运行时视图",
     "MENU_DEPLOY_CURRENT_WORKFLOW_VIEWER" : "工作流",
     "MENU_DEPLOY_NEXT" : "准备下一个部署",

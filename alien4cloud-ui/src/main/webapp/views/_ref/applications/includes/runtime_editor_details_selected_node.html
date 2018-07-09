@@ -82,20 +82,23 @@
             <th>{{ 'APPLICATIONS.RUNTIME.INSTANCE' | translate }}</th>
             <th>{{ 'COMMON.STATE' | translate }}</th>
             <th>{{ 'APPLICATIONS.RUNTIME.STATUS' | translate }}</th>
+            <th>{{ 'APPLICATIONS.RUNTIME.LOGS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
           <tr ng-repeat="(id, info) in topology.instances[selectedNodeTemplate.name]"
             id="instanceDetailButton_{{id}}"
             class="clickable"
-            title="details"
-            ng-click="selectInstance(id)" >
-            <td class="col-md-4">{{id}}</td>
-            <td class="col-md-6">{{'STATES.'+info.state | translate}}</td>
-            <td class="col-md-1">
+            title="details">
+            <td class="col-md-4" ng-click="selectInstance(id)">{{id}}</td>
+            <td class="col-md-6" ng-click="selectInstance(id)">{{'STATES.'+info.state | translate}}</td>
+            <td class="col-md-1" ng-click="selectInstance(id)">
               <i class="fa" ng-class="{'fa-check text-success': info.instanceStatus === 'SUCCESS',
               'fa-times text-danger': info.instanceStatus === 'FAILURE',
               'fa-spinner fa-spin' : info.instanceStatus === 'PROCESSING'}"></i>
+            </td>
+            <td class="col-md-1">
+              <i class="fa fa-newspaper-o" ng-click="displayLogs(id)"></i>
             </td>
           </tr>
         </tbody>

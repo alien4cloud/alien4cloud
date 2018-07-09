@@ -21,15 +21,24 @@
             </div>
         </div>
     </div>
-    <div class="row" ng-if="deploymentTopologyDTO.validation.infoList['LOG'].length > 0">
-        <div class="col-md-12">
-            <div class="text-info" ng-repeat="task in deploymentTopologyDTO.validation.infoList['LOG']">
-                <i class="fa fa-info fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+
+    <span class=" text-info "
+          ng-init="isLogListCollapsed = true"
+          ng-click="isLogListCollapsed = !isLogListCollapsed"
+          ng-show="deploymentTopologyDTO.validation.infoList['LOG'].length > 0">
+             <i ng-class="{'fa fa-angle-double-down fa-lg' : isLogListCollapsed,  'fa fa-angle-double-up fa-lg' : !isLogListCollapsed }"></i>
+             <i class="fa fa-info"></i>
+    <div ng-if="deploymentTopologyDTO.validation.infoList['LOG'].length > 0" uib-collapse="isLogListCollapsed">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-info" ng-repeat="task in deploymentTopologyDTO.validation.infoList['LOG']">
+                    <i class="fa fa-info fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+                </div>
             </div>
         </div>
     </div>
 
-    <div ng-repeat="(taskCode, tasks) in deploymentTopologyDTO.validation.warningList" ng-switch="taskCode">
+    <div ng-repeat="(taskCode, stepTasks) in deploymentTopologyDTO.validation.warningList" ng-switch="taskCode">
       <div ng-switch-when="PROPERTIES">
         <div class="content-head-error">
           <span>{{'APPLICATIONS.TOPOLOGY.WARNING.PROPERTIES.LABEL' | translate}}</span>
@@ -45,7 +54,7 @@
                   </th>
                 </thead>
                 <tbody>
-                  <tr ng-repeat="task in tasks">
+                  <tr ng-repeat="task in stepTasks">
                       <td>{{task.nodeTemplateName || '---'}}</td>
                       <td>{{task.properties['WARNING'] | a2s:','}}</td>
                   </tr>
@@ -69,7 +78,7 @@
               <th>{{'APPLICATIONS.TOPOLOGY.WARNING.ILLEGAL_OPERATIONS.RELATIONSHIP_TYPE' | translate}}</th>
               </thead>
               <tbody>
-              <tr ng-repeat="task in tasks">
+              <tr ng-repeat="task in stepTasks">
                   <td>{{task.nodeTemplateName || '---'}}</td>
                   <td>{{task.serviceName || '---'}}</td>
                   <td>{{task.operationName || '---'}}</td>

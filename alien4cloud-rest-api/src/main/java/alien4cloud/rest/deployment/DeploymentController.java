@@ -90,7 +90,7 @@ public class DeploymentController {
      */
     @ApiOperation(value = "Search for deployments", notes = "Returns a search result with that contains deployments matching the request.")
     @RequestMapping(value = "/search", method = RequestMethod.GET)
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<FacetedSearchResult> search(
             @ApiParam(value = "Query text.") @RequestParam(required = false) String query,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,

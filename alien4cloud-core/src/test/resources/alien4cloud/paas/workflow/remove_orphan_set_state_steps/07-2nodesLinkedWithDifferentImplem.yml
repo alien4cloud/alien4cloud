@@ -1,0 +1,266 @@
+description: node2 dependsOn node1
+name: install
+initial:
+  steps:
+    node1_initial:
+      node: node1
+      state: initial
+      to:
+        - node1_creating
+    node1_creating:
+      node: node1
+      state: creating
+      to:
+        - node1_create
+    node1_create:
+      node: node1
+      interf: tosca.interfaces.node.lifecycle.Standard
+      operation: create
+      to:
+        - node1_created
+    node1_created:
+      node: node1
+      state: created
+      to:
+        - node1_configuring
+    node1_configuring:
+      node: node1
+      state: configuring
+      to:
+        - node2_preconfigure_target
+    node2_preconfigure_target:
+      node: node2
+      relation: 2dependsOn1
+      interf: tosca.interfaces.relationship.Configure
+      operation: pre_configure_target
+      to:
+        - node1_configure
+    node1_configure:
+      node: node1
+      interf: tosca.interfaces.node.lifecycle.Standard
+      operation: configure
+      to:
+        - node2_postconfigure_target
+    node2_postconfigure_target:
+      node: node2
+      relation: 2dependsOn1
+      interf: tosca.interfaces.relationship.Configure
+      operation: post_configure_target
+      to:
+        - node1_configured
+    node1_configured:
+      node: node1
+      state: configured
+      to:
+        - node1_starting
+    node1_starting:
+      node: node1
+      state: starting
+      to:
+        - node1_start
+    node1_start:
+      node: node1
+      interf: tosca.interfaces.node.lifecycle.Standard
+      operation: start
+      to:
+        - node1_started
+    node1_started:
+      node: node1
+      state: started
+      to:
+        - node2_initial
+        - node2_add_target
+        - node2_add_source
+    node2_initial:
+      node: node2
+      state: initial
+      to:
+        - node2_creating
+    node2_creating:
+      node: node2
+      state: creating
+      to:
+        - node2_created
+    node2_created:
+      node: node2
+      state: created
+      to:
+        - node2_configuring
+    node2_configuring:
+      node: node2
+      state: configuring
+      to:
+        - node2_preconfigure_source
+    node2_preconfigure_source:
+      node: node2
+      relation: 2dependsOn1
+      interf: tosca.interfaces.relationship.Configure
+      operation: pre_configure_source
+      to:
+        - node2_postconfigure_source
+    node2_postconfigure_source:
+      node: node2
+      relation: 2dependsOn1
+      interf: tosca.interfaces.relationship.Configure
+      operation: post_configure_source
+      to:
+        - node2_configured
+    node2_configured:
+      node: node2
+      state: configured
+      to:
+        - node2_starting
+    node2_starting:
+      node: node2
+      state: starting
+      to:
+        - node2_start
+    node2_start:
+      node: node2
+      interf: tosca.interfaces.node.lifecycle.Standard
+      operation: start
+      to:
+        - node2_started
+    node2_started:
+      node: node2
+      state: started
+      to:
+        - node2_add_target
+        - node2_add_source
+    node2_add_target:
+      node: node2
+      relation: 2dependsOn1
+      interf: tosca.interfaces.relationship.Configure
+      operation: add_target
+    node2_add_source:
+      node: node2
+      relation: 2dependsOn1
+      interf: tosca.interfaces.relationship.Configure
+      operation: add_source
+expected:
+  steps:
+    node1_initial:
+      node: node1
+      state: initial
+      to:
+        - node1_creating
+    node1_creating:
+      node: node1
+      state: creating
+      to:
+        - node1_create
+    node1_create:
+      node: node1
+      interf: tosca.interfaces.node.lifecycle.Standard
+      operation: create
+      to:
+        - node1_created
+    node1_created:
+      node: node1
+      state: created
+      to:
+        - node1_configuring
+    node1_configuring:
+      node: node1
+      state: configuring
+      to:
+        - node2_preconfigure_target
+    node2_preconfigure_target:
+      node: node2
+      relation: 2dependsOn1
+      interf: tosca.interfaces.relationship.Configure
+      operation: pre_configure_target
+      to:
+        - node1_configure
+    node1_configure:
+      node: node1
+      interf: tosca.interfaces.node.lifecycle.Standard
+      operation: configure
+      to:
+        - node2_postconfigure_target
+    node2_postconfigure_target:
+      node: node2
+      relation: 2dependsOn1
+      interf: tosca.interfaces.relationship.Configure
+      operation: post_configure_target
+      to:
+        - node1_configured
+    node1_configured:
+      node: node1
+      state: configured
+      to:
+        - node1_starting
+    node1_starting:
+      node: node1
+      state: starting
+      to:
+        - node1_start
+    node1_start:
+      node: node1
+      interf: tosca.interfaces.node.lifecycle.Standard
+      operation: start
+      to:
+        - node1_started
+    node1_started:
+      node: node1
+      state: started
+      to:
+        - node2_initial
+        - node2_add_target
+        - node2_add_source
+    node2_initial:
+      node: node2
+      state: initial
+      to:
+        - node2_configuring
+    node2_configuring:
+      node: node2
+      state: configuring
+      to:
+        - node2_preconfigure_source
+    node2_preconfigure_source:
+      node: node2
+      relation: 2dependsOn1
+      interf: tosca.interfaces.relationship.Configure
+      operation: pre_configure_source
+      to:
+        - node2_postconfigure_source
+    node2_postconfigure_source:
+      node: node2
+      relation: 2dependsOn1
+      interf: tosca.interfaces.relationship.Configure
+      operation: post_configure_source
+      to:
+        - node2_configured
+    node2_configured:
+      node: node2
+      state: configured
+      to:
+        - node2_starting
+    node2_starting:
+      node: node2
+      state: starting
+      to:
+        - node2_start
+    node2_start:
+      node: node2
+      interf: tosca.interfaces.node.lifecycle.Standard
+      operation: start
+      to:
+        - node2_started
+    node2_started:
+      node: node2
+      state: started
+      to:
+        - node2_add_target
+        - node2_add_source
+    node2_add_target:
+      node: node2
+      relation: 2dependsOn1
+      interf: tosca.interfaces.relationship.Configure
+      operation: add_target
+    node2_add_source:
+      node: node2
+      relation: 2dependsOn1
+      interf: tosca.interfaces.relationship.Configure
+      operation: add_source

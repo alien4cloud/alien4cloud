@@ -15,7 +15,7 @@ import org.elasticsearch.annotation.ESObject;
 @ESObject
 @NoArgsConstructor
 @ToString
-public class AbstractPaaSWorkflowMonitorEvent extends AbstractMonitorEvent {
+public abstract class AbstractPaaSWorkflowMonitorEvent extends AbstractMonitorEvent {
 
     private String workflowId;
     private String executionId;

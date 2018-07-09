@@ -12,6 +12,7 @@ define(function (require) {
   require('scripts/authentication/directives/navbar');
   require('scripts/authentication/services/authservices');
 
+
   modules.get('a4c-auth', ['pascalprecht.translate', 'ng-hopscotch']).controller('alienNavBarCtrl',
     ['$rootScope', '$scope', 'authService', 'quickSearchServices', '$translate', 'hopscotchService', '$http',
     function($rootScope, $scope, authService, quickSearchServices, $translate, hopscotchService, $http) {
@@ -47,6 +48,10 @@ define(function (require) {
       };
 
       authService.getStatus();
+
+      $http.get('/rest/latest/configuration/supportedLanguages').then(function(result) {
+        $scope.supportedLanguages = result.data.data;
+      });
 
       /* i18n */
       $scope.changeLanguage = function(langKey) {

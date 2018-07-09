@@ -4,6 +4,11 @@
     "APPLICATION_ROLES" : "アプリケーションロール",
     "ARCHIVE_NAME" : "Archive name (Id)",
     "DEPLOY" : "デプロイ",
+    "EXECUTION" : {
+      "HISTORY" : {
+        "DESCRIPTION" : "List of executions"
+      }
+    },
     "DEPLOYMENT" : {
       "HISTORY" : {
         "DEPLOYED_AT" : "Deployed at",
@@ -102,7 +107,8 @@
       "RUNTIMEPROPS" : "ランタイムプロパティ",
       "SCALE" : "スケール",
       "SCALE_BUTTON" : "Scale this node",
-      "STATUS" : "Status"
+      "STATUS" : "Status",
+      "LOGS" : "Logs"
     },
     "TOPOLOGY" : {
       "ADD_NODETEMPLATE" : "ノードテンプレートの追加",
@@ -470,6 +476,8 @@
     "NAME" : "名前",
     "NO" : "No",
     "NODE" : "ノード",
+    "INSTANCE" : "Instance",
+    "OPERATION" : "Operation",
     "OR" : "TRANSLATION_IS_REQUIRED",
     "PASSWORD" : "Password",
     "PATH" : "Path",
@@ -483,7 +491,35 @@
     "TYPE" : "タイプ",
     "USERNAME" : "Username",
     "VERSION" : "バージョン",
-    "YES" : "Yes"
+    "YES" : "Yes",
+    "START_DATE" : "Start Date",
+    "END_DATE": "End Date",
+    "DURATION": "Duration",
+    "STATUS": "Status"
+  },
+  "ENTITY" : {
+    "EXECUTION" : {
+      "WORKFLOW" : "Workflow",
+      "STATUS" : {
+        "VALUES" : {
+          "SUCCEEDED" : "Succeeded",
+          "FAILED" : "Failed",
+          "RUNNING" : "Running",
+          "CANCELLED" : "Cancelled"
+        }
+      }
+    },
+    "TASK" : {
+      "STATUS" : {
+        "VALUES" : {
+          "STARTED" : "Started",
+          "SUCCEEDED" : "Succeeded",
+          "FAILED" : "Failed",
+          "SCHEDULED" : "Scheduled",
+          "CANCELLED" : "Cancelled"
+        }
+      }
+    }
   },
   "COMPONENTS" : {
     "ABSTRACT" : "抽象コンポーネント",
@@ -947,8 +983,8 @@
   "MAIN" : {
     "CONTACT" : "Alien 4 Cloud の管理者へ問い合わせてください。",
     "RESTRICTED_END" : "to access to this resource.",
-    "RESTRICTED_START" : "You are not enough",
-    "WELCOME" : "ようこそ"
+    "RESTRICTED_START" : "You don't have enough privileges ",
+    "WELCOME" : "ようこそ ALIEN 4 Cloud"
   },
   "MODAL" : {
     "TITLE" : {
@@ -972,6 +1008,7 @@
   "NAVAPPLICATIONS" : {
     "MENU_DEPLOY_CURRENT" : "Manage current deployment",
     "MENU_DEPLOY_CURRENT_INFO" : "情報",
+    "MENU_DEPLOY_CURRENT_EXEC" : "Executions",
     "MENU_DEPLOY_CURRENT_RUNTIME_EDITOR" : "ランタイム",
     "MENU_DEPLOY_CURRENT_WORKFLOW_VIEWER" : "Workflow",
     "MENU_DEPLOY_NEXT" : "Prepare next deployment",
