@@ -30,13 +30,13 @@
                       onbeforesave="moveModifier($index, $data)"
                       e-step="1"
                       e-min="0"
-                      e-max="100"
+                      e-max="{{locationModifiers.length - 1}}"
                       e-required
                       e-onkeypress="if (event.which==13) {$('#scaleEditableInput button.btn-primary').click(); event.preventDefault();}">
                 {{$index}}
                 <span id="scaleEditableButton" class="btn btn-primary btn-xs"
                       uib-tooltip="">
-                  <i class="fa fa-signal"></i>
+                  <i class="fa fa-bars"></i>
                 </span>
               </div>
             </td>
