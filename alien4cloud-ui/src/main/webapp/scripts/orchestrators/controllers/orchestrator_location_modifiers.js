@@ -25,6 +25,7 @@ define(function (require) {
   modules.get('a4c-orchestrators').controller('OrchestratorLocationModifiersCtrl', ['$scope', '$http', '$alresource', '$uibModal',
     function($scope, $http, $alresource, $uibModal) {
       var locationModifierResource = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/modifiers/:modifierIndex');
+      var locationMoveModifierResource = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/modifiers/from/:fromIndex/to/:toIndex');
 
       $http.get('rest/latest/plugincomponents?type=ITopologyModifier').then(function(response) {
         if (_.defined(response.data.data)) {
@@ -43,6 +44,14 @@ define(function (require) {
       $scope.deleteModifier = function(index) {
         locationModifierResource.remove(
           { orchestratorId: $scope.context.orchestrator.id, locationId: $scope.context.location.id, modifierIndex: index },
+          function(){
+            updateList();
+          });
+      };
+
+      $scope.moveModifier = function(from, to) {
+          locationMoveModifierResource.update(
+          { orchestratorId: $scope.context.orchestrator.id, locationId: $scope.context.location.id, fromIndex: from, toIndex: to }, undefined,
           function(){
             updateList();
           });
