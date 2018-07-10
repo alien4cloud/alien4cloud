@@ -13,6 +13,8 @@ import javax.inject.Inject;
 
 import alien4cloud.application.ApplicationEnvironmentService.DeleteApplicationEnvironments;
 import alien4cloud.application.ApplicationVersionService.DeleteApplicationVersions;
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.exception.RenameDeployedException;
 import alien4cloud.images.ImageDAO;
 import alien4cloud.model.application.ApplicationVersion;
 import org.alien4cloud.alm.events.AfterApplicationDeleted;
@@ -51,6 +53,10 @@ public class ApplicationService {
     private ApplicationVersionService applicationVersionService;
     @Resource
     private ApplicationEventPublisher publisher;
+
+    @Resource
+    private DeploymentService deploymentService;
+
     @Resource
     private ImageDAO imageDAO;
 
@@ -112,6 +118,11 @@ public class ApplicationService {
      */
     public void update(String applicationId, String newName, String newDescription) {
         Application application = checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
+
+        Deployment[] deployments = deploymentService.getActiveDeployments(null,applicationId,0,1);
+        if (deployments.length > 0) {
+            throw new RenameDeployedException("Application [" + applicationId + "] is deployed");
+        }
 
         if (newName != null && !newName.isEmpty() && !application.getName().equals(newName)) {
             checkApplicationName(newName);

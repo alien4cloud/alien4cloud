@@ -826,6 +826,7 @@
       "TITLE" : "Workflow execution",
       "MESSAGE" : "Workflow {{workflowId}} fails to be executed."
     },
+    "620" : "Un objet déployé ne peut être renommé.",
     "650" : "Au moins deux de vos Compute ont un conflit de nom.",
     "651" : "Un BlockStorage ne peut pas avoir un volumeId lorsque le cloud a l'option 'deletable' d'activée.",
     "680" : "Le repository Git n'existe pas ou n'est pas valide.",
