@@ -156,7 +156,7 @@
              <i class="pull-left fa fa-x {{fromStatusToCssClasses(selectedEnvironment)}}" tooltip="{{'DEPLOYMENT.STATUS.' + e.status | translate }}" tooltip-append-to-body="true"
              ></i> {{$select.selected.name}}</ui-select-match>
           <ui-select-choices repeat="e in appEnvironments.environments | filter: $select.search | orderBy: 'name'">
-            <i class="fa fa-x {{fromStatusToCssClasses(selectedEnvironment)}}" tooltip="{{'DEPLOYMENT.STATUS.' + e.status | translate }}" tooltip-append-to-body="true"
+            <i class="fa fa-x {{fromStatusToCssClasses(e)}}" tooltip="{{'DEPLOYMENT.STATUS.' + e.status | translate }}" tooltip-append-to-body="true"
             ></i> <span ng-bind-html="e.name | highlight: $select.search"></span>
           </ui-select-choices>
         </ui-select>
