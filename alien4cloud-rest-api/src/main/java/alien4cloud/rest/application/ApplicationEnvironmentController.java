@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.exception.RenameDeployedException;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
@@ -65,6 +67,8 @@ public class ApplicationEnvironmentController {
     private ApplicationService applicationService;
     @Resource
     private ApplicationVersionService applicationVersionService;
+    @Resource
+    private DeploymentService deploymentService;
     @Inject
     private ApplicationEnvironmentDTOBuilder dtoBuilder;
 
@@ -244,6 +248,12 @@ public class ApplicationEnvironmentController {
         if (applicationEnvironment == null) {
             return RestResponseBuilder.<Void> builder().data(null).error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
                     .message("Application environment with id <" + applicationEnvironmentId + "> does not exist").build()).build();
+        }
+
+        if (request.getName() != null && (!request.getName().equals(applicationEnvironment.getName()))) {
+            if (deploymentService.getActiveDeployment(applicationEnvironmentId) != null) {
+                throw new RenameDeployedException("Environment [" + applicationEnvironment.getName() + "] is deployed");
+            }
         }
 
         applicationEnvironmentService.ensureNameUnicity(applicationEnvironment.getApplicationId(), request.getName());

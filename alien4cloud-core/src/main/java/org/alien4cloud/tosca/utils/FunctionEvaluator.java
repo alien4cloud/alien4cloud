@@ -184,7 +184,10 @@ public class FunctionEvaluator {
 
         for (AbstractPropertyValue abstractPropertyValue : concatPropertyValue.getParameters()) {
             AbstractPropertyValue propertyValue = resolveValue(evaluatorContext, template, properties, abstractPropertyValue);
-            if (propertyValue instanceof ScalarPropertyValue) {
+
+            if (propertyValue == null) {
+                // Ignore this as it may be a null default value
+            } else if (propertyValue instanceof ScalarPropertyValue) {
                 sb.append(((ScalarPropertyValue) propertyValue).getValue());
             } else if (propertyValue instanceof ListPropertyValue) {
                 for (Object listValue : ((ListPropertyValue) propertyValue).getValue()) {

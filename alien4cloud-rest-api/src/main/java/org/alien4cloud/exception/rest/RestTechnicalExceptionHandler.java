@@ -378,6 +378,16 @@ public class RestTechnicalExceptionHandler {
                 .message("Application environment delete error : " + e.getMessage()).build()).build();
     }
 
+    @ExceptionHandler(value = RenameDeployedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> renameDeployedErrorHandler(RenameDeployedException e) {
+        log.error("Rename deployed object error: {}",e.getMessage());
+
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.RENAME_DEPLOYED_ERROR)
+                .message("Object rename error : " + e.getMessage()).build()).build();
+    }
+
     @ExceptionHandler(value = ExpressionException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody

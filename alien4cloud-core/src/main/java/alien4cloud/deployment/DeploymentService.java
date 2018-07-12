@@ -79,6 +79,33 @@ public class DeploymentService {
     }
 
     /**
+     * Get all active deployments for a given orchestrator an application
+     *
+     * @param orchestratorId Id of the cloud for which to get deployments (can be null to get deployments for all clouds).
+     * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
+     * @return An array of deployments.
+     */
+    public Deployment[] getActiveDeployments(String orchestratorId, String sourceId, int from, int size) {
+        FilterBuilder filterBuilder = null;
+        if (orchestratorId != null) {
+            filterBuilder = FilterBuilders.termFilter("orchestratorId", orchestratorId);
+        }
+        if (sourceId != null) {
+            FilterBuilder sourceFilter = FilterBuilders.termFilter("sourceId", sourceId);
+            filterBuilder = filterBuilder == null ? sourceFilter : FilterBuilders.andFilter(sourceFilter, filterBuilder);
+        }
+
+        FilterBuilder missingFilter = FilterBuilders.missingFilter("endDate");
+        filterBuilder = filterBuilder == null ? missingFilter : FilterBuilders.andFilter(missingFilter, filterBuilder);
+
+        IESQueryBuilderHelper<Deployment> queryBuilderHelper = alienDao.buildQuery(Deployment.class);
+        if (filterBuilder != null) {
+            queryBuilderHelper.setFilters(filterBuilder);
+        }
+        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", true).search(from, size).getData();
+    }
+
+    /**
      * Get a deployment given its id
      *
      * @param id id of the deployment
@@ -204,19 +231,13 @@ public class DeploymentService {
         return false;
     }
 
-    public Map<String, PaaSTopologyDeploymentContext> getCloudActiveDeploymentContexts(String orchestratorId) {
+    public Map<String, String> getCloudActiveDeploymentContexts(String orchestratorId) {
         Deployment[] deployments = getOrchestratorActiveDeployments(orchestratorId);
-        Map<String, PaaSTopologyDeploymentContext> activeDeploymentContexts = Maps.newHashMap();
+        Map<String, String> result = Maps.newHashMap();
         for (Deployment deployment : deployments) {
-            try {
-                DeploymentTopology topology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
-                activeDeploymentContexts.put(deployment.getOrchestratorDeploymentId(),
-                        deploymentContextService.buildTopologyDeploymentContext(deployment, deploymentTopologyService.getLocations(topology), topology));
-            } catch(Exception e) {
-                log.error("Not able to get the topology for deployment <" + deployment.getOrchestratorDeploymentId() + "> on orchestrator <" + orchestratorId + ">", e);
-            }
+            result.put(deployment.getOrchestratorDeploymentId(), deployment.getId());
         }
-        return activeDeploymentContexts;
+        return result;
     }
 
     private Deployment[] getOrchestratorActiveDeployments(String orchestratorId) {
