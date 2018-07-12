@@ -231,19 +231,13 @@ public class DeploymentService {
         return false;
     }
 
-    public Map<String, PaaSTopologyDeploymentContext> getCloudActiveDeploymentContexts(String orchestratorId) {
+    public Map<String, String> getCloudActiveDeploymentContexts(String orchestratorId) {
         Deployment[] deployments = getOrchestratorActiveDeployments(orchestratorId);
-        Map<String, PaaSTopologyDeploymentContext> activeDeploymentContexts = Maps.newHashMap();
+        Map<String, String> result = Maps.newHashMap();
         for (Deployment deployment : deployments) {
-            try {
-                DeploymentTopology topology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
-                activeDeploymentContexts.put(deployment.getOrchestratorDeploymentId(),
-                        deploymentContextService.buildTopologyDeploymentContext(deployment, deploymentTopologyService.getLocations(topology), topology));
-            } catch(Exception e) {
-                log.error("Not able to get the topology for deployment <" + deployment.getOrchestratorDeploymentId() + "> on orchestrator <" + orchestratorId + ">", e);
-            }
+            result.put(deployment.getOrchestratorDeploymentId(), deployment.getId());
         }
-        return activeDeploymentContexts;
+        return result;
     }
 
     private Deployment[] getOrchestratorActiveDeployments(String orchestratorId) {

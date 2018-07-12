@@ -390,7 +390,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
-    public void init(Map<String, PaaSTopologyDeploymentContext> activeDeployments) {
+    public void init(Map<String, String> activeDeployments) {
 
     }
 
