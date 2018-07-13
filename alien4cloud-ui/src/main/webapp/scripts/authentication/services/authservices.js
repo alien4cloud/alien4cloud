@@ -87,7 +87,7 @@ define(function(require) {
 
         getRolesForResource: function(resource, userStatus) {
           var allRoles;
-          var userRoles = _.get(resource, 'userRoles[' + userStatus.username + ']', []);
+          var userRoles = _.get(resource, 'userRoles["' + userStatus.username + '"]', []);
           if (!_.isEmpty(userRoles)) {
             allRoles = userRoles;
           }
