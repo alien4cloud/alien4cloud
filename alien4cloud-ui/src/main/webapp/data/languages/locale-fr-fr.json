@@ -108,7 +108,31 @@
       "SCALE" : "Scale",
       "SCALE_BUTTON" : "Scale le noeud",
       "STATUS" : "Statut",
-      "LOGS" : "Journaux"
+      "LOGS" : "Journaux",
+      "LOG": {
+        "MENU_ENTRY" : "Journaux",
+        "TITLE": "Journaux du deploiement",
+        "TIMESTAMP": "Timestamp",
+        "CONTENT": "Contenu",
+        "DEPLOYMENTPAASID" : "Deploiement PaaS",
+        "EXECUTIONID": "Exécution",
+        "INSTANCEID": "Instance",
+        "INTERFACENAME": "Interface",
+        "LEVEL": "Niveau",
+        "NODEID": "Noeud",
+        "OPERATIONNAME": "Opération",
+        "TYPE": "Type",
+        "WORKFLOWID": "Workflow",
+        "ACTIVE_FILTERS": "Filtres actifs",
+        "FROM_DATE": "De",
+        "TO_DATE": "A",
+        "SHOW_ADVANCED_SEARCH": "Recherche avancée",
+        "HIDE_ADVANCED_SEARCH": "Recherche simple",
+        "TAIL_LOG": "Suivre les journaux du deploiement",
+        "SEARCH": "Recherche",
+        "MODAL_TITLE": "Afficher/masquer les colonnes",
+        "DETAILS_TITLE": "Détails"
+      }
     },
     "TOPOLOGY" : {
       "ADD_NODETEMPLATE" : "Ajouter un Noeud",

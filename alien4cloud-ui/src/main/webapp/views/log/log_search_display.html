@@ -1,0 +1,25 @@
+<div id="log-search-result-panel" ng-if="!_.isEmpty(searchConfig.result.data)">
+  <div id="log-search-result-container" style="-webkit-font-smoothing: antialiased; background-color: #333; color: #f5f5f5; font-family: 'Source Code Pro', Menlo, Monaco, Consolas, 'Courier New', monospace; font-size: 1.2rem; padding: 10px; overflow-y: scroll; max-height: {{heightInfo.height}}px;"
+    scroll-bottom="searchConfig.result.data" scroll-bottom-enabled="autoRefreshEnabled">
+
+    <!-- -Column display config button-->
+    <span tooltip="{{'APPLICATIONS.RUNTIME.LOG.MODAL_TITLE' | translate}}" style="position: absolute; right: 40px; margin-top: -5px;"><i
+      ng-click="openSelectColumnsModal()" class="btn btn-default btn-xs fa fa-cogs"></i></span>
+
+    <empty-place-holder
+      data="searchConfig.result.data">
+    </empty-place-holder>
+
+    <!-- logs display-->
+    <div ng-repeat="log in searchConfig.result.data | reverse track by log.id" style="padding-left: 3.6em">
+      <!-- Task type icon -->
+      <i class="{{typeToClass[log.type||'']}}" style="margin-left: -3.6em;" title = "{{log.type||'other'}}"></i>
+
+      <!-- Log level icon -->
+      <i class="{{levelToClass[log.level]}}" title = "{{log.level}}"></i>
+
+      <span ng-repeat="column in columns" ng-show="column.visible" style="white-space: pre-line; word-wrap: break-word;"><span ng-if="column.field!=='content'">[</span>{{log[column.field]}}<span ng-if="column.field!=='content'">]</span> </span>
+    </div>
+  </div>
+  <pagination-directive pagination-info="searchConfig.service.pagination"></pagination-directive>
+</div>
