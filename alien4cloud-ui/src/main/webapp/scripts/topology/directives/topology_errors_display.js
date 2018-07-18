@@ -9,7 +9,7 @@ define(function(require) {
       templateUrl: 'views/applications/directives/properties_errors_display.html',
       restrict: 'E',
       scope: {
-        'tasks': '='
+        'stepTasks': '=tasks'
       },
       link: function (){
       }
@@ -20,7 +20,7 @@ define(function(require) {
       templateUrl: 'views/applications/directives/scalability_errors_display.html',
       restrict: 'E',
       scope: {
-        'tasks': '='
+        'stepTasks': '=tasks'
       },
       link: function (){
       }
@@ -31,7 +31,7 @@ define(function(require) {
       templateUrl: 'views/applications/directives/node_filters_errors_display.html',
       restrict: 'E',
       scope: {
-        'tasks': '=',
+        'stepTasks': '=tasks',
         'inputColumn': '='
       },
       link: function (scope){
@@ -44,7 +44,7 @@ define(function(require) {
       templateUrl: 'views/applications/directives/lowerbound_errors_display.html',
       restrict: 'E',
       scope: {
-        'tasks': '='
+        'stepTasks': '=tasks'
       },
       link: function (){
       }
@@ -55,7 +55,7 @@ define(function(require) {
       templateUrl: 'views/applications/directives/input_artifacts_errors_display.html',
       restrict: 'E',
       scope: {
-        'tasks': '='
+        'stepTasks': '=tasks'
       },
       link: function (){
       }
@@ -66,7 +66,7 @@ define(function(require) {
       templateUrl: 'views/applications/directives/artifacts_errors_display.html',
       restrict: 'E',
       scope: {
-        'tasks': '='
+        'stepTasks': '=tasks'
       },
       link: function (){
       }
