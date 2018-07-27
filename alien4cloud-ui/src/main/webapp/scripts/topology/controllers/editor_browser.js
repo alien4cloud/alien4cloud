@@ -90,6 +90,12 @@ define(function (require) {
         $scope.showSelected(selected);
         explorerService.expand($scope.expandedNodes, $scope.selected.fullPath, root, false);
       }
+      if (!_.undefined(aceEditor)) {
+        $scope.aceFilePath=undefined;
+        $scope.selected = null;
+        $scope.filePath = '';
+        aceEditor.getSession().setValue('',0);
+      }
     }
 
     function getAnnotations(errorsMap){
