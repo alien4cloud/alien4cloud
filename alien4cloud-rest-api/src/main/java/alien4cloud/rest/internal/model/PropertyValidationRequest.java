@@ -17,7 +17,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class PropertyValidationRequest {
     @NotEmpty
     @ApiModelProperty(value = "Value to set for the property.", required = true)
-    private String value;
+    private Object value;
     @NotEmpty
     @ApiModelProperty(value = "Id of the property to set.", required = true)
     private String definitionId;
