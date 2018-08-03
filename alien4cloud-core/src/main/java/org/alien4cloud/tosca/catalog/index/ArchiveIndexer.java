@@ -122,7 +122,11 @@ public class ArchiveIndexer {
 
         // Ensure that the archive does not already exists
         ensureUniqueness(csar.getName(), csar.getVersion());
-        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology, csar));
+
+        // If created from template, the topology has already been initialized
+        if (!topology.isInitialized()) {
+            workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology, csar));
+        }
 
         // generate the initial yaml in a temporary directory
         if (csar.getYamlFilePath() == null) {

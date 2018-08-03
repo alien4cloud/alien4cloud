@@ -168,6 +168,13 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     @NestedObject(nestedClass = Tag.class)
     private List<Tag> tags;
 
+    /**
+     * Indicate if this topology has been already initialized
+     */
+    @ObjectField(enabled = false)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
+    private boolean initialized;
+
     @Id
     public String getId() {
         return Csar.createId(archiveName, archiveVersion);
@@ -191,4 +198,16 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     public boolean isEmpty() {
         return nodeTemplates == null || nodeTemplates.isEmpty();
     }
+
+    public void setInitialized(boolean flag) {
+        initialized = flag;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+	public Workflow getWorkflow(String name) {
+		return workflows.get(name);
+	}
 }

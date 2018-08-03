@@ -8,7 +8,6 @@ import static alien4cloud.utils.AlienUtils.safe;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,8 +15,6 @@ import java.util.Objects;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.utils.AlienUtils;
-import com.google.common.collect.Lists;
 import org.alien4cloud.alm.events.AfterApplicationTopologyVersionDeleted;
 import org.alien4cloud.alm.events.AfterApplicationVersionDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationTopologyVersionDeleted;
@@ -40,12 +37,18 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.common.ResourceUpdateInterceptor;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.exception.*;
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteLastApplicationVersionException;
+import alien4cloud.exception.DeleteReferencedObjectException;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.exception.ReferencedResourceException;
+import alien4cloud.exception.ReleaseReferencingSnapshotException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationTopologyVersion;
@@ -55,6 +58,7 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.parser.ToscaParser;
+import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.ArtifactUtil;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
@@ -209,6 +213,7 @@ public class ApplicationVersionService {
                             "Creating a new version of an application from the version of another application is not authorized.");
                 }
                 topology = topologyServiceCore.getOrFail(originalId);
+                topology.setInitialized(true);
             } else {
                 topology = getTemplateTopology(originalId);
             }
@@ -252,7 +257,9 @@ public class ApplicationVersionService {
             throw new AccessDeniedException(
                     "Creation of a new application topology version from a topology template should not be done using the id of the topology of an application.");
         }
-        return topologyServiceCore.getOrFail(archiveId);
+        Topology result = topologyServiceCore.getOrFail(archiveId);
+        result.setInitialized(true); // avoid doing redundant simplification
+        return result;
     }
 
     @SneakyThrows
