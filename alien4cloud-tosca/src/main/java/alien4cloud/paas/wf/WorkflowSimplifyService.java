@@ -79,7 +79,7 @@ public class WorkflowSimplifyService {
     }
 
     /**
-     * Simplify all the workflows
+     * Simplify all the workflows which have no custom modifications
      * @param tc Topology Context
      */
     public void simplifyWorkflow(TopologyContext tc) {
@@ -88,6 +88,8 @@ public class WorkflowSimplifyService {
 
     /**
      * Simplify only the workflows given inside the white list
+     * and which have no custom modifications
+     *
      * @param tc Topology Context
      * @param whiteList list of workflow names
      */
@@ -303,13 +305,14 @@ public class WorkflowSimplifyService {
     }
 
     private void doWithNode(TopologyContext tc, DoWithNodeCallBack callback, Set<String> whiteList) {
-        // workflows with custom modifications are not processed
-        AlienUtils.safe(tc.getTopology().getWorkflows()).values().stream().filter(wf -> !wf.isHasCustomModifications() && whiteList.contains(wf.getName()))
-                .forEach(wf -> AlienUtils.safe(tc.getTopology().getNodeTemplates()).keySet().forEach(nodeId -> {
-                    SubGraphFilter stepFilter = new NodeSubGraphFilter(wf, nodeId, tc.getTopology());
-                    SubGraph subGraph = new SubGraph(wf, stepFilter);
-                    callback.doWithNode(subGraph, wf);
-                }));
+        // Attention: workflows with custom modifications are not processed
+        AlienUtils.safe(tc.getTopology().getWorkflows()).values().stream()
+                  .filter(wf -> !wf.isHasCustomModifications() && whiteList.contains(wf.getName()))
+                  .forEach(wf -> AlienUtils.safe(tc.getTopology().getNodeTemplates()).keySet().forEach(nodeId -> {
+                      SubGraphFilter stepFilter = new NodeSubGraphFilter(wf, nodeId, tc.getTopology());
+                      SubGraph subGraph = new SubGraph(wf, stepFilter);
+                      callback.doWithNode(subGraph, wf);
+                  }));
     }
 
     private void flattenWorkflow(TopologyContext topologyContext, SubGraph subGraph) {

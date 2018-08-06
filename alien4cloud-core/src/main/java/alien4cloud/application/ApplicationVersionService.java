@@ -56,6 +56,7 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.service.ServiceResource;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.parser.ToscaParser;
 import alien4cloud.utils.AlienUtils;
@@ -86,6 +87,8 @@ public class ApplicationVersionService {
     private ICsarRepositry archiveRepositry;
     @Inject
     private ResourceUpdateInterceptor resourceUpdateInterceptor;
+    @Inject
+    private WorkflowsBuilderService workflowBuilderService;
 
     private Path tempDirPath;
 
@@ -213,7 +216,6 @@ public class ApplicationVersionService {
                             "Creating a new version of an application from the version of another application is not authorized.");
                 }
                 topology = topologyServiceCore.getOrFail(originalId);
-                topology.setInitialized(true);
             } else {
                 topology = getTemplateTopology(originalId);
             }
@@ -257,9 +259,7 @@ public class ApplicationVersionService {
             throw new AccessDeniedException(
                     "Creation of a new application topology version from a topology template should not be done using the id of the topology of an application.");
         }
-        Topology result = topologyServiceCore.getOrFail(archiveId);
-        result.setInitialized(true); // avoid doing redundant simplification
-        return result;
+        return topologyServiceCore.getOrFail(archiveId);
     }
 
     @SneakyThrows
@@ -279,6 +279,8 @@ public class ApplicationVersionService {
             csar.setToscaDefinitionsVersion(csarService.getOrFail(new Csar(oldArchiveName, oldArchiveVersion).getId()).getToscaDefinitionsVersion());
         } else {
             csar.setToscaDefinitionsVersion(ToscaParser.LATEST_DSL);
+            // Init the workflow if the new topology has no previous version
+            workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology, csar));
         }
         topology.setArchiveName(csar.getName());
         topology.setArchiveVersion(csar.getVersion());
