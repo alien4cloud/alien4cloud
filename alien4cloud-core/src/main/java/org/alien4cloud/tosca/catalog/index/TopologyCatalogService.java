@@ -49,6 +49,7 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
 
         Topology topology;
         if (fromTopologyId != null) { // "cloning" the topology
+        	// TODO Currently, the fromTopologyId is always null. If this implementation needed, please think about initializing the workflow
             topology = alienDAO.findById(Topology.class, fromTopologyId);
         } else {
             topology = new Topology();
