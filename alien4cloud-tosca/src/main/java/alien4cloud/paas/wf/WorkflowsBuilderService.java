@@ -1,15 +1,16 @@
 package alien4cloud.paas.wf;
 
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.RUN;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.RUN;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -26,6 +27,8 @@ import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkfl
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
@@ -76,7 +79,7 @@ public class WorkflowsBuilderService {
         return defaultDeclarativeWorkflowsPerDslVersion.get(dslVersion);
     }
 
-    public TopologyContext initWorkflows(TopologyContext topologyContext) {
+    public void initWorkflows(TopologyContext topologyContext) {
         Map<String, Workflow> wfs = topologyContext.getTopology().getWorkflows();
         if (wfs == null) {
             wfs = Maps.newLinkedHashMap();
@@ -98,16 +101,18 @@ public class WorkflowsBuilderService {
             initStandardWorkflow(RUN, topologyContext);
         }
         postProcessTopologyWorkflows(topologyContext);
-        return topologyContext;
     }
 
-    public void postProcessTopologyWorkflows(TopologyContext topologyContext) {
-        topologyContext.getTopology().getUnprocessedWorkflows().putAll(topologyContext.getTopology().getWorkflows().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> WorkflowUtils.cloneWorkflow(entry.getValue()))));
-        workflowSimplifyService.simplifyWorkflow(topologyContext);
-        for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
-            workflowValidator.validate(topologyContext, wf);
-        }
+	public void postProcessTopologyWorkflows(TopologyContext tc) {
+    	postProcessTopologyWorkflows(tc, tc.getTopology().getWorkflows().keySet());
+	}
+
+    public void postProcessTopologyWorkflows(TopologyContext topologyContext, Set<String> whiteList) {
+    	// Put aside the original workflow
+    	whiteList.forEach(name -> topologyContext.getTopology().getUnprocessedWorkflows().put(name, WorkflowUtils.cloneWorkflow(topologyContext.getTopology().getWorkflow(name))));
+    	// Simplify workflow
+        workflowSimplifyService.simplifyWorkflow(topologyContext, whiteList);
+        whiteList.forEach(name -> workflowValidator.validate(topologyContext, topologyContext.getTopology().getWorkflow(name)));
         debugWorkflow(topologyContext.getTopology());
     }
 
@@ -367,7 +372,7 @@ public class WorkflowsBuilderService {
         wf = builder.reinit(wf, topologyContext);
         WorkflowUtils.fillHostId(wf, topologyContext);
         if (simplify) {
-            postProcessTopologyWorkflows(topologyContext);
+            postProcessTopologyWorkflows(topologyContext, Sets.newHashSet(workflowName));
         }
     }
 
