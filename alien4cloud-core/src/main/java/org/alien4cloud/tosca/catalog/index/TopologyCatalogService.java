@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.tosca.parser.ToscaParser;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.model.Csar;
@@ -29,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topology> implements ITopologyCatalogService {
     @Inject
     private ArchiveIndexer archiveIndexer;
+    @Inject
+    private WorkflowsBuilderService workflowBuilderService;
 
     @Override
     public Topology createTopologyAsTemplate(String name, String description, String version, String workspace, String fromTopologyId) {
@@ -46,9 +49,12 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
 
         Topology topology;
         if (fromTopologyId != null) { // "cloning" the topology
+        	// TODO Currently, the fromTopologyId is always null. If this implementation needed, please think about initializing the workflow
             topology = alienDAO.findById(Topology.class, fromTopologyId);
         } else {
             topology = new Topology();
+            // Init the workflow if the topology is totally new
+            workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology, csar));
         }
         topology.setDescription(description);
         topology.setArchiveName(csar.getName());

@@ -78,18 +78,38 @@ public class WorkflowSimplifyService {
         }
     }
 
-    public void simplifyWorkflow(TopologyContext topologyContext) {
-        doWithNode(topologyContext, (subGraph, workflow) -> flattenWorkflow(topologyContext, subGraph));
-        doWithNode(topologyContext, (subGraph, workflow) -> removeUnnecessarySteps(topologyContext, workflow, subGraph));
-        if (ToscaParser.ALIEN_DSL_200.equals(topologyContext.getDSLVersion())) {
-            // only this DSL is compatible with this feature
-            removeOrphanSetStateSteps(topologyContext);
-            removeUselessEdges(topologyContext);
-        }
+    /**
+     * Simplify all the workflows which have no custom modifications
+     * @param tc Topology Context
+     */
+    public void simplifyWorkflow(TopologyContext tc) {
+        simplifyWorkflow(tc, tc.getTopology().getWorkflows().keySet());
     }
 
-    private void removeUselessEdges(TopologyContext topologyContext) {
-        topologyContext.getTopology().getWorkflows().values().forEach(this::removeUselessEdges);
+    /**
+     * Simplify only the workflows given inside the white list
+     * and which have no custom modifications
+     *
+     * @param tc Topology Context
+     * @param whiteList list of workflow names
+     */
+    public void simplifyWorkflow(TopologyContext tc, Set<String> whiteList) {
+        // 1. Flatten the workflow
+        doWithNode(tc, (subGraph, workflow) -> flattenWorkflow(tc, subGraph), whiteList);
+
+        // 2. Remove unnecessary steps
+        doWithNode(tc, (subGraph, workflow) -> removeUnnecessarySteps(tc, workflow, subGraph), whiteList);
+
+        if (ToscaParser.ALIEN_DSL_200.equals(tc.getDSLVersion())) {
+            // 3. Remove the orphan nodes
+            doWithNode(tc, ((subGraph, workflow) -> {
+				DefaultDeclarativeWorkflows dwf = workflowsBuilderService.getDeclarativeWorkflows(tc.getDSLVersion());
+				removeOrphanSetStateSteps(dwf, workflow);
+			}), whiteList);
+
+            // 4. Remove useless edges
+            doWithNode(tc, ((subGraph, workflow) -> removeUselessEdges(workflow)), whiteList);
+        }
     }
 
     protected void removeUselessEdges(Workflow wf) {
@@ -132,12 +152,7 @@ public class WorkflowSimplifyService {
 		return false;
 	}
 
-    private void removeOrphanSetStateSteps(TopologyContext topologyContext) {
-        DefaultDeclarativeWorkflows dwf = workflowsBuilderService.getDeclarativeWorkflows(topologyContext.getDSLVersion());
-        topologyContext.getTopology().getWorkflows().values().forEach(workflow -> removeOrphanSetStateSteps(workflow, dwf));
-    }
-
-    protected void removeOrphanSetStateSteps(Workflow workflow, DefaultDeclarativeWorkflows dwf) {
+    protected void removeOrphanSetStateSteps(DefaultDeclarativeWorkflows dwf, Workflow workflow) {
         // 1. Find all the set state operation pairs
         Map<String, String> pairs = new HashMap<>();
         Map<String, NodeOperationDeclarativeWorkflow> standardOps = dwf.getNodeWorkflows().get(workflow.getName()).getOperations();
@@ -289,14 +304,15 @@ public class WorkflowSimplifyService {
         }
     }
 
-    private void doWithNode(TopologyContext topologyContext, DoWithNodeCallBack callBack) {
-        // workflows with custom modifications are not processed
-        AlienUtils.safe(topologyContext.getTopology().getWorkflows()).values().stream().filter(workflow -> !workflow.isHasCustomModifications())
-                .forEach(workflow -> AlienUtils.safe(topologyContext.getTopology().getNodeTemplates()).keySet().forEach(nodeId -> {
-                    SubGraphFilter stepFilter = new NodeSubGraphFilter(workflow, nodeId, topologyContext.getTopology());
-                    SubGraph subGraph = new SubGraph(workflow, stepFilter);
-                    callBack.doWithNode(subGraph, workflow);
-                }));
+    private void doWithNode(TopologyContext tc, DoWithNodeCallBack callback, Set<String> whiteList) {
+        // Attention: workflows with custom modifications are not processed
+        AlienUtils.safe(tc.getTopology().getWorkflows()).values().stream()
+                  .filter(wf -> !wf.isHasCustomModifications() && whiteList.contains(wf.getName()))
+                  .forEach(wf -> AlienUtils.safe(tc.getTopology().getNodeTemplates()).keySet().forEach(nodeId -> {
+                      SubGraphFilter stepFilter = new NodeSubGraphFilter(wf, nodeId, tc.getTopology());
+                      SubGraph subGraph = new SubGraph(wf, stepFilter);
+                      callback.doWithNode(subGraph, wf);
+                  }));
     }
 
     private void flattenWorkflow(TopologyContext topologyContext, SubGraph subGraph) {

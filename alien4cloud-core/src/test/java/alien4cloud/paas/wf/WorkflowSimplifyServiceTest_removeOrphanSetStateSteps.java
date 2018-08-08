@@ -30,7 +30,7 @@ public class WorkflowSimplifyServiceTest_removeOrphanSetStateSteps extends Workf
     private void doTest(String testName, WorkflowTest test) {
         log.info("Testing {}", testName);
         log.debug("Initial workflow : " + WorkflowUtils.debugWorkflow(test.getInitial()));
-        workflowSimplifyService.removeOrphanSetStateSteps(test.getInitial(), defaultDeclarativeWorkflows);
+        workflowSimplifyService.removeOrphanSetStateSteps(defaultDeclarativeWorkflows, test.getInitial());
         log.debug("Actual workflow : " + WorkflowUtils.debugWorkflow(test.getInitial()));
         log.debug("Excpected workflow : " + WorkflowUtils.debugWorkflow(test.getExpected()));
         WorkflowTestUtils.assertSame(test.getExpected(), test.getInitial());
