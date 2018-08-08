@@ -90,5 +90,23 @@
         </div>
     </div>
 
-
+    <div class="col-md-12" style="margin-top: 20px;">
+        <div class="content-head">
+            <i class="fa fa-power-off"></i> {{'APPLICATIONS.WF.title' | translate}}
+        </div>
+    </div>
+    <div ng-controller="ApplicationEnvDeployCurrentWorkflowCtrl">
+        <div class="col-md-7">
+            <select name="wf-select" id="wf-select" ng-model="currentWorkflowName" ng-change="workflows.setCurrentWorkflowName(currentWorkflowName)">
+                <option ng-repeat="w in topology.topology.workflows" value="{{w.name}}" ng-selected="w.name === currentWorkflowName">{{w.name}}</option>
+            </select>
+        </div>
+        <div class="col-md-5">
+            <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button"
+                    ng-click="launchWorkflow()"
+                    ng-disabled="isLaunchingWorkflow" >
+                <i class="fa" ng-class="{'fa-play': !isLaunchingWorkflow, 'fa-spinner fa-spin': isLaunchingWorkflow}"></i> {{'APPLICATIONS.WF.launch' | translate}}
+            </button>
+        </div>
+    </div>
 </div>
