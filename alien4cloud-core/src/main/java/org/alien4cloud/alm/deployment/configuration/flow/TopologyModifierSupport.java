@@ -13,11 +13,13 @@ import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
+import org.alien4cloud.tosca.editor.operations.relationshiptemplate.DeleteRelationshipOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AddNodeProcessor;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.DeleteNodeProcessor;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.ReplaceNodeProcessor;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.UpdateNodePropertyValueProcessor;
 import org.alien4cloud.tosca.editor.processors.relationshiptemplate.AddRelationshipProcessor;
+import org.alien4cloud.tosca.editor.processors.relationshiptemplate.DeleteRelationshipProcessor;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
@@ -50,6 +52,9 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
 
     @Resource
     protected AddRelationshipProcessor addRelationshipProcessor;
+
+    @Resource
+    protected DeleteRelationshipProcessor deleteRelationshipProcessor;
 
     @Resource
     protected UpdateNodePropertyValueProcessor updateNodePropertyValueProcessor;
@@ -93,6 +98,13 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         addRelationshipOperation.setRelationshipName(relationShipName);
         addRelationshipProcessor.process(csar, topology, addRelationshipOperation);
         return sourceNode.getRelationships().get(relationShipName);
+    }
+
+    protected void removeRelationship(Csar csar, Topology topology, String sourceNodeName, String relationshipTemplateName) {
+        DeleteRelationshipOperation deleteRelationshipOperation = new DeleteRelationshipOperation();
+        deleteRelationshipOperation.setNodeName(sourceNodeName);
+        deleteRelationshipOperation.setRelationshipName(relationshipTemplateName);
+        deleteRelationshipProcessor.process(csar, topology, deleteRelationshipOperation);
     }
 
     protected NodeTemplate replaceNode(Csar csar, Topology topology, NodeTemplate node, String nodeType, String nodeVersion) {
