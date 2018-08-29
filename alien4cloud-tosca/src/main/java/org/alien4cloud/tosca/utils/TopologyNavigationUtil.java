@@ -123,6 +123,35 @@ public final class TopologyNavigationUtil {
      * @param type
      * @param manageInheritance true if you also want to consider type hierarchy (ie. include that inherit the given type).
      * @return a set of nodes that are of the given type (or inherit the given type if <code>manageInheritance</code> is true).
+     *
+     * For performance consideration, we don't factorise with {@link this#getNodesOfType(Topology, String, boolean)}.
+     */
+    public static Set<NodeTemplate> getNodesOfType(Topology topology, String type, boolean manageInheritance, boolean includeAbstractNodes) {
+        Set<NodeTemplate> result = Sets.newHashSet();
+        for (NodeTemplate nodeTemplate : safe(topology.getNodeTemplates()).values()) {
+            NodeTemplate candidate = null;
+            NodeType nodeType = ToscaContext.get(NodeType.class, nodeTemplate.getType());
+            if (nodeTemplate.getType().equals(type)) {
+                candidate = nodeTemplate;
+            } else if (manageInheritance) {
+                if (nodeType.getDerivedFrom().contains(type)) {
+                    candidate = nodeTemplate;
+                }
+            }
+            if (candidate != null) {
+                if (includeAbstractNodes || !nodeType.isAbstract()) {
+                    result.add(candidate);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @param topology
+     * @param type
+     * @param manageInheritance true if you also want to consider type hierarchy (ie. include that inherit the given type).
+     * @return a set of nodes that are of the given type (or inherit the given type if <code>manageInheritance</code> is true).
      */
     public static Set<NodeTemplate> getNodesOfType(Topology topology, String type, boolean manageInheritance) {
         Set<NodeTemplate> result = Sets.newHashSet();
