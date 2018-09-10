@@ -3,6 +3,7 @@ package alien4cloud.utils;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -20,13 +21,15 @@ public class ArtifactUtil {
      * @throws IOException if problem with underlying file system
      */
     public static void copyCsarArtifacts(Path originalCSARPath, Path newCSARPath) throws IOException {
-        for (Path topologyResource : Files.newDirectoryStream(originalCSARPath)) {
-            String fileName = topologyResource.getFileName().toString();
-            if (!fileName.equals(".git") && !fileName.endsWith(".yml") && !fileName.endsWith(".yaml")) {
-                if (Files.isDirectory(topologyResource)) {
-                    FileUtil.copy(topologyResource, newCSARPath.resolve(fileName));
-                } else {
-                    Files.copy(topologyResource, newCSARPath.resolve(fileName));
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(originalCSARPath)) {
+            for (Path topologyResource : stream) {
+                String fileName = topologyResource.getFileName().toString();
+                if (!fileName.equals(".git") && !fileName.endsWith(".yml") && !fileName.endsWith(".yaml")) {
+                    if (Files.isDirectory(topologyResource)) {
+                        FileUtil.copy(topologyResource, newCSARPath.resolve(fileName));
+                    } else {
+                        Files.copy(topologyResource, newCSARPath.resolve(fileName));
+                    }
                 }
             }
         }
