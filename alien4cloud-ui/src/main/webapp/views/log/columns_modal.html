@@ -1,0 +1,14 @@
+<div id="columnsModal">
+  <div class="modal-header">
+    <h4>{{ title | translate}}</h4>
+  </div>
+  <div class="modal-body">
+    <label ng-repeat="column in columns" style="display: block;">
+      <input type="checkbox" ng-model="column.visible" /> {{'APPLICATIONS.RUNTIME.LOG.'+ (column.field | uppercase) | translate}}
+    </label>
+  </div>
+  <div class="modal-footer">
+    <a class="btn btn-default" ng-click="close()">
+      {{'CLOSE' | translate}}
+    </a>
+</div>

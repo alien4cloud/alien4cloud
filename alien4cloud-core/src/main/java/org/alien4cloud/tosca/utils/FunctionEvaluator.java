@@ -1,7 +1,12 @@
 package org.alien4cloud.tosca.utils;
 
-import alien4cloud.utils.MapUtil;
-import lombok.extern.slf4j.Slf4j;
+import static alien4cloud.utils.AlienUtils.safe;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
@@ -16,10 +21,8 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Requirement;
 import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 
-import java.util.List;
-import java.util.Map;
-
-import static alien4cloud.utils.AlienUtils.safe;
+import alien4cloud.utils.MapUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class to perform function evaluation on a topology template.
@@ -98,12 +101,19 @@ public class FunctionEvaluator {
             } else {
                 throw new IllegalArgumentException("HOST keyname cannot be used if not in a node template context (or capability/requirement).");
             }
-
-            // TODO handle relationship property management here.
+            // TODO implement get_property from SOURCE.
             // case ToscaFunctionConstants.SOURCE:
             // return doGetProperty(topology, TopologyNavigationUtil.getImmediateHostTemplate(topology, functionTemplate), null, function);
-            // case ToscaFunctionConstants.TARGET:
-            // return doGetProperty(topology, TopologyNavigationUtil.getImmediateHostTemplate(topology, functionTemplate), null, function);
+        case ToscaFunctionConstants.TARGET:
+            Set<NodeTemplate> targetNodes = TopologyNavigationUtil.getTargetNodes(evaluatorContext.getTopology(), (NodeTemplate) template, function.getCapabilityOrRequirementName());
+            if (targetNodes != null && targetNodes.size() == 1) {
+                NodeTemplate firstNode = targetNodes.iterator().next();
+                List<String> params = new ArrayList<>();
+                params.add(ToscaFunctionConstants.SELF);
+                params.addAll(function.getParameters().subList(2, function.getParameters().size()));
+                FunctionPropertyValue newFunc = new FunctionPropertyValue(function.getFunction(), params);
+                return tryResolveValue(evaluatorContext, firstNode, firstNode.getProperties(), newFunc);
+            }
         default:
             return doGetProperty(evaluatorContext, evaluatorContext.getTopology().getNodeTemplates().get(function.getTemplateName()), function);
         }
@@ -188,7 +198,9 @@ public class FunctionEvaluator {
 
         for (AbstractPropertyValue abstractPropertyValue : concatPropertyValue.getParameters()) {
             AbstractPropertyValue propertyValue = tryResolveValue(evaluatorContext, template, properties, abstractPropertyValue);
-            if (propertyValue instanceof ScalarPropertyValue) {
+            if (propertyValue == null) {
+                // Ignore this as it may be a null default value
+            } else if (propertyValue instanceof ScalarPropertyValue) {
                 sb.append(((ScalarPropertyValue) propertyValue).getValue());
             } else if (propertyValue instanceof ListPropertyValue) {
                 for (Object listValue : ((ListPropertyValue) propertyValue).getValue()) {

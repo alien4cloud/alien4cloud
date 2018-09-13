@@ -72,6 +72,10 @@ public abstract class AbstractTemplateMatcher<R extends AbstractLocationResource
             return false;
         }
 
+        if (candidate.isService()) {
+            return true;
+        }
+
         // Only abstract node type can be match against a service
         if (!type.isAbstract() && candidate.isService()) {
             return false;

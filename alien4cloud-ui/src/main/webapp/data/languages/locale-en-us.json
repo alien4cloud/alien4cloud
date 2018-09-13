@@ -108,7 +108,31 @@
       "SCALE" : "Scale",
       "SCALE_BUTTON" : "Scale this node",
       "STATUS" : "Status",
-      "LOGS" : "Logs"
+      "LOGS" : "Logs",
+      "LOG": {
+        "MENU_ENTRY" : "Logs",
+        "TITLE": "Deployment logs",
+        "TIMESTAMP": "Timestamp",
+        "CONTENT": "Content",
+        "DEPLOYMENTPAASID" : "Deployment PaaS",
+        "EXECUTIONID": "Execution",
+        "INSTANCEID": "Instance",
+        "INTERFACENAME": "Interface",
+        "LEVEL": "Level",
+        "NODEID": "Node",
+        "OPERATIONNAME": "Operation",
+        "TYPE": "Type",
+        "WORKFLOWID": "Workflow",
+        "ACTIVE_FILTERS": "Active filters",
+        "FROM_DATE": "From",
+        "TO_DATE": "To",
+        "SHOW_ADVANCED_SEARCH": "Advanced search",
+        "HIDE_ADVANCED_SEARCH": "Simple search",
+        "TAIL_LOG": "Tail deployment logs",
+        "SEARCH": "Search",
+        "MODAL_TITLE": "Show/hide columns",
+        "DETAILS_TITLE": "Log details"
+      }
     },
     "TOPOLOGY" : {
       "ADD_NODETEMPLATE" : "Add Node Template",

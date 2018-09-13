@@ -6,14 +6,14 @@
   <div id="deploymentTodoList" class="col-md-12">
     <h4 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</h4>
     <!-- case the topology is empty -->
-    <div class="col-md-6" ng-if="validationDto.taskList['EMPTY'].length > 0">
+    <div class="col-md-12" ng-if="validationDto.taskList['EMPTY'].length > 0">
       <div class="task-list-box">
         {{'APPLICATIONS.TOPOLOGY.TASK.EMPTY_TOPOLOGY_MESSAGE' | translate}}
       </div>
     </div>
 
     <!--  Node Filter stepTasks  -->
-    <div class="col-md-6" ng-if="validationDto.taskList['NODE_FILTER_INVALID'].length>0">
+    <div class="col-md-12" ng-if="validationDto.taskList['NODE_FILTER_INVALID'].length>0">
       <div class="task-list-box">
         <node-filters-errors-display
           tasks="validationDto.taskList['NODE_FILTER_INVALID']"
@@ -23,7 +23,7 @@
     </div>
 
     <!--  LowerBound not satisfied stepTasks  -->
-    <div class="col-md-6" ng-if="validationDto.taskList['SATISFY_LOWER_BOUND'].length>0">
+    <div class="col-md-12" ng-if="validationDto.taskList['SATISFY_LOWER_BOUND'].length>0">
       <div class="task-list-box">
         <lowerbound-errors-display
           tasks="validationDto.taskList['SATISFY_LOWER_BOUND']">
@@ -32,7 +32,7 @@
     </div>
 
     <!--  Required properties stepTasks  -->
-    <div class="col-md-6" ng-if="validationDto.taskList.PROPERTIES.length > 0">
+    <div class="col-md-12" ng-if="validationDto.taskList.PROPERTIES.length > 0">
       <div class="task-list-box">
         <properties-errors-display
           tasks="validationDto.taskList.PROPERTIES">
@@ -41,7 +41,7 @@
     </div>
 
     <!--  scalability configuration stepTasks  -->
-    <div class="col-md-6" ng-if="validationDto.taskList['SCALABLE_CAPABILITY_INVALID'].length>0">
+    <div class="col-md-12" ng-if="validationDto.taskList['SCALABLE_CAPABILITY_INVALID'].length>0">
       <div class="task-list-box">
         <scalability-errors-display
           tasks="validationDto.taskList['SCALABLE_CAPABILITY_INVALID']" >
@@ -50,7 +50,7 @@
     </div>
 
     <!-- Artifact stepTasks  -->
-    <div class="col-md-6" ng-if="validationDto.taskList['ARTIFACT_INVALID'].length>0">
+    <div class="col-md-12" ng-if="validationDto.taskList['ARTIFACT_INVALID'].length>0">
       <div class="task-list-box">
         <artifacts-errors-display
           tasks="validationDto.taskList['ARTIFACT_INVALID']">
@@ -59,7 +59,7 @@
     </div>
 
     <!--  Workflow stepTasks  -->
-    <div class="col-md-6" ng-if="(wfTasks = validationDto.taskList['WORKFLOW_INVALID']).length>0">
+    <div class="col-md-12" ng-if="(wfTasks = validationDto.taskList['WORKFLOW_INVALID']).length>0">
       <div class="task-list-box">
         <h4 class="clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">
           <i class="fa" ng-class="{'fa-caret-down' : !isWorkflowsCollapsed, 'fa-caret-right': isWorkflowsCollapsed}"></i>

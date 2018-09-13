@@ -191,4 +191,8 @@ public class Topology implements IDatableResource, IWorkspaceResource {
     public boolean isEmpty() {
         return nodeTemplates == null || nodeTemplates.isEmpty();
     }
+
+	public Workflow getWorkflow(String name) {
+		return workflows.get(name);
+	}
 }

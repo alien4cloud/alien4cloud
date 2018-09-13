@@ -4,20 +4,17 @@ import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.*;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
-import org.alien4cloud.tosca.editor.processors.nodetemplate.AddNodeProcessor;
-import org.alien4cloud.tosca.editor.processors.nodetemplate.DeleteNodeProcessor;
-import org.alien4cloud.tosca.editor.processors.nodetemplate.ReplaceNodeProcessor;
-import org.alien4cloud.tosca.editor.processors.nodetemplate.UpdateNodePropertyValueProcessor;
+import org.alien4cloud.tosca.editor.operations.relationshiptemplate.DeleteRelationshipOperation;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.*;
 import org.alien4cloud.tosca.editor.processors.relationshiptemplate.AddRelationshipProcessor;
+import org.alien4cloud.tosca.editor.processors.relationshiptemplate.DeleteRelationshipProcessor;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
@@ -42,6 +39,11 @@ import alien4cloud.tosca.context.ToscaContext;
  */
 public abstract class TopologyModifierSupport implements ITopologyModifier {
 
+    /**
+     * This tag name is used to alias attributes (duplicate attributes for exposed services, a way to manage exposed containers for example).
+     */
+    public static final String A4C_MODIFIER_TAG_EXPOSED_ATTRIBUTE_ALIAS= "a4c_modifier_exposed_attribute_alias";
+
     @Resource
     protected AddNodeProcessor addNodeProcessor;
 
@@ -52,7 +54,13 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
     protected AddRelationshipProcessor addRelationshipProcessor;
 
     @Resource
+    protected DeleteRelationshipProcessor deleteRelationshipProcessor;
+
+    @Resource
     protected UpdateNodePropertyValueProcessor updateNodePropertyValueProcessor;
+
+    @Resource
+    protected UpdateCapabilityPropertyValueProcessor updateCapabilityPropertyValueProcessor;
 
     @Resource
     protected DeleteNodeProcessor deleteNodeProcessor;
@@ -95,6 +103,13 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         return sourceNode.getRelationships().get(relationShipName);
     }
 
+    protected void removeRelationship(Csar csar, Topology topology, String sourceNodeName, String relationshipTemplateName) {
+        DeleteRelationshipOperation deleteRelationshipOperation = new DeleteRelationshipOperation();
+        deleteRelationshipOperation.setNodeName(sourceNodeName);
+        deleteRelationshipOperation.setRelationshipName(relationshipTemplateName);
+        deleteRelationshipProcessor.process(csar, topology, deleteRelationshipOperation);
+    }
+
     protected NodeTemplate replaceNode(Csar csar, Topology topology, NodeTemplate node, String nodeType, String nodeVersion) {
         ReplaceNodeOperation replaceNodeOperation = new ReplaceNodeOperation();
         replaceNodeOperation.setNodeName(node.getName());
@@ -131,6 +146,23 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
             policyTemplate.getTargets().add(targetTemplate.getName());
         });
     }
+
+    protected void setNodeCappabilityPropertyPathValue(Csar csar, Topology topology, NodeTemplate nodeTemplate, String capabilityName, String propertyPath, AbstractPropertyValue propertyValue,
+                                                       boolean lastPropertyIsAList) {
+        Map<String, AbstractPropertyValue> propertyValues = nodeTemplate.getCapabilities().get(capabilityName).getProperties();
+        String nodePropertyName = feedPropertyValue(propertyValues, propertyPath, propertyValue, lastPropertyIsAList);
+        Object nodePropertyValue = propertyValues.get(nodePropertyName);
+
+        UpdateCapabilityPropertyValueOperation operation = new UpdateCapabilityPropertyValueOperation();
+        operation.setCapabilityName(capabilityName);
+        operation.setNodeName(nodeTemplate.getName());
+        operation.setPropertyName(nodePropertyName);
+        operation.setPropertyValue(propertyValue);
+        // TODO: can be necessary to serialize value before setting it in case of different types
+        operation.setPropertyValue(nodePropertyValue);
+        updateCapabilityPropertyValueProcessor.process(csar, topology, operation);
+    }
+
 
     private void setNodePropertyPathValue(Csar csar, Topology topology, NodeTemplate nodeTemplate, String propertyPath, AbstractPropertyValue propertyValue,
             boolean lastPropertyIsAList) {
@@ -201,13 +233,24 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         return nodePropertyName;
     }
 
-    protected void setNodeTagValue(AbstractTemplate template, String name, String value) {
+    public static void setNodeTagValue(AbstractTemplate template, String name, String value) {
         List<Tag> tags = template.getTags();
         if (tags == null) {
             tags = Lists.newArrayList();
             template.setTags(tags);
         }
         tags.add(new Tag(name, value));
+    }
+
+    public static  String getNodeTagValueOrNull(AbstractTemplate template, String name) {
+        List<Tag> tags = template.getTags();
+        if (tags != null) {
+            Optional<Tag> first = tags.stream().filter(tag -> tag.getName().equals(name)).findFirst();
+            if (first.isPresent()) {
+                return first.get().getValue();
+            }
+        }
+        return null;
     }
 
     // remove the node and all nested nodes (recursively)

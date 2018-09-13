@@ -1,0 +1,13 @@
+<div class="grp-margin">
+  <div style="margin-bottom: 10px;">
+    <log-search-panel
+      deployment-id="deploymentId"
+      instance-id="instanceId"
+      execution-id="executionId"
+      task-id="taskId"
+      on-search="onSearch(searchConfig)"
+      enable-auto-refrest="true"
+      on-auto-refresh-toggled="onAutoRefreshToggled(enabled)"></log-search-panel>
+  </div>
+  <log-search-display search-config="searchConfig" show-deployment-paas-id="false" auto-refresh-enabled="autoRefreshEnabled"></log-search-display>
+</div>

@@ -23,7 +23,7 @@ public class PatternConstraint extends AbstractStringPropertyConstraint {
     @Override
     protected void doValidate(String propertyValue) throws ConstraintViolationException {
         if (!compiledPattern.matcher(propertyValue).matches()) {
-            throw new ConstraintViolationException("The value do not match pattern " + pattern);
+            throw new ConstraintViolationException("The value < + " + propertyValue + "> do not match pattern " + pattern);
         }
     }
 }

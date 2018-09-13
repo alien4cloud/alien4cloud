@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.alm.deployment.configuration.flow.TopologyModifierSupport;
 import org.alien4cloud.alm.events.ManagedServiceResetEvent;
 import org.alien4cloud.alm.events.ManagedServiceUpdatedEvent;
 import org.alien4cloud.tosca.model.templates.Capability;
@@ -158,6 +159,35 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
         }
         serviceResource.getNodeInstance().getNodeTemplate().getProperties().putAll(safe(topology.getAllInputProperties()));
 
+        // nodeName -> { attributeName -> [ att aliases ] }
+        Map<String, Map<String, Set<String>>> attributeAliases = Maps.newHashMap();
+        topology.getNodeTemplates().forEach((nodeName, nodeTemplate) -> {
+            String exposedAttAliases = TopologyModifierSupport.getNodeTagValueOrNull(nodeTemplate, TopologyModifierSupport.A4C_MODIFIER_TAG_EXPOSED_ATTRIBUTE_ALIAS);
+            if (exposedAttAliases != null) {
+                Map<String, Set<String>> nodeAttributeAliases = attributeAliases.get(nodeName);
+                if (nodeAttributeAliases == null) {
+                    nodeAttributeAliases = Maps.newHashMap();
+                    attributeAliases.put(nodeName, nodeAttributeAliases);
+                }
+                // aa:bb
+                // attributeSourceA:attributeAlias1,attributeSourceA:attributeAlias2,attributeSourceB:attributeAlias3
+                String[] tuples = exposedAttAliases.split(",");
+                for (String tuple: tuples) {
+                    int separatorIndex = tuple.indexOf(":");
+                    if (separatorIndex > -1) {
+                        String attributeName = tuple.substring(0, separatorIndex);
+                        String aliasName = tuple.substring(separatorIndex + 1);
+                        Set<String> aliases = nodeAttributeAliases.get(attributeName);
+                        if (aliases == null) {
+                            aliases = Sets.newHashSet();
+                            nodeAttributeAliases.putIfAbsent(attributeName, aliases);
+                        }
+                        aliases.add(aliasName);
+                    }
+                }
+            }
+        });
+
         // Map attributes from the instances to the actual service resource node.
         for (Entry<String, Set<String>> nodeOutputAttrEntry : safe(topology.getOutputAttributes()).entrySet()) {
             Map<String, InstanceInformation> instances = instanceInformation.get(nodeOutputAttrEntry.getKey());
@@ -167,10 +197,22 @@ public class ManagedServiceResourceEventService implements IPaasEventListener<Ab
             } else if (instances.size() > 1) {
                 log.error("Services substitution does not yet supports the exposure of multiple instances");
             } else {
-                InstanceInformation instance = instances.values().iterator().next();
+                Entry<String, InstanceInformation> instance = instances.entrySet().iterator().next();
+//                InstanceInformation instance = instances.values().iterator().next();
                 // let's map attribute
                 for (String mappedAttribute : nodeOutputAttrEntry.getValue()) {
-                    serviceResource.getNodeInstance().setAttribute(mappedAttribute, instance.getAttributes().get(mappedAttribute));
+                    String nodeName = instance.getValue().getAttributes().get("tosca_name");
+                    String attributeValue = instance.getValue().getAttributes().get(mappedAttribute);
+                    serviceResource.getNodeInstance().setAttribute(mappedAttribute, attributeValue);
+                    Map<String, Set<String>> nodeAliases = attributeAliases.get(nodeName);
+                    if (nodeAliases != null) {
+                        Set<String> nodeAttributeAliases = nodeAliases.get(mappedAttribute);
+                        if (nodeAttributeAliases != null) {
+                            for (String nodeAttributeAliase : nodeAttributeAliases) {
+                                serviceResource.getNodeInstance().setAttribute(nodeAttributeAliase, attributeValue);
+                            }
+                        }
+                    }
                 }
             }
         }

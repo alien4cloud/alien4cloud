@@ -1,0 +1,61 @@
+<!-- Search query column -->
+<div class="large-data-container">
+    <div class="form-container">
+        <form role="search" ng-submit="doSearch()">
+            <div>
+                <div class="col-lg-4">
+                    <date-time-form class="col-lg-6" field-name="APPLICATIONS.RUNTIME.LOG.FROM_DATE"
+                                    on-date-time-set="onFromDateSet(newDate)"
+                                    date-format="YYYY-MM-DD HH:mm:ss"></date-time-form>
+                    <date-time-form class="col-lg-6" field-name="APPLICATIONS.RUNTIME.LOG.TO_DATE"
+                                    on-date-time-set="onToDateSet(newDate)"
+                                    date-format="YYYY-MM-DD HH:mm:ss"></date-time-form>
+                </div>
+                <div class="col-lg-5">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="{{'APPLICATIONS.RUNTIME.LOG.SEARCH' | translate}}" ng-model="queryProvider.query">
+                        <span class="input-group-btn">
+                    <button type="submit" class="btn btn-default" data-loading-text="Loading..."> <i
+                            class="fa fa-search"></i></button>
+                    <button class="btn btn-default" ng-click="toggleAdvancedSearch()"><i
+                            class="fa fa-filter"></i></button>
+                  </span>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <div class="input-group disbled">
+                        <select class="form-control no-browser-apparence"
+                                ng-model="refreshRate"
+                                ng-change="refreshTailLogFrequency()"
+                                ng-options="rate.label for rate in refreshRates"
+                                uib-tooltip="{{'APPLICATIONS.RUNTIME.LOG.TAIL_LOG' | translate}}"
+                                ng-disabled="!enableAutoRefrest">
+                        </select>
+                        <span class="input-group-btn">
+                      <button type="submit" class="btn btn-default"
+                              ng-disabled="!enableAutoRefrest"
+                              ng-click="toggleTailLog()"
+                              ng-class="{'active': tailLog}"
+                              uib-tooltip="{{'APPLICATIONS.RUNTIME.LOG.TAIL_LOG' | translate}}">
+                          <i class="fa fa-refresh" ng-class="{'fa-spin': tailLog}"></i>
+                      </button>
+                  </span>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <form action="rest/deployment/logs/download" method="POST">
+            <input type="hidden" name="req" value="{{ getQueryProviderJson() }}"/>
+            <button class="btn btn-success" type="submit" value="Submit"><i class="fa fa-download" aria-hidden="true"></i></button>
+        </form>
+    </div>
+    <!-- Displaying active filters -->
+    <facets ng-if="advancedSearch"
+            facet-filters="facetFilters"
+            default-filters="defaultFilters"
+            facet-id-converter="facetIdConverter"
+            facets="searchResult.facets"
+            filter-prefix="APPLICATIONS.RUNTIME.LOG."
+            do-search="doSearch()">
+    </facets>
+</div>
