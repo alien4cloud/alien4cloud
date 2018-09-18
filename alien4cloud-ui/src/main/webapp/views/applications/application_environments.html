@@ -53,7 +53,7 @@
                     <span ng-bind-html="topologyVersionRpt.key | limitTo: 20 | highlight: $select.search"></span>{{topologyVersionRpt.key.length > 20 ? '...' : ''}}
                   </ui-select-choices>
                 </ui-select>
-                <span ng-if="!environment.selectedAppTopoVersion" class="text-danger">{{'APPLICATIONS.VERSION.CHANGE_TOPO_VERSION_WARNING' | translate}}</span>
+                <span ng-if="environment.selectedAppVersion && !environment.selectedAppTopoVersion" class="text-danger">{{'APPLICATIONS.VERSION.CHANGE_TOPO_VERSION_WARNING' | translate}}</span>
               </td>
               <td>
                 <select class="form-control" name="envList" id="{{environment.name}}-envlistid" ng-model="environment.environmentType" ng-options="'ENVIRONMENT_TYPE.'+e | translate for e in envTypeList.data" ng-change="updateApplicationEnvironment('environmentType', environment.environmentType, environment.id)"></select>
