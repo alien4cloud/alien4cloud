@@ -218,6 +218,8 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
                     Object currentPropertyValueObj = currentMap.get(paths[i]);
                     if (currentPropertyValueObj != null && currentPropertyValueObj instanceof Map<?, ?>) {
                         currentPropertyValue = (Map<String, Object>) currentPropertyValueObj;
+                    } else if (currentPropertyValueObj != null && currentPropertyValueObj instanceof ComplexPropertyValue) {
+                        currentPropertyValue = ((ComplexPropertyValue)currentPropertyValueObj).getValue();
                     } else {
                         // FIXME Same as OVERRIDING PROP VALUE above
                         currentPropertyValue = Maps.newHashMap();
