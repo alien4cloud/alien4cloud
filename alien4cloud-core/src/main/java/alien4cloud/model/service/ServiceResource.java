@@ -3,6 +3,7 @@ package alien4cloud.model.service;
 import java.util.Date;
 import java.util.Map;
 
+import alien4cloud.model.common.IMetaProperties;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.instances.NodeInstance;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -36,7 +37,7 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ESObject
 @ApiModel(value = "Service.", description = "A service is something running somewhere, exposing capabilities and requirements, matchable in a topology in place of an abstract component.")
-public class ServiceResource extends AbstractSecurityEnabledResource implements IDatableResource {
+public class ServiceResource extends AbstractSecurityEnabledResource implements IDatableResource, IMetaProperties {
     @Id
     private String id;
 
@@ -111,4 +112,7 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
     public String getState() {
         return nodeInstance.getAttributeValues().get(ToscaNodeLifecycleConstants.ATT_STATE);
     }
+
+    @StringField(indexType = IndexType.analyzed)
+    private Map<String, String> metaProperties;
 }

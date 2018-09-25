@@ -108,11 +108,14 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     }
 
     @SneakyThrows({ IOException.class })
-    private <T> List<T> doCustomFind(Class<T> clazz, QueryBuilder query, SortBuilder sortBuilder, int size) {
+    private <T> List<T> doCustomFind(Class<T> clazz, QueryBuilder query, FilterBuilder filter, SortBuilder sortBuilder, int size) {
         String indexName = getIndexForType(clazz);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setTypes(getTypesFromClass(clazz)).setSize(size);
         if (query != null) {
             searchRequestBuilder.setQuery(query);
+        }
+        if (filter != null) {
+            searchRequestBuilder.setPostFilter(filter);
         }
         if (sortBuilder != null) {
             searchRequestBuilder.addSort(sortBuilder);
@@ -136,12 +139,17 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
     @Override
     public <T> T customFind(Class<T> clazz, QueryBuilder query, SortBuilder sortBuilder) {
-        List<T> results = doCustomFind(clazz, query, sortBuilder, 1);
+        List<T> results = doCustomFind(clazz, query, null, sortBuilder, 1);
         if (results == null || results.isEmpty()) {
             return null;
         } else {
             return results.iterator().next();
         }
+    }
+
+    @Override
+    public <T> List<T> customFilterAll(Class<T> clazz, FilterBuilder filter) {
+        return doCustomFind(clazz, null, filter, null, Integer.MAX_VALUE);
     }
 
     @Override
@@ -151,7 +159,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
     @Override
     public <T> List<T> customFindAll(Class<T> clazz, QueryBuilder query, SortBuilder sortBuilder) {
-        return doCustomFind(clazz, query, sortBuilder, Integer.MAX_VALUE);
+        return doCustomFind(clazz, query, null, sortBuilder, Integer.MAX_VALUE);
     }
 
     @Override

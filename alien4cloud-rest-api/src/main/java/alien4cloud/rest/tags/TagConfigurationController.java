@@ -1,5 +1,6 @@
 package alien4cloud.rest.tags;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -7,8 +8,12 @@ import javax.annotation.Resource;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
+import alien4cloud.model.service.ServiceResource;
 import alien4cloud.rest.model.FilteredSearchRequest;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections.MapUtils;
+import org.elasticsearch.index.query.ExistsFilterBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -134,8 +139,12 @@ public class TagConfigurationController {
     }
 
     private <T extends IMetaProperties> void removeMetaPropertyFromResources(Class<T> mpClass, IGenericSearchDAO dao, MetaPropConfiguration configuration) {
-        GetMultipleDataResult<T> result = dao.find(mpClass, null, Integer.MAX_VALUE);
-        for (T element : result.getData()) {
+
+        // here we make an ES query to search only for objects that has a value for this meta-property
+        ExistsFilterBuilder existsFilterBuilder = new ExistsFilterBuilder("metaProperties." + configuration.getId());
+        List<T> result = dao.customFilterAll(mpClass, existsFilterBuilder);
+
+        for (T element : result) {
             if (MapUtils.isNotEmpty(element.getMetaProperties())) {
                 element.getMetaProperties().remove(configuration.getId());
             }
@@ -168,6 +177,12 @@ public class TagConfigurationController {
             break;
         case "location":
             removeMetaPropertyFromResources(Location.class, dao, configuration);
+            break;
+        case "component":
+            removeMetaPropertyFromResources(NodeType.class, dao, configuration);
+            break;
+        case "service":
+            removeMetaPropertyFromResources(ServiceResource.class, dao, configuration);
             break;
         // TODO : case environment
         default:

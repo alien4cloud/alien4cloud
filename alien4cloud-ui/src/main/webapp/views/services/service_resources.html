@@ -124,6 +124,12 @@
                 </div>
               </div>
             </div>
+            <meta-properties-display
+                    properties-type="'service'"
+                    target="selectedService"
+                    resturl="'rest/latest/services/:id/properties'"
+                    params="{id: selectedService.id}">
+            </meta-properties-display>
           </div>
         </uib-tab>
         <uib-tab>
