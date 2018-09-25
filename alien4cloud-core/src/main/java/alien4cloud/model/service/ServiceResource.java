@@ -1,32 +1,24 @@
 package alien4cloud.model.service;
 
-import java.util.Date;
-import java.util.Map;
-
-import alien4cloud.model.common.IMetaProperties;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.instances.NodeInstance;
-import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.elasticsearch.annotation.DateField;
-import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.Id;
-import org.elasticsearch.annotation.ObjectField;
-import org.elasticsearch.annotation.StringField;
-import org.elasticsearch.annotation.query.TermFilter;
-import org.elasticsearch.mapping.IndexType;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import alien4cloud.model.common.IDatableResource;
+import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.security.AbstractSecurityEnabledResource;
 import alien4cloud.utils.version.Version;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.Setter;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.instances.NodeInstance;
+import org.elasticsearch.annotation.*;
+import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.mapping.IndexType;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * A service is something running somewhere, exposing capabilities and requirements, matchable in a topology in place of an abstract component.
@@ -60,6 +52,7 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
     /** The dependency on the archive that defines the type. */
     @ObjectField
     private CSARDependency dependency;
+
     @ObjectField
     private NodeInstance nodeInstance;
 

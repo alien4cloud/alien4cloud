@@ -6,6 +6,8 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.groups.Default;
 
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.model.application.Application;
 import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
@@ -59,10 +61,11 @@ public class ServiceResourceController {
     @ResponseStatus(value = HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @Audit
-    public RestResponse<String> create(@ApiParam(value = "Create service", required = true) @Valid @RequestBody CreateServiceResourceRequest createRequest) {
+    public RestResponse<ServiceResource> create(@ApiParam(value = "Create service", required = true) @Valid @RequestBody CreateServiceResourceRequest createRequest) {
         String serviceId = serviceResourceService.create(createRequest.getName(), createRequest.getVersion(), createRequest.getNodeType(),
                 createRequest.getNodeTypeVersion());
-        return RestResponseBuilder.<String> builder().data(serviceId).build();
+        ServiceResource serviceResource = serviceResourceService.getOrFail(serviceId);
+        return RestResponseBuilder.<ServiceResource> builder().data(serviceResource).build();
     }
 
     @ApiOperation(value = "List and iterate service resources.", notes = "This API is a simple api to list (with iteration) the service resources. If you need to search with criterias please look at the advanced search API.", authorizations = {
@@ -150,8 +153,8 @@ public class ServiceResourceController {
     @RequestMapping(value = "/adv/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<GetMultipleDataResult<ServiceResource>> search(@RequestBody SortedSearchRequest searchRequest) {
-        GetMultipleDataResult<ServiceResource> result = serviceResourceService.search(searchRequest.getQuery(), searchRequest.getFilters(),
+    public RestResponse<FacetedSearchResult> search(@RequestBody SortedSearchRequest searchRequest) {
+        FacetedSearchResult result = serviceResourceService.search(searchRequest.getQuery(), searchRequest.getFilters(),
                 searchRequest.getSortField(), searchRequest.isDesc(), searchRequest.getFrom(), searchRequest.getSize());
         return RestResponseBuilder.<GetMultipleDataResult<ServiceResource>> builder().data(result).build();
     }

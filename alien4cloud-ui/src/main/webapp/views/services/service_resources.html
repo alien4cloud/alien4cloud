@@ -6,20 +6,13 @@
       </span>
     </div>
     <div class="row-margin">
-      <form role="search" ng-submit="searchService.search()">
-        <div class="input-group">
-          <input type="text" class="form-control" placeholder="..." ng-model="query">
-          <span class="input-group-btn">
-            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
-              <i class="fa fa-search"></i>
-            </button>
-          </span>
-        </div>
-      </form>
+      <a4c-search query-manager="queryManager"
+                  search-service="searchService"
+                  label-prefix="APPLICATIONS."></a4c-search>
     </div>
     <div id="services-container" class="drop-container" alien-droppable drag-on-drop="addService(data)">
-      <empty-place-holder data="serviceResources"></empty-place-holder>
-      <table ng-if="serviceResources && serviceResources.length > 0" class="table table-hover">
+      <empty-place-holder data="queryManager.searchResult.data"></empty-place-holder>
+      <table ng-if="queryManager.searchResult.data.length > 0" class="table table-hover">
         <thead>
           <th>{{'COMMON.NAME' | translate}}</th>
           <th>{{'COMMON.VERSION' | translate}}</th>
@@ -28,7 +21,7 @@
           <th></th>
         </thead>
         <tbody>
-          <tr ng-repeat="serviceResource in serviceResources" id='service_{{serviceResource.id}}' class="clickable" ng-click="selectService(serviceResource)"
+          <tr ng-repeat="serviceResource in queryManager.searchResult.data" id='service_{{serviceResource.id}}' class="clickable" ng-click="selectService(serviceResource)"
           ng-class="{'warning': selectedService.id === serviceResource.id}">
             <td>
               <span ng-bind-html="dotWb(serviceResource.name)"></span>

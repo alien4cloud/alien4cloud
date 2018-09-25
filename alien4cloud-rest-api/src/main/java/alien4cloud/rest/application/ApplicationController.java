@@ -142,17 +142,13 @@ public class ApplicationController {
 
         // We want to sort applications by deployed/undeployed and then application name.
 
-        // Query all application ids and name.
-        QueryBuilder queryBuilder = alienDAO.buildSearchQuery(Application.class, searchRequest.getQuery())
-                .setFilters(searchRequest.getFilters(), authorizationFilter).queryBuilder();
-        SearchResponse response = alienDAO.getClient().prepareSearch(alienDAO.getIndexForType(Application.class)).setQuery(queryBuilder)
-                .setFetchSource(new String[] { "name" }, null).setSize(Integer.MAX_VALUE).get();
+        FacetedSearchResult<Application> facetedSearchResult = alienDAO.facetedSearch(Application.class, searchRequest.getQuery(), searchRequest.getFilters(), authorizationFilter, "", 0, Integer.MAX_VALUE);
 
         // Get their status (deployed vs undeployed)
         List<DeployedAppHolder> appHolders = Lists.newLinkedList();
-        for (SearchHit hit : response.getHits().getHits()) {
+        for (Application hit : facetedSearchResult.getData()) {
             String id = hit.getId();
-            String appName = (String) hit.getSource().get("name");
+            String appName = hit.getName();
             boolean isDeployed = alienDAO.buildQuery(Deployment.class).setFilters(fromKeyValueCouples("sourceId", id, "endDate", null)).count() > 0;
             appHolders.add(new DeployedAppHolder(id, appName, isDeployed));
         }
@@ -174,8 +170,8 @@ public class ApplicationController {
         }
 
         return RestResponseBuilder.<FacetedSearchResult> builder()
-                .data(new FacetedSearchResult<>(searchRequest.getFrom(), to, response.getTookInMillis(), appHolders.size(),
-                        new String[] { Application.class.getSimpleName() }, applications.toArray(new Application[applications.size()]), Maps.newHashMap()))
+                .data(new FacetedSearchResult<>(searchRequest.getFrom(), to, facetedSearchResult.getQueryDuration(), appHolders.size(),
+                        new String[] { Application.class.getSimpleName() }, applications.toArray(new Application[applications.size()]), facetedSearchResult.getFacets()))
                 .build();
     }
 
