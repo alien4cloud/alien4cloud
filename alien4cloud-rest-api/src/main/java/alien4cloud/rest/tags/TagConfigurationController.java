@@ -5,15 +5,19 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
+import alien4cloud.metaproperty.MetaPropertyEvent;
+import alien4cloud.metaproperty.MetaPropertySearchContextBuilder;
 import alien4cloud.model.service.ServiceResource;
 import alien4cloud.rest.model.FilteredSearchRequest;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections.MapUtils;
 import org.elasticsearch.index.query.ExistsFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,6 +61,9 @@ public class TagConfigurationController {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO dao;
+
+    @Inject
+    private ApplicationEventPublisher publisher;
 
     /**
      * Throw a not found exception if we found another tag with the same name, the same target
@@ -115,6 +122,8 @@ public class TagConfigurationController {
                 break;
             }
 
+            publisher.publishEvent(new MetaPropertyEvent(this));
+
             return RestResponseBuilder.<TagConfigurationSaveResponse> builder().data(new TagConfigurationSaveResponse(configuration.getId(), null)).build();
         }
     }
@@ -144,12 +153,14 @@ public class TagConfigurationController {
         ExistsFilterBuilder existsFilterBuilder = new ExistsFilterBuilder("metaProperties." + configuration.getId());
         List<T> result = dao.customFilterAll(mpClass, existsFilterBuilder);
 
-        for (T element : result) {
-            if (MapUtils.isNotEmpty(element.getMetaProperties())) {
-                element.getMetaProperties().remove(configuration.getId());
+        if (result != null) {
+            for (T element : result) {
+                if (MapUtils.isNotEmpty(element.getMetaProperties())) {
+                    element.getMetaProperties().remove(configuration.getId());
+                }
+                dao.save(element);
+                log.debug("Adding meta property [ {} ] to a resource of type [ {} ] ", configuration.getName(), element.getClass());
             }
-            dao.save(element);
-            log.debug("Adding meta property [ {} ] to a resource of type [ {} ] ", configuration.getName(), element.getClass());
         }
     }
 

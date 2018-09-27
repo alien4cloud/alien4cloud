@@ -49,6 +49,11 @@ define(function (require) {
           },
           toDisplayFacet: function (termId, filterPrefix) {
             var fullTerm;
+
+            if (termId.startsWith("metaProperties.")) {
+                return termId.substring(15);
+            }
+
             if (termId.startsWith('portability')) {
               fullTerm = termId;
             } else {
