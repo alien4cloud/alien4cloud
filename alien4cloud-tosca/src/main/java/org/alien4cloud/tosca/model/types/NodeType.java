@@ -58,6 +58,5 @@ public class NodeType extends AbstractInstantiableToscaType implements IMetaProp
     @TermFilter(pathGenerator = ESPortabilityPropertiesPathsGenerator.class)
     private Map<String, AbstractPropertyValue> portability;
 
-    @StringField(indexType = IndexType.analyzed)
     private Map<String, String> metaProperties;
 }

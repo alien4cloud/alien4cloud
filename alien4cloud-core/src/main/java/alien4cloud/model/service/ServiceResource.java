@@ -106,6 +106,5 @@ public class ServiceResource extends AbstractSecurityEnabledResource implements 
         return nodeInstance.getAttributeValues().get(ToscaNodeLifecycleConstants.ATT_STATE);
     }
 
-    @StringField(indexType = IndexType.analyzed)
     private Map<String, String> metaProperties;
 }

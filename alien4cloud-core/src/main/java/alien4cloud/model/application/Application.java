@@ -17,6 +17,7 @@ import lombok.Setter;
 import org.elasticsearch.annotation.*;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
 import java.util.Date;
@@ -60,7 +61,6 @@ public class Application implements ISecuredResource, IDeploymentSource, ITaggab
     @StringField(indexType = IndexType.analyzed)
     private List<Tag> tags;
 
-    @StringField(indexType = IndexType.analyzed)
     private Map<String, String> metaProperties;
 
     @TermFilter(paths = { "key", "value" })
