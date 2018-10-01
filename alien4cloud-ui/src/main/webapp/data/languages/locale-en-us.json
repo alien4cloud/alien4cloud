@@ -521,7 +521,8 @@
     "START_DATE" : "Start Date",
     "END_DATE": "End Date",
     "DURATION": "Duration",
-    "STATUS": "Status"
+    "STATUS": "Status",
+    "INCLUDE_IN_FILTERS" : "Include in filters"
   },
   "ENTITY" : {
     "EXECUTION" : {

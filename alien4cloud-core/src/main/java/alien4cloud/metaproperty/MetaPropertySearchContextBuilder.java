@@ -83,6 +83,7 @@ public class MetaPropertySearchContextBuilder implements IESMetaPropertiesSearch
 
         Map<String, String[]> filters = Maps.newHashMap();
         filters.put("target", classToTarget.values().toArray(new String[0]));
+        filters.put("filtered", new String[] { "true" });
 
         GetMultipleDataResult<MetaPropConfiguration> result = alienDAO.find(MetaPropConfiguration.class, filters,Integer.MAX_VALUE);
 
