@@ -2,8 +2,10 @@ package alien4cloud.rest.orchestrator;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationService;
+import alien4cloud.rest.common.AbstractMetaPropertyController;
 import alien4cloud.rest.internal.model.PropertyRequest;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -41,14 +43,12 @@ import io.swagger.annotations.Authorization;
         "/rest/latest/orchestrators/{orchestratorId}/locations/{locationId}/properties" }, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "Location meta properties", description = "Update values for meta-properties associated with locations.", authorizations = {
         @Authorization("ADMIN") })
-public class LocationMetaPropertiesController {
+public class LocationMetaPropertiesController extends AbstractMetaPropertyController {
     @Resource
     private LocationService locationService;
-    @Resource
-    private MetaPropertiesService metaPropertiesService;
 
     /**
-     * Update or create a property for an orchestrator
+     * Update or create a meta-property for a location.
      *
      * @param orchestratorId id of the orchestrator the location belongs to.
      * @param locationId id of the location to update
@@ -64,20 +64,11 @@ public class LocationMetaPropertiesController {
             @ApiParam(value = "Id of the location to get", required = true) @RequestBody PropertyRequest propertyRequest)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
-        Location location = locationService.getOrFail(locationId);
+        return super.upsertProperty(locationId, propertyRequest);
+    }
 
-        try {
-            metaPropertiesService.upsertMetaProperty(location, propertyRequest.getDefinitionId(), propertyRequest.getValue());
-        } catch (ConstraintViolationException e) {
-            log.error("Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <" + propertyRequest.getValue() + ">", e);
-            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-        } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-            log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
-                    + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
-            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-        }
-        return RestResponseBuilder.<ConstraintInformation> builder().data(null).error(null).build();
+    @Override
+    protected IMetaProperties getTarget(String locationId) {
+        return locationService.getOrFail(locationId);
     }
 }

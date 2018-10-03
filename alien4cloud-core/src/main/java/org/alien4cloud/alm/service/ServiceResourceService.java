@@ -13,6 +13,8 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.model.application.Application;
 import org.alien4cloud.alm.events.ServiceDeletedEvent;
 import alien4cloud.orchestrators.locations.events.OnLocationResourceChangeEvent;
 import org.alien4cloud.alm.service.events.ServiceChangedEvent;
@@ -133,13 +135,12 @@ public class ServiceResourceService {
      * @param count max mumber of elements to return.
      * @return The request result that contains service resources matching the search.
      */
-    public GetMultipleDataResult<ServiceResource> search(String searchText, Map<String, String[]> filters, String sortField, boolean desc, int from,
+    public FacetedSearchResult<ServiceResource> search(String searchText, Map<String, String[]> filters, String sortField, boolean desc, int from,
             int count) {
         if (sortField == null) {
             sortField = "name";
         }
-        return alienDAO.buildSearchQuery(ServiceResource.class, searchText).prepareSearch().setFilters(filters).setFieldSort(sortField, desc).search(from,
-                count);
+        return alienDAO.facetedSearch(ServiceResource.class, searchText, filters, null, "", from, count, sortField, desc);
     }
 
     /**

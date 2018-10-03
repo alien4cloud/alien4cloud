@@ -10,4 +10,6 @@ import lombok.NoArgsConstructor;
 public class MetaPropertyTarget {
     public static final String APPLICATION = "application";
     public static final String LOCATION = "location";
+    public static final String COMPONENT = "component";
+    public static final String SERVICE = "service";
 }

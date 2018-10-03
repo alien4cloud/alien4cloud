@@ -80,12 +80,9 @@ define(function (require) {
       });
 
       $scope.query = '';
-      // onSearchCompleted is used as a callaback for the searchServiceFactory and triggered when the search operation is completed.
-      $scope.onSearchCompleted = function(searchResult) {
-        $scope.serviceResources = searchResult.data.data;
-      };
       // we have to insert the search service in the scope so it is available for the pagination directive.
-      $scope.searchService = searchServiceFactory('rest/latest/services/adv/search', false, $scope, 50);
+      $scope.queryManager = {};
+      $scope.searchService = searchServiceFactory('rest/latest/services/adv/search', false, $scope.queryManager, 50);
       $scope.search = function() {$scope.searchService.search();};
       $scope.search(); // initialize
 
@@ -107,8 +104,11 @@ define(function (require) {
         });
 
         modalInstance.result.then(function(createServiceRequest) {
-          serviceResourceService.create([], angular.toJson(createServiceRequest), function() {
-            $scope.search(); // refresh the view
+          serviceResourceService.create([], angular.toJson(createServiceRequest), function(result) {
+              // Add the new service at the top of the list
+              $scope.queryManager.searchResult.data = [ result.data ].concat($scope.queryManager.searchResult.data);
+              // and select it
+              $scope.selectService(result.data);
           });
         });
       };

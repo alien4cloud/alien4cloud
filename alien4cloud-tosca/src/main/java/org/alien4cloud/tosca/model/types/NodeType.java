@@ -6,6 +6,7 @@ import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.model.common.IMetaProperties;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
@@ -15,6 +16,7 @@ import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.NumberField;
+import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.annotation.query.TermsFacet;
@@ -31,7 +33,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @Setter
 @EqualsAndHashCode(of = {}, callSuper = true)
 @ESObject
-public class NodeType extends AbstractInstantiableToscaType {
+public class NodeType extends AbstractInstantiableToscaType implements IMetaProperties {
     @FetchContext(contexts = { QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false })
     @TermsFacet(paths = "type")
     private List<CapabilityDefinition> capabilities;
@@ -55,4 +57,6 @@ public class NodeType extends AbstractInstantiableToscaType {
     @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
     @TermFilter(pathGenerator = ESPortabilityPropertiesPathsGenerator.class)
     private Map<String, AbstractPropertyValue> portability;
+
+    private Map<String, String> metaProperties;
 }

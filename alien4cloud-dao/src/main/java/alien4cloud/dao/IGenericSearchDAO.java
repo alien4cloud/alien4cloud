@@ -78,6 +78,8 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      */
     <T> T customFind(Class<T> clazz, QueryBuilder query);
 
+    <T> List<T> customFilterAll(Class<T> clazz, FilterBuilder query);
+
     /**
      * Run a custom query on elastic search for the given class.
      *

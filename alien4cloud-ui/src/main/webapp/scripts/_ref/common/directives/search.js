@@ -80,7 +80,12 @@ define(function (require) {
 
     $scope.queryManager.facetIdConverter.toDisplayFacet = $scope.queryManager.facetIdConverter.toDisplayFacet ||
       function (termId, filterPrefix) {
+        if (termId.startsWith("metaProperties.")) {
+            return termId.substring(15);
+        }
+
         var fullTerm = filterPrefix + termId;
+
         return $translate.instant(fullTerm.toUpperCase());
       };
 

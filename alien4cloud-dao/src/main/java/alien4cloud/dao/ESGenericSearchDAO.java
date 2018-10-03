@@ -8,9 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.ObjectArrays;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -21,13 +23,7 @@ import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.elasticsearch.mapping.ElasticSearchClient;
-import org.elasticsearch.mapping.FilterValuesStrategy;
-import org.elasticsearch.mapping.ISearchBuilderAdapter;
-import org.elasticsearch.mapping.MappingBuilder;
-import org.elasticsearch.mapping.QueryBuilderAdapter;
-import org.elasticsearch.mapping.QueryHelper;
-import org.elasticsearch.mapping.SourceFetchContext;
+import org.elasticsearch.mapping.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.missing.InternalMissing;
@@ -61,6 +57,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     private ElasticSearchClient esClient;
     @Resource
     private QueryHelper queryHelper;
+
+    @Resource
+    private IESMetaPropertiesSearchContextBuilder metaPropertiesSearchHelper;
 
     @Override
     public <T> long count(Class<T> clazz, QueryBuilder query) {
@@ -108,11 +107,14 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     }
 
     @SneakyThrows({ IOException.class })
-    private <T> List<T> doCustomFind(Class<T> clazz, QueryBuilder query, SortBuilder sortBuilder, int size) {
+    private <T> List<T> doCustomFind(Class<T> clazz, QueryBuilder query, FilterBuilder filter, SortBuilder sortBuilder, int size) {
         String indexName = getIndexForType(clazz);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setTypes(getTypesFromClass(clazz)).setSize(size);
         if (query != null) {
             searchRequestBuilder.setQuery(query);
+        }
+        if (filter != null) {
+            searchRequestBuilder.setPostFilter(filter);
         }
         if (sortBuilder != null) {
             searchRequestBuilder.addSort(sortBuilder);
@@ -136,12 +138,17 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
     @Override
     public <T> T customFind(Class<T> clazz, QueryBuilder query, SortBuilder sortBuilder) {
-        List<T> results = doCustomFind(clazz, query, sortBuilder, 1);
+        List<T> results = doCustomFind(clazz, query, null, sortBuilder, 1);
         if (results == null || results.isEmpty()) {
             return null;
         } else {
             return results.iterator().next();
         }
+    }
+
+    @Override
+    public <T> List<T> customFilterAll(Class<T> clazz, FilterBuilder filter) {
+        return doCustomFind(clazz, null, filter, null, Integer.MAX_VALUE);
     }
 
     @Override
@@ -151,7 +158,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
     @Override
     public <T> List<T> customFindAll(Class<T> clazz, QueryBuilder query, SortBuilder sortBuilder) {
-        return doCustomFind(clazz, query, sortBuilder, Integer.MAX_VALUE);
+        return doCustomFind(clazz, query, null, sortBuilder, Integer.MAX_VALUE);
     }
 
     @Override
@@ -364,7 +371,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @Override
     public <T> List<T> findByIdsWithContext(Class<T> clazz, String fetchContext, String... ids) {
 
-        // get the fetch context for the given type and apply it to the search
+        // get the fetch mpContext for the given type and apply it to the search
         List<String> includes = new ArrayList<String>();
         List<String> excludes = new ArrayList<String>();
         SourceFetchContext sourceFetchContext = getMappingBuilder().getFetchSource(clazz.getName(), fetchContext);
@@ -372,7 +379,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             includes.addAll(sourceFetchContext.getIncludes());
             excludes.addAll(sourceFetchContext.getExcludes());
         } else {
-            getLog().warn("Unable to find fetch context <" + fetchContext + "> for class <" + clazz.getName() + ">. It will be ignored.");
+            getLog().warn("Unable to find fetch mpContext <" + fetchContext + "> for class <" + clazz.getName() + ">. It will be ignored.");
         }
 
         String[] inc = includes.isEmpty() ? null : includes.toArray(new String[includes.size()]);
@@ -524,6 +531,8 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         private Class<?>[] requestedTypes;
         private String[] esTypes;
 
+        private IESMetaPropertiesSearchContext mpContext;
+
         protected EsQueryBuilderHelper(QueryHelper.QueryBuilderHelper from, Class<T> clazz) {
             super(from);
             this.clazz = clazz;
@@ -531,6 +540,8 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             this.requestedTypes = getRequestedTypes(clazz);
             super.types(requestedTypes);
             this.esTypes = getTypes();
+
+            this.mpContext = metaPropertiesSearchHelper.getContext(clazz);
         }
 
         /**
@@ -570,19 +581,35 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
         @Override
         public FacetedSearchResult facetedSearch(int from, int size) {
-            super.facets();
-            return toFacetedSearchResult(clazz, from, super.execute(from, size));
+            List<IFacetBuilderHelper> facetBuilderHelpers = mpContext.getFacetBuilderHelpers();
+
+            super.facets(facetBuilderHelpers);
+
+            FacetedSearchResult  facetedSearchResult = toFacetedSearchResult(clazz, from, super.execute(from, size));
+
+            // Convert metaProperties name
+            mpContext.postProcess(facetedSearchResult);
+
+            return facetedSearchResult;
         }
 
         @Override
         public FacetedSearchResult facetedSearch(IAggregationQueryManager aggregationQueryManager) {
+            List<IFacetBuilderHelper> facetBuilderHelpers = mpContext.getFacetBuilderHelpers();
+
             searchRequestBuilder.setSearchType(SearchType.COUNT);
             searchRequestBuilder.addAggregation(aggregationQueryManager.getQueryAggregation());
-            super.facets();
+
+            super.facets(facetBuilderHelpers);
+
             SearchResponse searchResponse = super.execute(0, 0);
 
             FacetedSearchResult facetedSearchResult = new FacetedSearchResult();
             parseAggregations(searchResponse, facetedSearchResult, aggregationQueryManager);
+
+            // Convert metaProperties name
+            mpContext.postProcess(facetedSearchResult);
+
             return facetedSearchResult;
         }
 
@@ -593,19 +620,31 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         }
 
         @Override
-        public EsQueryBuilderHelper setFilters(FilterBuilder... customFilter) {
-            super.filters(customFilter);
+        public EsQueryBuilderHelper setFilters(FilterBuilder... customFilters) {
+            super.filters(customFilters);
             return this;
         }
 
         @Override
         public EsQueryBuilderHelper setFilters(Map filters, Map filterStrategies, FilterBuilder... customFilters) {
+            // MetaProperties Name Conversion
+            mpContext.preProcess(filters);
+
+            // Add MetaProperties filters
+            customFilters = ObjectArrays.concat(customFilters, mpContext.getFilterBuilders(filters),FilterBuilder.class);
+
             super.filters(filters, filterStrategies, customFilters);
             return this;
         }
 
         @Override
         public EsQueryBuilderHelper setFilters(Map filters, FilterBuilder... customFilters) {
+            // MetaProperties Name Conversion
+            mpContext.preProcess(filters);
+
+            // Add MetaProperties filters
+            customFilters = ObjectArrays.concat(customFilters, mpContext.getFilterBuilders(filters),FilterBuilder.class);
+
             super.filters(filters, customFilters);
             return this;
         }

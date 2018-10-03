@@ -4,10 +4,7 @@ import javax.validation.constraints.NotNull;
 
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.Id;
-import org.elasticsearch.annotation.ObjectField;
-import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.*;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
@@ -39,7 +36,7 @@ import lombok.Setter;
 @ToscaPropertyDefaultValueType
 @ToscaPropertyConstraint
 @ToscaPropertyDefaultValueConstraints(groups = { ToscaPropertyPostValidationGroup.class })
-@FormProperties({ "name", "description", "required", "target", "type", "password", "default", "constraints" })
+@FormProperties({ "name", "description", "required", "filtered", "target", "type", "password", "default", "constraints" })
 public class MetaPropConfiguration extends PropertyDefinition {
     /**
      * Auto generated id
@@ -60,7 +57,7 @@ public class MetaPropConfiguration extends PropertyDefinition {
      * Target of the tag configuration (application or component or cloud)
      */
     @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
-    @FormValidValues({ MetaPropertyTarget.APPLICATION, MetaPropertyTarget.LOCATION })
+    @FormValidValues({ MetaPropertyTarget.APPLICATION, MetaPropertyTarget.LOCATION, MetaPropertyTarget.COMPONENT, MetaPropertyTarget.SERVICE })
     @NotNull
     @TermsFacet
     @FormLabel("COMMON.TARGET")
@@ -71,6 +68,12 @@ public class MetaPropConfiguration extends PropertyDefinition {
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private PropertyValue defaultValue;
+
+    @NotNull
+    @TermFilter
+    @BooleanField
+    @FormLabel("COMMON.INCLUDE_IN_FILTERS")
+    private boolean filtered = false;
 
     @ObjectField(enabled = false)
     @FormPropertyDefinition(type = "string")
