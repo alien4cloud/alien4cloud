@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.Interface;
@@ -111,6 +112,8 @@ public abstract class AbstractArchivePostProcessor {
             parsedArchive.getContext().getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ARTIFACT_REFERENCE,
                     "Invalid artifact reference", null, "CSAR's artifact does not exist", null, artifact.getArtifactRef()));
         }
+
+        artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY);
     }
 
     private boolean hasInputArtifacts(ParsingResult<ArchiveRoot> parsedArchive) {
