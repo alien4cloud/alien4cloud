@@ -1,5 +1,6 @@
 package alien4cloud.tosca.topology;
 
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.CloneUtil;
@@ -160,6 +161,9 @@ public class TemplateBuilder {
             DeploymentArtifact artifactFromType = deploymentArtifacts.get(entryArtifact.getKey());
             if (artifactFromType != null && StringUtils.isBlank(entryArtifact.getValue().getArtifactType())) {
                 entryArtifact.getValue().setArtifactType(artifactFromType.getArtifactType());
+            }
+            if (artifactFromType.getArtifactRepository() == null) {
+                artifactFromType.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY);
             }
         }
     }
