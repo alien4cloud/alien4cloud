@@ -235,6 +235,16 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         return nodePropertyName;
     }
 
+    public static void feedMapOrComplexPropertyEntry(Object map, String name, Object value) {
+        Map rootMap = null;
+        if (map instanceof ComplexPropertyValue) {
+            rootMap = ((ComplexPropertyValue)map).getValue();
+        } else if (map instanceof Map) {
+            rootMap = (Map)map;
+        }
+        rootMap.put(name, value);
+    }
+
     public static void setNodeTagValue(AbstractTemplate template, String name, String value) {
         List<Tag> tags = template.getTags();
         if (tags == null) {

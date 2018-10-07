@@ -7,10 +7,12 @@ import static org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionCon
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Maps;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
@@ -105,6 +107,19 @@ public class NodeMatchingReplaceModifier extends AbstractMatchingReplaceModifier
                     locationCapability.setProperties(abstractCapability.getProperties());
                 }
             }
+        }
+        // merge artifacts when needed
+        if (replacedTopologyNode.getArtifacts() != null) {
+            replacedTopologyNode.getArtifacts().forEach((key, deploymentArtifact) -> {
+                Map<String, DeploymentArtifact> targetArtifacts = replacingNode.getArtifacts();
+                if (targetArtifacts == null) {
+                    targetArtifacts = Maps.newHashMap();
+                    replacingNode.setArtifacts(targetArtifacts);
+                }
+                if (replacingNode.getArtifacts().containsKey(key)) {
+                    replacingNode.getArtifacts().put(key, deploymentArtifact);
+                }
+            });
         }
     }
 
