@@ -38,6 +38,7 @@ define(function (require) {
   require('d3-pie');
   require('dagre');
   require('graphlib');
+  require('clipboard');
 
   return function() {
     console.debug('Dependencies loaded');

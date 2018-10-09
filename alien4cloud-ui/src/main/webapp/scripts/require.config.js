@@ -52,6 +52,7 @@ require.config({
     'dagre': 'bower_components/dagre/dist/dagre.core.min',
     'graphlib': 'bower_components/graphlib/dist/graphlib.core.min',
     'js-yaml': 'bower_components/js-yaml/js-yaml.min',
+    'clipboard' : 'bower_components/clipboard/dist/clipboard.min',
   },
   shim: {
     'angular': {
@@ -81,7 +82,11 @@ require.config({
     'stomp':  { deps: ['sockjs'] },
     'graphlib': { deps: ['lodash-base'] },
     'dagre': { deps: ['graphlib'] },
-    'd3-pie': { deps: ['d3'] }
+    'd3-pie': { deps: ['d3'] },
+    'clipboard': {
+      exports: 'ClipboardJS',
+      deps: ['jquery']
+    },
   },
   onNodeCreated: function(node, config, moduleName, url) {
     'use strict';

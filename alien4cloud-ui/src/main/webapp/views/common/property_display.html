@@ -39,13 +39,7 @@
             <span>{{definitionObject.uiValue | truncate:30}}</span>
             <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
           </span>
-          <!--
-            Here we should have a copyToClipboard feature here !!
-            Cf. https://clipboardjs.com/
-            Cf. https://sachinchoolur.github.io/ngclipboard/
-            <span ng-if="definitionObject.uiValue"-->
-                <!--class="fa fa-clipboard clickable"-->
-                <!--ng-click="copy(definitionObject.uiValue)"></span>-->
+          <span ng-if="definitionObject.uiValue" uib-tooltip="{{definitionObject.uiValue}}" class="fa fa-clipboard btn-cb clickable"></span>
           <span class="fa clickable" ng-class="{'fa-expand': !isLongText, 'fa-compress': isLongText}" ng-if="showLongTextChoice" ng-click="switchToLongText($event)"></span>
         </span>
         <span id="p_{{propertyName}}" ng-if=" !definitionObject.uiPassword && definitionObject.units && editable">

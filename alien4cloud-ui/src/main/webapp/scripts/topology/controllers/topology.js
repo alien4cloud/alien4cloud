@@ -90,7 +90,7 @@ define(function (require) {
         policiescatalog: { active: false, size: 500, selector: '#policiescatalog-box', only: ['policiescatalog'], keep: ['policies']},
         groups: { active: false, size: 400, selector: '#groups-box', only: ['groups'], keep: ['nodetemplate'] },
         substitutions: { active: false, size: 400, selector: '#substitutions-box', only: ['substitutions'], keep: ['nodetemplate'] },
-        nodetemplate: { active: false, size: 500, selector: '#nodetemplate-box', only: ['nodetemplate'], keep: ['inputs'] }
+        nodetemplate: { active: false, size: 550, selector: '#nodetemplate-box', only: ['nodetemplate'], keep: ['inputs'] }
       };
 
       topoEditDisplay($scope, '#topology-editor');

@@ -20,6 +20,14 @@ define(function(require) {
     'angularMoment'
   ]);
 
+  require(['clipboard'], function(Clipboard) {
+    new Clipboard('.btn-cb', {
+        text: function(trigger) {
+            return trigger.getAttribute("uib-tooltip");
+        }
+    });
+  });
+
   // bootstrap angular js application
   states.state('home', {
     url: '/',

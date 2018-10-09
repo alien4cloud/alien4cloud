@@ -222,6 +222,7 @@
                     <em ng-if="!isPropertyEditable()">
                       {{selectedService.nodeInstance.attributeValues[attrEntry.key] || '...'}}
                     </em>
+                    <span ng-if="selectedService.nodeInstance.attributeValues[attrEntry.key]" class="fa fa-clipboard btn-cb clickable" uib-tooltip="{{selectedService.nodeInstance.attributeValues[attrEntry.key]}}"/>
                   </td>
                   <td>
                     <info class="pull-right" content="attrEntry.value.description"></info>
@@ -233,12 +234,13 @@
                     <label>{{attrEntry.key}}</label>
                   </td>
                   <td>
-                    <span ng-if="isPropertyEditable()" editable-text="selectedService.nodeInstance.attributeValues[attrEntry.key]" buttons="no" onbeforesave="updateAttribute(attrEntry.key, $data)" blur="submit" class="editable editable-click">
+                    <span ng-if="isPropertyEditable()" editable-text="selectedService.nodeInstance.attributeValues[attrEntry.key]" buttons="no" onbeforesave="updateAttribute(attrEntry.key, $data)" blur="submit" class="editable editable-click" uib-tooltip="{{selectedService.nodeInstance.attributeValues[attrEntry.key]}}">
                       {{selectedService.nodeInstance.attributeValues[attrEntry.key]}} <i class="fa fa-pencil-square-o"></i>
                     </span>
                     <em ng-if="!isPropertyEditable()">
                       {{selectedService.nodeInstance.attributeValues[attrEntry.key] || '...'}}
                     </em>
+                    <span ng-if="selectedService.nodeInstance.attributeValues[attrEntry.key]" class="fa fa-clipboard btn-cb clickable" uib-tooltip="{{selectedService.nodeInstance.attributeValues[attrEntry.key]}}"/>
                   </td>
                   <td ng-if="isPropertyEditable()">
                     <span class="btn btn-xs info-xs pull-right">

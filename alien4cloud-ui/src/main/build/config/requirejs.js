@@ -90,6 +90,7 @@ module.exports = function (grunt) {
           'ace': 'empty:',
           'sockjs': 'empty:',
           'stomp': 'empty:',
+          'clipboard': 'empty:',
           'd3': 'empty:',
           'd3-tip': 'empty:',
           'd3-pie': 'empty:',

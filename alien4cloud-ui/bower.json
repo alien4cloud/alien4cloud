@@ -24,6 +24,7 @@
     "angularjs-toaster": "2.2.0",
     "autofill-event": "1.0.0",
     "bootstrap-sass-official": "3.3.7",
+    "clipboard" : "2.0.1",
     "d3": "3.5.17",
     "d3-tip": "0.6.8",
     "d3pie": "0.1.6",
