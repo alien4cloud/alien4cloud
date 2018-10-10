@@ -1,6 +1,7 @@
 package alien4cloud.paas.wf;
 
 import static alien4cloud.utils.AlienUtils.safe;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.CANCEL;
 import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.RUN;
 
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
     public void addNode(Workflow workflow, String nodeId, TopologyContext topologyContext, boolean isCompute) {
         if (WorkflowUtils.isNativeOrSubstitutionNode(nodeId, topologyContext)) {
             // for a native node, we just add a sub-workflow step, except for 'run' workflow
-            if (!workflow.getName().equals(RUN)) {
+            if (!workflow.getName().equals(RUN) && !workflow.getName().equals(CANCEL)) {
                 WorkflowUtils.addDelegateWorkflowStep(workflow, nodeId);
             }
         } else {

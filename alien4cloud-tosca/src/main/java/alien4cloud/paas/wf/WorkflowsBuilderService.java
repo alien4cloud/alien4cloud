@@ -1,11 +1,5 @@
 package alien4cloud.paas.wf;
 
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.RUN;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +35,8 @@ import alien4cloud.tosca.parser.ToscaParser;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.YamlParserUtil;
 import lombok.extern.slf4j.Slf4j;
+
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.*;
 
 @Component
 @Slf4j
@@ -99,6 +95,9 @@ public class WorkflowsBuilderService {
         }
         if (!wfs.containsKey(RUN)) {
             initStandardWorkflow(RUN, topologyContext);
+        }
+        if (!wfs.containsKey(CANCEL)) {
+            initStandardWorkflow(CANCEL, topologyContext);
         }
         postProcessTopologyWorkflows(topologyContext);
     }

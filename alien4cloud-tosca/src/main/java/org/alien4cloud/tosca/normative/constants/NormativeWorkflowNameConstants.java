@@ -13,6 +13,7 @@ public final class NormativeWorkflowNameConstants {
     public static final String START = "start";
     public static final String STOP = "stop";
     public static final String RUN = "run";
+    public static final String CANCEL = "cancel";
 
     /** Not officially normative but static in alien4cloud */
     public static final String POST_UPDATE = "post_update";

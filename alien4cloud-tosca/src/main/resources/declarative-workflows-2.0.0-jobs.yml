@@ -96,18 +96,39 @@ node_workflows:
         operation_host: SELF
   run:
     states:
+      submitting:
+        following_operations: [ submit ]
       submitted:
+        # submitted -> executing
+        following_state: executing
+      executing:
         following_operations: [ run ]
       executed:
     # all call-operation steps that should be created for the install workflow
     operations:
+      tosca.interfaces.node.lifecycle.Runnable.submit:
+        # precondition on states to trigger the step
+        states: [ initial, started, executed ]
+        preceding_state: submitting
+        following_state: submitted
+        operation_host: SELF
       tosca.interfaces.node.lifecycle.Runnable.run:
         # precondition on states to trigger the step
-        states: [ initial ]
-        preceding_state: submitted
+        states: [ submitted ]
+        preceding_state: executing
         following_state: executed
         operation_host: SELF
-
+  cancel:
+    states:
+      cancelling:
+        following_operations: [ cancel ]
+      cancelled:
+    operations:
+      tosca.interfaces.node.lifecycle.Runnable.cancel:
+        states: [ submitted, executing ]
+        preceding_state: cancelling
+        following_state: cancelled
+        operation_host: SELF
 
 relationship_workflows:
   install:
@@ -239,7 +260,7 @@ relationships_weaving:
     run:
       source:
         states:
-          submitted:
+          submitting:
             # dependencies here are declared for the partner of the source which is the target
             # the mirror model does not explicit something like wait_target_state as in a real DSL
             # target.executed -> source.submitted
