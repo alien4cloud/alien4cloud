@@ -62,6 +62,7 @@
           <div ng-if="unitError" class="help-inline text-danger">{{unitError}}</div>
         </span>
         <em ng-if="!definitionObject.uiPassword && !editable">{{definitionObject.uiValue || '...'}}</em>
+        <em ng-if="!definitionObject.uiPassword && !editable && definitionObject.uiValue" uib-tooltip="{{definitionObject.uiValue}}" class="fa fa-clipboard btn-cb clickable"></em>
 
         <!-- Case : password -->
         <span id="p_{{propertyName}}" ng-if=" definitionObject.uiPassword && editable" editable-text="definitionObject.uiValue" e-type="password" buttons="no" e-required
