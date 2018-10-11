@@ -265,3 +265,11 @@ relationships_weaving:
             # the mirror model does not explicit something like wait_target_state as in a real DSL
             # target.executed -> source.submitted
             preceding_state: executed
+#    cancel:
+#      source:
+#        states:
+#          cancelling:
+#            # dependencies here are declared for the partner of the source which is the target
+#            # the mirror model does not explicit something like wait_target_state as in a real DSL
+#            # target.executed -> source.submitted
+#            preceding_state: cancelled
