@@ -101,15 +101,25 @@ public class WorkflowSimplifyService {
         doWithNode(tc, (subGraph, workflow) -> removeUnnecessarySteps(tc, workflow, subGraph), whiteList);
 
         if (ToscaParser.ALIEN_DSL_200.equals(tc.getDSLVersion())) {
-            // 3. Remove the orphan nodes
-            doWithNode(tc, ((subGraph, workflow) -> {
-				DefaultDeclarativeWorkflows dwf = workflowsBuilderService.getDeclarativeWorkflows(tc.getDSLVersion());
-				removeOrphanSetStateSteps(dwf, workflow);
-			}), whiteList);
-
-            // 4. Remove useless edges
-            doWithNode(tc, ((subGraph, workflow) -> removeUselessEdges(workflow)), whiteList);
+            reentrantSimplifyWorklow(tc, whiteList);
         }
+    }
+
+    /**
+     * These simplifiers can be run on any workflow, even if modified.
+     *
+     * @param tc
+     * @param whiteList
+     */
+    public void reentrantSimplifyWorklow(TopologyContext tc, Set<String> whiteList) {
+        // 3. Remove the orphan nodes
+        doWithNode(tc, ((subGraph, workflow) -> {
+            DefaultDeclarativeWorkflows dwf = workflowsBuilderService.getDeclarativeWorkflows(tc.getDSLVersion());
+            removeOrphanSetStateSteps(dwf, workflow);
+        }), whiteList);
+
+        // 4. Remove useless edges
+        doWithNode(tc, ((subGraph, workflow) -> removeUselessEdges(workflow)), whiteList);
     }
 
     protected void removeUselessEdges(Workflow wf) {
