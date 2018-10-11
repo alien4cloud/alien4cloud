@@ -28,8 +28,8 @@ public class RebuildNodeProcessor extends AbstractNodeProcessor<RebuildNodeOpera
         // Artifacts are copied from the type to the template
         // In case of an update of version, we must remove old artifacts copied from old types
         // FIXME This is very tricky, we must think about stopping copying artifact from types to templates
-        nodeTemplate.getArtifacts().entrySet().removeIf(artifactEntry -> Objects.equals(type.getArchiveName(), artifactEntry.getValue().getArchiveName())
-                && !Objects.equals(type.getArchiveVersion(), artifactEntry.getValue().getArchiveVersion()));
+        nodeTemplate.getArtifacts().entrySet().removeIf(artifactEntry -> Objects.equals(type.getArchiveName(), artifactEntry.getValue().getArchiveName()));
+
         NodeTemplate rebuiltNodeTemplate = TemplateBuilder.buildNodeTemplate(type, nodeTemplate);
         rebuiltNodeTemplate.setName(operation.getNodeName());
         topology.getNodeTemplates().put(operation.getNodeName(), rebuiltNodeTemplate);
