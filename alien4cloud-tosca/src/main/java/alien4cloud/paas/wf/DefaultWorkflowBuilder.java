@@ -181,8 +181,10 @@ public class DefaultWorkflowBuilder extends AbstractWorkflowBuilder {
             Steps targetSteps = new Steps(workflow, relationshipTemplate.getTarget());
             RelationshipWeavingDeclarativeWorkflow relationshipWeavingDeclarativeWorkflow = getRelationshipWeavingDeclarativeWorkflow(
                     relationshipTemplate.getType(), topologyContext, workflow.getName());
-            declareWeaving(relationshipWeavingDeclarativeWorkflow.getSource(), sourceSteps, targetSteps);
-            declareWeaving(relationshipWeavingDeclarativeWorkflow.getTarget(), targetSteps, sourceSteps);
+            if (relationshipWeavingDeclarativeWorkflow != null) {
+                declareWeaving(relationshipWeavingDeclarativeWorkflow.getSource(), sourceSteps, targetSteps);
+                declareWeaving(relationshipWeavingDeclarativeWorkflow.getTarget(), targetSteps, sourceSteps);
+            }
         }
     }
 }
