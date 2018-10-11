@@ -32,6 +32,7 @@ define(function (require) {
     ['$scope', '$uibModal', '$alresource', 'searchServiceFactory', 'resizeServices', 'resourceSecurityFactory', 'globalRestErrorHandler', 'relationshipTypeQuickSearchService',
     function($scope, $uibModal, $alresource, searchServiceFactory, resizeServices, resourceSecurityFactory, globalRestErrorHandler, relationshipTypeQuickSearchService) {
       var serviceResourceService = $alresource('rest/latest/services/:serviceId');
+      var serviceResourceDuplicateService = $alresource('rest/latest/services/duplicate/:serviceId');
       var orchestratorsService = $alresource('rest/latest/orchestrators/:id');
       var locationsService = $alresource('rest/latest/orchestrators/:orchestratorId/locations/:id');
       var typeWithDependenciesService = $alresource('rest/latest/catalog/types/adv/typewithdependencies/:typeId/:typeVersion');
@@ -207,6 +208,23 @@ define(function (require) {
             setSelectedTypesToScope();
           }
         }
+      };
+
+      $scope.duplicateServiceResource = function(reourceId, $event) {
+          $event.stopPropagation();
+          if (!reourceId) {
+              return;
+          }
+
+          serviceResourceDuplicateService.get({
+              serviceId: reourceId
+          }, null, function(result) {
+              // Add the new service at the top of the list
+              $scope.queryManager.searchResult.data = [ result.data ].concat($scope.queryManager.searchResult.data);
+              // and select it
+              $scope.selectService(result.data);
+          });
+
       };
 
       $scope.toggleState = function() {

@@ -19,6 +19,7 @@
           <th>{{'COMMON.TYPE' | translate}}</th>
           <th>{{'COMMON.STATE' | translate}}</th>
           <th></th>
+          <th></th>
         </thead>
         <tbody>
           <tr ng-repeat="serviceResource in queryManager.searchResult.data" id='service_{{serviceResource.id}}' class="clickable" ng-click="selectService(serviceResource)"
@@ -30,6 +31,14 @@
             <td>{{serviceResource.version}}</td>
             <td><span ng-bind-html="dotWb(serviceResource.nodeInstance.nodeTemplate.type)"></span></td>
             <td>{{serviceResource.nodeInstance.attributeValues.state}}</td>
+            <td>
+              <a ng-if="!serviceResource.environmentId"
+                      uib-tooltip="{{ 'ORCHESTRATORS.LOCATIONS.RESOURCES.DUPLICATE' | translate }}"
+                      tooltip-append-to-body="true"
+                        ng-click="duplicateServiceResource(serviceResource.id, $event)">
+                <i class="fa fa-clone"></i>
+              </a>
+            </td>
             <td>
               <delete-confirm id='delete-service_{{serviceResource.id}}' func="delete(serviceResource.id)"
                               position="right" bssize="btn-xs" fastyle="fa-trash-o">

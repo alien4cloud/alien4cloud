@@ -138,6 +138,19 @@ public class ServiceResourceController {
         }
     }
 
+    @ApiOperation(value = "Duplicate a service.", notes = "When the service is managed by alien (through application deployment) the only authorized patch are on location and authorizations.", authorizations = {
+            @Authorization("ADMIN") })
+    @RequestMapping(value = "/duplicate/{id}", method = RequestMethod.GET)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<ServiceResource> duplicate(
+            @ApiParam(value = "Id of the service to duplicate.", required = true) @PathVariable @Valid @NotEmpty String id) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+
+        String duplicateId = serviceResourceService.duplicate(id);
+        ServiceResource serviceResource = serviceResourceService.getOrFail(duplicateId);
+        return RestResponseBuilder.<ServiceResource> builder().data(serviceResource).build();
+    }
+
     @ApiOperation(value = "Delete a service.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")

@@ -30,6 +30,7 @@ import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -82,6 +83,8 @@ public class ServiceResourceService {
     public String create(String serviceName, String serviceVersion, String serviceNodeType, String serviceNodeVersion) {
         return create(serviceName, serviceVersion, serviceNodeType, serviceNodeVersion, null);
     }
+
+
 
     /**
      * Create a service.
@@ -177,6 +180,28 @@ public class ServiceResourceService {
             throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         update(resourceId, name, version, description, nodeType, nodeTypeVersion, nodeProperties, nodeCapabilities, nodeAttributeValues, locations,
                 capabilitiesRelationshipTypes, requirementsRelationshipTypes, false);
+    }
+
+    // TODO: manage relationships in duplicate
+    public String duplicate(String serviceId) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        ServiceResource serviceResource = getOrFail(serviceId);
+        if (serviceResource.getEnvironmentId() != null) {
+            throw new UnsupportedOperationException("Alien managed services cannot be duplicated.");
+        }
+        // TODO: better naming deduplicate strategy
+        String serviceName = serviceResource.getName() + "_copy";
+        String serviceVersion = serviceResource.getVersion();
+        String description = serviceResource.getDescription();
+        String nodeType = serviceResource.getNodeInstance().getNodeTemplate().getType();
+        String nodeVersion = serviceResource.getNodeInstance().getTypeVersion();
+        String newServiceId = create(serviceName, serviceVersion, nodeType, nodeVersion);
+        Map<String, String> attributeValues = serviceResource.getNodeInstance().getAttributeValues();
+        attributeValues.put(ToscaNodeLifecycleConstants.ATT_STATE, ToscaNodeLifecycleConstants.INITIAL);
+
+        NodeTemplate nodeTemplate = serviceResource.getNodeInstance().getNodeTemplate();
+        update(newServiceId, serviceName, serviceVersion, description, nodeType, nodeVersion, nodeTemplate.getProperties(), nodeTemplate.getCapabilities(), attributeValues, serviceResource.getLocationIds(), null, null);
+
+        return newServiceId;
     }
 
     /**
