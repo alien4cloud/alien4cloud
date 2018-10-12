@@ -30,6 +30,12 @@ public class RebuildNodeProcessor extends AbstractNodeProcessor<RebuildNodeOpera
         // FIXME This is very tricky, we must think about stopping copying artifact from types to templates
         nodeTemplate.getArtifacts().entrySet().removeIf(artifactEntry -> Objects.equals(type.getArchiveName(), artifactEntry.getValue().getArchiveName()));
 
+        // We need to do this on the whole hierarchy
+        for (String typeName : type.getDerivedFrom()) {
+            NodeType subType = ToscaContext.getOrFail(NodeType.class, typeName);
+            nodeTemplate.getArtifacts().entrySet().removeIf(artifactEntry -> Objects.equals(subType.getArchiveName(), artifactEntry.getValue().getArchiveName()));
+        }
+
         NodeTemplate rebuiltNodeTemplate = TemplateBuilder.buildNodeTemplate(type, nodeTemplate);
         rebuiltNodeTemplate.setName(operation.getNodeName());
         topology.getNodeTemplates().put(operation.getNodeName(), rebuiltNodeTemplate);
