@@ -265,6 +265,11 @@ public final class PropertyUtil {
         return null;
     }
 
+    public static String getScalarPropertyValueFromPath(Map<String, AbstractPropertyValue> values, String propertyPath) {
+        AbstractPropertyValue apv = getPropertyValueFromPath(values, propertyPath);
+        return getScalarValue(apv);
+    }
+
     public static Object getPropertyRawValueFromPath(Map<String, AbstractPropertyValue> values, String propertyPath) {
         NestedPropertyWrapper npw = getNestedProperty(values, propertyPath);
         if (npw != null) {
