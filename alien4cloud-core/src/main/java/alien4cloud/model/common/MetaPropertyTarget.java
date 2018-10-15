@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MetaPropertyTarget {
     public static final String APPLICATION = "application";
+    public static final String TOPOLOGY = "topology";
     public static final String LOCATION = "location";
     public static final String COMPONENT = "component";
     public static final String SERVICE = "service";

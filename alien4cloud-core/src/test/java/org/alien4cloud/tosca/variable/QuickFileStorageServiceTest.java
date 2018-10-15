@@ -26,7 +26,7 @@ public class QuickFileStorageServiceTest {
 
     @Test
     public void afterApplicationDeletedEventListener() throws Exception {
-        String applicationId = applicationService.create("admin", "TEST", "TEST", "");
+        String applicationId = applicationService.create("admin", "TEST", "TEST", "", null);
         quickFileStorageService.loadApplicationVariables(applicationId);
         Path filePath = quickFileStorageService.getApplicationVariablesPath(applicationId);
         Assertions.assertThat(filePath).exists();

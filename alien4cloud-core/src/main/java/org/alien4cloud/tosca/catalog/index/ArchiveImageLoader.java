@@ -50,21 +50,21 @@ public class ArchiveImageLoader {
         importImages(archiveFile, archiveRoot.getPolicyTypes(), parsingErrors);
         // Import topology icon
         importImages(archiveFile, archiveRoot.getArchive().getTags(), parsingErrors);
+        if (archiveRoot.getArchive().isHasTopology()) {
+            importImages(archiveFile, archiveRoot.getTopology().getTags(), parsingErrors);
+        }
     }
 
     private void importImages(Path archiveFile, Map<String, ? extends AbstractInheritableToscaType> toscaInheritableElement, List<ParsingError> parsingErrors) {
         for (Map.Entry<String, ? extends AbstractInheritableToscaType> element : safe(toscaInheritableElement).entrySet()) {
-            if (element.getValue().getTags() != null) {
-                List<Tag> tags = element.getValue().getTags();
-                Tag iconTag = ArchiveImageLoader.getIconTag(tags);
-                if (iconTag != null && !UUID_PATTERN.matcher(iconTag.getValue()).matches()) {
-                    importImage(archiveFile, parsingErrors, iconTag);
-                }
-            }
+            importImages(archiveFile, element.getValue().getTags(), parsingErrors);
         }
     }
 
     private void importImages(Path archiveFile, List<Tag> tags, List<ParsingError> parsingErrors) {
+        if (tags == null) {
+            return;
+        }
         Tag iconTag = ArchiveImageLoader.getIconTag(tags);
         if (iconTag != null && !UUID_PATTERN.matcher(iconTag.getValue()).matches()) {
             importImage(archiveFile, parsingErrors, iconTag);

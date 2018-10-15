@@ -9,9 +9,16 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
+import alien4cloud.common.MetaPropertiesService;
+import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.common.MetaPropertyTarget;
+import alien4cloud.model.common.Tag;
 import org.alien4cloud.alm.events.AfterApplicationDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationDeleted;
+import org.alien4cloud.tosca.catalog.index.ArchiveImageLoader;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.common.lang3.ArrayUtils;
 import org.elasticsearch.common.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -54,6 +61,8 @@ public class ApplicationService {
     private ImageDAO imageDAO;
     @Resource
     private ResourceUpdateInterceptor resourceUpdateInterceptor;
+    @Inject
+    private MetaPropertiesService metaPropertiesService;
 
     /**
      * Create a new application and return it's id
@@ -64,7 +73,7 @@ public class ApplicationService {
      * @param description The description of the new application.
      * @return The id of the newly created application.
      */
-    public String create(String user, String archiveName, String name, String description) {
+    public String create(String user, String archiveName, String name, String description, Topology template) {
         checkApplicationId(archiveName);
         checkApplicationName(name);
 
@@ -80,12 +89,49 @@ public class ApplicationService {
 
         application.setTags(Lists.newArrayList());
         application.setMetaProperties(Maps.newHashMap());
+        if (template != null) {
+            if (template.getMetaProperties() != null) {
+                // we must find the right IDs for meta props
+                application.getMetaProperties().putAll(adaptMetapropertiesFromTopologyToApplication(template.getMetaProperties()));
+            }
+            // if an icon is defined for topology, set the same for application
+            Tag iconTag = ArchiveImageLoader.getIconTag(template.getTags());
+            if (iconTag != null) {
+                application.setImageId(iconTag.getValue());
+            }
+        }
 
         alienDAO.save(application);
 
         resourceUpdateInterceptor.runOnNewApplication(application);
 
         return archiveName;
+    }
+
+    /**
+     * Given the metaproperties comming from topology, if a metaproperty is found on application with the same name,
+     * use the Id of application metaproperties.
+     *
+     * @param templateMetaProperties
+     * @return
+     */
+    private Map<String, String> adaptMetapropertiesFromTopologyToApplication(Map<String, String> templateMetaProperties) {
+        Map<String, MetaPropConfiguration> applicationMps = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.APPLICATION);
+        Map<String, MetaPropConfiguration> topologyMps = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.TOPOLOGY);
+        Map<String, String> metapropTopologyToMapKeyMap = Maps.newHashMap();
+        topologyMps.entrySet().forEach(topologyE -> {
+            if (applicationMps.containsKey(topologyE.getKey())) {
+                metapropTopologyToMapKeyMap.put(topologyE.getValue().getId(), applicationMps.get(topologyE.getKey()).getId());
+            }
+        });
+        Map<String, String> result = Maps.newHashMap();
+        templateMetaProperties.forEach((k, v) -> {
+            String appMpId = metapropTopologyToMapKeyMap.get(k);
+            if (appMpId != null) {
+                result.put(appMpId, v);
+            }
+        });
+        return result;
     }
 
     private void checkApplicationId(String applicationId) {

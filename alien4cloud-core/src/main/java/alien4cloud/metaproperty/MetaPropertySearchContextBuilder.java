@@ -8,11 +8,13 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.common.MetaPropertyTarget;
 import alien4cloud.model.service.ServiceResource;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.index.query.FilterBuilder;
@@ -96,9 +98,10 @@ public class MetaPropertySearchContextBuilder implements IESMetaPropertiesSearch
     }
 
     private MetaPropertySearchContextBuilder() {
-        classToTarget.put(NodeType.class,"component");
-        classToTarget.put(ServiceResource.class,"service");
-        classToTarget.put(Application.class,"application");
+        classToTarget.put(NodeType.class, MetaPropertyTarget.COMPONENT);
+        classToTarget.put(ServiceResource.class, MetaPropertyTarget.SERVICE);
+        classToTarget.put(Application.class, MetaPropertyTarget.APPLICATION);
+        classToTarget.put(Topology.class, MetaPropertyTarget.TOPOLOGY);
     }
 
     @Override

@@ -57,7 +57,7 @@ public class MetaPropConfiguration extends PropertyDefinition {
      * Target of the tag configuration (application or component or cloud)
      */
     @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
-    @FormValidValues({ MetaPropertyTarget.APPLICATION, MetaPropertyTarget.LOCATION, MetaPropertyTarget.COMPONENT, MetaPropertyTarget.SERVICE })
+    @FormValidValues({ MetaPropertyTarget.APPLICATION, MetaPropertyTarget.LOCATION, MetaPropertyTarget.COMPONENT, MetaPropertyTarget.SERVICE, MetaPropertyTarget.TOPOLOGY })
     @NotNull
     @TermsFacet
     @FormLabel("COMMON.TARGET")

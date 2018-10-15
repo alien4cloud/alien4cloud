@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.model.common.IMetaProperties;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
@@ -51,7 +52,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Topology implements IDatableResource, IWorkspaceResource {
+public class Topology implements IDatableResource, IWorkspaceResource, IMetaProperties {
     @StringField(indexType = IndexType.not_analyzed)
     @TermFilter
     private String archiveName;
@@ -195,4 +196,6 @@ public class Topology implements IDatableResource, IWorkspaceResource {
 	public Workflow getWorkflow(String name) {
 		return workflows.get(name);
 	}
+
+    private Map<String, String> metaProperties;
 }

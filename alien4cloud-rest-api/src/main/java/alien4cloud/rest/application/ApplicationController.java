@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.FilterBuilder;
@@ -94,8 +95,9 @@ public class ApplicationController {
 
         // check the topology template id to recover the related topology id
         String topologyId = request.getTopologyTemplateVersionId();
+        Topology template = null;
         if (topologyId != null) {
-            applicationVersionService.getTemplateTopology(topologyId);
+            template = applicationVersionService.getTemplateTopology(topologyId);
         }
 
         // check unity of archive name
@@ -110,7 +112,7 @@ public class ApplicationController {
         }
 
         // create the application with default environment and version
-        String applicationId = applicationService.create(auth.getName(), request.getArchiveName(), request.getName(), request.getDescription());
+        String applicationId = applicationService.create(auth.getName(), request.getArchiveName(), request.getName(), request.getDescription(), template);
         ApplicationVersion version = applicationVersionService.createInitialVersion(applicationId, topologyId);
         applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, version.getTopologyVersions().keySet().iterator().next());
         return RestResponseBuilder.<String> builder().data(applicationId).build();

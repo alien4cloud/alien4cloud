@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.catalog.index;
 
+import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.dao.FilterUtil;
@@ -7,6 +8,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.common.MetaPropertyTarget;
 import alien4cloud.model.common.Tag;
@@ -22,6 +24,7 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
@@ -71,7 +74,7 @@ public class ArchiveIndexer {
     /**
      * If this prefix is found in TOSCA metadata name, A4C will try to find and feed the corresponding meta-property for NodeType.
      */
-    public static final String A4C_COMPONENT_METAPROPERTY_PREFIX = "A4C_COMP_MP_";
+    public static final String A4C_METAPROPERTY_PREFIX = "A4C_META_";
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
@@ -97,6 +100,8 @@ public class ArchiveIndexer {
     private TopologySubstitutionService topologySubstitutionService;
     @Inject
     private IArchiveIndexerAuthorizationFilter archiveIndexerAuthorizationFilter;
+    @Inject
+    private MetaPropertiesService metaPropertiesService;
 
     @Value("${features.archive_indexer_lock_used_archive:#{true}}")
     private boolean lockUsedArchive;
@@ -276,13 +281,25 @@ public class ArchiveIndexer {
         }
     }
 
+    private void manageTopologyMetaproperties(Topology topology) {
+        Map<String, MetaPropConfiguration> metapropsNames = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.TOPOLOGY);
+        feedA4CMetaproperties(topology, topology.getTags(), metapropsNames);
+    }
+
     private void indexTopology(final ArchiveRoot archiveRoot, List<ParsingError> parsingErrors, String archiveName, String archiveVersion) {
         Topology topology = archiveRoot.getTopology();
         if (topology == null || topology.isEmpty()) {
             return;
         }
 
-        topology.setTags(archiveRoot.getArchive().getTags());
+        // merge archive tags in topology tags
+        if (archiveRoot.getArchive().getTags() != null && !archiveRoot.getArchive().getTags().isEmpty()) {
+            if (topology.getTags() == null) {
+                topology.setTags(Lists.newArrayList());
+            }
+            topology.getTags().addAll(archiveRoot.getArchive().getTags());
+        }
+        manageTopologyMetaproperties(topology);
 
         if (archiveRoot.hasToscaTypes()) {
             // The archive contains types, we assume those types are used in the embedded topology so we add the dependency to this CSAR
@@ -366,53 +383,56 @@ public class ArchiveIndexer {
         }
     }
 
+    private void feedA4CMetaproperties(IMetaProperties newElement, List<Tag> tags, Map<String, MetaPropConfiguration> metapropsByNames) {
+        if (tags == null) {
+            return;
+        }
+        Map<String, String> metaProperties = newElement.getMetaProperties();
+        if (metaProperties == null) {
+            metaProperties = Maps.newHashMap();
+            newElement.setMetaProperties(metaProperties);
+        }
+        Set<String> tagsToRemove = Sets.newHashSet();
+
+        Iterator<Tag> tagIterator = tags.iterator();
+        while (tagIterator.hasNext()) {
+            Tag tag = tagIterator.next();
+            if (tag.getName().startsWith(A4C_METAPROPERTY_PREFIX)) {
+                String metapropertyName = tag.getName().substring(A4C_METAPROPERTY_PREFIX.length());
+                MetaPropConfiguration metaPropConfig = metapropsByNames.get(metapropertyName);
+                if (metaPropConfig != null) {
+                    // validate tag value using meta prop constraints
+                    try {
+                        ConstraintPropertyService.checkPropertyConstraint(metaPropConfig.getId(), tag.getValue(), metaPropConfig);
+                        metaProperties.put(metaPropConfig.getId(), tag.getValue());
+                        tagIterator.remove();
+                    } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+                        // TODO: manage error
+                        // for the moment the error is ignored, but the meta-property is not set and the
+                        // tag not removed, so the user can easily guess that something gone wrong ...
+                    } catch (ConstraintViolationException e) {
+                        // TODO: manage error
+                    }
+                }
+            }
+        }
+    }
+
     private void updateComponentMetaProperties(Map<String, NodeType> newElements, Map<String, AbstractToscaType> previousElements) {
         if (newElements == null) {
             return;
         }
 
-        // load all meta properties configurations for target of type components
-        Map<String, String[]> filters =  MapUtil.newHashMap(new String[] { "target" }, new String[][] { new String[] { MetaPropertyTarget.COMPONENT } });
-        GetMultipleDataResult<MetaPropConfiguration> metaPropConfigurations = alienDAO.find(MetaPropConfiguration.class, filters, Integer.MAX_VALUE);
-        // a map of metaprop config name -> id
-        Map<String, MetaPropConfiguration> metapropsNames = Maps.newHashMap();
-        for (MetaPropConfiguration metaPropConfiguration : metaPropConfigurations.getData()) {
-            metapropsNames.put(metaPropConfiguration.getName(), metaPropConfiguration);
-        }
+        Map<String, MetaPropConfiguration> metapropsNames = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.COMPONENT);
 
         for (NodeType newElement : newElements.values()) {
+            feedA4CMetaproperties(newElement, newElement.getTags(), metapropsNames);
+            // now copy meta props from previous type if exists
             Map<String, String> metaProperties = newElement.getMetaProperties();
             if (metaProperties == null) {
                 metaProperties = Maps.newHashMap();
                 newElement.setMetaProperties(metaProperties);
             }
-            Set<String> tagsToRemove = Sets.newHashSet();
-            List<Tag> tags = newElement.getTags();
-            if (tags != null) {
-                Iterator<Tag> tagIterator = tags.iterator();
-                while (tagIterator.hasNext()) {
-                    Tag tag = tagIterator.next();
-                    if (tag.getName().startsWith(A4C_COMPONENT_METAPROPERTY_PREFIX)) {
-                        String metapropertyName = tag.getName().substring(A4C_COMPONENT_METAPROPERTY_PREFIX.length());
-                        MetaPropConfiguration metaPropConfig = metapropsNames.get(metapropertyName);
-                        if (metaPropConfig != null) {
-                            // validate tag value using meta prop constraints
-                            try {
-                                ConstraintPropertyService.checkPropertyConstraint(metaPropConfig.getId(), tag.getValue(), metaPropConfig);
-                                metaProperties.put(metaPropConfig.getId(), tag.getValue());
-                                tagIterator.remove();
-                            } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                                // TODO: manage error
-                                // for the moment the error is ignored, but the meta-property is not set and the
-                                // tag not removed, so the user can easily guess that something gone wrong ...
-                            } catch (ConstraintViolationException e) {
-                                // TODO: manage error
-                            }
-                        }
-                    }
-                }
-            }
-            // now copy meta props from previous type if exists
             AbstractToscaType previousElement = previousElements.get(newElement.getId());
             if (previousElement != null && previousElement instanceof NodeType) {
                 for (Map.Entry<String, String> previousMetaPropsEntry : safe(((NodeType) previousElement).getMetaProperties()).entrySet()) {

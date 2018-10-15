@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.common.MetaPropertyTarget;
+import alien4cloud.utils.MapUtil;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.elasticsearch.common.collect.Maps;
@@ -90,4 +91,21 @@ public class MetaPropertiesService {
         }
         return null;
     }
+
+    /**
+     * @param target
+     * @return For the given target type, a map of @{@link MetaPropConfiguration}. The key of the map is the meta property name.
+     */
+    public Map<String, MetaPropConfiguration> getMetaPropConfigurationsByName(String target) {
+        // load all meta properties configurations for target of type components
+        Map<String, String[]> filters =  MapUtil.newHashMap(new String[] { "target" }, new String[][] { new String[] { target } });
+        GetMultipleDataResult<MetaPropConfiguration> metaPropConfigurations = alienDAO.find(MetaPropConfiguration.class, filters, Integer.MAX_VALUE);
+        // a map of metaprop config name -> id
+        Map<String, MetaPropConfiguration> metapropsNames = Maps.newHashMap();
+        for (MetaPropConfiguration metaPropConfiguration : metaPropConfigurations.getData()) {
+            metapropsNames.put(metaPropConfiguration.getName(), metaPropConfiguration);
+        }
+        return metapropsNames;
+    }
+
 }

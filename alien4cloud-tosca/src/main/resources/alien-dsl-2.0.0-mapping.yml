@@ -68,6 +68,9 @@
 
 - topology_template_type: org.alien4cloud.tosca.model.templates.Topology
   description: description
+  tags:
+    reference: tags
+    type: tag
   inputs:
     map: inputs
     type: property_definition
