@@ -300,11 +300,13 @@ public class ApplicationDeploymentController {
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.APPLICATION_USER);
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
         List<SecretCredentialInfo> secretProviderConfigurations = Lists.newArrayList();
-        for (int i = 0; i < deployment.getLocationIds().length; i++) {
-            Location location = locationService.getOrFail(deployment.getLocationIds()[i]);
-            if (location.getSecretProviderConfiguration() != null) {
-                secretProviderConfigurations.add(secretProviderService.getSecretCredentialInfo(location.getSecretProviderConfiguration().getPluginName(),
-                        location.getSecretProviderConfiguration().getConfiguration()));
+        if (deployment != null) {
+            for (int i = 0; i < deployment.getLocationIds().length; i++) {
+                Location location = locationService.getOrFail(deployment.getLocationIds()[i]);
+                if (location.getSecretProviderConfiguration() != null) {
+                    secretProviderConfigurations.add(secretProviderService.getSecretCredentialInfo(location.getSecretProviderConfiguration().getPluginName(),
+                            location.getSecretProviderConfiguration().getConfiguration()));
+                }
             }
         }
         return RestResponseBuilder.<List<SecretCredentialInfo>> builder().data(secretProviderConfigurations).build();
