@@ -66,7 +66,7 @@
     <metrics-spring.version>3.0.1</metrics-spring.version>
 
     <!-- Elastic Search mapper (reference the elastic search version actually). -->
-    <es-mapping.version>1.7.6</es-mapping.version>
+    <es-mapping.version>1.7.7</es-mapping.version>
     <elasticsearch.version>1.7.0</elasticsearch.version>
     <!-- Groovy is required for ElasticSearch to run as server in order to process scripts -->
     <groovy.version>2.3.5</groovy.version>
