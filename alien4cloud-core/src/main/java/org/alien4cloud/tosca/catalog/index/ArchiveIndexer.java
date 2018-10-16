@@ -240,8 +240,10 @@ public class ArchiveIndexer {
         // manage images before archive storage in the repository
         imageLoader.importImages(archivePath, archiveRoot, parsingErrors);
 
+        Map<String, MetaPropConfiguration> metapropsNames = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.COMPONENT);
+
         // index the archive content in elastic-search
-        indexArchiveTypes(archiveName, archiveVersion, archiveRoot.getArchive().getWorkspace(), archiveRoot, currentIndexedArchive);
+        indexArchiveTypes(archiveName, archiveVersion, archiveRoot.getArchive().getWorkspace(), archiveRoot, currentIndexedArchive, metapropsNames);
         indexTopology(archiveRoot, parsingErrors, archiveName, archiveVersion);
 
         publisher.publishEvent(new AfterArchiveIndexed(this, archiveRoot));
@@ -358,31 +360,31 @@ public class ArchiveIndexer {
      * @param root The archive root.
      * @param archive The previous archive that must be replaced if any.
      */
-    private void indexArchiveTypes(String archiveName, String archiveVersion, String workspace, ArchiveRoot root, Csar archive) {
+    private void indexArchiveTypes(String archiveName, String archiveVersion, String workspace, ArchiveRoot root, Csar archive, Map<String, MetaPropConfiguration> metapropsNames) {
         if (archive != null) {
             // get element from the archive so we get the creation date.
             Map<String, AbstractToscaType> previousElements = indexerService.getArchiveElements(archiveName, archiveVersion);
-            prepareForUpdate(root, previousElements);
+            prepareForUpdate(root, previousElements, metapropsNames);
 
             // delete the all objects related to the previous archive .
             csarService.deleteCsarContent(archive);
         }
 
-        performIndexing(root);
+        performIndexing(root, metapropsNames);
     }
 
-    private void prepareForUpdate(ArchiveRoot root, Map<String, AbstractToscaType> previousElements) {
+    private void prepareForUpdate(ArchiveRoot root, Map<String, AbstractToscaType> previousElements,Map<String, MetaPropConfiguration> metapropsNames) {
         updateCreationDates(root.getArtifactTypes(), previousElements);
         updateCreationDates(root.getCapabilityTypes(), previousElements);
         updateCreationDates(root.getNodeTypes(), previousElements);
-        updateComponentMetaProperties(root.getNodeTypes(), previousElements);
+        updateComponentMetaProperties(root.getNodeTypes(), previousElements, metapropsNames);
         updateCreationDates(root.getRelationshipTypes(), previousElements);
         updateCreationDates(root.getDataTypes(), previousElements);
         updateCreationDates(root.getPolicyTypes(), previousElements);
 
         if (root.getLocalImports() != null) {
             for (ArchiveRoot child : root.getLocalImports()) {
-                prepareForUpdate(child, previousElements);
+                prepareForUpdate(child, previousElements, metapropsNames);
             }
         }
     }
@@ -422,12 +424,12 @@ public class ArchiveIndexer {
         }
     }
 
-    private void updateComponentMetaProperties(Map<String, NodeType> newElements, Map<String, AbstractToscaType> previousElements) {
+    private void updateComponentMetaProperties(Map<String, NodeType> newElements, Map<String, AbstractToscaType> previousElements, Map<String, MetaPropConfiguration> metapropsNames) {
         if (newElements == null) {
             return;
         }
 
-        Map<String, MetaPropConfiguration> metapropsNames = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.COMPONENT);
+//        Map<String, MetaPropConfiguration> metapropsNames = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.COMPONENT);
 
         for (NodeType newElement : newElements.values()) {
             feedA4CMetaproperties(newElement, newElement.getTags(), metapropsNames);
@@ -460,17 +462,21 @@ public class ArchiveIndexer {
         }
     }
 
-    private void performIndexing(ArchiveRoot root) {
+    private void performIndexing(ArchiveRoot root, Map<String, MetaPropConfiguration> metapropsNames) {
         indexerService.indexInheritableElements(root.getArtifactTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getCapabilityTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getNodeTypes(), root.getArchive().getDependencies());
+        root.getNodeTypes().forEach((id, nodeType) -> {
+            feedA4CMetaproperties(nodeType, nodeType.getTags(), metapropsNames); }
+        );
+
         indexerService.indexInheritableElements(root.getRelationshipTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getDataTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getPolicyTypes(), root.getArchive().getDependencies());
 
         if (root.getLocalImports() != null) {
             for (ArchiveRoot child : root.getLocalImports()) {
-                performIndexing(child);
+                performIndexing(child, metapropsNames);
             }
         }
     }
