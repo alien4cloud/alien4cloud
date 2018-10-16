@@ -42,6 +42,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -300,6 +301,9 @@ public class ArchiveIndexer {
             topology.getTags().addAll(archiveRoot.getArchive().getTags());
         }
         manageTopologyMetaproperties(topology);
+        if (StringUtils.isEmpty(topology.getDescription()) && StringUtils.isNotEmpty(archiveRoot.getArchive().getDescription())) {
+            topology.setDescription(archiveRoot.getArchive().getDescription());
+        }
 
         if (archiveRoot.hasToscaTypes()) {
             // The archive contains types, we assume those types are used in the embedded topology so we add the dependency to this CSAR
