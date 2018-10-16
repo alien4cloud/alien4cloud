@@ -51,6 +51,10 @@ node_types:
       my_app_port:
         type: integer
         description: application port number
+      my_empty_default_prop:
+        type: string
+        description: "a prop with an empty string as default value"
+        default: ""
     requirements:
       - host:
           capability: mytypes.mycapabilities.MyCapabilityTypeName

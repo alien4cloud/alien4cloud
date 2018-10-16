@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
@@ -236,7 +237,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals("My company’s custom applicaton", nodeType.getDescription());
 
         // validate properties parsing
-        Assert.assertEquals(4, nodeType.getProperties().size());
+        Assert.assertEquals(5, nodeType.getProperties().size());
 
         PropertyDefinition def1 = new PropertyDefinition();
         def1.setType("string");
@@ -267,8 +268,13 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         constraints = Lists.<PropertyConstraint> newArrayList(gtConstraint);
         def4.setConstraints(constraints);
 
-        Assert.assertEquals(MapUtil.newHashMap(new String[] { "my_app_password", "my_app_duration", "my_app_size", "my_app_port" },
-                new PropertyDefinition[] { def1, def4, def3, def2 }), nodeType.getProperties());
+        PropertyDefinition def5 = new PropertyDefinition();
+        def5.setType("string");
+        def5.setDefault(new ScalarPropertyValue(""));
+        def5.setDescription("a prop with an empty string as default value");
+
+        Assert.assertEquals(MapUtil.newHashMap(new String[] { "my_app_password", "my_app_duration", "my_app_size", "my_app_port", "my_empty_default_prop" },
+                new PropertyDefinition[] { def1, def4, def3, def2, def5 }), nodeType.getProperties());
     }
 
     @SuppressWarnings("unchecked")
@@ -810,7 +816,8 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals("tosca.artifacts.Deployment.War", artifact.getArtifactType());
         assertNull(artifact.getRepositoryCredential());
         assertNull(artifact.getRepositoryName());
-        assertNull(artifact.getArtifactRepository());
+        Assert.assertEquals(ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY, artifact.getArtifactRepository());
+
         assertNull(artifact.getRepositoryURL());
 
         repositoryArtifact = archiveRoot.getTopology().getNodeTemplates().get("my_node").getArtifacts().get("remote_war");
