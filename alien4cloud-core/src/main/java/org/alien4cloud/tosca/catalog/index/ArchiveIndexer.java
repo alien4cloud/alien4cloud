@@ -465,11 +465,10 @@ public class ArchiveIndexer {
     private void performIndexing(ArchiveRoot root, Map<String, MetaPropConfiguration> metapropsNames) {
         indexerService.indexInheritableElements(root.getArtifactTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getCapabilityTypes(), root.getArchive().getDependencies());
-        indexerService.indexInheritableElements(root.getNodeTypes(), root.getArchive().getDependencies());
         root.getNodeTypes().forEach((id, nodeType) -> {
             feedA4CMetaproperties(nodeType, nodeType.getTags(), metapropsNames); }
         );
-
+        indexerService.indexInheritableElements(root.getNodeTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getRelationshipTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getDataTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getPolicyTypes(), root.getArchive().getDependencies());
