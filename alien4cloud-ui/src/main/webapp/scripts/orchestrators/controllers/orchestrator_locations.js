@@ -62,21 +62,37 @@ define(function(require) {
             $scope.locationsDTOs = result.data;
             if ($scope.locationsDTOs.length > 0) {
               var toSelect = toSelectName ? _.find($scope.locationsDTOs, {'location':{'name':toSelectName}}): undefined;
-              $scope.selectLocation(toSelect|| $scope.locationsDTOs[0]);
+              $scope.switchLocation(toSelect|| $scope.locationsDTOs[0]);
               $state.go('admin.orchestrators.details.locations.config');
             }
           });
+        }
+
+        function reloadLocation(location) {
+            locationService.get({orchestratorId: orchestrator.id, locationId: location.location.id},function(result) {
+                location = result.data;
+                for (var i = 0 ; i < $scope.locationsDTOs.length ; i++) {
+                    if ($scope.locationsDTOs[i].location.id == location.location.id) {
+                        $scope.locationsDTOs[i] = location;
+                    }
+                    $scope.switchLocation(location);
+                }
+            });
         }
 
         if(orchestrator.state === 'CONNECTED') {
           updateLocations();
         }
 
-        $scope.selectLocation = function(location) {
+        $scope.switchLocation = function(location) {
           locationResourcesProcessor.processLocationResources(location.resources);
           $scope.uiModel.locationDTO = location;
           $scope.context.location = location.location;
           $scope.context.locationResources = location.resources;
+        }
+
+        $scope.selectLocation = function(location) {
+          reloadLocation(location);
         };
 
         $scope.deleteLocation = function(location){

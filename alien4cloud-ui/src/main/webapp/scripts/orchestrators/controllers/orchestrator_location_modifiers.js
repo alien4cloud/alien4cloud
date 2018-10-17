@@ -39,7 +39,9 @@ define(function (require) {
         });
       }
 
-      updateList();
+      $scope.$watch('context.location.id',function() {
+        updateList();
+      });
 
       $scope.deleteModifier = function(index) {
         locationModifierResource.remove(
