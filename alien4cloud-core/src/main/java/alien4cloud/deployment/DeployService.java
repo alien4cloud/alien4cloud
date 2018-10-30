@@ -103,9 +103,11 @@ public class DeployService {
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
         final Location firstLocation = locations.values().iterator().next();
         String deploymentPaaSId = generateOrchestratorDeploymentId(deploymentTopology.getEnvironmentId(), firstLocation.getOrchestratorId());
-        return deploymentLockService.doWithDeploymentWriteLock(deploymentPaaSId, () -> {
+        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(firstLocation.getOrchestratorId());
+
+        PaaSTopologyDeploymentContext createdDeployment = deploymentLockService.doWithDeploymentWriteLock(deploymentPaaSId, () -> {
             // Get the orchestrator that will perform the deployment
-            IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(firstLocation.getOrchestratorId());
+
 
             // Create a deployment object to be kept in ES.
             final Deployment deployment = new Deployment();
@@ -133,25 +135,28 @@ public class DeployService {
 
             PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(deploymentTopology, deployment, locations);
 
-            // Build the context for deployment and deploy
-            orchestratorPlugin.deploy(deploymentContext, new IPaaSCallback<Object>() {
-                @Override
-                public void onSuccess(Object data) {
-                    log.debug("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
-                            firstLocation.getId(), deployment.getId());
-                }
 
-                @Override
-                public void onFailure(Throwable t) {
-                    log.error("Deployment failed with cause", t);
-                    log(deployment, t);
-
-                }
-            });
-            log.debug("Triggered deployment of topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
-                    firstLocation.getId(), deployment.getId());
-            return deployment.getId();
+            return deploymentContext;
         });
+
+        // Build the context for deployment and deploy
+        orchestratorPlugin.deploy(createdDeployment, new IPaaSCallback<Object>() {
+            @Override
+            public void onSuccess(Object data) {
+                log.debug("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
+                        firstLocation.getId(), createdDeployment.getDeployment().getId());
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                log.error("Deployment failed with cause", t);
+                log(createdDeployment.getDeployment(), t);
+
+            }
+        });
+        log.debug("Triggered deployment of topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
+                firstLocation.getId(), createdDeployment.getDeployment().getId());
+        return createdDeployment.getDeployment().getId();
     }
 
     public void update(final DeploymentTopology deploymentTopology, final IDeploymentSource deploymentSource, final Deployment existingDeployment,
