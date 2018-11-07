@@ -23,7 +23,6 @@
     "grunt-contrib-uglify": "~0.2.0",
     "grunt-contrib-watch": "~0.6.1",
     "grunt-execute": "~0.2.2",
-    "grunt-google-cdn": "~0.2.0",
     "grunt-karma": "~0.6.2",
     "grunt-newer": "~0.5.4",
     "grunt-ng-annotate": "~0.10.0",
