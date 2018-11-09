@@ -153,7 +153,10 @@ public class InputService {
             }
             Map<String, MetaPropConfiguration> configurationMap = metaPropertiesService.getByIds(ids);
             for (Map.Entry<String, String> contextInputEntry : contextInputs.entrySet()) {
-                addToInputs(inputDefinitions, inputs, prefix + configurationMap.get(contextInputEntry.getKey()).getName(), contextInputEntry.getValue());
+                MetaPropConfiguration metaPropConfiguration = configurationMap.get(contextInputEntry.getKey());
+                if (metaPropConfiguration != null) {
+                    addToInputs(inputDefinitions, inputs, prefix + metaPropConfiguration.getName(), contextInputEntry.getValue());
+                }
             }
         } else {
             for (Map.Entry<String, String> contextInputEntry : contextInputs.entrySet()) {
