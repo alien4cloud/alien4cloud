@@ -55,6 +55,7 @@
   "resolutions": {
     "angular": "1.6.1",
     "angular-animate": "1.6.1",
+    "angular-translate": "2.14.0",
     "d3": "^3.4"
   }
 }
