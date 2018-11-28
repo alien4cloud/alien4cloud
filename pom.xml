@@ -44,6 +44,10 @@
     <commons-lang.version>3.5</commons-lang.version>
     <commons-collections.version>4.1</commons-collections.version>
     <commons-compress.version>1.9</commons-compress.version>
+    <spring.fsm.version>2.0.3.RELEASE</spring.fsm.version>
+
+    <!-- Netty -->
+    <netty.version>4.1.6.Final</netty.version>
 
     <!-- JSON and YAML Parsing -->
     <jackson.version>2.9.3</jackson.version>
@@ -352,6 +356,12 @@
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-ldap</artifactId>
         <version>${spring.security.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.statemachine</groupId>
+        <artifactId>spring-statemachine-core</artifactId>
+        <version>${spring.fsm.version}</version>
       </dependency>
 
       <dependency>
