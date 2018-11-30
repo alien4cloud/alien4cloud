@@ -45,6 +45,7 @@
     <commons-collections.version>4.1</commons-collections.version>
     <commons-compress.version>1.9</commons-compress.version>
     <spring.fsm.version>2.0.3.RELEASE</spring.fsm.version>
+    <rxjava.version>2.2.4</rxjava.version>
 
     <!-- Netty -->
     <netty.version>4.1.6.Final</netty.version>
@@ -362,6 +363,12 @@
         <groupId>org.springframework.statemachine</groupId>
         <artifactId>spring-statemachine-core</artifactId>
         <version>${spring.fsm.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.reactivex.rxjava2</groupId>
+        <artifactId>rxjava</artifactId>
+        <version>${rxjava.version}</version>
       </dependency>
 
       <dependency>
