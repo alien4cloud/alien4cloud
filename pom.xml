@@ -39,16 +39,14 @@
     <javax.el-api.version>3.0.0</javax.el-api.version>
     <javax.el-impl.version>2.2.6</javax.el-impl.version>
     <servlet-api.version>3.1.0</servlet-api.version>
-    <httpclient.version>4.3.2</httpclient.version>
+    <httpclient.version>4.5.6</httpclient.version>
+    <httpasyncclient.version>4.1.4</httpasyncclient.version>
     <commons-cli.version>1.2</commons-cli.version>
     <commons-lang.version>3.5</commons-lang.version>
     <commons-collections.version>4.1</commons-collections.version>
     <commons-compress.version>1.9</commons-compress.version>
     <spring.fsm.version>2.0.3.RELEASE</spring.fsm.version>
     <rxjava.version>2.2.4</rxjava.version>
-
-    <!-- Netty -->
-    <netty.version>4.1.6.Final</netty.version>
 
     <!-- JSON and YAML Parsing -->
     <jackson.version>2.9.3</jackson.version>
@@ -425,6 +423,11 @@
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
         <version>${httpclient.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpasyncclient</artifactId>
+        <version>${httpasyncclient.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>

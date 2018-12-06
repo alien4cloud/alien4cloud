@@ -79,6 +79,10 @@
       <groupId>io.reactivex.rxjava2</groupId>
       <artifactId>rxjava</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpasyncclient</artifactId>
+    </dependency>
 
     <!-- logging -->
     <dependency>
