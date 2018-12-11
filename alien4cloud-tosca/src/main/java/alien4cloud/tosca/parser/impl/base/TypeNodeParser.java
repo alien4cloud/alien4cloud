@@ -55,7 +55,7 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
             return doParse((MappingNode) node, context, instance);
         } else if (node instanceof ScalarNode) {
             String scalarValue = ((ScalarNode) node).getValue();
-            if (scalarValue == null || scalarValue.trim().isEmpty()) {
+            if (scalarValue == null) {
                 // node is just not defined, return null.
                 return null;
             } else {
