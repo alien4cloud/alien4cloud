@@ -1,10 +1,7 @@
 package alien4cloud.paas.wf.util;
 
 import static alien4cloud.utils.AlienUtils.safe;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.INSTALL;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.START;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.STOP;
-import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.UNINSTALL;
+import static org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants.*;
 import static org.alien4cloud.tosca.utils.ToscaTypeUtils.isOfType;
 
 import java.util.Arrays;
@@ -30,6 +27,7 @@ import org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
+import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
 import org.alien4cloud.tosca.utils.TopologyNavigationUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -71,8 +69,7 @@ public class WorkflowUtils {
     }
 
     public static boolean isStandardWorkflow(Workflow workflow) {
-        return INSTALL.equals(workflow.getName()) || UNINSTALL.equals(workflow.getName()) || START.equals(workflow.getName())
-                || STOP.equals(workflow.getName());
+        return NormativeWorkflowNameConstants.STANDARD_WORKFLOWS.contains(workflow.getName());
     }
 
     /**
