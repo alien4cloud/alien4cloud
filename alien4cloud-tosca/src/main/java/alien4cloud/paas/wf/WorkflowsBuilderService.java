@@ -18,6 +18,7 @@ import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.activities.AbstractWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkflows;
+import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
@@ -103,7 +104,7 @@ public class WorkflowsBuilderService {
     }
 
 	public void postProcessTopologyWorkflows(TopologyContext tc) {
-    	postProcessTopologyWorkflows(tc, tc.getTopology().getWorkflows().keySet());
+    	postProcessTopologyWorkflows(tc, NormativeWorkflowNameConstants.STANDARD_WORKFLOWS);
 	}
 
     public void postProcessTopologyWorkflows(TopologyContext topologyContext, Set<String> whiteList) {
