@@ -3,10 +3,7 @@ package alien4cloud.paas.model;
 import java.util.Date;
 import java.util.Objects;
 
-import org.elasticsearch.annotation.DateField;
-import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.StringField;
-import org.elasticsearch.annotation.TimeStamp;
+import org.elasticsearch.annotation.*;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
@@ -81,6 +78,13 @@ public class PaaSDeploymentLog {
     @DateField
     @TimeStamp(format = "", index = IndexType.not_analyzed)
     private Date timestamp;
+
+    /**
+     * Some orchestrator provide logs with nanosecond precision for logs.
+     */
+    @TermFilter
+    @NumberField(index = IndexType.not_analyzed, includeInAll = false)
+    private Long nanotimestamp;
 
     /**
      * Id of the workflow that generated the log
