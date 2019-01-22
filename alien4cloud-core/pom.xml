@@ -202,6 +202,9 @@
                 <declaredRelation>Orchestrator "1" *-- "0..n" LocationResourceTemplate</declaredRelation>
                 <declaredRelation>Topology "1" *-- "2..n" Workflow</declaredRelation>
                 <declaredRelation>Orchestrator "1" *-- "0..n" Deployment</declaredRelation>
+                <declaredRelation>Deployment "1" *-- "1..n" Execution</declaredRelation>
+                <declaredRelation>Execution "1" *-- "1" Workflow</declaredRelation>
+                <declaredRelation>Execution "1" *-- "1..n" Task</declaredRelation>
                 <declaredRelation>Deployment "1" *-- "1..n" Location</declaredRelation>
                 <declaredRelation>Orchestrator "1" *-- "1" OrchestratorConfiguration</declaredRelation>
                 <declaredRelation>Topology "1" *-- "1..n" NodeTemplate</declaredRelation>
