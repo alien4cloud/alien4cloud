@@ -2,7 +2,7 @@ package alien4cloud;
 
 import org.alien4cloud.bootstrap.Bootstrap;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
 
 /**
  * Entry point for war packaging.

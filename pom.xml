@@ -58,9 +58,9 @@
     <jaxb.version>2.1.9</jaxb.version>
 
     <!-- Spring (DI / Rest / Security) -->
-    <spring-boot.version>1.4.0.RELEASE</spring-boot.version>
+    <spring-boot.version>1.5.18.RELEASE</spring-boot.version>
     <spring.version>4.3.5.RELEASE</spring.version>
-    <spring.security.version>3.2.5.RELEASE</spring.security.version>
+    <spring.security.version>4.2.3.RELEASE</spring.security.version>
     <spring.ldap.version>2.0.1.RELEASE</spring.ldap.version>
     <aspectj.version>1.7.4</aspectj.version>
 
@@ -93,7 +93,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.version>2.3.2</maven.compiler.version>
     <maven.assembly.version>2.4</maven.assembly.version>
-    <jetty.version>9.3.11.v20160721</jetty.version>
+    <jetty.version>9.4.12.v20180830</jetty.version>
     <jetty-jsp.version>2.2.0.v201112011158</jetty-jsp.version>
     <maven.cargo.version>1.4.15</maven.cargo.version>
   </properties>
