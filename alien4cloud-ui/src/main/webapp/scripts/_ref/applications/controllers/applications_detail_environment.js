@@ -55,8 +55,10 @@ define(function (require) {
         });
 
         applicationEnvironmentsManager.onEnvironmentStateChangedCallback = function(env) {
-          $scope.setEnvironment(env);
-          $scope.$digest();
+            if ($scope.environment.id === env.id) {
+                $scope.setEnvironment(env);
+                $scope.$digest();
+            }
         };
 
         function updateMenu() {
