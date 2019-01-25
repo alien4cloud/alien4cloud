@@ -2,6 +2,7 @@ package alien4cloud.tosca.serializer;
 
 import alien4cloud.paas.exception.NotSupportedException;
 import org.alien4cloud.tosca.model.definitions.*;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +42,7 @@ public class ToscaPropertySerializerUtils {
             if (text == null) {
                 text = "";
             } else if (!VALID_YAML_PATTERN.matcher(text).matches() && !FLOAT_PATTERN.matcher(text).matches()) {
-                text = "\"" + escapeDoubleQuote(text) + "\"";
+                text = "\"" + escapeDoubleQuotedString(text) + "\"";
             }
             return text;
         }
@@ -168,6 +169,10 @@ public class ToscaPropertySerializerUtils {
         } else {
             return scalar;
         }
+    }
+
+    public static String escapeDoubleQuotedString(String scalar) {
+        return StringEscapeUtils.escapeJava(scalar);
     }
 
     public static String escapeDoubleQuote(String scalar) {
