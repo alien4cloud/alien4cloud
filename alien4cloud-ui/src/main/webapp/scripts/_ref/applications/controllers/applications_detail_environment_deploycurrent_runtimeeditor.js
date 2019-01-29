@@ -280,9 +280,15 @@ define(function (require) {
           nodeTemplateId: $scope.selectedNodeTemplate.name,
           instances: targetInstanceDiff,
           applicationEnvironmentId: $scope.environment.id
-        }, angular.toJson(secretProviderInfoRequest), function success() {
-          $scope.selectedNodeTemplate.clusterScalingControll.plannedInstanceCount = newValue;
-          $scope.loadTopologyRuntime();
+        }, angular.toJson(secretProviderInfoRequest), function(successResult) {
+            if (successResult.error !== null) {
+                var title = $translate.instant('ERRORS.' + successResult.error.code + '.TITLE', {});
+                var message = $translate.instant('ERRORS.' + successResult.error.code + '.MESSAGE', {});
+                toaster.pop('error', title, message, 6000, 'trustedHtml', null);
+            } else {
+              $scope.selectedNodeTemplate.clusterScalingControll.plannedInstanceCount = newValue;
+              $scope.loadTopologyRuntime();
+            }
         });
       });
     };
