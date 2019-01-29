@@ -80,11 +80,11 @@ public class PaaSDeploymentLog {
     private Date timestamp;
 
     /**
-     * Some orchestrator provide logs with nanosecond precision for logs.
+     * The timestamp raw value as it was provided by the orchestrator.
      */
     @TermFilter
     @NumberField(index = IndexType.not_analyzed, includeInAll = false)
-    private Long nanotimestamp;
+    private String rawtimestamp;
 
     /**
      * Id of the workflow that generated the log
