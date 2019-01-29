@@ -83,7 +83,7 @@ public class PaaSDeploymentLog {
      * The timestamp raw value as it was provided by the orchestrator.
      */
     @TermFilter
-    @NumberField(index = IndexType.not_analyzed, includeInAll = false)
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String rawtimestamp;
 
     /**
