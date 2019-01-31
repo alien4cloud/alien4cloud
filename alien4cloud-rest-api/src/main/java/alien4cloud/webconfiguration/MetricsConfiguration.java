@@ -8,8 +8,8 @@ import javax.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.boot.bind.RelaxedPropertyResolver;
-import org.springframework.boot.context.embedded.FilterRegistrationBean;
-import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

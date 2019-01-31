@@ -142,7 +142,7 @@ class ObjectSourcesPropertyResolver extends PropertySourcesPropertyResolver {
                         }
                     }
                     logKeyFound(key, propertySource, value);
-                    return this.conversionService.convert(value, targetValueType);
+                    return this.getConversionService().convert(value, targetValueType);
                 }
             }
         }
