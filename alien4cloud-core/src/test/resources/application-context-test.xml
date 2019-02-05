@@ -62,4 +62,6 @@
     <mockito:mock id="user-dao" class="alien4cloud.security.users.IAlienUserDao"/>
     <mockito:mock id="pluginmodifierregistry"
                   class="org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry"/>
+    <bean id="IESMetaPropertiesSearchContextBuilder"
+                  class="alien4cloud.metaproperty.MPSearchContextBuilderMock"/>
 </beans>

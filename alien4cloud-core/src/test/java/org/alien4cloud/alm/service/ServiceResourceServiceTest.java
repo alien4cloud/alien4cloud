@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.dao.IESMetaPropertiesSearchContextBuilder;
+import alien4cloud.metaproperty.MPSearchContextBuilderMock;
 import alien4cloud.orchestrators.locations.events.AfterLocationDeleted;
 import org.alien4cloud.tosca.catalog.events.ArchiveUsageRequestEvent;
 import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
@@ -86,6 +88,11 @@ public class ServiceResourceServiceTest {
         @Bean
         public static ServiceResourceService serviceResourceService() {
             return new ServiceResourceService();
+        }
+
+        @Bean
+        public static IESMetaPropertiesSearchContextBuilder getIESMetaPropertiesSearchContextBuilder() {
+            return new MPSearchContextBuilderMock();
         }
     }
 

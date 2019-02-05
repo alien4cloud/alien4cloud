@@ -7,7 +7,9 @@ import java.lang.reflect.Method;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.dao.IESMetaPropertiesSearchContextBuilder;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.metaproperty.MPSearchContextBuilderMock;
 import alien4cloud.model.common.Tag;
 import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -69,6 +71,12 @@ public class ToscaTypeIndexerServiceTest {
         public static ImageDAO getImageDao() {
             return new ImageDAO();
         }
+
+        @Bean
+        public static IESMetaPropertiesSearchContextBuilder getIESMetaPropertiesSearchContextBuilder() {
+            return new MPSearchContextBuilderMock();
+        }
+
     }
 
     @Inject
