@@ -129,7 +129,8 @@ public class CsarGitServiceTest {
         Assert.assertFalse(result.get(0).hasError(ParsingErrorLevel.ERROR));
 
         CsarGitCheckoutLocation testArchiveLocation = new CsarGitCheckoutLocation();
-        testArchiveLocation.setBranchId("test-order-import");
+        testArchiveLocation.setBranchId("tests/test-order-import");
+        testArchiveLocation.setSubPath("tests/test-order-import");
         importLocations.clear();
         importLocations.add(testArchiveLocation);
         repoId = csarGitRepositoryService.create("https://github.com/alien4cloud/samples.git", "", "", importLocations, false);
@@ -145,9 +146,9 @@ public class CsarGitServiceTest {
             Assert.assertFalse(hasError);
         }
 
-        Assert.assertEquals("test-archive-1", sampleResult.get(0).getResult().getName());
-        Assert.assertEquals("test-archive-3", sampleResult.get(1).getResult().getName());
-        Assert.assertEquals("test-archive-2", sampleResult.get(2).getResult().getName());
+        Assert.assertEquals("test-archive-one", sampleResult.get(0).getResult().getName());
+        Assert.assertEquals("test-archive-two", sampleResult.get(1).getResult().getName());
+        Assert.assertEquals("test-archive-three", sampleResult.get(2).getResult().getName());
 
     }
 
