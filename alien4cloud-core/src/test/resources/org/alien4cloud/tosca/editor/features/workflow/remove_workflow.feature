@@ -12,7 +12,7 @@ Feature: Workflow editor: remove workflow
       | type         | org.alien4cloud.tosca.editor.operations.workflow.RemoveWorkflowOperation |
       | workflowName | wf1                                                                      |
     Then No exception should be thrown
-    And The SPEL expression "workflows.size()" should return 4
+    And The SPEL expression "workflows.size()" should return 6
     And The SPEL expression "workflows['wf1']" should return "null"
 
   Scenario: Removing a standard workflow should fail

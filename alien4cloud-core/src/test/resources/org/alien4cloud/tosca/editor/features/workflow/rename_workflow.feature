@@ -13,7 +13,7 @@ Feature: Workflow editor: rename workflow
       | workflowName | wf1                                                                      |
       | newName      | wf1_renamed                                                              |
     Then No exception should be thrown
-    And The SPEL expression "workflows.size()" should return 5
+    And The SPEL expression "workflows.size()" should return 7
     And The SPEL expression "workflows['wf1_renamed'].name" should return "wf1_renamed"
 
   Scenario: Renaming a workflow giving an existing workflow name should fail
