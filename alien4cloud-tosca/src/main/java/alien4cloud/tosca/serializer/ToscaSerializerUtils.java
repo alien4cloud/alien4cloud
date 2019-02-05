@@ -312,7 +312,7 @@ public class ToscaSerializerUtils {
         for (NodeTemplate node : safe(topology.getNodeTemplates()).values()) {
             for (DeploymentArtifact artifact : safe(node.getArtifacts()).values()) {
                 // Only generate repositories for the current topology
-                if (isInternalRepoArtifact(artifact, topologyArchiveName, topologyArchiveVersion)) {
+                if (isInternalRepoArtifact(artifact, topologyArchiveName, topologyArchiveVersion) && repositoriesName.add(artifact.getRepositoryName())) {
                     buffer.append("  ").append(artifact.getRepositoryName()).append(":");
                     buffer.append("\n").append(formatRepository(artifact, 2)).append("\n");
                 }
