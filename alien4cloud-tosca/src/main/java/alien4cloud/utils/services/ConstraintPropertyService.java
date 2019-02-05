@@ -112,7 +112,7 @@ public final class ConstraintPropertyService {
 
     private static ConstraintValueDoNotMatchPropertyTypeException throwConstraintValueDoNotMatchPropertyTypeException(String message, String propertyName,
             String type, Object value) throws ConstraintValueDoNotMatchPropertyTypeException {
-        ConstraintInformation consInformation = new ConstraintInformation(propertyName, null, value.toString(), type);
+        ConstraintInformation consInformation = new ConstraintInformation(propertyName, null, String.valueOf(value), type);
         throw new ConstraintValueDoNotMatchPropertyTypeException(message, null, consInformation);
     }
 
@@ -267,7 +267,7 @@ public final class ConstraintPropertyService {
             Consumer<String> missingPropertyConsumer) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         if (!ToscaTypes.LIST.equals(propertyDefinition.getType())) {
             throwConstraintValueDoNotMatchPropertyTypeException("The property definition should be a list but we found " + propertyDefinition.getType(),
-                    propertyName, ToscaTypes.LIST, null);
+                    propertyName, ToscaTypes.LIST, listPropertyValue);
         }
         PropertyDefinition entrySchema = propertyDefinition.getEntrySchema();
         if (entrySchema == null) {
