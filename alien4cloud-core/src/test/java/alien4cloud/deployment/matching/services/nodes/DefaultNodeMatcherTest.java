@@ -17,6 +17,7 @@ import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.common.collect.ImmutableMap;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import alien4cloud.deployment.matching.plugins.INodeMatcherPlugin;
@@ -154,6 +155,7 @@ public class DefaultNodeMatcherTest {
     }
 
     @Test
+    @Ignore // we do matching even on concrete nodes
     public void concrete_template_cannot_be_matched_even_if_service_is_available() throws Exception {
         // Given
         Map<String, MatchingConfiguration> emptyMatchingConfigurations = new HashMap<>();
