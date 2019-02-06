@@ -71,17 +71,11 @@ public class MapParser<T> implements INodeParser<Map<String, T>> {
             value = valueParser.parse(entry.getValueNode(), context);
             if (value != null) {
                 if (keyPath != null) {
+                    // FIXME: this seems useless
                     BeanWrapper valueWrapper = new BeanWrapperImpl(value);
                     valueWrapper.setPropertyValue(keyPath, key);
                 }
-                if (value == null) {
-                    ParsingError err = new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.SYNTAX_ERROR,
-                            "Invalid format for the value.", node.getStartMark(), "The value cannot be parsed", node.getEndMark(),
-                            key);
-                    context.getParsingErrors().add(err);
-                } else {
-                    map.put(key, value);
-                }
+                map.put(key, value);
             }
         }
         return map;

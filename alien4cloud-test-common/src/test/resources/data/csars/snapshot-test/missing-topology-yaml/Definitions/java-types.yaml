@@ -13,7 +13,7 @@ node_types:
         type: version
     artifacts:
       - war:
-        type: tosca.artifacts.File
+          type: tosca.artifacts.File
 
   fastconnect.nodes.Java:
     abstract: true
