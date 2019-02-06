@@ -78,7 +78,6 @@ public class TestDataRegistry {
         addConditionFolder("invalid (ALIEN-META.yaml fail validation)", "src/test/resources/data/csars/metadata/validationFailure");
         addConditionFolder("invalid (icon not found)", "src/test/resources/data/csars/icon/missing");
         addConditionFolder("invalid (icon invalid)", "src/test/resources/data/csars/icon/erroneous");
-        addConditionFolder("warning (invalid map value)", "src/test/resources/data/csars/invalid_map_value");
         addConditionFolder("snapshot", "src/test/resources/data/csars/snapshot");
         addConditionFolder("snapshot-bis", "src/test/resources/data/csars/snapshot-bis");
         addConditionFolder("snapshot-ter", "src/test/resources/data/csars/snapshot-ter");

@@ -268,10 +268,3 @@ Feature: CSAR upload
     And The CSAR "alien-tests-dependencies-scenario6" version "1.0.0-SNAPSHOT" does not have a dependency to "alien-tests-dependencies-c" version "1.0.0"
     And The CSAR "alien-tests-dependencies-scenario6" version "1.0.0-SNAPSHOT" does not have a dependency to "alien-tests-dependencies-d" version "1.0.0"
     And The CSAR "alien-tests-dependencies-scenario6" version "1.0.0-SNAPSHOT" does not have a dependency to "alien-tests-dependencies-b" version "1.0.0"
-
-  @reset
-  Scenario: Upload an archive with an invalid map value
-    Given I am authenticated with "ADMIN" role
-    And I upload the archive "tosca base types 1.0"
-    When I upload the archive "warning (invalid map value)"
-    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 2 warnings and 0 infos
