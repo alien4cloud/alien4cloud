@@ -21,7 +21,7 @@ Feature: Delete a service used in a deployment
     And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the user "gandalf"
 
     And I successfully create a service with name "MyStorage", version "1.0.0", type "org.alien4cloud.nodes.mock.BlockStorage", archive version "1.0"
-    And I register "data" as "serviceId"
+    And I register path "data.id" with class "alien4cloud.model.service.ServiceResource" as "serviceId"
     And I set the property "size" to "1 gib" for the service "MyStorage"
     And I successfully start the service "MyStorage"
     And I authorize these locations to use the service "MyStorage"

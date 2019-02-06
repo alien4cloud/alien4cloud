@@ -7,6 +7,7 @@ import static alien4cloud.it.utils.TestUtils.nullable;
 import java.io.IOException;
 import java.util.List;
 
+import alien4cloud.dao.model.FacetedSearchResult;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -39,7 +40,7 @@ public class ServiceStepDefinitions {
 
         CommonStepDefinitions.validateIfNeeded(StringUtils.isNotBlank(successfully));
         try {
-            LAST_CREATED_ID = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
+            LAST_CREATED_ID = JsonUtil.read(Context.getInstance().getRestResponse(), ServiceResource.class).getData().getId();
             Context.getInstance().registerService(LAST_CREATED_ID, serviceName);
         } catch (Throwable t) {
         }
@@ -87,10 +88,11 @@ public class ServiceStepDefinitions {
     public void registerListResultForSpel() {
         // register for SPEL
         try {
-            RestResponse<GetMultipleDataResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), GetMultipleDataResult.class);
+            RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), FacetedSearchResult.class);
             Context.getInstance().buildEvaluationContext(restResponse.getData());
         } catch (Throwable e) {
             // Registration is optional
+            log.error("", e);
         }
     }
 

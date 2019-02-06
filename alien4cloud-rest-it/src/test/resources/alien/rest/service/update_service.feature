@@ -4,7 +4,7 @@ Feature: Update service resource
     Given I am authenticated with "ADMIN" role
     And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     When I create a service with name "MyBdService", version "1.0.0", type "tosca.nodes.Database", archive version "1.0.0-SNAPSHOT"
-    And I register "data" as "serviceId"
+    And I register path "data.id" with class "alien4cloud.model.service.ServiceResource" as "serviceId"
 
   @reset
   Scenario: Updating a service with a valid request should succeed
