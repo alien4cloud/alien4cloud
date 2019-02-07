@@ -42,7 +42,7 @@ Feature: Service matching and substitution
   @reset
   Scenario: Matching against a service that is started should succeed
     And I create a service with name "MyHostService", version "1.0.0", type "tosca.nodes.Compute", archive version "1.0.0-SNAPSHOT"
-    And I register "data" as "serviceId"
+    And I register path "data.id" with class "alien4cloud.model.service.ServiceResource" as "serviceId"
     And I should receive a RestResponse with no error
     # Change the state to started see src/test/resources/data/requests for the request json file)
     And I PATCH "services/patch_service_attr_state_started.json" to "/rest/v1/services/${serviceId}"
@@ -57,7 +57,7 @@ Feature: Service matching and substitution
   @reset
   Scenario: Matching against a service that is not started should succeed
     And I create a service with name "MyHostService", version "1.0.0", type "tosca.nodes.Compute", archive version "1.0.0-SNAPSHOT"
-    And I register "data" as "serviceId"
+    And I register path "data.id" with class "alien4cloud.model.service.ServiceResource" as "serviceId"
     And I should receive a RestResponse with no error
     # affect to the location
     And I PATCH "application-deployment/patch_service_location.json" to "/rest/v1/services/${serviceId}"
@@ -69,7 +69,7 @@ Feature: Service matching and substitution
   @reset
   Scenario: Service not associated with the location should not match
     And I create a service with name "MyHostService", version "1.0.0", type "tosca.nodes.Compute", archive version "1.0.0-SNAPSHOT"
-    And I register "data" as "serviceId"
+    And I register path "data.id" with class "alien4cloud.model.service.ServiceResource" as "serviceId"
     And I should receive a RestResponse with no error
     # Get the topology and check matching options, we should have the service listed
     When I GET "/rest/v1/applications/ALIEN/environments/${environmentId}/deployment-topology"
@@ -78,7 +78,7 @@ Feature: Service matching and substitution
   @reset
   Scenario: Matching against a service that is created after the first matching session should succeed
     And I create a service with name "MyHostService", version "1.0.0", type "tosca.nodes.Compute", archive version "1.0.0-SNAPSHOT"
-    And I register "data" as "serviceId"
+    And I register path "data.id" with class "alien4cloud.model.service.ServiceResource" as "serviceId"
     And I should receive a RestResponse with no error
     # Get the topology and check matching options, we should have the service listed
     When I GET "/rest/v1/applications/ALIEN/environments/${environmentId}/deployment-topology"
@@ -93,7 +93,7 @@ Feature: Service matching and substitution
   @reset
   Scenario: Removed service should be removed from matching selection
     And I create a service with name "MyHostService", version "1.0.0", type "tosca.nodes.Compute", archive version "1.0.0-SNAPSHOT"
-    And I register "data" as "serviceId"
+    And I register path "data.id" with class "alien4cloud.model.service.ServiceResource" as "serviceId"
     And I should receive a RestResponse with no error
     # affect to the location
     And I PATCH "application-deployment/patch_service_location.json" to "/rest/v1/services/${serviceId}"
