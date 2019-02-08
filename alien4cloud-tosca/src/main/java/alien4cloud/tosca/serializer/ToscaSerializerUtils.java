@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
@@ -264,7 +265,11 @@ public class ToscaSerializerUtils {
     public String getInlineActivityArg(AbstractWorkflowActivity activity) {
         if (activity instanceof CallOperationWorkflowActivity) {
             CallOperationWorkflowActivity callActivity = (CallOperationWorkflowActivity) activity;
-            return callActivity.getInterfaceName() + "." + callActivity.getOperationName();
+            String interfaceName = callActivity.getInterfaceName();
+            if (ToscaNodeLifecycleConstants.STANDARD.equalsIgnoreCase(interfaceName)) {
+                interfaceName = ToscaNodeLifecycleConstants.STANDARD_SHORT;
+            }
+            return interfaceName + "." + callActivity.getOperationName();
         } else if (activity instanceof SetStateWorkflowActivity) {
             SetStateWorkflowActivity stateActivity = (SetStateWorkflowActivity) activity;
             return stateActivity.getStateName();

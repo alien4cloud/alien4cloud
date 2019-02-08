@@ -130,10 +130,10 @@ define(function (require) {
                 toaster.pop('error', title, resultHtml.join(''), 0, 'trustedHtml', null);
                 $scope.isLaunchingWorkflow = false;
               } else {
-                title = $translate.instant('APPLICATIONS.RUNTIME.WORKFLOW.SUCCESS_TITLE', {
-                  'workflowId': $scope.currentWorkflowName
-                });
-                toaster.pop('success', title, resultHtml.join(''), 0, 'trustedHtml', null);
+                // title = $translate.instant('APPLICATIONS.RUNTIME.WORKFLOW.SUCCESS_TITLE', {
+                //   'workflowId': $scope.currentWorkflowName
+                // });
+                // toaster.pop('success', title, resultHtml.join(''), 0, 'trustedHtml', null);
                 $scope.isLaunchingWorkflow = false;
               }
             });
