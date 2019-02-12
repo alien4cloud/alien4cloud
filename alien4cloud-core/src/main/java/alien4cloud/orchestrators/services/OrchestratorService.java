@@ -109,6 +109,10 @@ public class OrchestratorService {
                 locationService.delete(id, location.getId());
             }
         }
+
+        IOrchestratorPluginFactory pluginFactory = getPluginFactory(get(id));
+        pluginFactory.delete(id);
+
         // delete the orchestrator configuration
         alienDAO.delete(OrchestratorConfiguration.class, id);
         alienDAO.delete(Orchestrator.class, id);

@@ -71,4 +71,9 @@ public interface IOrchestratorPluginFactory<T extends IOrchestratorPlugin<V>, V>
      */
     String getType();
 
+    /**
+     * Cleanup to do when the orchestrator is deleted
+     * @param id
+     */
+    default void delete(String id) {}
 }
