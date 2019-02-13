@@ -83,29 +83,43 @@ public class WorkflowEventHandler implements IPaasEventListener<AbstractMonitorE
         } else if (event instanceof PaaSWorkflowCancelledEvent) {
             updateExecution((PaaSWorkflowCancelledEvent)event, ExecutionStatus.CANCELLED);
         } else if (event instanceof TaskSentEvent) {
-            log.info("TaskSentEvent recceived for #" + ((TaskSentEvent)event).getTaskId());
+            if (log.isDebugEnabled()) {
+                log.debug("TaskSentEvent recceived for #" + ((TaskSentEvent) event).getTaskId());
+            }
             createTask((TaskSentEvent)event);
         } else if (event instanceof TaskStartedEvent) {
-            log.info("TaskStartedEvent recceived for #" + ((TaskStartedEvent)event).getTaskId());
+            if (log.isDebugEnabled()) {
+                log.debug("TaskStartedEvent recceived for #" + ((TaskStartedEvent)event).getTaskId());
+            }
             TaskStartedEvent taskStartedEvent = (TaskStartedEvent)event;
             updateTask(taskStartedEvent.getTaskId(), TaskStatus.STARTED, taskStartedEvent, null);
         } else if (event instanceof TaskSucceededEvent) {
-            log.info("TaskSucceededEvent recceived for #" + ((TaskSucceededEvent)event).getTaskId());
+            if (log.isDebugEnabled()) {
+                log.debug("TaskSucceededEvent recceived for #" + ((TaskSucceededEvent) event).getTaskId());
+            }
             TaskSucceededEvent taskEvent = (TaskSucceededEvent)event;
             updateTask(taskEvent.getTaskId(), TaskStatus.SUCCEEDED, taskEvent, null);
         } else if (event instanceof TaskFailedEvent) {
-            log.info("TaskFailedEvent recceived for #" + ((TaskFailedEvent)event).getTaskId());
+            if (log.isDebugEnabled()) {
+                log.debug("TaskFailedEvent recceived for #" + ((TaskFailedEvent) event).getTaskId());
+            }
             TaskFailedEvent taskEvent = (TaskFailedEvent)event;
             updateTask(taskEvent.getTaskId(), TaskStatus.FAILED, taskEvent, taskEvent.getErrorCauses());
         } else if (event instanceof TaskCancelledEvent) {
-            log.info("TaskFailedEvent recceived for #" + ((TaskCancelledEvent)event).getTaskId());
+            if (log.isDebugEnabled()) {
+                log.debug("TaskFailedEvent recceived for #" + ((TaskCancelledEvent) event).getTaskId());
+            }
             TaskCancelledEvent taskEvent = (TaskCancelledEvent)event;
             updateTask(taskEvent.getTaskId(), TaskStatus.CANCELLED, taskEvent, null);
         } else if (event instanceof WorkflowStepStartedEvent) {
-            log.info("WorkflowStepStartedEvent recceived for #" + ((WorkflowStepStartedEvent)event).getStepId());
+            if (log.isDebugEnabled()) {
+                log.debug("WorkflowStepStartedEvent recceived for #" + ((WorkflowStepStartedEvent) event).getStepId());
+            }
             createWorkflowStepInstance((WorkflowStepStartedEvent)event);
         } else if (event instanceof WorkflowStepCompletedEvent) {
-            log.info("WorkflowStepCompletedEvent recceived for #" + ((WorkflowStepCompletedEvent)event).getStepId());
+            if (log.isDebugEnabled()) {
+                log.debug("WorkflowStepCompletedEvent recceived for #" + ((WorkflowStepCompletedEvent) event).getStepId());
+            }
             updateWorkflowStepInstance((WorkflowStepCompletedEvent)event);
         }
     }
