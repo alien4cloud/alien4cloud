@@ -100,7 +100,8 @@ define(function (require) {
             $scope.workflows.setCurrentWorkflowName(result.data.execution.workflowName);
 
             if ($scope.workflowExecutionMonitoring.execution.id === $scope.currentWorkflowExecutionId) {
-                if ($scope.workflowExecutionMonitoring.execution.status !== 'RUNNING') {
+              // a wf has been launched from menu
+              if ($scope.workflowExecutionMonitoring.execution.status !== 'RUNNING') {
                     $scope.currentWorkflowExecutionId = null;
                     $scope.isLaunchingWorkflow = false;
 
@@ -119,7 +120,12 @@ define(function (require) {
                         });
                         toaster.pop(popup_status, title, '', 0, 'trustedHtml', null);
                     }
-
+                }
+            } else {
+                if ($scope.workflowExecutionMonitoring.execution.status === 'RUNNING') {
+                    $scope.isLaunchingWorkflow = true;
+                } else {
+                    $scope.isLaunchingWorkflow = false;
                 }
             }
 
