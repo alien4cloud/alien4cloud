@@ -67,7 +67,8 @@
     "NEW" : "新規アプリケーション",
     "RUNTIME" : {
       "WORKFLOW" : {
-        "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully."
+        "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully.",
+        "FAIL_TITLE" : "Workflow {{workflowId}} execution failed (see logs for details)."
       },
       "BACK" : "戻る",
       "DEPLOYMENT" : "デプロイ",

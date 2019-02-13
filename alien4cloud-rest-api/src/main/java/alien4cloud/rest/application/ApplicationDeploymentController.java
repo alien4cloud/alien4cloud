@@ -605,17 +605,17 @@ public class ApplicationDeploymentController {
         return result;
     }
 
-    @ApiOperation(value = "Launch a given workflow.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
+    @ApiOperation(value = "Launch a given workflow.", notes = "Returns the executionId as a result", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
     @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/workflows/{workflowName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit(bodyHiddenFields = { "credentials" })
-    public DeferredResult<RestResponse<Void>> launchWorkflow(
+    public DeferredResult<RestResponse<String>> launchWorkflow(
             @ApiParam(value = "Application id.", required = true) @Valid @NotBlank @PathVariable String applicationId,
             @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String applicationEnvironmentId,
             @ApiParam(value = "Workflow name.", required = true) @Valid @NotBlank @PathVariable String workflowName,
             @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody(required = false) SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
 
-        final DeferredResult<RestResponse<Void>> result = new DeferredResult<>(15L * 60L * 1000L);
+        final DeferredResult<RestResponse<String>> result = new DeferredResult<>(15L * 60L * 1000L);
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
 
         // TODO merge with incoming params
@@ -623,10 +623,10 @@ public class ApplicationDeploymentController {
 
         try {
             workflowExecutionService.launchWorkflow(secretProviderConfigurationAndCredentials, environment.getId(), workflowName, params,
-                    new IPaaSCallback<Object>() {
+                    new IPaaSCallback<String>() {
                         @Override
-                        public void onSuccess(Object data) {
-                            result.setResult(RestResponseBuilder.<Void> builder().build());
+                        public void onSuccess(String data) {
+                            result.setResult(RestResponseBuilder.<String> builder().data(data).build());
                         }
 
                         @Override

@@ -94,9 +94,34 @@ define(function (require) {
           workflowExecutionServices.get({
             deploymentId: $scope.activeDeployment.id
           }, function (result) {
-            $scope.isWaitingForMonitoringRefresh = false;$scope.workflowExecutionMonitoring = result.data;
+            $scope.isWaitingForMonitoringRefresh = false;
+            $scope.workflowExecutionMonitoring = result.data;
 
             $scope.workflows.setCurrentWorkflowName(result.data.execution.workflowName);
+
+            if ($scope.workflowExecutionMonitoring.execution.id === $scope.currentWorkflowExecutionId) {
+                if ($scope.workflowExecutionMonitoring.execution.status !== 'RUNNING') {
+                    $scope.currentWorkflowExecutionId = null;
+                    $scope.isLaunchingWorkflow = false;
+
+                    var popup_qualifier = undefined;
+                    var popup_status = undefined;
+                    if ($scope.workflowExecutionMonitoring.execution.status === 'SUCCEEDED') {
+                        popup_qualifier = 'SUCCESS';
+                        popup_status = 'success';
+                    } else if ($scope.workflowExecutionMonitoring.execution.status === 'FAILED') {
+                        popup_qualifier = 'FAIL';
+                        popup_status = 'error'
+                    }
+                    if (popup_qualifier) {
+                        var title = $translate.instant('APPLICATIONS.RUNTIME.WORKFLOW.' + popup_qualifier + '_TITLE', {
+                            'workflowId': result.data.execution.workflowName
+                        });
+                        toaster.pop(popup_status, title, '', 0, 'trustedHtml', null);
+                    }
+
+                }
+            }
 
             $scope.workflows.refreshGraph(true, true);
           }, function(error) {
@@ -114,6 +139,7 @@ define(function (require) {
             }
 
             $scope.isLaunchingWorkflow = true;
+            $scope.currentWorkflowExecutionId = null;
             applicationServices.launchWorkflow({
               applicationId: $scope.application.id,
               applicationEnvironmentId: $scope.environment.id,
@@ -130,11 +156,8 @@ define(function (require) {
                 toaster.pop('error', title, resultHtml.join(''), 0, 'trustedHtml', null);
                 $scope.isLaunchingWorkflow = false;
               } else {
-                // title = $translate.instant('APPLICATIONS.RUNTIME.WORKFLOW.SUCCESS_TITLE', {
-                //   'workflowId': $scope.currentWorkflowName
-                // });
-                // toaster.pop('success', title, resultHtml.join(''), 0, 'trustedHtml', null);
-                $scope.isLaunchingWorkflow = false;
+                $scope.isLaunchingWorkflow = true;
+                $scope.currentWorkflowExecutionId = response.data;
               }
             });
 

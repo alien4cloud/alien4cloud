@@ -61,8 +61,9 @@ public interface IPaaSProvider {
      * @param deploymentContext the deployment context
      * @param workflowName the workflow to launch
      * @param inputs the workflow params
+     * @param callback the callback should be used to return the corresponding executionId
      */
-    void launchWorkflow(PaaSDeploymentContext deploymentContext, String workflowName, Map<String, Object> inputs, IPaaSCallback<?> callback);
+    void launchWorkflow(PaaSDeploymentContext deploymentContext, String workflowName, Map<String, Object> inputs, IPaaSCallback<String> callback);
 
     /**
      * Get status of a deployment

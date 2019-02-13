@@ -67,7 +67,8 @@
     "NEW" : "Nouvelle Application",
     "RUNTIME" : {
       "WORKFLOW" : {
-        "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully."
+        "SUCCESS_TITLE" : "L'éxecution du workflow {{workflowId}} s'est terminée avec succès.",
+        "FAIL_TITLE" : "L'éxecution du workflow {{workflowId}} a échoué (voir les logs pour plus de details)."
       },
       "BACK" : "Retour",
       "DEPLOYMENT" : "Déploiement",

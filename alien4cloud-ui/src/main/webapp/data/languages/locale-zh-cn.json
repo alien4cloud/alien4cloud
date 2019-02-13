@@ -67,7 +67,8 @@
     "NEW" : "新建应用",
     "RUNTIME" : {
       "WORKFLOW" : {
-        "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully."
+        "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully.",
+        "FAIL_TITLE" : "Workflow {{workflowId}} execution failed (see logs for details)."
       },
       "BACK" : "返回",
       "DEPLOYMENT" : "部署",

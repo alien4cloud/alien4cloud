@@ -456,7 +456,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
 
     @Override
     public void launchWorkflow(PaaSDeploymentContext deploymentContext, final String workflowName, Map<String, Object> inputs,
-            final IPaaSCallback<?> callback) {
+            final IPaaSCallback<String> callback) {
         log.info(String.format("Execution of workflow %s is scheduled", workflowName));
         executorService.schedule(new Runnable() {
             @Override

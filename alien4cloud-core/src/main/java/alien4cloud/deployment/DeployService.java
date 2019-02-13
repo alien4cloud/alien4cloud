@@ -228,9 +228,9 @@ public class DeployService {
                     if (data != null && DeploymentStatus.UPDATED.equals(data)) {
                         log(existingDeployment, "Launching post update workflow", null, PaaSDeploymentLogLevel.INFO);
                         orchestratorPlugin.launchWorkflow(deploymentContext, NormativeWorkflowNameConstants.POST_UPDATE, Maps.newHashMap(),
-                                new IPaaSCallback<Object>() {
+                                new IPaaSCallback<String>() {
                                     @Override
-                                    public void onSuccess(Object data) {
+                                    public void onSuccess(String data) {
                                         callback.onSuccess(data);
                                         log(existingDeployment, "Post update workflow execution completed successfully", null, PaaSDeploymentLogLevel.INFO);
                                     }

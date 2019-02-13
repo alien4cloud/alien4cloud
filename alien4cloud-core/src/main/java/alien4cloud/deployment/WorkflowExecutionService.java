@@ -43,7 +43,7 @@ public class WorkflowExecutionService {
      * Launch a given workflow.
      */
     public synchronized void launchWorkflow(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials,
-            String applicationEnvironmentId, String workflowName, Map<String, Object> params, IPaaSCallback<?> iPaaSCallback) {
+            String applicationEnvironmentId, String workflowName, Map<String, Object> params, IPaaSCallback<String> iPaaSCallback) {
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(applicationEnvironmentId);
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(deployment.getEnvironmentId());
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
