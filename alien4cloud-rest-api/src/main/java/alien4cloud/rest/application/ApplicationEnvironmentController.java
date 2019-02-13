@@ -10,9 +10,11 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import com.google.common.collect.Maps;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.services.DeploymentConfigurationDao;
 import org.alien4cloud.tosca.model.Csar;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
@@ -67,6 +69,8 @@ public class ApplicationEnvironmentController {
     private ApplicationVersionService applicationVersionService;
     @Inject
     private ApplicationEnvironmentDTOBuilder dtoBuilder;
+    @Inject
+    private DeploymentConfigurationDao deploymentConfigurationDao;
 
     /**
      * Search for application environment for a given application id
@@ -101,10 +105,15 @@ public class ApplicationEnvironmentController {
         GetMultipleDataResult<ApplicationEnvironment> authorizedEnvironments = searchAuthorizedEnvironments(applicationId, filteredSearchRequest);
         // TODO implement something more generic to check if a configuration to copy exist.
         List<ApplicationEnvironment> environmentsWithInputs = Arrays.stream(authorizedEnvironments.getData())
-                .filter(environment -> alienDAO.exist(DeploymentInputs.class,
-                        AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId()))
-                        || alienDAO.exist(DeploymentMatchingConfiguration.class,
-                                AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId())))
+                .filter(environment -> {
+                    String id = AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId());
+                    DeploymentInputs di = deploymentConfigurationDao.findById(DeploymentInputs.class, id);
+                    if (di != null) {
+                        return true;
+                    }
+                    DeploymentMatchingConfiguration dmc = deploymentConfigurationDao.findById(DeploymentMatchingConfiguration.class, id);
+                    return dmc != null;
+                })
                 .collect(Collectors.toList());
         if (getInputCandidatesRequest != null && (StringUtils.isNotBlank(getInputCandidatesRequest.getApplicationEnvironmentId())
                 || StringUtils.isNotBlank(getInputCandidatesRequest.getApplicationTopologyVersion()))) {
