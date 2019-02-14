@@ -26,13 +26,13 @@ topology_template:
     Manual_Compute:
       type: tosca.nodes.Compute
 
-    WebApplication:
-      type: tosca.nodes.WebApplication
-      properties:
-        context_root: { get_input: context_root }
-      artifacts:
-        uploaded_war:
-          type: tosca.artifacts.File
-          file: { get_input_artifact: uploaded_war }
-      requirements:
-        - host: Compute
+#    WebApplication:
+#      type: tosca.nodes.WebApplication
+#      properties:
+#        context_root: { get_input: context_root }
+#      artifacts:
+#        uploaded_war:
+#          type: tosca.artifacts.File
+#          file: { get_input_artifact: uploaded_war }
+#      requirements:
+#        - host: Compute
