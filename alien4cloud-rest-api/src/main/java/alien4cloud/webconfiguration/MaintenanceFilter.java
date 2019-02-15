@@ -34,7 +34,7 @@ public class MaintenanceFilter implements Filter {
     private MaintenanceModeService maintenanceModeService;
     private String maintenanceJsonError;
 
-    private List<String> authorizedPaths = Lists.newArrayList("/maintenance", "/modules", "/auth", "/admin/health");
+    private List<String> authorizedPaths = Lists.newArrayList("/maintenance", "/modules", "/auth", "/admin/health", "/configuration");
 
     @SneakyThrows(JsonProcessingException.class)
     @Override
