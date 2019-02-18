@@ -20,7 +20,7 @@ public interface IOrchestratorPluginFactory<T extends IOrchestratorPlugin<V>, V>
      *
      * @return An instance of the IOrchestrator.
      */
-    T newInstance();
+    T newInstance(V configuration);
 
     /**
      * Can be called to destroy the context linked to this instance

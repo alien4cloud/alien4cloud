@@ -27,7 +27,7 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
     private final Map<String, PropertyDefinition> deploymentProperties = Maps.newHashMap();
 
     @Override
-    public MockOrchestrator newInstance() {
+    public MockOrchestrator newInstance(ProviderConfig config) {
         return beanFactory.getBean(MockOrchestrator.class);
     }
 

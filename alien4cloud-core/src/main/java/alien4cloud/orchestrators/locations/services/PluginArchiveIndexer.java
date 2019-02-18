@@ -251,7 +251,7 @@ public class PluginArchiveIndexer {
             configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
         } catch (OrchestratorDisabledException e) {
             IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestratorService.getOrFail(location.getOrchestratorId()));
-            IOrchestratorPlugin<Object> orchestratorInstance = orchestratorFactory.newInstance();
+            IOrchestratorPlugin<Object> orchestratorInstance = orchestratorFactory.newInstance(null);
             configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
             orchestratorFactory.destroy(orchestratorInstance);
         }

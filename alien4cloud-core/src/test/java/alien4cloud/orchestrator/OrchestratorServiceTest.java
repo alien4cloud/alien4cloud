@@ -115,7 +115,7 @@ public class OrchestratorServiceTest {
         initSearch(enabledOrchestrators);
 
         Mockito.when(orchestratorService.getPluginFactory(orchestrator)).thenReturn(orchestratorPluginFactory);
-        Mockito.when(orchestratorPluginFactory.newInstance()).thenReturn(orchestratorPlugin);
+        Mockito.when(orchestratorPluginFactory.newInstance(DEFAULT_CLOUD_CONFIGURATION)).thenReturn(orchestratorPlugin);
         Mockito.when(orchestratorPluginFactory.getConfigurationType()).thenReturn(String.class);
         Mockito.when(orchestratorPluginFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
         Mockito.when(orchestratorConfigurationService.configurationAsValidObject(orchestrator.getId(), configuration.getConfiguration()))
@@ -126,7 +126,7 @@ public class OrchestratorServiceTest {
         Mockito.verify(orchestratorPlugin, Mockito.times(1)).setConfiguration(orchestrator.getId(), configuration.getConfiguration());
         Mockito.verify(orchestratorPluginService, Mockito.times(1)).register(orchestrator.getId(), orchestratorPlugin);
         IOrchestratorPluginFactory fatory = orchestratorService.getPluginFactory(orchestrator);
-        Mockito.verify(archiveIndexer, Mockito.times(1)).indexOrchestratorArchives(fatory, fatory.newInstance());
+        Mockito.verify(archiveIndexer, Mockito.times(1)).indexOrchestratorArchives(fatory, fatory.newInstance(DEFAULT_CLOUD_CONFIGURATION));
         ;
     }
 
@@ -146,7 +146,7 @@ public class OrchestratorServiceTest {
         initSearch(enabledOrchestrators);
 
         Mockito.when(orchestratorService.getPluginFactory(orchestrator)).thenReturn(orchestratorPluginFactory);
-        Mockito.when(orchestratorPluginFactory.newInstance()).thenReturn(orchestratorPlugin);
+        Mockito.when(orchestratorPluginFactory.newInstance(DEFAULT_CLOUD_CONFIGURATION)).thenReturn(orchestratorPlugin);
         Mockito.when(orchestratorPluginFactory.getConfigurationType()).thenReturn(String.class);
         Mockito.when(orchestratorPluginFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
         Mockito.when(orchestratorConfigurationService.getConfigurationOrFail(orchestrator.getId())).thenReturn(configuration);

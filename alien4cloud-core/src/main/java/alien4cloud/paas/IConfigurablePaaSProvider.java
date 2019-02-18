@@ -11,5 +11,6 @@ public interface IConfigurablePaaSProvider<T> extends IPaaSProvider {
      * @param configuration The configuration object as edited by the user.
      * @throws alien4cloud.paas.exception.PluginConfigurationException In case the PaaS provider configuration is incorrect.
      */
+    @Deprecated
     void setConfiguration(String orchestratorId, T configuration) throws PluginConfigurationException;
 }

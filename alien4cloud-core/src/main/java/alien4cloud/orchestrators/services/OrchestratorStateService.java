@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.paas.IPaaSProviderConfiguration;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.springframework.stereotype.Component;
 
@@ -172,33 +173,44 @@ public class OrchestratorStateService {
         orchestrator.setState(OrchestratorState.CONNECTING);
         alienDAO.save(orchestrator);
 
-        // TODO move below in a thread to perform plugin loading and connection asynchronously
-        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
-        IOrchestratorPlugin<Object> orchestratorInstance = orchestratorFactory.newInstance();
-
         // Set the configuration for the provider
         OrchestratorConfiguration orchestratorConfiguration = orchestratorConfigurationService.getConfigurationOrFail(orchestrator.getId());
         try {
             Object configuration = orchestratorConfigurationService.configurationAsValidObject(orchestrator.getId(),
                     orchestratorConfiguration.getConfiguration());
+
+            if (configuration instanceof IPaaSProviderConfiguration) {
+                ((IPaaSProviderConfiguration)configuration).setOrchestratorName(orchestrator.getName());
+                ((IPaaSProviderConfiguration)configuration).setOrchestratorId(orchestrator.getId());
+            }
+
+            IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
+            IOrchestratorPlugin<Object> orchestratorInstance = orchestratorFactory.newInstance(configuration);
+            // just kept for backward compatibility
             orchestratorInstance.setConfiguration(orchestrator.getId(), configuration);
+
+            // index the archive in alien catalog
+            archiveIndexer.indexOrchestratorArchives(orchestratorFactory, orchestratorInstance);
+            // connect the orchestrator
+            orchestratorInstance.init(deploymentService.getCloudActiveDeploymentContexts(orchestrator.getId()));
+
+            // register the orchestrator instance to be polled for updates
+            orchestratorPluginService.register(orchestrator.getId(), orchestratorInstance);
+            orchestrator.setState(OrchestratorState.CONNECTED);
+            alienDAO.save(orchestrator);
+            if (orchestratorInstance instanceof ILocationAutoConfigurer) {
+                // trigger locations auto-configurations
+                locationService.autoConfigure(orchestrator, (ILocationAutoConfigurer) orchestratorInstance);
+            }
+            indexLocationsArchives(orchestrator);
+
         } catch (IOException e) {
+            // TODO: change orchestrator state ?
             throw new PluginConfigurationException("Failed convert configuration json in object.", e);
         }
-        // index the archive in alien catalog
-        archiveIndexer.indexOrchestratorArchives(orchestratorFactory, orchestratorInstance);
-        // connect the orchestrator
-        orchestratorInstance.init(deploymentService.getCloudActiveDeploymentContexts(orchestrator.getId()));
 
-        // register the orchestrator instance to be polled for updates
-        orchestratorPluginService.register(orchestrator.getId(), orchestratorInstance);
-        orchestrator.setState(OrchestratorState.CONNECTED);
-        alienDAO.save(orchestrator);
-        if (orchestratorInstance instanceof ILocationAutoConfigurer) {
-            // trigger locations auto-configurations
-            locationService.autoConfigure(orchestrator, (ILocationAutoConfigurer) orchestratorInstance);
-        }
-        indexLocationsArchives(orchestrator);
+        // TODO move below in a thread to perform plugin loading and connection asynchronously
+
     }
 
     private void indexLocationsArchives(Orchestrator orchestrator) {
