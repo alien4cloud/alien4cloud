@@ -7,6 +7,7 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.TagUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
 import alien4cloud.utils.services.PropertyService;
@@ -185,32 +186,37 @@ public class InputService {
 
         Topology topology = topologyServiceCore.getOrFail(Csar.createId(target.getApplicationId(), target.getTopologyVersion()));
 
-        if (MapUtils.isNotEmpty(topology.getInputs())) {
-            Map<String, PropertyDefinition> inputsDefinitions = topology.getInputs();
-            Map<String, AbstractPropertyValue> inputsToCopy = deploymentInputs.getInputs().entrySet().stream()
-                    // Copy only inputs which exist in new topology's definition
-                    .filter(inputEntry -> inputsDefinitions.containsKey(inputEntry.getKey())).filter(inputEntry -> {
-                        // Copy only inputs which satisfy the new input definition
-                        try {
-                            if (! (inputEntry.getValue() instanceof FunctionPropertyValue)) {
-                                ConstraintPropertyService.checkPropertyConstraint(inputEntry.getKey(), PropertyService.asPropertyValue(inputEntry.getValue()),
-                                        inputsDefinitions.get(inputEntry.getKey()));
+        ToscaContext.init(topology.getDependencies());
+        try{
+            if (MapUtils.isNotEmpty(topology.getInputs())) {
+                Map<String, PropertyDefinition> inputsDefinitions = topology.getInputs();
+                Map<String, AbstractPropertyValue> inputsToCopy = deploymentInputs.getInputs().entrySet().stream()
+                        // Copy only inputs which exist in new topology's definition
+                        .filter(inputEntry -> inputsDefinitions.containsKey(inputEntry.getKey())).filter(inputEntry -> {
+                            // Copy only inputs which satisfy the new input definition
+                            try {
+                                if (! (inputEntry.getValue() instanceof FunctionPropertyValue)) {
+                                    ConstraintPropertyService.checkPropertyConstraint(inputEntry.getKey(), PropertyService.asPropertyValue(inputEntry.getValue()),
+                                            inputsDefinitions.get(inputEntry.getKey()));
+                                }
+                                return true;
+                            } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
+                                return false;
                             }
-                            return true;
-                        } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
-                            return false;
-                        }
-                    }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            if (MapUtils.isNotEmpty(inputsToCopy)) {
-                DeploymentInputs targetDeploymentInputs = deploymentConfigurationDao.findById(DeploymentInputs.class,
-                        AbstractDeploymentConfig.generateId(target.getTopologyVersion(), target.getId()));
-                if (targetDeploymentInputs == null) {
-                    targetDeploymentInputs = new DeploymentInputs(target.getTopologyVersion(), target.getId());
+                        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                if (MapUtils.isNotEmpty(inputsToCopy)) {
+                    DeploymentInputs targetDeploymentInputs = deploymentConfigurationDao.findById(DeploymentInputs.class,
+                            AbstractDeploymentConfig.generateId(target.getTopologyVersion(), target.getId()));
+                    if (targetDeploymentInputs == null) {
+                        targetDeploymentInputs = new DeploymentInputs(target.getTopologyVersion(), target.getId());
+                    }
+                    // Copy inputs from original topology
+                    targetDeploymentInputs.setInputs(inputsToCopy);
+                    deploymentConfigurationDao.save(targetDeploymentInputs);
                 }
-                // Copy inputs from original topology
-                targetDeploymentInputs.setInputs(inputsToCopy);
-                deploymentConfigurationDao.save(targetDeploymentInputs);
             }
+        } finally {
+            ToscaContext.destroy();
         }
     }
 
