@@ -19,7 +19,7 @@ define(function (require) {
       $scope.isCollapsed = true;
       $scope.login = {};
       $scope.signIn = function() {
-        var data = 'username=' + $scope.login.username + '&password=' + $scope.login.password + '&submit=Login';
+        var data = 'username=' + encodeURIComponent($scope.login.username) + '&password=' + encodeURIComponent($scope.login.password) + '&submit=Login';
         authService.logIn(data, $scope);
       };
 
