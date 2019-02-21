@@ -6,7 +6,7 @@ import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(format = "pretty", tags = { "~@Ignore" }, features = {
+@CucumberOptions(format = {"pretty", "html:target/cucumber/org/alien4cloud/tosca/editor", "json:target/cucumber/editor-features.json"}, tags = { "~@Ignore" }, features = {
         //
         // "src/test/resources/org/alien4cloud/tosca/catalog/",
         "src/test/resources/org/alien4cloud/tosca/editor/"
