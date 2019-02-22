@@ -21,9 +21,9 @@ public interface IPaaSProvider {
      * This method is called by Alien in order to restore the state of the paaS provider after a restart.
      * The provider must implement this method in order to restore its state
      *
-     * @param activeDeployments the currently active deployments that Alien has
+     * @param activeDeployments a map of passDeploymentId -> deploymentId (active deployments).
      */
-    void init(Map<String, PaaSTopologyDeploymentContext> activeDeployments);
+    void init(Map<String, String> activeDeployments);
 
     /**
      * Deploy a topology
