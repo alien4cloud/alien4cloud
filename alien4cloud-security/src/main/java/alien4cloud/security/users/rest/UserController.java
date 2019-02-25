@@ -58,7 +58,7 @@ public class UserController {
     @ApiOperation(value = "Create a new user in ALIEN.")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
+    @Audit(bodyHiddenFields = { "password" } )
     public RestResponse<Void> create(@Valid @RequestBody CreateUserRequest request) {
         userService.createUser(request.getUsername(), request.getEmail(), request.getFirstName(), request.getLastName(), request.getRoles(),
                 request.getPassword());
@@ -68,7 +68,7 @@ public class UserController {
     @ApiOperation("Update an user by merging the userUpdateRequest into the existing user")
     @RequestMapping(value = "/{username}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
+    @Audit(bodyHiddenFields = { "password" } )
     public RestResponse<Void> update(@PathVariable String username, @RequestBody UpdateUserRequest userUpdateRequest) {
         userService.updateUser(username, userUpdateRequest);
         return RestResponseBuilder.<Void> builder().build();
