@@ -8,6 +8,7 @@ import java.util.List;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -70,6 +71,13 @@ public class DefineAsDefaultForCapabilityDefinitionsSteps {
 
         String typeName = MappingBuilder.indexTypeFromClass(NodeType.class);
         String serializeDatum = jsonMapper.writeValueAsString(indexedNodeType);
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
+
+		String idValue = null;
+		try {
+			idValue = (new FieldsMappingBuilder()).getIdValue(indexedNodeType);
+		} catch (Exception e) {}
+
+        //esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
+        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
     }
 }

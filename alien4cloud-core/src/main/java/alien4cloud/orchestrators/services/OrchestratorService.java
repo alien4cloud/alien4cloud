@@ -9,7 +9,8 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.index.query.FilterBuilder;
+//import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
@@ -151,7 +152,7 @@ public class OrchestratorService {
      * @param authorizationFilter authorization filter
      * @return A {@link GetMultipleDataResult} that contains Orchestrator objects.
      */
-    public GetMultipleDataResult<Orchestrator> search(String query, OrchestratorState status, int from, int size, FilterBuilder authorizationFilter) {
+    public GetMultipleDataResult<Orchestrator> search(String query, OrchestratorState status, int from, int size, QueryBuilder authorizationFilter) {
         Map<String, String[]> filters = null;
         if (status != null) {
             filters = MapUtil.newHashMap(new String[] { "status" }, new String[][] { new String[] { status.toString() } });

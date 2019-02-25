@@ -30,7 +30,7 @@ import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.alien4cloud.tosca.utils.ToscaTypeUtils;
-import org.elasticsearch.common.collect.Maps;
+import com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 

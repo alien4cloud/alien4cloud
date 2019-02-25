@@ -2,7 +2,7 @@ package alien4cloud.tosca.parser.impl.base;
 
 import java.util.Collection;
 
-import org.elasticsearch.common.collect.Sets;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

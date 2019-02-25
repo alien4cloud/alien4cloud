@@ -20,7 +20,7 @@ import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.common.collect.Sets;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;

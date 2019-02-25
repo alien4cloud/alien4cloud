@@ -5,9 +5,8 @@ import javax.validation.Valid;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeFilterBuilder;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,7 +47,7 @@ public class DeploymentEventsController {
     @RequestMapping(value = "/status", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public GetMultipleJsonResult get(@RequestBody @Valid TimedRequest timedRequest) {
-        RangeFilterBuilder dateFilter = FilterBuilders.rangeFilter("date").gte(timedRequest.getIntervalStart());
+        RangeQueryBuilder dateFilter = QueryBuilders.rangeQuery("date").gte(timedRequest.getIntervalStart());
         if (timedRequest.getIntervalEnd() != null) {
             dateFilter.lt(timedRequest.getIntervalEnd());
         }
@@ -74,7 +73,7 @@ public class DeploymentEventsController {
     @RequestMapping(value = "/status/scroll", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public ScrollJsonResult get(@RequestBody @Valid ScrollTimedRequest timedRequest) {
-        RangeFilterBuilder dateFilter = FilterBuilders.rangeFilter("date").gte(timedRequest.getIntervalStart());
+        RangeQueryBuilder dateFilter = QueryBuilders.rangeQuery("date").gte(timedRequest.getIntervalStart());
         if (timedRequest.getIntervalEnd() != null) {
             dateFilter.lt(timedRequest.getIntervalEnd());
         }

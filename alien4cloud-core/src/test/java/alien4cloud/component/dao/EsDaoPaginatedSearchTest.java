@@ -17,8 +17,6 @@ import javax.annotation.Resource;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.MappingBuilder;
@@ -83,7 +81,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         testSimpleSearchWellPaginated(maxElement, size, null);
 
         // test simple find with filters
-        FilterBuilder filter = FilterBuilders.termFilter("capabilities.type", "jndi");
+        QueryBuilder filter = QueryBuilders.termQuery("capabilities.type", "jndi");
         QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
         queryBuilder = QueryBuilders.filteredQuery(queryBuilder, filter);
 
@@ -107,7 +105,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         testTextBasedSearchWellPaginated(maxElement, size, searchText, null);
 
         // text search based with filters
-        FilterBuilder filter = FilterBuilders.termFilter("capabilities.type", "jndi");
+        QueryBuilder filter = QueryBuilders.termQuery("capabilities.type", "jndi");
         QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
         queryBuilder = QueryBuilders.filteredQuery(queryBuilder, filter);
         maxElement = getCount(queryBuilder);
@@ -141,7 +139,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         testFacetedSearchWellPaginated(maxElement, size, searchText, null, null);
 
         // faceted search with filters
-        FilterBuilder filter = FilterBuilders.termFilter("capabilities.type", "jndi");
+        QueryBuilder filter = QueryBuilders.termQuery("capabilities.type", "jndi");
         QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
         queryBuilder = QueryBuilders.filteredQuery(queryBuilder, filter);
         maxElement = getCount(queryBuilder);

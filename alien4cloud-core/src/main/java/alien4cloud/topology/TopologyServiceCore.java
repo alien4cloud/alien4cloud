@@ -21,7 +21,7 @@ import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;

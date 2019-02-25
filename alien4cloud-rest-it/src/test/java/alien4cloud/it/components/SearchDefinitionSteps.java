@@ -19,6 +19,7 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.Assert;
 
@@ -277,7 +278,14 @@ public class SearchDefinitionSteps {
 
             String serializeDatum = JsonUtil.toString(componentTemplate);
             log.debug("Saving in ES: " + serializeDatum);
-            esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(true).execute().actionGet();
+
+			String idValue = null;
+			try {
+				idValue = (new FieldsMappingBuilder()).getIdValue(componentTemplate);
+			} catch (Exception e) {}
+
+            //esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(true).execute().actionGet();
+            esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(serializeDatum).setRefresh(true).execute().actionGet();
 
             if (componentTemplate instanceof NodeType) {
                 testDataList.add((NodeType) (componentTemplate));

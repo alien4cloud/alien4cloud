@@ -8,7 +8,7 @@ import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 
 import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.exception.WorkflowException;

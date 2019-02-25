@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 
@@ -135,7 +135,8 @@ public class CommonStepDefinitions {
 
         // Clean elastic search cluster
         for (String index : indicesToClean) {
-            esClient.prepareDeleteByQuery(new String[] { index }).setQuery(QueryBuilders.matchAllQuery()).execute().get();
+            //esClient.prepareDeleteByQuery(new String[] { index }).setQuery(QueryBuilders.matchAllQuery()).execute().get();
+            esClient.prepareDelete().setIndex(index).execute().get();
         }
 
         // clean things in Context

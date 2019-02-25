@@ -3,7 +3,7 @@ package alien4cloud.dao;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.elasticsearch.index.query.FilterBuilder;
+//import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.elasticsearch.mapping.QueryBuilderAdapter;
@@ -55,7 +55,7 @@ public interface IESQueryBuilderHelper<T> {
      * @param customFilter user provided filters.
      * @return current instance.
      */
-    IESQueryBuilderHelper<T> setFilters(FilterBuilder... customFilter);
+    IESQueryBuilderHelper<T> setFilters(QueryBuilder... customFilter);
 
     /**
      * Add filters to the current query.
@@ -64,7 +64,7 @@ public interface IESQueryBuilderHelper<T> {
      * @param customFilters user provided filters to add (using and clause) to the annotation based filters.
      * @return current instance.
      */
-    IESQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, FilterBuilder... customFilters);
+    IESQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, QueryBuilder... customFilters);
 
     /**
      * Add filters to the current query.
@@ -74,5 +74,5 @@ public interface IESQueryBuilderHelper<T> {
      * @param customFilters user provided filters to add (using and clause) to the annotation based filters.
      * @return current instance.
      */
-    IESQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, Map<String, FilterValuesStrategy> filterStrategies, FilterBuilder... customFilters);
+    IESQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, Map<String, FilterValuesStrategy> filterStrategies, QueryBuilder... customFilters);
 }

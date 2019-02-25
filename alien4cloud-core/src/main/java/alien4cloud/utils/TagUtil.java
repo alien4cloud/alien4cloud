@@ -3,7 +3,7 @@ package alien4cloud.utils;
 import java.util.List;
 import java.util.Map;
 
-import org.elasticsearch.common.collect.Maps;
+import com.google.common.collect.Maps;
 
 import alien4cloud.model.common.Tag;
 

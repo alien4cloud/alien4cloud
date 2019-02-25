@@ -4,7 +4,7 @@ import alien4cloud.dao.IESMetaPropertiesSearchContext;
 import alien4cloud.dao.IESMetaPropertiesSearchContextBuilder;
 import alien4cloud.dao.model.FacetedSearchResult;
 import com.google.common.collect.Lists;
-import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.mapping.IFacetBuilderHelper;
 
 import java.util.List;
@@ -19,8 +19,8 @@ public class MPSearchContextBuilderMock implements IESMetaPropertiesSearchContex
         }
 
         @Override
-        public FilterBuilder[] getFilterBuilders(Map<String, String[]> filters) {
-            return new FilterBuilder[0];
+        public QueryBuilder[] getFilterBuilders(Map<String, String[]> filters) {
+            return new QueryBuilder[0];
         }
 
         @Override

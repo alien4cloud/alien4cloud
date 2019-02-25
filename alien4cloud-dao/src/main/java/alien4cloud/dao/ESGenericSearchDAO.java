@@ -19,7 +19,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
-import org.elasticsearch.index.query.FilterBuilder;
+//import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
@@ -107,7 +107,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     }
 
     @SneakyThrows({ IOException.class })
-    private <T> List<T> doCustomFind(Class<T> clazz, QueryBuilder query, FilterBuilder filter, SortBuilder sortBuilder, int size) {
+    private <T> List<T> doCustomFind(Class<T> clazz, QueryBuilder query, QueryBuilder filter, SortBuilder sortBuilder, int size) {
         String indexName = getIndexForType(clazz);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setTypes(getTypesFromClass(clazz)).setSize(size);
         if (query != null) {
@@ -147,7 +147,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     }
 
     @Override
-    public <T> List<T> customFilterAll(Class<T> clazz, FilterBuilder filter) {
+    public <T> List<T> customFilterAll(Class<T> clazz, QueryBuilder filter) {
         return doCustomFind(clazz, null, filter, null, Integer.MAX_VALUE);
     }
 
@@ -193,13 +193,13 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     }
 
     @Override
-    public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
+    public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter,
             String fetchContext, int from, int maxElements) {
         return search(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, null, false);
     }
 
     @Override
-    public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
+    public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter,
             String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
         IESSearchQueryBuilderHelper<T> searchQueryBuilderHelper = getSearchBuilderHelper(clazz, searchText, filters, customFilter, fetchContext, fieldSort,
                 sortOrder);
@@ -214,7 +214,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
     @Override
     public GetMultipleDataResult<Object> search(String[] searchIndices, Class<?>[] classes, String searchText, Map<String, String[]> filters,
-            FilterBuilder customFilter, String fetchContext, int from, int maxElements) {
+            QueryBuilder customFilter, String fetchContext, int from, int maxElements) {
         SearchResponse searchResponse = queryHelper.buildQuery(searchText).types(classes).filters(filters, customFilter).prepareSearch(searchIndices)
                 .fetchContext(fetchContext).execute(from, maxElements);
 
@@ -233,13 +233,13 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     }
 
     @Override
-    public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
+    public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter,
             String fetchContext, int from, int maxElements) {
         return facetedSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, null, false);
     }
 
     @Override
-    public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
+    public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter,
             String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
         IESSearchQueryBuilderHelper<T> searchQueryBuilderHelper = getSearchBuilderHelper(clazz, searchText, filters, customFilter, fetchContext, fieldSort,
                 sortOrder);
@@ -346,7 +346,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     }
 
     private <T> IESSearchQueryBuilderHelper<T> getSearchBuilderHelper(Class<T> clazz, String searchText, Map<String, String[]> filters,
-            FilterBuilder customFilter, String fetchContext, String fieldSort, boolean sortOrder) {
+            QueryBuilder customFilter, String fetchContext, String fieldSort, boolean sortOrder) {
         IESSearchQueryBuilderHelper<T> builderHelper = buildSearchQuery(clazz, searchText).setFilters(filters, customFilter)
                 .alterQueryBuilder(queryBuilder -> QueryBuilders.functionScoreQuery(queryBuilder).scoreMode("multiply").boostMode(CombineFunction.MULT)
                         .add(ScoreFunctionBuilders.fieldValueFactorFunction("alienScore").missing(1)))
@@ -480,8 +480,8 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
                 List<FacetedSearchFacet> facets = new ArrayList<>();
                 for (int i = 0; i < internalTerms.getBuckets().size(); i++) {
-                    Terms.Bucket bucket = internalTerms.getBuckets().get(i);
-                    facets.add(new FacetedSearchFacet(bucket.getKey(), bucket.getDocCount()));
+                    Terms.Bucket bucket = (Terms.Bucket)(internalTerms.getBuckets().get(i));
+                    facets.add(new FacetedSearchFacet(bucket.getKeyAsString(), bucket.getDocCount()));
                 }
                 // Find the missing aggregation
                 internalAggregationsList.stream()
@@ -620,30 +620,30 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         }
 
         @Override
-        public EsQueryBuilderHelper setFilters(FilterBuilder... customFilters) {
+        public EsQueryBuilderHelper setFilters(QueryBuilder... customFilters) {
             super.filters(customFilters);
             return this;
         }
 
         @Override
-        public EsQueryBuilderHelper setFilters(Map filters, Map filterStrategies, FilterBuilder... customFilters) {
+        public EsQueryBuilderHelper setFilters(Map filters, Map filterStrategies, QueryBuilder... customFilters) {
             // MetaProperties Name Conversion
             mpContext.preProcess(filters);
 
             // Add MetaProperties filters
-            customFilters = ObjectArrays.concat(customFilters, mpContext.getFilterBuilders(filters),FilterBuilder.class);
+            customFilters = ObjectArrays.concat(customFilters, mpContext.getFilterBuilders(filters),QueryBuilder.class);
 
             super.filters(filters, filterStrategies, customFilters);
             return this;
         }
 
         @Override
-        public EsQueryBuilderHelper setFilters(Map filters, FilterBuilder... customFilters) {
+        public EsQueryBuilderHelper setFilters(Map filters, QueryBuilder... customFilters) {
             // MetaProperties Name Conversion
             mpContext.preProcess(filters);
 
             // Add MetaProperties filters
-            customFilters = ObjectArrays.concat(customFilters, mpContext.getFilterBuilders(filters),FilterBuilder.class);
+            customFilters = ObjectArrays.concat(customFilters, mpContext.getFilterBuilders(filters),QueryBuilder.class);
 
             super.filters(filters, customFilters);
             return this;

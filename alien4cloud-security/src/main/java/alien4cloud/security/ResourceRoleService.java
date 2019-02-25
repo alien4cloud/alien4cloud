@@ -6,8 +6,8 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -196,7 +196,7 @@ public class ResourceRoleService {
      * @throws IOException
      */
     private void deleteGroupRoles(String groupId) throws ClassNotFoundException, IOException {
-        FilterBuilder resourceFilter = FilterBuilders.nestedFilter("groupRoles", FilterBuilders.termFilter("groupRoles.key", groupId));
+        QueryBuilder resourceFilter = QueryBuilders.nestedQuery("groupRoles", QueryBuilders.termQuery("groupRoles.key", groupId));
         deleteRoles(resourceFilter, groupId, new DeleteRoleVisitor() {
             @Override
             public void deleteRoleOfOwner(Object[] securedResources, String owner) {
@@ -213,7 +213,7 @@ public class ResourceRoleService {
      * @throws IOException
      */
     private void deleteUserRoles(String userId) throws ClassNotFoundException, IOException {
-        FilterBuilder resourceFilter = FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", userId));
+        QueryBuilder resourceFilter = QueryBuilders.nestedQuery("userRoles", QueryBuilders.termQuery("userRoles.key", userId));
         deleteRoles(resourceFilter, userId, new DeleteRoleVisitor() {
             @Override
             public void deleteRoleOfOwner(Object[] securedResources, String owner) {
@@ -222,7 +222,7 @@ public class ResourceRoleService {
         });
     }
 
-    private void deleteRoles(FilterBuilder appFilter, String ownerId, DeleteRoleVisitor deleteRoleVisitor) throws IOException, ClassNotFoundException {
+    private void deleteRoles(QueryBuilder appFilter, String ownerId, DeleteRoleVisitor deleteRoleVisitor) throws IOException, ClassNotFoundException {
         int from = 0;
         long totalResult;
 

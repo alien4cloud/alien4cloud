@@ -23,6 +23,7 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRespon
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -263,7 +264,14 @@ public class EsDaoCrudTest extends AbstractDAOTest {
     private void saveDataToES(AbstractToscaType element) throws JsonProcessingException {
         String json = jsonMapper.writeValueAsString(element);
         String typeName = NodeType.class.getSimpleName().toLowerCase();
-        nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(true).execute().actionGet();
+
+        //nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(true).execute().actionGet();
+		String idValue = null;
+		try {
+			idValue = (new FieldsMappingBuilder()).getIdValue(element);
+		} catch (Exception e) {}
+System.out.println ("### ID " + idValue);
+        nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json).setRefresh(true).execute().actionGet();
 
         assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, element.getId(), true);
         refresh();

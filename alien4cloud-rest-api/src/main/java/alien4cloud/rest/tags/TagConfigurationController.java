@@ -15,7 +15,7 @@ import alien4cloud.model.service.ServiceResource;
 import alien4cloud.rest.model.FilteredSearchRequest;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections.MapUtils;
-import org.elasticsearch.index.query.ExistsFilterBuilder;
+import org.elasticsearch.index.query.ExistsQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
@@ -150,7 +150,7 @@ public class TagConfigurationController {
     private <T extends IMetaProperties> void removeMetaPropertyFromResources(Class<T> mpClass, IGenericSearchDAO dao, MetaPropConfiguration configuration) {
 
         // here we make an ES query to search only for objects that has a value for this meta-property
-        ExistsFilterBuilder existsFilterBuilder = new ExistsFilterBuilder("metaProperties." + configuration.getId());
+        ExistsQueryBuilder existsFilterBuilder = new ExistsQueryBuilder("metaProperties." + configuration.getId());
         List<T> result = dao.customFilterAll(mpClass, existsFilterBuilder);
 
         if (result != null) {

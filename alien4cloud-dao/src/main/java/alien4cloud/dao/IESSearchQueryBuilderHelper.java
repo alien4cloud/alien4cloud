@@ -3,9 +3,10 @@ package alien4cloud.dao;
 import java.util.Map;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
+//import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.elasticsearch.mapping.ISearchBuilderAdapter;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.mapping.QueryBuilderAdapter;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 
@@ -97,13 +98,13 @@ public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T>
     IESSearchQueryBuilderHelper<T> setScriptFunction(String functionScore);
 
     @Override
-    IESSearchQueryBuilderHelper<T> setFilters(FilterBuilder... customFilter);
+    IESSearchQueryBuilderHelper<T> setFilters(QueryBuilder... customFilter);
 
     @Override
-    IESSearchQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, FilterBuilder... customFilters);
+    IESSearchQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, QueryBuilder... customFilters);
 
     @Override
     IESSearchQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, Map<String, FilterValuesStrategy> filterStrategies,
-            FilterBuilder... customFilters);
+            QueryBuilder... customFilters);
 
 }

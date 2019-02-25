@@ -17,7 +17,7 @@ import org.alien4cloud.alm.events.AfterApplicationEnvironmentDeleted;
 import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.tosca.model.Csar;
-import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -138,7 +138,7 @@ public class ApplicationEnvironmentService {
                 getEnvironmentAuthorizationFilters(applicationId), null, 0, Integer.MAX_VALUE, "name.lower_case", false).getData();
     }
 
-    private FilterBuilder getEnvironmentAuthorizationFilters(String applicationId) {
+    private QueryBuilder getEnvironmentAuthorizationFilters(String applicationId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
         if (AuthorizationUtil.hasAuthorizationForApplication(application)) {
             return null;

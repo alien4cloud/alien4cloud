@@ -3,8 +3,7 @@ package alien4cloud.rest.orchestrator.model;
 import java.util.List;
 import java.util.Map;
 
-import org.elasticsearch.common.collect.Lists;
-
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.dao.model.GetMultipleDataResult;

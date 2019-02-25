@@ -12,7 +12,6 @@ import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.NodeBuilder;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
@@ -114,7 +113,7 @@ public class Context {
 
     public static Client getEsClientInstance() {
         if (ES_CLIENT_INSTANCE == null) {
-            Settings settings = ImmutableSettings.settingsBuilder().put("discovery.zen.ping.multicast.enabled", false)
+            Settings settings = Settings.settingsBuilder().put("discovery.zen.ping.multicast.enabled", false)
                     .put("discovery.zen.ping.unicast.hosts", ES_HOST).put("discovery.zen.ping.unicast.enabled", true).build();
             ES_CLIENT_INSTANCE = NodeBuilder.nodeBuilder().client(true).clusterName(ES_CLUSTER).local(false).settings(settings).node().client();
         }

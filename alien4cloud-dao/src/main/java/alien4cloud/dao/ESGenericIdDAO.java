@@ -11,7 +11,8 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
+import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 
 import alien4cloud.exception.IndexingServiceException;
@@ -55,7 +56,13 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
 
         updateDate(data);
         String json = getJsonMapper().writeValueAsString(data);
-        getClient().prepareIndex(indexName, typeName).setOperationThreaded(false).setSource(json).setRefresh(true).execute().actionGet();
+		String idValue = null;
+		try {
+			idValue = (new FieldsMappingBuilder()).getIdValue(data);
+		} catch (Exception e) {}
+System.out.println ("### ID " + idValue);
+        //getClient().prepareIndex(indexName, typeName).setOperationThreaded(false).setSource(json).setRefresh(true).execute().actionGet();
+		getClient().prepareIndex(indexName, typeName, idValue).setSource(json).setRefresh(true).execute().actionGet();
     }
 
     @Override
@@ -71,7 +78,12 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
 
             updateDate(data);
             String json = getJsonMapper().writeValueAsString(data);
-            bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName).setSource(json));
+			String idValue = null;
+			try {
+				idValue = (new FieldsMappingBuilder()).getIdValue(data);
+			} catch (Exception e) {}
+            //bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName).setSource(json));
+			bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName, idValue).setSource(json));
         }
         bulkRequestBuilder.execute().actionGet();
     }

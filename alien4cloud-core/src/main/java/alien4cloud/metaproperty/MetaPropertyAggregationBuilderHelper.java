@@ -1,6 +1,6 @@
 package alien4cloud.metaproperty;
 
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.elasticsearch.mapping.IFacetBuilderHelper;
 import org.elasticsearch.mapping.TermsFilterBuilderHelper;
 import org.elasticsearch.search.aggregations.AggregationBuilder;

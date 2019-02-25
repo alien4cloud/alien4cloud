@@ -32,7 +32,8 @@ import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.collect.Maps;
+import com.google.common.collect.Maps;
+import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.Assert;
 
@@ -336,7 +337,12 @@ public class TopologyStepDefinitions {
             }
         }
 
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(RelationshipType.class))
+		String idValue = null;
+		try {
+			idValue = (new FieldsMappingBuilder()).getIdValue(relationship);
+		} catch (Exception e) {}
+
+        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(RelationshipType.class), idValue)
                 .setSource(JsonUtil.toString(relationship)).setRefresh(true).execute().actionGet();
     }
 
@@ -355,7 +361,12 @@ public class TopologyStepDefinitions {
             throw new PendingException("creation of Type " + componentType + "not supported!");
         }
 
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz)).setSource(JsonUtil.toString(element))
+		String idValue = null;
+		try {
+			idValue = (new FieldsMappingBuilder()).getIdValue(element);
+		} catch (Exception e) {}
+
+        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz), idValue).setSource(JsonUtil.toString(element))
                 .setRefresh(true).execute().actionGet();
     }
 

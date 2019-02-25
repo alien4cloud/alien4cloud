@@ -10,8 +10,8 @@ import alien4cloud.rest.application.model.SearchLogRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.model.SortConfiguration;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.RangeFilterBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -41,9 +41,9 @@ public class LogService {
     }
 
     private IESSearchQueryBuilderHelper<PaaSDeploymentLog> buildQuery(SearchLogRequest searchRequest) {
-        RangeFilterBuilder dateRangeBuilder = null;
+        RangeQueryBuilder dateRangeBuilder = null;
         if (searchRequest.getFromDate() != null || searchRequest.getToDate() != null) {
-            dateRangeBuilder = FilterBuilders.rangeFilter("timestamp");
+            dateRangeBuilder = QueryBuilders.rangeQuery("timestamp");
             if (searchRequest.getFromDate() != null) {
                 dateRangeBuilder.from(searchRequest.getFromDate());
             }

@@ -28,7 +28,7 @@ import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.utils.FunctionEvaluator;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

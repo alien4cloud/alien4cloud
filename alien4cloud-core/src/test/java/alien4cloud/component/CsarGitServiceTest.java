@@ -6,6 +6,15 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
+import java.net.URI;
+import java.util.Arrays;
+
 import javax.annotation.Resource;
 
 import alien4cloud.tosca.parser.impl.ErrorCode;
@@ -58,6 +67,46 @@ public class CsarGitServiceTest {
                 e.printStackTrace();
             }
         }
+
+ProxySelector.setDefault(new ProxySelector() {
+    final ProxySelector delegate = ProxySelector.getDefault();
+
+    @Override
+    public List<Proxy> select(URI uri) {
+/****
+            // Filter the URIs to be proxied
+        if (uri.toString().contains("github")
+                && uri.toString().contains("https")) {
+            return Arrays.asList(new Proxy(Proxy.Type.HTTP, InetSocketAddress
+                    .createUnresolved("localhost", 3128)));
+        }
+        if (uri.toString().contains("github")
+                && uri.toString().contains("http")) {
+            return Arrays.asList(new Proxy(Proxy.Type.HTTP, InetSocketAddress
+                    .createUnresolved("localhost", 3129)));
+        }
+            // revert to the default behaviour
+        return delegate == null ? Arrays.asList(Proxy.NO_PROXY)
+                : delegate.select(uri);
+***/
+		try {
+            return Arrays.asList(new Proxy(Proxy.Type.HTTP, new InetSocketAddress
+                    (InetAddress.getByName("193.56.47.20"), 8080)));
+		} catch (UnknownHostException e) {
+	        return delegate == null ? Arrays.asList(Proxy.NO_PROXY)
+                : delegate.select(uri);
+		}
+    }
+
+    @Override
+    public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+        if (uri == null || sa == null || ioe == null) {
+            throw new IllegalArgumentException(
+                    "Arguments can't be null.");
+        }
+    }
+});
+
     }
 
     @Test

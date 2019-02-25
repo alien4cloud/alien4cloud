@@ -16,8 +16,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -66,7 +66,7 @@ public class DeploymentService {
      * @return An array of deployments.
      */
     public Deployment[] getDeployments(String orchestratorId, String sourceId, String environmentId, int from, int size) {
-        FilterBuilder filterBuilder = buildDeploymentFilters(orchestratorId, sourceId, environmentId);
+        QueryBuilder filterBuilder = buildDeploymentFilters(orchestratorId, sourceId, environmentId);
         IESQueryBuilderHelper<Deployment> queryBuilderHelper = alienDao.buildQuery(Deployment.class);
         return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", true).search(from, size).getData();
     }
@@ -83,23 +83,23 @@ public class DeploymentService {
      * @return the deployments with pagination
      */
     public FacetedSearchResult searchDeployments(String query, String orchestratorId, String environmentId, String sourceId, int from, int size) {
-        FilterBuilder filterBuilder = buildDeploymentFilters(orchestratorId, sourceId, environmentId);
+        QueryBuilder filterBuilder = buildDeploymentFilters(orchestratorId, sourceId, environmentId);
         return alienDao.facetedSearch(Deployment.class, query, null, filterBuilder, null, from, size, "startDate", true);
     }
 
-    private FilterBuilder buildDeploymentFilters(String orchestratorId, String sourceId, String environmentId) {
-        FilterBuilder filterBuilder = null;
+    private QueryBuilder buildDeploymentFilters(String orchestratorId, String sourceId, String environmentId) {
+        QueryBuilder filterBuilder = null;
         if (orchestratorId != null) {
-            FilterBuilder orchestratorFilter = FilterBuilders.termFilter("orchestratorId", orchestratorId);
-            filterBuilder = filterBuilder == null ? orchestratorFilter : FilterBuilders.andFilter(orchestratorFilter, filterBuilder);
+            QueryBuilder orchestratorFilter = QueryBuilders.termQuery("orchestratorId", orchestratorId);
+            filterBuilder = filterBuilder == null ? orchestratorFilter : QueryBuilders.andQuery(orchestratorFilter, filterBuilder);
         }
         if (environmentId != null) {
-            FilterBuilder environmentFilter = FilterBuilders.termFilter("environmentId", environmentId);
-            filterBuilder = filterBuilder == null ? environmentFilter : FilterBuilders.andFilter(environmentFilter, filterBuilder);
+            QueryBuilder environmentFilter = QueryBuilders.termQuery("environmentId", environmentId);
+            filterBuilder = filterBuilder == null ? environmentFilter : QueryBuilders.andQuery(environmentFilter, filterBuilder);
         }
         if (sourceId != null) {
-            FilterBuilder sourceFilter = FilterBuilders.termFilter("sourceId", sourceId);
-            filterBuilder = filterBuilder == null ? sourceFilter : FilterBuilders.andFilter(sourceFilter, filterBuilder);
+            QueryBuilder sourceFilter = QueryBuilders.termQuery("sourceId", sourceId);
+            filterBuilder = filterBuilder == null ? sourceFilter : QueryBuilders.andQuery(sourceFilter, filterBuilder);
         }
         return filterBuilder;
     }

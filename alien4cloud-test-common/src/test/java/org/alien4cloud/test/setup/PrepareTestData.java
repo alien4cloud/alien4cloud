@@ -4,6 +4,17 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+
+
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +40,30 @@ public class PrepareTestData {
         } catch (IOException e) {
             log.error("Failed to delete zipped archives repository.", e);
         }
+
+ProxySelector.setDefault(new ProxySelector() {
+    final ProxySelector delegate = ProxySelector.getDefault();
+
+    @Override
+    public List<Proxy> select(URI uri) {
+		try {
+            return Arrays.asList(new Proxy(Proxy.Type.HTTP, new InetSocketAddress
+                    (InetAddress.getByName("193.56.47.20"), 8080)));
+		} catch (UnknownHostException e) {
+	        return delegate == null ? Arrays.asList(Proxy.NO_PROXY)
+                : delegate.select(uri);
+		}
+    }
+
+    @Override
+    public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+        if (uri == null || sa == null || ioe == null) {
+            throw new IllegalArgumentException(
+                    "Arguments can't be null.");
+        }
+    }
+});
+
 
         repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "1.2.0",
                 "tosca-normative-types-1.0.0-ALIEN12");

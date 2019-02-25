@@ -2,7 +2,7 @@ package alien4cloud.common;
 
 import javax.annotation.Resource;
 
-import org.elasticsearch.common.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;

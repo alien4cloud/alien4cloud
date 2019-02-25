@@ -19,7 +19,7 @@ import org.alien4cloud.alm.events.AfterPermissionRevokedEvent;
 import org.alien4cloud.alm.events.BeforePermissionRevokedEvent;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 

@@ -17,9 +17,11 @@ import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.ElasticSearchClient;
+import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.After;
 import org.junit.Before;
@@ -166,14 +168,22 @@ public class SearchTest {
         for (NodeType datum : dataTest) {
             String json = jsonMapper.writeValueAsString(datum);
             String typeName = MappingBuilder.indexTypeFromClass(datum.getClass());
-            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
+
+			String idValue = null;
+			try {
+				idValue = (new FieldsMappingBuilder()).getIdValue(datum);
+			} catch (Exception e) {}
+
+            //nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
+            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json).setRefresh(refresh).execute().actionGet();
         }
     }
 
     private void clearIndex(String indexName, Class<?> clazz) throws InterruptedException {
         String typeName = clazz.getSimpleName();
         log.info("Cleaning ES Index " + ElasticSearchDAO.TOSCA_ELEMENT_INDEX + " and type " + typeName);
-        nodeClient.prepareDeleteByQuery(indexName).setQuery(QueryBuilders.matchAllQuery()).setTypes(typeName).execute().actionGet();
+        DeleteRequestBuilder drb = nodeClient.prepareDelete();
+		drb.setIndex(indexName).setType(typeName).execute().actionGet();
     }
 
     private void assertElementIn(String element, String[] elements) {
