@@ -270,7 +270,6 @@ public class EsDaoCrudTest extends AbstractDAOTest {
 		try {
 			idValue = (new FieldsMappingBuilder()).getIdValue(element);
 		} catch (Exception e) {}
-System.out.println ("### ID " + idValue);
         nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json).setRefresh(true).execute().actionGet();
 
         assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, element.getId(), true);

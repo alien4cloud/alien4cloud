@@ -40,7 +40,7 @@ public class PrepareTestData {
         } catch (IOException e) {
             log.error("Failed to delete zipped archives repository.", e);
         }
-
+/************************
 ProxySelector.setDefault(new ProxySelector() {
     final ProxySelector delegate = ProxySelector.getDefault();
 
@@ -63,6 +63,7 @@ ProxySelector.setDefault(new ProxySelector() {
         }
     }
 });
+****************************/
 
 
         repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "1.2.0",

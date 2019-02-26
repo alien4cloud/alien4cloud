@@ -262,6 +262,8 @@ public class EsDaoSearchTest extends AbstractDAOTest {
 			try {
 				idValue = (new FieldsMappingBuilder()).getIdValue(datum);
 			} catch (Exception e) {}
+System.out.println ("### iD " + idValue);
+System.out.println ("### json " + json);
             nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json).setRefresh(refresh).execute().actionGet();
 
             //nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();

@@ -68,27 +68,12 @@ public class CsarGitServiceTest {
             }
         }
 
+/****************************************
 ProxySelector.setDefault(new ProxySelector() {
     final ProxySelector delegate = ProxySelector.getDefault();
 
     @Override
     public List<Proxy> select(URI uri) {
-/****
-            // Filter the URIs to be proxied
-        if (uri.toString().contains("github")
-                && uri.toString().contains("https")) {
-            return Arrays.asList(new Proxy(Proxy.Type.HTTP, InetSocketAddress
-                    .createUnresolved("localhost", 3128)));
-        }
-        if (uri.toString().contains("github")
-                && uri.toString().contains("http")) {
-            return Arrays.asList(new Proxy(Proxy.Type.HTTP, InetSocketAddress
-                    .createUnresolved("localhost", 3129)));
-        }
-            // revert to the default behaviour
-        return delegate == null ? Arrays.asList(Proxy.NO_PROXY)
-                : delegate.select(uri);
-***/
 		try {
             return Arrays.asList(new Proxy(Proxy.Type.HTTP, new InetSocketAddress
                     (InetAddress.getByName("193.56.47.20"), 8080)));
@@ -105,7 +90,8 @@ ProxySelector.setDefault(new ProxySelector() {
                     "Arguments can't be null.");
         }
     }
-});
+});a
+*******************************/
 
     }
 

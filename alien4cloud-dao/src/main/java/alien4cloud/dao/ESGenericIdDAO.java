@@ -56,13 +56,16 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
 
         updateDate(data);
         String json = getJsonMapper().writeValueAsString(data);
-		String idValue = null;
-		try {
-			idValue = (new FieldsMappingBuilder()).getIdValue(data);
-		} catch (Exception e) {}
-System.out.println ("### ID " + idValue);
+	String idValue = null;
+	try {
+	   idValue = (new FieldsMappingBuilder()).getIdValue(data);
+	} catch (Exception e) {}
         //getClient().prepareIndex(indexName, typeName).setOperationThreaded(false).setSource(json).setRefresh(true).execute().actionGet();
-		getClient().prepareIndex(indexName, typeName, idValue).setSource(json).setRefresh(true).execute().actionGet();
+        if (idValue == null) {
+	   getClient().prepareIndex(indexName, typeName).setSource(json).setRefresh(true).execute().actionGet();
+	} else {
+	   getClient().prepareIndex(indexName, typeName, idValue).setSource(json).setRefresh(true).execute().actionGet();
+        }
     }
 
     @Override
@@ -78,12 +81,16 @@ System.out.println ("### ID " + idValue);
 
             updateDate(data);
             String json = getJsonMapper().writeValueAsString(data);
-			String idValue = null;
-			try {
-				idValue = (new FieldsMappingBuilder()).getIdValue(data);
-			} catch (Exception e) {}
+            String idValue = null;
+	    try {
+		idValue = (new FieldsMappingBuilder()).getIdValue(data);
+            } catch (Exception e) {}
             //bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName).setSource(json));
-			bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName, idValue).setSource(json));
+            if (idValue == null) {
+		bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName).setSource(json));
+            } else {
+		bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName, idValue).setSource(json));
+            }
         }
         bulkRequestBuilder.execute().actionGet();
     }
