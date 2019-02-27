@@ -35,7 +35,7 @@ import alien4cloud.it.security.AuthenticationStepDefinitions;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.common.*;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.git.CsarGitRepository;
@@ -106,17 +106,17 @@ public class CommonStepDefinitions {
 
     private void clearIndex(String indexName, String typeName) {
         // get all elements and then use a bulk delete to remove data.
-        SearchRequestBuilder searchRequestBuilder = nodeClient.prepareSearch(indexName).setTypes(typeName).setQuery(QueryBuilders.matchAllQuery()).setNoFields()
+        SearchRequestBuilder searchRequestBuilder = esClient.prepareSearch(indexName).setTypes(typeName).setQuery(QueryBuilders.matchAllQuery()).setNoFields()
                 .setFetchSource(false);
         searchRequestBuilder.setFrom(0).setSize(1000);
         SearchResponse response = searchRequestBuilder.execute().actionGet();
 
         while (somethingFound(response)) {
-            BulkRequestBuilder bulkRequestBuilder = nodeClient.prepareBulk().setRefresh(true);
+            BulkRequestBuilder bulkRequestBuilder = esClient.prepareBulk().setRefresh(true);
 
             for (int i = 0; i < response.getHits().hits().length; i++) {
                 String id = response.getHits().hits()[i].getId();
-                bulkRequestBuilder.add(nodeClient.prepareDelete(indexName, typeName, id));
+                bulkRequestBuilder.add(esClient.prepareDelete(indexName, typeName, id));
             }
 
             bulkRequestBuilder.execute().actionGet();
