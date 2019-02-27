@@ -17,7 +17,7 @@ import org.junit.Before;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.model.application.Application;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.*;
 
 public abstract class AbstractDAOTest {
 
@@ -87,6 +87,8 @@ public abstract class AbstractDAOTest {
     public void clean() throws Exception {
         clearIndex(Application.class.getSimpleName().toLowerCase(), Application.class.getSimpleName().toLowerCase());
         clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, NodeType.class.getSimpleName().toLowerCase());
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, ArtifactType.class.getSimpleName().toLowerCase());
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, CapabilityType.class.getSimpleName().toLowerCase());
         clearIndex(Topology.class.getSimpleName().toLowerCase(), Topology.class.getSimpleName().toLowerCase());
         refresh();
     }

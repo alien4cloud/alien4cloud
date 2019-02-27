@@ -17,7 +17,9 @@ import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.ElasticSearchClient;
@@ -179,11 +181,44 @@ public class SearchTest {
         }
     }
 
+    private boolean somethingFound(final SearchResponse searchResponse) {
+        if (searchResponse == null || searchResponse.getHits() == null || searchResponse.getHits().getHits() == null
+                || searchResponse.getHits().getHits().length == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    private void delete(String indexName, String typeName, QueryBuilder query) {
+        // get all elements and then use a bulk delete to remove data.
+        SearchRequestBuilder searchRequestBuilder = nodeClient.prepareSearch(indexName).setTypes(typeName).setQuery(query).setNoFields()
+                .setFetchSource(false);
+        searchRequestBuilder.setFrom(0).setSize(1000);
+        SearchResponse response = searchRequestBuilder.execute().actionGet();
+
+        while (somethingFound(response)) {
+            BulkRequestBuilder bulkRequestBuilder = nodeClient.prepareBulk().setRefresh(true);
+
+            for (int i = 0; i < response.getHits().hits().length; i++) {
+                String id = response.getHits().hits()[i].getId();
+                bulkRequestBuilder.add(nodeClient.prepareDelete(indexName, typeName, id));
+            }
+
+            bulkRequestBuilder.execute().actionGet();
+
+            if (response.getHits().totalHits() == response.getHits().hits().length) {
+                response = null;
+            } else {
+                response = searchRequestBuilder.execute().actionGet();
+            }
+        }
+    }
     private void clearIndex(String indexName, Class<?> clazz) throws InterruptedException {
         String typeName = clazz.getSimpleName();
         log.info("Cleaning ES Index " + ElasticSearchDAO.TOSCA_ELEMENT_INDEX + " and type " + typeName);
-        DeleteRequestBuilder drb = nodeClient.prepareDelete();
-		drb.setIndex(indexName).setType(typeName).execute().actionGet();
+        //DeleteRequestBuilder drb = nodeClient.prepareDelete();
+	//	drb.setIndex(indexName).setType(typeName).execute().actionGet();
+        delete (indexName, typeName, QueryBuilders.matchAllQuery());
     }
 
     private void assertElementIn(String element, String[] elements) {

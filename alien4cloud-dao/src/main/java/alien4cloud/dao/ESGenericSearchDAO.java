@@ -217,7 +217,6 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             QueryBuilder customFilter, String fetchContext, int from, int maxElements) {
         SearchResponse searchResponse = queryHelper.buildQuery(searchText).types(classes).filters(filters, customFilter).prepareSearch(searchIndices)
                 .fetchContext(fetchContext).execute(from, maxElements);
-
         return toGetMultipleDataResult(Object.class, searchResponse, from);
     }
 
