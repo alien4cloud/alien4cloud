@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import org.elasticsearch.annotation.Id;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -103,6 +104,11 @@ public abstract class ESIndexMapper {
                 addTTL(typesMap, ttl);
 
                 Field generatedIdField = ReflectionUtil.getDeclaredField(clazz, EsGeneratedId.class);
+                if (generatedIdField != null) {
+                    generatedIdField.setAccessible(true);
+                    classTogeneratedIdFields.put(clazz, generatedIdField);
+                }
+                generatedIdField = ReflectionUtil.getDeclaredField(clazz, Id.class);
                 if (generatedIdField != null) {
                     generatedIdField.setAccessible(true);
                     classTogeneratedIdFields.put(clazz, generatedIdField);

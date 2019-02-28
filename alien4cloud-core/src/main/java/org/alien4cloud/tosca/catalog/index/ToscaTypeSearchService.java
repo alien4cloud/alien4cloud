@@ -154,7 +154,7 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
         if (dependencies == null || dependencies.isEmpty()) {
             return null;
         }
-        BoolQueryBuilder boolQueryBuilder = getDependencyQuery(dependencies, "rawElementId", elementId);
+        BoolQueryBuilder boolQueryBuilder = getDependencyQuery(dependencies, "elementId.rawElementId", elementId);
         return getLatestVersionOfElement(elementClass, boolQueryBuilder);
     }
 
