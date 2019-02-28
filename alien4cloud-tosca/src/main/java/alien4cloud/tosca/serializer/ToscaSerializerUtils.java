@@ -85,7 +85,7 @@ public class ToscaSerializerUtils {
             }
             return sw.toString();
         } else {
-            return "\"" + ToscaPropertySerializerUtils.escapeDoubleQuote(description) + "\"";
+            return "\"" + ToscaPropertySerializerUtils.escapeDoubleQuotedString(description) + "\"";
         }
     }
 
