@@ -151,7 +151,7 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
 
     @Override
     public <T extends AbstractToscaType> T getElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies) {
-        if (dependencies == null || dependencies.isEmpty()) {
+        if (dependencies == null || dependencies.isEmpty() || (elementId == null)) {
             return null;
         }
         BoolQueryBuilder boolQueryBuilder = getDependencyQuery(dependencies, "elementId.rawElementId", elementId);
