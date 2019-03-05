@@ -23,7 +23,6 @@ public class ParsingResult<T> {
     public boolean hasError(ParsingErrorLevel level) {
         for (ParsingError error : context.getParsingErrors()) {
             if (level == null || level.equals(error.getErrorLevel())) {
-System.out.println ("### " + error.getErrorCode() + " // " + error.getProblem() + " // " + error.getNote());
                 return true;
             }
         }
