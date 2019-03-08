@@ -59,7 +59,7 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
         log.debug("Initializing plugin id migrations");
         int count = 0;
         // This code updates the ids of plugin configurations and plugins in elasticsearch to remove the version reference.
-        GetMultipleDataResult<Plugin> pluginResult = alienDAO.buildQuery(Plugin.class).prepareSearch().search(0, Integer.MAX_VALUE);
+        GetMultipleDataResult<Plugin> pluginResult = alienDAO.buildQuery(Plugin.class).prepareSearch().search(0, 10000);
         for (Plugin plugin : pluginResult.getData()) {
             if (plugin.getEsId().contains(":")) {
                 PluginConfiguration pluginConfiguration = alienDAO.findById(PluginConfiguration.class, plugin.getEsId());
@@ -79,7 +79,7 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
         count = 0;
 
         // This code updates the plugin id in the orchestrators.
-        GetMultipleDataResult<Orchestrator> orchestratorResult = alienDAO.buildQuery(Orchestrator.class).prepareSearch().search(0, Integer.MAX_VALUE);
+        GetMultipleDataResult<Orchestrator> orchestratorResult = alienDAO.buildQuery(Orchestrator.class).prepareSearch().search(0, 10000);
         for (Orchestrator orchestrator : orchestratorResult.getData()) {
             if (orchestrator.getPluginId().contains(":")) {
                 orchestrator.setPluginId(orchestrator.getPluginId().split(":")[0]);

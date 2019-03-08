@@ -109,6 +109,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @SneakyThrows({ IOException.class })
     private <T> List<T> doCustomFind(Class<T> clazz, QueryBuilder query, QueryBuilder filter, SortBuilder sortBuilder, int size) {
         String indexName = getIndexForType(clazz);
+        if (size > 10000) {
+           size = 10000;
+        }
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setTypes(getTypesFromClass(clazz)).setSize(size);
         if (query != null) {
             searchRequestBuilder.setQuery(query);
@@ -173,6 +176,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
     @Override
     public GetMultipleDataResult<Object> search(QueryHelper.ISearchQueryBuilderHelper queryHelperBuilder, int from, int maxElements) {
+        if (maxElements > 10000) {
+           maxElements = 10000;
+        }
         return toGetMultipleDataResult(Object.class, queryHelperBuilder.execute(from, maxElements), from);
     }
 
@@ -203,6 +209,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
         IESSearchQueryBuilderHelper<T> searchQueryBuilderHelper = getSearchBuilderHelper(clazz, searchText, filters, customFilter, fetchContext, fieldSort,
                 sortOrder);
+        if (maxElements > 10000) {
+           maxElements = 10000;
+        }
         return searchQueryBuilderHelper.search(from, maxElements);
     }
 
@@ -215,6 +224,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @Override
     public GetMultipleDataResult<Object> search(String[] searchIndices, Class<?>[] classes, String searchText, Map<String, String[]> filters,
             QueryBuilder customFilter, String fetchContext, int from, int maxElements) {
+        if (maxElements > 10000) {
+          maxElements = 10000;
+        }
         SearchResponse searchResponse = queryHelper.buildQuery(searchText).types(classes).filters(filters, customFilter).prepareSearch(searchIndices)
                 .fetchContext(fetchContext).execute(from, maxElements);
         return toGetMultipleDataResult(Object.class, searchResponse, from);
@@ -242,12 +254,18 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
         IESSearchQueryBuilderHelper<T> searchQueryBuilderHelper = getSearchBuilderHelper(clazz, searchText, filters, customFilter, fetchContext, fieldSort,
                 sortOrder);
+        if (maxElements > 10000) {
+           maxElements = 10000;
+        }
         return searchQueryBuilderHelper.facetedSearch(from, maxElements);
     }
 
     @Override
     public GetMultipleDataResult<Object> suggestSearch(String[] searchIndices, Class<?>[] requestedTypes, String suggestFieldPath, String searchPrefix,
             String fetchContext, int from, int maxElements) {
+        if (maxElements > 10000) {
+          maxElements = 10000;
+        }
         SearchResponse searchResponse = queryHelper.buildQuery(suggestFieldPath, searchPrefix).types(requestedTypes).prepareSearch(searchIndices)
                 .fetchContext(fetchContext).execute(from, maxElements);
 
@@ -257,6 +275,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @Override
     public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters,
             Map<String, FilterValuesStrategy> filterStrategies, int maxElements) {
+        if (maxElements > 10000) {
+          maxElements = 10000;
+        }
         return buildSearchQuery(clazz, searchText).setFilters(filters, filterStrategies).prepareSearch().search(0, maxElements);
     }
 
@@ -408,6 +429,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
     @SneakyThrows({ IOException.class })
     private String[] doSelectPath(String index, String[] types, QueryBuilder queryBuilder, SortOrder sortOrder, String path, int from, int size) {
+        if (size > 10000) {
+           size = 10000;
+        }
         SearchRequestBuilder searchRequestBuilder = esClient.getClient().prepareSearch(index);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH).setQuery(queryBuilder).setSize(size).setFrom(from);
         searchRequestBuilder.setFetchSource(path, null);
@@ -584,6 +608,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
             super.facets(facetBuilderHelpers);
 
+            if (size > 10000) {
+               size = 10000;
+            }
             FacetedSearchResult  facetedSearchResult = toFacetedSearchResult(clazz, from, super.execute(from, size));
 
             // Convert metaProperties name

@@ -446,7 +446,7 @@ public class ServiceResourceService {
     public synchronized void handleLocationDeleted(AfterLocationDeleted event) {
         // Remove the location in every service that referenced it
         GetMultipleDataResult<ServiceResource> serviceResourceResult = alienDAO.buildQuery(ServiceResource.class)
-                .setFilters(singleKeyFilter("locationIds", event.getLocationId())).prepareSearch().search(0, Integer.MAX_VALUE);
+                .setFilters(singleKeyFilter("locationIds", event.getLocationId())).prepareSearch().search(0, 10000);
         if (serviceResourceResult.getData() == null) {
             return;
         }
@@ -466,7 +466,7 @@ public class ServiceResourceService {
      * @return
      */
     public List<ServiceResource> searchByLocation(String locationId) {
-        GetMultipleDataResult<ServiceResource> result = this.search("", singleKeyFilter("locationIds", locationId), null, false, 0, Integer.MAX_VALUE);
+        GetMultipleDataResult<ServiceResource> result = this.search("", singleKeyFilter("locationIds", locationId), null, false, 0, 10000);
         return Lists.newArrayList(result.getData());
     }
 
@@ -480,7 +480,7 @@ public class ServiceResourceService {
     public ServiceResource[] getByNodeTypes(String nodeType, String nodeTypeVersion) {
         return alienDAO.buildQuery(ServiceResource.class)
                 .setFilters(fromKeyValueCouples("nodeInstance.nodeTemplate.type", nodeType, "nodeInstance.typeVersion", nodeTypeVersion)).prepareSearch()
-                .search(0, Integer.MAX_VALUE).getData();
+                .search(0, 10000).getData();
     }
 
     /**
@@ -505,7 +505,7 @@ public class ServiceResourceService {
     public void reportArchiveUsage(ArchiveUsageRequestEvent event) {
         ServiceResource[] serviceResources = alienDAO.buildQuery(ServiceResource.class)
                 .setFilters(fromKeyValueCouples("dependency.name", event.getArchiveName(), "dependency.version", event.getArchiveVersion())).prepareSearch()
-                .search(0, Integer.MAX_VALUE).getData();
+                .search(0, 10000).getData();
         for (ServiceResource serviceResource : serviceResources) {
             Usage usage = new Usage(serviceResource.getName(), ServiceResource.class.getSimpleName().toLowerCase(), serviceResource.getId(), "");
             event.addUsage(usage);

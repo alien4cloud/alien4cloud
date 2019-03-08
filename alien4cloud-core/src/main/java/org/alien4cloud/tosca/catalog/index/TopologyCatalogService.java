@@ -84,7 +84,7 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
     public Topology[] getAll(Map<String, String[]> filters, String archiveName) {
         return alienDAO.buildQuery(Topology.class)
                 .setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "archiveName", archiveName)).prepareSearch()
-                .setFetchContext(SUMMARY).search(0, Integer.MAX_VALUE).getData();
+                .setFetchContext(SUMMARY).search(0, 10000).getData();
     }
 
     @Override

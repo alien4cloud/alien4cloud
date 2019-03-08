@@ -32,7 +32,7 @@ public class ServiceUsageReporter {
     private void reportServiceUsage(ServiceUsageRequestEvent serviceChangedEvent) {
         GetMultipleDataResult<Deployment> usageResult = alienDAO.buildQuery(Deployment.class)
                 .setFilters(fromKeyValueCouples("endDate", null, "serviceResourceIds", serviceChangedEvent.getServiceId())).prepareSearch()
-                .search(0, Integer.MAX_VALUE);
+                .search(0, 10000);
         if (usageResult.getTotalResults() > 0) {
             Usage[] usages = Arrays.stream(usageResult.getData()).map(deployment -> {
                 ApplicationEnvironment environment = environmentService.getOrFail(deployment.getEnvironmentId());

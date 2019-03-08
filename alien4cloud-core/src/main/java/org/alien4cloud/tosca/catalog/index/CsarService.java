@@ -109,7 +109,7 @@ public class CsarService {
         QueryBuilder notSelf = QueryBuilders
                 .notQuery(QueryBuilders.andQuery(QueryBuilders.termQuery("name", name), QueryBuilders.termQuery("version", version)));
         GetMultipleDataResult<Csar> result = csarDAO.buildQuery(Csar.class).prepareSearch()
-                .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version), notSelf).search(0, Integer.MAX_VALUE);
+                .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version), notSelf).search(0, 10000);
         return result.getData();
     }
 
@@ -124,7 +124,7 @@ public class CsarService {
                 .notQuery(QueryBuilders.andQuery(QueryBuilders.termQuery("archiveName", name), QueryBuilders.termQuery("archiveVersion", version)));
 
         GetMultipleDataResult<Topology> result = csarDAO.buildQuery(Topology.class).prepareSearch()
-                .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version), notSelf).search(0, Integer.MAX_VALUE);
+                .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version), notSelf).search(0, 10000);
         return result.getData();
     }
 
@@ -141,7 +141,7 @@ public class CsarService {
      */
     public Location[] getDependantLocations(String name, String version) {
         GetMultipleDataResult<Location> result = csarDAO.buildQuery(Location.class)
-                .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version)).prepareSearch().search(0, Integer.MAX_VALUE);
+                .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version)).prepareSearch().search(0, 10000);
         return result.getData();
     }
 

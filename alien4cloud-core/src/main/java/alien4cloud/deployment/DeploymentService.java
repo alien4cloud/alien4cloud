@@ -54,7 +54,7 @@ public class DeploymentService {
      * @return Array of all active deployments.
      */
     public Deployment[] getActiveDeployments() {
-        return alienDao.buildQuery(Deployment.class).prepareSearch().setFilters(fromKeyValueCouples("endDate", null)).search(0, Integer.MAX_VALUE).getData();
+        return alienDao.buildQuery(Deployment.class).prepareSearch().setFilters(fromKeyValueCouples("endDate", null)).search(0, 10000).getData();
     }
 
     /**

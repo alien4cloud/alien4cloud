@@ -56,12 +56,12 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
     @Override
     public AbstractToscaType[] getArchiveTypes(String archiveName, String archiveVersion) {
         return searchDAO.buildQuery(AbstractToscaType.class).setFilters(fromKeyValueCouples("archiveName", archiveName, "archiveVersion", archiveVersion))
-                .prepareSearch().search(0, Integer.MAX_VALUE).getData();
+                .prepareSearch().search(0, 10000).getData();
     }
 
     @Override
     public <T extends AbstractToscaType> T find(Class<T> elementType, String elementId, String version) {
-        return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("elementId.rawElementId", elementId, "archiveVersion", version)).prepareSearch().find();
+ 	 return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("elementId.rawElementId", elementId, "archiveVersion", version)).prepareSearch().find();
     }
 
     public <T extends AbstractToscaType> T findByIdOrFail(Class<T> elementType, String toscaTypeId) {
@@ -94,7 +94,7 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
 
     @Override
     public <T extends AbstractToscaType> T[] findAll(Class<T> elementType, String elementId) {
-        return searchDAO.buildQuery(elementType).setFilters(singleKeyFilter("rawElementId", elementId)).prepareSearch().search(0, Integer.MAX_VALUE).getData();
+        return searchDAO.buildQuery(elementType).setFilters(singleKeyFilter("elementId.rawElementId", elementId)).prepareSearch().search(0, 10000).getData();
     }
 
     /**
@@ -201,6 +201,6 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
 
     @Override
     protected String getAggregationField() {
-        return "elementId.rawElementId";
+        return "rawElementId";
     }
 }

@@ -53,7 +53,7 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     @Override
     public <T extends AbstractToscaType> Map<String, T> getArchiveElements(String archiveName, String archiveVersion, Class<T> type) {
         GetMultipleDataResult<T> elements = alienDAO.buildQuery(type)
-                .setFilters(fromKeyValueCouples("archiveName", archiveName, "archiveVersion", archiveVersion)).prepareSearch().search(0, Integer.MAX_VALUE);
+                .setFilters(fromKeyValueCouples("archiveName", archiveName, "archiveVersion", archiveVersion)).prepareSearch().search(0, 10000);
 
         Map<String, T> elementsByIds = Maps.newHashMap();
         if (elements == null) {
@@ -70,7 +70,7 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     public void deleteElements(String name, String version) {
         GetMultipleDataResult<AbstractToscaType> result = alienDAO.buildQuery(AbstractToscaType.class)
                 .setFilters(fromKeyValueCouples("archiveName", name, "archiveVersion", version)).prepareSearch().setFetchContext(FetchContext.SUMMARY)
-                .search(0, Integer.MAX_VALUE);
+                .search(0, 10000);
 
         AbstractToscaType[] elements = result.getData();
 
