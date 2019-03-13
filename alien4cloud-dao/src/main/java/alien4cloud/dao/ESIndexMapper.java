@@ -186,6 +186,11 @@ public abstract class ESIndexMapper {
                 generatedIdField.setAccessible(true);
                 classTogeneratedIdFields.put(clazz, generatedIdField);
             }
+            generatedIdField = ReflectionUtil.getDeclaredField(clazz, Id.class);
+            if (generatedIdField != null) {
+                generatedIdField.setAccessible(true);
+                classTogeneratedIdFields.put(clazz, generatedIdField);
+            }
         }
     }
 

@@ -8,7 +8,7 @@ Feature: Test search with facets on Alien
   Scenario: Facet search should returns result with proper facets
     When I search for "node types" from 0 with result size of 1000
     Then The search result should contain 13 data with 5 facets and some of them are:
-      | abstract            | T                            | 13  |
+      | abstract            | 1                            | 13  |
       | capabilities.type   | tosca.capabilities.node      | 13 |
       | capabilities.type   | tosca.capabilities.container | 4  |
       | derivedFrom         |                              | 1  |
