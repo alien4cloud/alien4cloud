@@ -243,8 +243,9 @@ public class EsDaoSearchTest extends AbstractDAOTest {
                 new Date());
         dataTest.add(indexedNodeTypeTest3);
 
+        // this is a phrase prefix match so "positive" does not match "positiveYes"
         capa = Arrays.asList(new CapabilityDefinition("yams", "yams", 1), new CapabilityDefinition("yams1", "yams1", 1), new CapabilityDefinition(
-                "positiveYes", "positiveYes", 1), new CapabilityDefinition("yams3", "yams3", 1), new CapabilityDefinition("war world", "war world", 1));
+                "positive Yes", "positive Yes", 1), new CapabilityDefinition("yams3", "yams3", 1), new CapabilityDefinition("war world", "war world", 1));
         req = Arrays
                 .asList(new RequirementDefinition("Naruto", "Naruto"), new RequirementDefinition("FT", "FT"), new RequirementDefinition("Bleach", "Bleach"));
         der = Arrays.asList("Luc", "Boutier");

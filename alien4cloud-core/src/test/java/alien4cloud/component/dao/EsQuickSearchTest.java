@@ -70,7 +70,7 @@ public class EsQuickSearchTest extends AbstractDAOTest {
         prepareToscaElement();
         saveDataToES(true);
         Application app = new Application();
-        app.setName("application-1");
+        app.setName("app lication-1"); // in order to phrase prefix match "app"
         Map<String, Set<String>> userRoles = Maps.newHashMap();
         userRoles.put("Igor", Sets.newHashSet("APPLICATION_MANAGER"));
         app.setUserRoles(userRoles);
