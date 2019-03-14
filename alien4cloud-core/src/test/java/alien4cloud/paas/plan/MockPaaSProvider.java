@@ -32,7 +32,7 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
-    public void init(Map<String, PaaSTopologyDeploymentContext> activeDeployments) {
+    public void init(Map<String, String> activeDeployments) {
 
     }
 
