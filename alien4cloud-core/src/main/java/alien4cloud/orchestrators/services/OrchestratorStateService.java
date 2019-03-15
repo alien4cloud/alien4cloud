@@ -191,8 +191,22 @@ public class OrchestratorStateService {
 
             // index the archive in alien catalog
             archiveIndexer.indexOrchestratorArchives(orchestratorFactory, orchestratorInstance);
-            // connect the orchestrator
-            orchestratorInstance.init(deploymentService.getCloudActiveDeploymentContexts(orchestrator.getId()));
+
+            try {
+                // connect the orchestrator
+                orchestratorInstance.init(deploymentService.getCloudActiveDeploymentContexts(orchestrator.getId()));
+
+            } catch(Exception e) {
+                // Destroy contexts
+                orchestratorFactory.destroy(orchestratorInstance);
+
+                // Reset the connection state
+                orchestrator.setState(OrchestratorState.DISABLED);
+                alienDAO.save(orchestrator);
+
+                // Propagate the exception
+                throw e;
+            }
 
             // register the orchestrator instance to be polled for updates
             orchestratorPluginService.register(orchestrator.getId(), orchestratorInstance);
