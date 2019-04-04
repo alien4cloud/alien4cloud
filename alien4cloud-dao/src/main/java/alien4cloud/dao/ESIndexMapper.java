@@ -119,8 +119,6 @@ public abstract class ESIndexMapper {
 
                 // add settings if any (including analysers definitions)
                 String indexSettings = mappingBuilder.getIndexSettings(clazz);
-System.out.println ("## settings " + indexSettings);
-System.out.println ("## mapping " + mapping);
                 if (StringUtils.isNotBlank(indexSettings)) {
                     createIndexRequestBuilder.setSettings(indexSettings);
                 }
