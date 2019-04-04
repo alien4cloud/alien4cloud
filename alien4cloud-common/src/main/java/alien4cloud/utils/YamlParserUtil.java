@@ -30,6 +30,8 @@ public final class YamlParserUtil {
 
     private static final ObjectMapper YAML_OBJECT_MAPPER = createYamlObjectMapper();
 
+    private static final ObjectMapper YAML_OBJECT_MAPPER_EN = createYamlObjectMapperWithEmpyAndNull();
+
     private static final Yaml snakeYaml = new Yaml();
 
     /**
@@ -39,6 +41,15 @@ public final class YamlParserUtil {
      */
     public static ObjectMapper createYamlObjectMapper() {
         return newObjectMapper(new YAMLFactory());
+    }
+
+    /**
+     * Creates YAML object mapper
+     *
+     * @return YAML object mapper
+     */
+    public static ObjectMapper createYamlObjectMapperWithEmpyAndNull() {
+        return newObjectMapperWithEmptyAndNull(new YAMLFactory());
     }
 
     /**
@@ -52,6 +63,19 @@ public final class YamlParserUtil {
         mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        return mapper;
+    }
+
+    /**
+     * Creates an object mapper
+     *
+     * @param factory the Jason factory
+     * @return Object Mapper of the factory parameter
+     */
+    private static ObjectMapper newObjectMapperWithEmptyAndNull(JsonFactory factory) {
+        ObjectMapper mapper = new ObjectMapper(factory);
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         return mapper;
     }
@@ -151,7 +175,7 @@ public final class YamlParserUtil {
      * @throws IOException In case we fail to write the object content to the given file path.
      */
     public static String toYaml(Object object) throws IOException {
-        return YAML_OBJECT_MAPPER.writeValueAsString(object);
+        return YAML_OBJECT_MAPPER_EN.writeValueAsString(object);
     }
 
     public static String dump(Object object) {
