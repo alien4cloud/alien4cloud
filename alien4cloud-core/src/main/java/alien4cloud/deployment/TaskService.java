@@ -38,7 +38,8 @@ public class TaskService {
         QueryBuilder filterBuilder = null;
         if (executionId != null) {
             QueryBuilder filter = QueryBuilders.termQuery("executionId", executionId);
-            filterBuilder = filterBuilder == null ? filter : QueryBuilders.andQuery(filter, filterBuilder);
+            //filterBuilder = filterBuilder == null ? filter : QueryBuilders.andQuery(filter, filterBuilder);
+            filterBuilder = QueryBuilders.boolQuery().must(filter);
         }
         return filterBuilder;
     }

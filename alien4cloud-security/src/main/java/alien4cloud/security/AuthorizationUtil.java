@@ -4,6 +4,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.lucene.search.join.ScoreMode;
+
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,21 +162,26 @@ public final class AuthorizationUtil {
             return null;
         }
 
-        QueryBuilder filterBuilder;
+        BoolQueryBuilder filterBuilder;
         User user = (User) auth.getPrincipal();
         if (user.getGroups() != null && !user.getGroups().isEmpty()) {
             filterBuilder = QueryBuilders.boolQuery()
-                    .should(QueryBuilders.nestedQuery("userRoles", QueryBuilders.termQuery("userRoles.key", auth.getName())))
-                    .should(QueryBuilders.nestedQuery("groupRoles", QueryBuilders.termsQuery("groupRoles.key", user.getGroups().toArray())));
+                    .should(QueryBuilders.nestedQuery("userRoles", QueryBuilders.termQuery("userRoles.key", auth.getName()), ScoreMode.None))
+                    .should(QueryBuilders.nestedQuery("groupRoles", QueryBuilders.termsQuery("groupRoles.key", user.getGroups().toArray()), ScoreMode.None));
         } else {
-            filterBuilder = QueryBuilders.nestedQuery("userRoles", QueryBuilders.termQuery("userRoles.key", auth.getName()));
+            filterBuilder = QueryBuilders.boolQuery()
+                    .should(QueryBuilders.nestedQuery("userRoles", QueryBuilders.termQuery("userRoles.key", auth.getName()), ScoreMode.None));
         }
         Group group = getAllUsersGroup();
         if (group != null) {
             String groupId = group.getId();
             // add ALL_USERS group as OR filter
+/****
             filterBuilder = QueryBuilders.orQuery(filterBuilder,
-                    QueryBuilders.nestedQuery("groupRoles", QueryBuilders.termsQuery("groupRoles.key", groupId)));
+**********/
+            filterBuilder = filterBuilder.should(
+                    QueryBuilders.nestedQuery("groupRoles", QueryBuilders.termsQuery("groupRoles.key", groupId), ScoreMode.None));
+           
         }
         return filterBuilder;
     }

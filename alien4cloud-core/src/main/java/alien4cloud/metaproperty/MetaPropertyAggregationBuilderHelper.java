@@ -5,8 +5,8 @@ import org.elasticsearch.mapping.IFacetBuilderHelper;
 import org.elasticsearch.mapping.TermsFilterBuilderHelper;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.missing.MissingBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
+import org.elasticsearch.search.aggregations.bucket.missing.MissingAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 
 import java.util.List;
 
@@ -22,8 +22,8 @@ class MetaPropertyAggregationBuilderHelper extends TermsFilterBuilderHelper impl
 
     @Override
     public List<AggregationBuilder> buildFacets() {
-        TermsBuilder termsBuilder = AggregationBuilders.terms(getEsFieldName()).field(getEsFieldName()).size(size);
-        MissingBuilder missingBuilder = AggregationBuilders.missing("missing_" + getEsFieldName()).field(getEsFieldName());
+        TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(getEsFieldName()).field(getEsFieldName()).size(size);
+        MissingAggregationBuilder missingBuilder = AggregationBuilders.missing("missing_" + getEsFieldName()).field(getEsFieldName());
 
         return Lists.newArrayList(termsBuilder, missingBuilder);
     }

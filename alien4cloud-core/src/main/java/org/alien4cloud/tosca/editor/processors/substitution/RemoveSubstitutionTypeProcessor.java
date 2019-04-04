@@ -57,7 +57,10 @@ public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcess
         // FilterBuilders.boolFilter().mustNot(FilterBuilders.boolFilter().must()
         // .must());
         QueryBuilder notThisArchiveFilter = QueryBuilders
-                .notQuery(QueryBuilders.andQuery(QueryBuilders.termQuery("name", archiveName), QueryBuilders.termQuery("version", archiveVersion)));
+                //.notQuery(QueryBuilders.andQuery(QueryBuilders.termQuery("name", archiveName), QueryBuilders.termQuery("version", archiveVersion)));
+               .boolQuery()
+               .mustNot(QueryBuilders.termQuery("name", archiveName))
+               .mustNot(QueryBuilders.termQuery("version", archiveVersion));
 
         return alienDAO.buildQuery(Csar.class)
                 .setFilters(fromKeyValueCouples("dependencies.name", archiveName, "dependencies.version", archiveVersion), notThisArchiveFilter).count() > 0;

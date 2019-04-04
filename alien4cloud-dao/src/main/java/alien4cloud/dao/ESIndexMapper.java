@@ -101,7 +101,7 @@ public abstract class ESIndexMapper {
                 Map<String, Object> typesMap = JsonUtil.toMap(typeMapping);
 
                 addAlienScore(typesMap);
-                addTTL(typesMap, ttl);
+                //addTTL(typesMap, ttl); not supported in ES 5
 
                 Field generatedIdField = ReflectionUtil.getDeclaredField(clazz, EsGeneratedId.class);
                 if (generatedIdField != null) {
@@ -119,6 +119,8 @@ public abstract class ESIndexMapper {
 
                 // add settings if any (including analysers definitions)
                 String indexSettings = mappingBuilder.getIndexSettings(clazz);
+System.out.println ("## settings " + indexSettings);
+System.out.println ("## mapping " + mapping);
                 if (StringUtils.isNotBlank(indexSettings)) {
                     createIndexRequestBuilder.setSettings(indexSettings);
                 }
@@ -130,6 +132,7 @@ public abstract class ESIndexMapper {
                 }
             } catch (Exception e) {
                 log.warn("Not able to init indice for index {}, maybe it has been created elsewhere", indexName);
+                log.error(e.getMessage());
             }
         }
     }
@@ -145,8 +148,8 @@ public abstract class ESIndexMapper {
             Map<String, Object> typeMappingMap = (Map<String, Object>) typeMappingObject;
             Map<String, Object> propertiesMap = (Map<String, Object>) typeMappingMap.get("properties");
             Map<String, Object> scoreMapping = MapUtil.getMap(
-                    new String[] { "include_in_all", "precision_step", "index", "boost", "store", "ignore_malformed", "type" },
-                    new String[] { "false", "4", "not_analyzed", "1.0", "false", "false", "long" });
+                    new String[] { "include_in_all", "index", "boost", "store", "ignore_malformed", "type" },
+                    new String[] { "false", "true", "1.0", "false", "false", "long" });
             propertiesMap.put(ALIEN_SCORE, scoreMapping);
         }
     }

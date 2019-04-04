@@ -16,6 +16,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
@@ -88,18 +89,18 @@ public class DeploymentService {
     }
 
     private QueryBuilder buildDeploymentFilters(String orchestratorId, String sourceId, String environmentId) {
-        QueryBuilder filterBuilder = null;
+        BoolQueryBuilder filterBuilder = null;
+        if ( (orchestratorId != null) || (environmentId != null) || (sourceId != null) ) {
+           filterBuilder = QueryBuilders.boolQuery();
+        }
         if (orchestratorId != null) {
-            QueryBuilder orchestratorFilter = QueryBuilders.termQuery("orchestratorId", orchestratorId);
-            filterBuilder = filterBuilder == null ? orchestratorFilter : QueryBuilders.andQuery(orchestratorFilter, filterBuilder);
+            filterBuilder.must(QueryBuilders.termQuery("orchestratorId", orchestratorId));
         }
         if (environmentId != null) {
-            QueryBuilder environmentFilter = QueryBuilders.termQuery("environmentId", environmentId);
-            filterBuilder = filterBuilder == null ? environmentFilter : QueryBuilders.andQuery(environmentFilter, filterBuilder);
+            filterBuilder.must(QueryBuilders.termQuery("environmentId", environmentId));
         }
         if (sourceId != null) {
-            QueryBuilder sourceFilter = QueryBuilders.termQuery("sourceId", sourceId);
-            filterBuilder = filterBuilder == null ? sourceFilter : QueryBuilders.andQuery(sourceFilter, filterBuilder);
+            filterBuilder.must(QueryBuilders.termQuery("sourceId", sourceId));
         }
         return filterBuilder;
     }

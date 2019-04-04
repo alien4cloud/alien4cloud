@@ -107,7 +107,10 @@ public class CsarService {
      */
     public Csar[] getDependantCsars(String name, String version) {
         QueryBuilder notSelf = QueryBuilders
-                .notQuery(QueryBuilders.andQuery(QueryBuilders.termQuery("name", name), QueryBuilders.termQuery("version", version)));
+                //.notQuery(QueryBuilders.andQuery(QueryBuilders.termQuery("name", name), QueryBuilders.termQuery("version", version)));
+                .boolQuery()
+                .mustNot(QueryBuilders.termQuery("name", name))
+                .mustNot(QueryBuilders.termQuery("version", version));
         GetMultipleDataResult<Csar> result = csarDAO.buildQuery(Csar.class).prepareSearch()
                 .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version), notSelf).search(0, 10000);
         return result.getData();
@@ -121,7 +124,10 @@ public class CsarService {
      */
     public Topology[] getDependantTopologies(String name, String version) {
         QueryBuilder notSelf = QueryBuilders
-                .notQuery(QueryBuilders.andQuery(QueryBuilders.termQuery("archiveName", name), QueryBuilders.termQuery("archiveVersion", version)));
+                //.notQuery(QueryBuilders.andQuery(QueryBuilders.termQuery("archiveName", name), QueryBuilders.termQuery("archiveVersion", version)));
+                .boolQuery()
+                .mustNot(QueryBuilders.termQuery("name", name))
+                .mustNot(QueryBuilders.termQuery("version", version));
 
         GetMultipleDataResult<Topology> result = csarDAO.buildQuery(Topology.class).prepareSearch()
                 .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version), notSelf).search(0, 10000);

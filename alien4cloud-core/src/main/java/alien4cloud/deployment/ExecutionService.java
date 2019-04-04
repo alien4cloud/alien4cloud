@@ -57,7 +57,8 @@ public class ExecutionService {
         QueryBuilder filterBuilder = null;
         if (deploymentId != null) {
             QueryBuilder filter = QueryBuilders.termQuery("deploymentId", deploymentId);
-            filterBuilder = filterBuilder == null ? filter : QueryBuilders.andQuery(filter, filterBuilder);
+            //filterBuilder = filterBuilder == null ? filter : QueryBuilders.andQuery(filter, filterBuilder);
+            filterBuilder = QueryBuilders.boolQuery().must(filter);
         }
         return filterBuilder;
     }

@@ -6,6 +6,8 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.apache.lucene.search.join.ScoreMode;
+
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.event.EventListener;
@@ -196,7 +198,7 @@ public class ResourceRoleService {
      * @throws IOException
      */
     private void deleteGroupRoles(String groupId) throws ClassNotFoundException, IOException {
-        QueryBuilder resourceFilter = QueryBuilders.nestedQuery("groupRoles", QueryBuilders.termQuery("groupRoles.key", groupId));
+        QueryBuilder resourceFilter = QueryBuilders.nestedQuery("groupRoles", QueryBuilders.termQuery("groupRoles.key", groupId), ScoreMode.None);
         deleteRoles(resourceFilter, groupId, new DeleteRoleVisitor() {
             @Override
             public void deleteRoleOfOwner(Object[] securedResources, String owner) {
@@ -213,7 +215,7 @@ public class ResourceRoleService {
      * @throws IOException
      */
     private void deleteUserRoles(String userId) throws ClassNotFoundException, IOException {
-        QueryBuilder resourceFilter = QueryBuilders.nestedQuery("userRoles", QueryBuilders.termQuery("userRoles.key", userId));
+        QueryBuilder resourceFilter = QueryBuilders.nestedQuery("userRoles", QueryBuilders.termQuery("userRoles.key", userId), ScoreMode.None);
         deleteRoles(resourceFilter, userId, new DeleteRoleVisitor() {
             @Override
             public void deleteRoleOfOwner(Object[] securedResources, String owner) {

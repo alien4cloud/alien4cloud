@@ -11,6 +11,7 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import com.google.common.collect.Lists;
 import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
@@ -28,7 +29,7 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
 
     @Override
     public <T> boolean exist(Class<T> clazz, String id) {
-        return getClient().prepareGet(getIndexForType(clazz), MappingBuilder.indexTypeFromClass(clazz), id).setFields(new String[0]).execute().actionGet()
+        return getClient().prepareGet(getIndexForType(clazz), MappingBuilder.indexTypeFromClass(clazz), id).setStoredFields(new String[0]).execute().actionGet()
                 .isExists();
     }
 
@@ -62,9 +63,9 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
 	} catch (Exception e) {}
         //getClient().prepareIndex(indexName, typeName).setOperationThreaded(false).setSource(json).setRefresh(true).execute().actionGet();
         if (idValue == null) {
-	   getClient().prepareIndex(indexName, typeName).setSource(json).setRefresh(true).execute().actionGet();
+	   getClient().prepareIndex(indexName, typeName).setSource(json).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
 	} else {
-	   getClient().prepareIndex(indexName, typeName, idValue).setSource(json).setRefresh(true).execute().actionGet();
+	   getClient().prepareIndex(indexName, typeName, idValue).setSource(json).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
     }
 
@@ -74,7 +75,7 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
         if (entities == null || entities.length == 0) {
             return;
         }
-        BulkRequestBuilder bulkRequestBuilder = getClient().prepareBulk().setRefresh(true);
+        BulkRequestBuilder bulkRequestBuilder = getClient().prepareBulk().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
         for (T data : entities) {
             String indexName = getIndexForType(data.getClass());
             String typeName = MappingBuilder.indexTypeFromClass(data.getClass());
@@ -146,7 +147,7 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
         assertIdNotNullFor(id, "delete");
         String indexName = getIndexForType(clazz);
         String typeName = MappingBuilder.indexTypeFromClass(clazz);
-        getClient().prepareDelete(indexName, typeName, id).setRefresh(true).execute().actionGet();
+        getClient().prepareDelete(indexName, typeName, id).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
     }
 
     private void assertIdNotNullFor(String id, String operation) {

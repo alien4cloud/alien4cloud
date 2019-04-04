@@ -83,7 +83,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         // test simple find with filters
         QueryBuilder filter = QueryBuilders.termQuery("capabilities.type", "jndi");
         QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
-        queryBuilder = QueryBuilders.filteredQuery(queryBuilder, filter);
+        queryBuilder = QueryBuilders.boolQuery().filter(filter);
 
         maxElement = getCount(queryBuilder);
         size = 4;
@@ -107,7 +107,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         // text search based with filters
         QueryBuilder filter = QueryBuilders.termQuery("capabilities.type", "jndi");
         QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
-        queryBuilder = QueryBuilders.filteredQuery(queryBuilder, filter);
+        queryBuilder = QueryBuilders.boolQuery().filter(filter);
         maxElement = getCount(queryBuilder);
         Map<String, String[]> filters = new HashMap<String, String[]>();
         filters.put("capabilities.type", new String[] { "jndi" });
@@ -141,7 +141,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         // faceted search with filters
         QueryBuilder filter = QueryBuilders.termQuery("capabilities.type", "jndi");
         QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
-        queryBuilder = QueryBuilders.filteredQuery(queryBuilder, filter);
+        queryBuilder = QueryBuilders.boolQuery().filter(filter);
         maxElement = getCount(queryBuilder);
 
         Map<String, String[]> filters = new HashMap<String, String[]>();
@@ -289,8 +289,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     }
 
     private int getCount(QueryBuilder queryBuilder) {
-        return (int) nodeClient.prepareCount(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).setTypes(MappingBuilder.indexTypeFromClass(NodeType.class))
-                .setQuery(queryBuilder).execute().actionGet().getCount();
+        return (int) nodeClient.prepareSearch(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).setTypes(MappingBuilder.indexTypeFromClass(NodeType.class)).setSize(0)
+                .setQuery(queryBuilder).execute().actionGet().getHits().totalHits();
     }
 
     private void saveDataToES() throws IOException, IndexingServiceException {

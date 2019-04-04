@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.ElasticSearchClient;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,7 +73,7 @@ public class PaaSProviderPollingMonitorTest {
             eventJson = jsonMapper.writeValueAsString(eventMessage);
 
             nodeClient.prepareIndex("deploymentmonitorevents", PaaSMessageMonitorEvent.class.getSimpleName().toLowerCase()).setSource(eventJson)
-                    .setRefresh(true).execute().actionGet();
+                    .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
 
         // add 3 deployment status events
@@ -88,7 +89,7 @@ public class PaaSProviderPollingMonitorTest {
             eventJson = jsonMapper.writeValueAsString(eventDeploymentStatus);
 
             nodeClient.prepareIndex("deploymentmonitorevents", PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase()).setSource(eventJson)
-                    .setRefresh(true).execute().actionGet();
+                    .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
 
         // save the last inserted date (PaaSDeploymentStatusMonitorEvent should be generated from alien only and never from the orchestrator).

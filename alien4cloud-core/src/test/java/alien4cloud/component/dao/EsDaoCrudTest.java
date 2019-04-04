@@ -23,6 +23,7 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRespon
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -270,7 +271,7 @@ public class EsDaoCrudTest extends AbstractDAOTest {
 		try {
 			idValue = (new FieldsMappingBuilder()).getIdValue(element);
 		} catch (Exception e) {}
-        nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json).setRefresh(true).execute().actionGet();
+        nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
 
         assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, element.getId(), true);
         refresh();

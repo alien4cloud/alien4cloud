@@ -8,7 +8,7 @@ import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.elasticsearch.mapping.ISearchBuilderAdapter;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.mapping.QueryBuilderAdapter;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
 
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -89,7 +89,7 @@ public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T>
      * @param topHitsBuilder The top hits aggregation builder on which to add fetch context include and excludes.
      * @return The search query builder helper with the top
      */
-    IESSearchQueryBuilderHelper<T> setFetchContext(String fetchContext, TopHitsBuilder topHitsBuilder);
+    IESSearchQueryBuilderHelper<T> setFetchContext(String fetchContext, TopHitsAggregationBuilder topHitsBuilder);
 
     @Override
     IESSearchQueryBuilderHelper<T> alterQueryBuilder(QueryBuilderAdapter queryBuilderAdapter);

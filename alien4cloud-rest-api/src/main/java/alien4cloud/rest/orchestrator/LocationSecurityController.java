@@ -142,7 +142,7 @@ public class LocationSecurityController {
             return RestResponseBuilder.<GetMultipleDataResult<UserDTO>> builder().data(new GetMultipleDataResult<>()).build();
         }
         IdsQueryBuilder idFilters = QueryBuilders.idsQuery()
-                .ids(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
+                .addIds(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
         GetMultipleDataResult<User> tempResult = alienUserDao.find(query, from, size, idFilters);
         return RestResponseBuilder.<GetMultipleDataResult<UserDTO>> builder().data(UserDTO.convert(tempResult)).build();
     }
@@ -224,7 +224,7 @@ public class LocationSecurityController {
             return RestResponseBuilder.<GetMultipleDataResult<GroupDTO>> builder().data(new GetMultipleDataResult<>()).build();
         }
         IdsQueryBuilder idFilters = QueryBuilders.idsQuery()
-                .ids(location.getGroupPermissions().keySet().toArray(new String[location.getGroupPermissions().size()]));
+                .addIds(location.getGroupPermissions().keySet().toArray(new String[location.getGroupPermissions().size()]));
         GetMultipleDataResult<Group> tempResult = alienGroupDao.find(query, from, size, idFilters);
         return RestResponseBuilder.<GetMultipleDataResult<GroupDTO>> builder().data(GroupDTO.convert(tempResult)).build();
     }
@@ -360,7 +360,7 @@ public class LocationSecurityController {
         int to = (from + size < allDTOs.size()) ? from + size : allDTOs.size();
         allDTOs = IntStream.range(from, to).mapToObj(allDTOs::get).collect(Collectors.toList());
         List<String> ids = allDTOs.stream().map(appEnvDTO -> appEnvDTO.getApplication().getId()).collect(Collectors.toList());
-        IdsQueryBuilder idFilters = QueryBuilders.idsQuery().ids(ids.toArray(new String[ids.size()]));
+        IdsQueryBuilder idFilters = QueryBuilders.idsQuery().addIds(ids.toArray(new String[ids.size()]));
         GetMultipleDataResult<Application> tempResult = alienDAO.search(Application.class, query, null,  idFilters, null, from,  to,  "id",  false);
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO>> builder().data(ApplicationEnvironmentAuthorizationDTO.convert(tempResult, allDTOs)).build();
     }

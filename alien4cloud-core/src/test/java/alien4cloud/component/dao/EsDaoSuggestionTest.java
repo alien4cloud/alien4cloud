@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.Before;
@@ -122,7 +123,7 @@ public class EsDaoSuggestionTest extends AbstractDAOTest {
 			} catch (Exception e) {}
 
             //nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
-            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json).setRefresh(refresh).execute().actionGet();
+            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
 
             assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, datum.getId(), true);
         }
