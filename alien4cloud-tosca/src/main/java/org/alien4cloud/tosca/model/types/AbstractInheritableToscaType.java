@@ -10,9 +10,11 @@ import java.util.Map;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.elasticsearch.annotation.BooleanField;
 import org.elasticsearch.annotation.MapKeyValue;
+import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.annotation.query.TermsFacet;
+import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -37,6 +39,7 @@ public class AbstractInheritableToscaType extends AbstractToscaType {
 
     @FetchContext(contexts = { QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false })
     @TermsFacet
+    @StringField(indexType = IndexType.not_analyzed)
     private List<String> derivedFrom;
 
     @MapKeyValue

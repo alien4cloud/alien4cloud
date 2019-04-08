@@ -2,6 +2,8 @@ package org.alien4cloud.tosca.model.definitions;
 
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.elasticsearch.annotation.ObjectField;
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -33,6 +35,7 @@ public class RequirementDefinition implements LowerBoundedDefinition, UpperBound
      * </p>
      */
     @FormSuggestion(fromClass = CapabilityType.class, path = "elementId")
+    @StringField(indexType = IndexType.not_analyzed)
     private String type;
     /** Restriction to the node type that can fullfill the requirement. */
     private String nodeType;

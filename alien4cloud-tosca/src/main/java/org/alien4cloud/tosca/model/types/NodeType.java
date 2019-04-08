@@ -16,6 +16,7 @@ import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.NumberField;
+import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
@@ -36,14 +37,17 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class NodeType extends AbstractInstantiableToscaType implements IMetaProperties {
     @FetchContext(contexts = { QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false })
     @TermsFacet(paths = "type")
+    @ObjectField(objectClass = CapabilityDefinition.class)
     private List<CapabilityDefinition> capabilities;
 
     @FetchContext(contexts = { QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false })
     @TermsFacet(paths = "type")
+    @ObjectField(objectClass = RequirementDefinition.class)
     private List<RequirementDefinition> requirements;
 
     @FetchContext(contexts = { QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false })
     @TermsFacet
+    @StringField(indexType = IndexType.not_analyzed)
     private List<String> defaultCapabilities;
 
     @NumberField(index = IndexType.not_analyzed, includeInAll = false)
