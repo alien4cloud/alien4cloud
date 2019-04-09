@@ -47,7 +47,7 @@ public class NodeType extends AbstractInstantiableToscaType implements IMetaProp
 
     @FetchContext(contexts = { QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false })
     @TermsFacet
-    @StringField(indexType = IndexType.not_analyzed)
+    @StringField(indexType = IndexType.analyzed)
     private List<String> defaultCapabilities;
 
     @NumberField(index = IndexType.not_analyzed, includeInAll = false)

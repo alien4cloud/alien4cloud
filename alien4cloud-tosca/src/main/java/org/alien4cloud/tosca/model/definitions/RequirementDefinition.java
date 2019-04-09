@@ -35,7 +35,7 @@ public class RequirementDefinition implements LowerBoundedDefinition, UpperBound
      * </p>
      */
     @FormSuggestion(fromClass = CapabilityType.class, path = "elementId")
-    @StringField(indexType = IndexType.not_analyzed)
+    @StringField(indexType = IndexType.analyzed)
     private String type;
     /** Restriction to the node type that can fullfill the requirement. */
     private String nodeType;

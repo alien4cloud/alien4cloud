@@ -31,6 +31,7 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.Client;
 import com.google.common.collect.Maps;
 import org.elasticsearch.mapping.FieldsMappingBuilder;
@@ -343,7 +344,7 @@ public class TopologyStepDefinitions {
 		} catch (Exception e) {}
 
         esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(RelationshipType.class), idValue)
-                .setSource(JsonUtil.toString(relationship)).setRefresh(true).execute().actionGet();
+                .setSource(JsonUtil.toString(relationship)).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
     }
 
     @Given("^I create a \"([^\"]*)\" \"([^\"]*)\" in an archive name \"([^\"]*)\" version \"([^\"]*)\"$")
@@ -367,7 +368,7 @@ public class TopologyStepDefinitions {
 		} catch (Exception e) {}
 
         esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz), idValue).setSource(JsonUtil.toString(element))
-                .setRefresh(true).execute().actionGet();
+                .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
     }
 
     @Given("^I create \"([^\"]*)\" in an archive name \"([^\"]*)\" version \"([^\"]*)\"$")

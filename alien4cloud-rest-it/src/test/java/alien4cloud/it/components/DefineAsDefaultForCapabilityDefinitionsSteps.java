@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
@@ -78,6 +79,6 @@ public class DefineAsDefaultForCapabilityDefinitionsSteps {
 		} catch (Exception e) {}
 
         //esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
+        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(serializeDatum).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
     }
 }

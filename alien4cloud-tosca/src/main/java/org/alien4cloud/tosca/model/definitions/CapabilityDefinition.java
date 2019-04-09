@@ -53,6 +53,7 @@ public class CapabilityDefinition implements UpperBoundedDefinition {
     private Map<String, AbstractPropertyValue> properties;
 
     @TermsFacet
+    @StringField(indexType = IndexType.not_analyzed)
     private String[] validSources;
 
     /** Constructor for single line parsing definition based on type. */

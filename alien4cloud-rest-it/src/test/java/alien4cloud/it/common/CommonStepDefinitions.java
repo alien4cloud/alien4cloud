@@ -20,6 +20,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.Client;
 import com.google.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -106,13 +107,13 @@ public class CommonStepDefinitions {
 
     private void clearIndex(String indexName, String typeName) {
         // get all elements and then use a bulk delete to remove data.
-        SearchRequestBuilder searchRequestBuilder = esClient.prepareSearch(indexName).setTypes(typeName).setQuery(QueryBuilders.matchAllQuery()).setNoFields()
+        SearchRequestBuilder searchRequestBuilder = esClient.prepareSearch(indexName).setTypes(typeName).setQuery(QueryBuilders.matchAllQuery())
                 .setFetchSource(false);
         searchRequestBuilder.setFrom(0).setSize(1000);
         SearchResponse response = searchRequestBuilder.execute().actionGet();
 
         while (somethingFound(response)) {
-            BulkRequestBuilder bulkRequestBuilder = esClient.prepareBulk().setRefresh(true);
+            BulkRequestBuilder bulkRequestBuilder = esClient.prepareBulk().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
 
             for (int i = 0; i < response.getHits().hits().length; i++) {
                 String id = response.getHits().hits()[i].getId();

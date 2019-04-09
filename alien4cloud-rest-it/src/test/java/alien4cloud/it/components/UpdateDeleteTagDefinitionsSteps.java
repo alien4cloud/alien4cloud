@@ -14,6 +14,7 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -131,7 +132,7 @@ public class UpdateDeleteTagDefinitionsSteps {
 				idValue = (new FieldsMappingBuilder()).getIdValue(indexedNodeType);
 			} catch (Exception e) {}
 
-            esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
+            esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(serializeDatum).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
             //esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
         }
     }
