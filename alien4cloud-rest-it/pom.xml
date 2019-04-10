@@ -292,7 +292,7 @@
                                     <cargo.servlet.port>8088</cargo.servlet.port>
                                     <cargo.logging>high</cargo.logging>
                                     <cargo.jvmargs>${jacocoargline} -Denv=ittest -Dspring.profiles.active=security-demo
-                                        -Xdebug -Des.path.home=elasticsearch -Dmapper.allow_dots_in_name=true 
+                                        -Xdebug
                                     </cargo.jvmargs>
                                 </properties>
                             </configuration>

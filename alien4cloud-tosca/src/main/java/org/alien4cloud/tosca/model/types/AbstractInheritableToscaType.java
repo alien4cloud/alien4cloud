@@ -39,7 +39,7 @@ public class AbstractInheritableToscaType extends AbstractToscaType {
 
     @FetchContext(contexts = { QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false })
     @TermsFacet
-    @StringField(indexType = IndexType.not_analyzed)
+    @StringField(indexType = IndexType.analyzed)
     private List<String> derivedFrom;
 
     @MapKeyValue
