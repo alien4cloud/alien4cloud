@@ -202,14 +202,14 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @Override
     public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter,
             String fetchContext, int from, int maxElements) {
-        return search(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, null, false);
+        return search(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, null, null, false);
     }
 
     @Override
     public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter,
-            String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
+            String fetchContext, int from, int maxElements, String fieldSort, String fieldType, boolean sortOrder) {
         IESSearchQueryBuilderHelper<T> searchQueryBuilderHelper = getSearchBuilderHelper(clazz, searchText, filters, customFilter, fetchContext, fieldSort,
-                sortOrder);
+                fieldType, sortOrder);
         if (maxElements > 10000) {
            maxElements = 10000;
         }
@@ -247,14 +247,14 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @Override
     public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter,
             String fetchContext, int from, int maxElements) {
-        return facetedSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, null, false);
+        return facetedSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, null, null, false);
     }
 
     @Override
     public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter,
-            String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
+            String fetchContext, int from, int maxElements, String fieldSort, String fieldType, boolean sortOrder) {
         IESSearchQueryBuilderHelper<T> searchQueryBuilderHelper = getSearchBuilderHelper(clazz, searchText, filters, customFilter, fetchContext, fieldSort,
-                sortOrder);
+                fieldType, sortOrder);
         if (maxElements > 10000) {
            maxElements = 10000;
         }
@@ -367,12 +367,12 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     }
 
     private <T> IESSearchQueryBuilderHelper<T> getSearchBuilderHelper(Class<T> clazz, String searchText, Map<String, String[]> filters,
-            QueryBuilder customFilter, String fetchContext, String fieldSort, boolean sortOrder) {
+            QueryBuilder customFilter, String fetchContext, String fieldSort, String fieldType, boolean sortOrder) {
         IESSearchQueryBuilderHelper<T> builderHelper = buildSearchQuery(clazz, searchText).setFilters(filters, customFilter)
                 .alterQueryBuilder(queryBuilder -> QueryBuilders.functionScoreQuery(queryBuilder,
                            ScoreFunctionBuilders.fieldValueFactorFunction("alienScore").missing(1))
                         .scoreMode(ScoreMode.MULTIPLY).boostMode(CombineFunction.MULTIPLY))
-                .prepareSearch().setFetchContext(fetchContext).setFieldSort(fieldSort, sortOrder);
+                .prepareSearch().setFetchContext(fetchContext).setFieldSort(fieldSort, fieldType, sortOrder);
 
         return builderHelper;
     }
@@ -684,8 +684,8 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         }
 
         @Override
-        public EsQueryBuilderHelper setFieldSort(String fieldName, boolean desc) {
-            super.fieldSort(fieldName, desc);
+        public EsQueryBuilderHelper setFieldSort(String fieldName, String fieldType, boolean desc) {
+            super.fieldSort(fieldName, fieldType, desc);
             return this;
         }
 

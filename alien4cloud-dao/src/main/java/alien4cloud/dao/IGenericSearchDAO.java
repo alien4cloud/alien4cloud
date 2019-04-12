@@ -172,7 +172,7 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @see IGenericSearchDAO#search(Class, String, Map, int)
      */
     <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter, String fetchContext,
-            int from, int maxElements, String fieldSort, boolean sortOrder);
+            int from, int maxElements, String fieldSort, String fieldType, boolean sortOrder);
 
     /**
      * Same as {@link IGenericSearchDAO#search(Class, String, Map, int)}, but with pagination supported.
@@ -278,7 +278,7 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @see IGenericSearchDAO#facetedSearch(Class, String, Map, int)
      */
     <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter, String fetchContext,
-            int from, int maxElements, String fieldSort, boolean sortOrder);
+            int from, int maxElements, String fieldSort, String fieldType, boolean sortOrder);
 
     /**
      * Perform a suggestion search on a specific field.

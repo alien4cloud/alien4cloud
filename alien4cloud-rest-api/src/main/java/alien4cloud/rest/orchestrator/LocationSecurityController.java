@@ -361,7 +361,7 @@ public class LocationSecurityController {
         allDTOs = IntStream.range(from, to).mapToObj(allDTOs::get).collect(Collectors.toList());
         List<String> ids = allDTOs.stream().map(appEnvDTO -> appEnvDTO.getApplication().getId()).collect(Collectors.toList());
         IdsQueryBuilder idFilters = QueryBuilders.idsQuery().addIds(ids.toArray(new String[ids.size()]));
-        GetMultipleDataResult<Application> tempResult = alienDAO.search(Application.class, query, null,  idFilters, null, from,  to,  "id",  false);
+        GetMultipleDataResult<Application> tempResult = alienDAO.search(Application.class, query, null,  idFilters, null, from,  to,  "id", "keyword", false);
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO>> builder().data(ApplicationEnvironmentAuthorizationDTO.convert(tempResult, allDTOs)).build();
     }
 }

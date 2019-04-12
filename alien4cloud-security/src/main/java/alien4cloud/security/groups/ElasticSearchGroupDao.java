@@ -78,7 +78,7 @@ public class ElasticSearchGroupDao extends ESGenericSearchDAO implements IAlienG
 
     @Override
     public GetMultipleDataResult<Group> find(String searchQuery, int from, int size, QueryBuilder customFilter) {
-        return super.search(Group.class, searchQuery, null, customFilter, null, from, size, "name", false);
+        return super.search(Group.class, searchQuery, null, customFilter, null, from, size, "name", "keyword", false);
     }
 
 }

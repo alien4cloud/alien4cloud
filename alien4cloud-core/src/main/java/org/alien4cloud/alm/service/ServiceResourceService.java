@@ -124,7 +124,7 @@ public class ServiceResourceService {
      * @return The request result that contains service resources.
      */
     public GetMultipleDataResult<ServiceResource> list(int from, int count) {
-        return alienDAO.buildQuery(ServiceResource.class).prepareSearch().setFieldSort("name", false).search(from, count);
+        return alienDAO.buildQuery(ServiceResource.class).prepareSearch().setFieldSort("name", "keyword", false).search(from, count);
     }
 
     /**
@@ -138,12 +138,12 @@ public class ServiceResourceService {
      * @param count max mumber of elements to return.
      * @return The request result that contains service resources matching the search.
      */
-    public FacetedSearchResult<ServiceResource> search(String searchText, Map<String, String[]> filters, String sortField, boolean desc, int from,
+    public FacetedSearchResult<ServiceResource> search(String searchText, Map<String, String[]> filters, String sortField, String fieldType, boolean desc, int from,
             int count) {
         if (sortField == null) {
             sortField = "name";
         }
-        return alienDAO.facetedSearch(ServiceResource.class, searchText, filters, null, "", from, count, sortField, desc);
+        return alienDAO.facetedSearch(ServiceResource.class, searchText, filters, null, "", from, count, sortField, fieldType, desc);
     }
 
     /**
@@ -466,7 +466,7 @@ public class ServiceResourceService {
      * @return
      */
     public List<ServiceResource> searchByLocation(String locationId) {
-        GetMultipleDataResult<ServiceResource> result = this.search("", singleKeyFilter("locationIds", locationId), null, false, 0, 10000);
+        GetMultipleDataResult<ServiceResource> result = this.search("", singleKeyFilter("locationIds", locationId), null, null, false, 0, 10000);
         return Lists.newArrayList(result.getData());
     }
 

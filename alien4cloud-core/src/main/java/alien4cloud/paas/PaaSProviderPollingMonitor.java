@@ -72,7 +72,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
         // sort by filed date DESC
         QueryHelper.ISearchQueryBuilderHelper searchQueryHelperBuilder = monitorDAO.getQueryHelper().buildQuery()
                 .types(eventClasses.toArray(new Class<?>[eventClasses.size()])).filters(filter).prepareSearch("deploymentmonitorevents")
-                .fieldSort("date", true);
+                .fieldSort("date", "long", true);
 
         // the first one is the one with the latest date
         GetMultipleDataResult lastestEventResult = monitorDAO.search(searchQueryHelperBuilder, 0, 10);

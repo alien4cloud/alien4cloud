@@ -310,6 +310,10 @@ public class SearchDefinitionSteps {
         Assert.assertNotNull(restResponse.getData().getFacets());
         Map<String, FacetedSearchFacet[]> facets = restResponse.getData().getFacets();
         Assert.assertEquals(numberOfFacets, facets.size());
+for (String f : facets.keySet()) {
+System.out.println ("### facet " + f);
+for (FacetedSearchFacet fa : facets.get(f)) System.out.println ("### value " + fa.getFacetValue());
+}
         dataTable.raw().forEach(line -> {
             String key = line.get(0);
             String value = StringUtils.isBlank(line.get(1)) ? null : line.get(1);

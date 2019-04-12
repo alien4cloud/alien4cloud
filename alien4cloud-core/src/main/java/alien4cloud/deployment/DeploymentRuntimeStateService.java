@@ -167,7 +167,7 @@ public class DeploymentRuntimeStateService {
                 .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class,
                         PaaSInstancePersistentResourceMonitorEvent.class)
                 .filters(MapUtil.newHashMap(new String[] { "deploymentId" }, new String[][] { new String[] { deployment.getId() } })).prepareSearch(index)
-                .fieldSort("_timestamp", true);
+                .fieldSort("_timestamp", "long", true);
         return alienMonitorDao.search(searchQueryHelperBuilder, from, size);
     }
 }

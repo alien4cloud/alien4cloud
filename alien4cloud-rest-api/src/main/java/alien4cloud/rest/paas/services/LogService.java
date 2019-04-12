@@ -62,11 +62,11 @@ public class LogService {
         IESSearchQueryBuilderHelper<PaaSDeploymentLog> query;
         if (dateRangeBuilder == null) {
             query = alienMonitorDao.buildSearchQuery(PaaSDeploymentLog.class, searchRequest.getQuery()).prepareSearch().setFilters(searchRequest.getFilters())
-                    .setFieldSort(sortBy, !ascending);
+                    .setFieldSort(sortBy, "date", !ascending);
 
         } else {
             query = alienMonitorDao.buildSearchQuery(PaaSDeploymentLog.class, searchRequest.getQuery()).prepareSearch()
-                    .setFilters(searchRequest.getFilters(), dateRangeBuilder).setFieldSort(sortBy, !ascending);
+                    .setFilters(searchRequest.getFilters(), dateRangeBuilder).setFieldSort(sortBy, "date", !ascending);
         }
         return query;
     }

@@ -157,7 +157,7 @@ public class OrchestratorService {
         if (status != null) {
             filters = MapUtil.newHashMap(new String[] { "status" }, new String[][] { new String[] { status.toString() } });
         }
-        return alienDAO.search(Orchestrator.class, query, filters, authorizationFilter, null, from, size, "name.lower_case", false);
+        return alienDAO.search(Orchestrator.class, query, filters, authorizationFilter, null, from, size, "name.lower_case", "keyword", false);
     }
 
     /**

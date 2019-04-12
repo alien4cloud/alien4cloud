@@ -69,7 +69,7 @@ public class DeploymentService {
     public Deployment[] getDeployments(String orchestratorId, String sourceId, String environmentId, int from, int size) {
         QueryBuilder filterBuilder = buildDeploymentFilters(orchestratorId, sourceId, environmentId);
         IESQueryBuilderHelper<Deployment> queryBuilderHelper = alienDao.buildQuery(Deployment.class);
-        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", true).search(from, size).getData();
+        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", "long", true).search(from, size).getData();
     }
 
     /**
@@ -85,7 +85,7 @@ public class DeploymentService {
      */
     public FacetedSearchResult searchDeployments(String query, String orchestratorId, String environmentId, String sourceId, int from, int size) {
         QueryBuilder filterBuilder = buildDeploymentFilters(orchestratorId, sourceId, environmentId);
-        return alienDao.facetedSearch(Deployment.class, query, null, filterBuilder, null, from, size, "startDate", true);
+        return alienDao.facetedSearch(Deployment.class, query, null, filterBuilder, null, from, size, "startDate", "long", true);
     }
 
     private QueryBuilder buildDeploymentFilters(String orchestratorId, String sourceId, String environmentId) {
@@ -153,7 +153,7 @@ public class DeploymentService {
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "environmentId" },
                 new String[][] { new String[] { applicationEnvironmentId } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, null, null, 0, Integer.MAX_VALUE,
-                "endDate", true);
+                "endDate", "long", true);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             if (dataResult.getData()[dataResult.getData().length - 1].getEndDate() == null) {
                 return dataResult.getData()[dataResult.getData().length - 1];

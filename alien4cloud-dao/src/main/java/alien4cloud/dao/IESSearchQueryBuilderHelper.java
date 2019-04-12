@@ -73,7 +73,7 @@ public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T>
      * @param desc Descending or Ascending
      * @return this
      */
-    IESSearchQueryBuilderHelper<T> setFieldSort(String fieldName, boolean desc);
+    IESSearchQueryBuilderHelper<T> setFieldSort(String fieldName, String fieldType, boolean desc);
 
     /**
      * Add a fetch context to the query.

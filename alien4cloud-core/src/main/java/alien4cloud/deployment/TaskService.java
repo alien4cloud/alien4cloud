@@ -31,7 +31,7 @@ public class TaskService {
      */
     public FacetedSearchResult<Task> searchTasks(String query, String executionId, int from, int size) {
         QueryBuilder filterBuilder = buildFilters(executionId);
-        return alienDao.facetedSearch(Task.class, query, null, filterBuilder, null, from, size, "scheduleDate", true);
+        return alienDao.facetedSearch(Task.class, query, null, filterBuilder, null, from, size, "scheduleDate", "date", true);
     }
 
     private QueryBuilder buildFilters(String executionId) {

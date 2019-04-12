@@ -37,7 +37,7 @@ public class ExecutionService {
      */
     public FacetedSearchResult searchExecutions(String query, String deploymentId, int from, int size) {
         QueryBuilder filterBuilder = buildFilters(deploymentId);
-        return alienDao.facetedSearch(Execution.class, query, null, filterBuilder, null, from, size, "startDate", true);
+        return alienDao.facetedSearch(Execution.class, query, null, filterBuilder, null, from, size, "startDate", "date", true);
     }
 
     /**
@@ -45,7 +45,7 @@ public class ExecutionService {
      */
     public Execution getLastExecution(String deploymentId) {
         QueryBuilder filterBuilder = buildFilters(deploymentId);
-        FacetedSearchResult<Execution> executions = alienDao.facetedSearch(Execution.class, "", null, filterBuilder, null, 0, 1, "startDate", true);
+        FacetedSearchResult<Execution> executions = alienDao.facetedSearch(Execution.class, "", null, filterBuilder, null, 0, 1, "startDate", "date", true);
         if (executions.getData() != null && executions.getData().length > 0) {
             return executions.getData()[0];
         } else {

@@ -233,7 +233,7 @@ public class OrchestratorStateService {
             GetMultipleDataResult<Deployment> result = alienDAO.buildQuery(Deployment.class)
                     .setFilters(MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
                             new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
-                    .prepareSearch().setFieldSort("_timestamp", true).search(0, 1);
+                    .prepareSearch().setFieldSort("_timestamp", "long", true).search(0, 1);
 
             // TODO place a lock to avoid deployments during the disabling of the orchestrator.
             if (result.getData().length > 0) {
