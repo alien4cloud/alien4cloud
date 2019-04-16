@@ -150,6 +150,7 @@ logs_deployment_appender:
 features:
   editor_auto_completion: false
   archive_indexer_lock_used_archive: false
+  no_deployed_envs_renaming: false
 
 languages:
   default: en-us

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import alien4cloud.exception.*;
 import org.alien4cloud.alm.service.exceptions.IncompatibleHalfRelationshipException;
 import org.alien4cloud.alm.service.exceptions.ServiceUsageException;
 import org.alien4cloud.secret.exception.SecretProviderAuthenticationException;
@@ -34,27 +35,6 @@ import com.google.common.collect.Lists;
 
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.deployment.exceptions.InvalidDeploymentSetupException;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.ApplicationVersionNotFoundException;
-import alien4cloud.exception.CyclicReferenceException;
-import alien4cloud.exception.DeleteDeployedException;
-import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
-import alien4cloud.exception.DeleteLastApplicationVersionException;
-import alien4cloud.exception.DeleteReferencedObjectException;
-import alien4cloud.exception.GitConflictException;
-import alien4cloud.exception.GitException;
-import alien4cloud.exception.GitMergingStateException;
-import alien4cloud.exception.GitStateException;
-import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.exception.InvalidNameException;
-import alien4cloud.exception.LocationSupportException;
-import alien4cloud.exception.MissingCSARDependenciesException;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.exception.ReferencedResourceException;
-import alien4cloud.exception.ReleaseReferencingSnapshotException;
-import alien4cloud.exception.VersionConflictException;
-import alien4cloud.exception.VersionRenameNotPossibleException;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
@@ -409,6 +389,16 @@ public class RestTechnicalExceptionHandler {
         logRestException("Delete deployed element error", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_DEPLOYED_ERROR)
                 .message("Application environment delete error : " + e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = RenameDeployedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> renameDeployedErrorHandler(RenameDeployedException e) {
+        log.error("Rename deployed object error: {}",e.getMessage());
+
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.RENAME_DEPLOYED_ERROR)
+                .message("Object rename error : " + e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = ExpressionException.class)

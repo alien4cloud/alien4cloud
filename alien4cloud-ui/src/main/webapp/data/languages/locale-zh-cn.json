@@ -915,6 +915,7 @@
       "TITLE" : "Workflow execution",
       "MESSAGE" : "Workflow {{workflowId}} fails to be executed."
     },
+    "620" : "A deployed object cannot be renamed.",
     "650" : "您的Compute中至少有两个具有冲突名称。",
     "651" : "当云具有“可删除”选项设置时，BlockStorage不能具有VolumeID。",
     "680" : "Git存储库url不存在或不是正确的。",
