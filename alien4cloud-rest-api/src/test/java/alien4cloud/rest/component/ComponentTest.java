@@ -243,14 +243,14 @@ public class ComponentTest {
         while (somethingFound(response)) {
             BulkRequestBuilder bulkRequestBuilder = nodeClient.prepareBulk().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
 
-            for (int i = 0; i < response.getHits().hits().length; i++) {
-                String id = response.getHits().hits()[i].getId();
+            for (int i = 0; i < response.getHits().getHits().length; i++) {
+                String id = response.getHits().getHits()[i].getId();
                 bulkRequestBuilder.add(nodeClient.prepareDelete(indexName, typeName, id));
             }
 
             bulkRequestBuilder.execute().actionGet();
 
-            if (response.getHits().totalHits() == response.getHits().hits().length) {
+            if (response.getHits().getTotalHits() == response.getHits().getHits().length) {
                 response = null;
             } else {
                 response = searchRequestBuilder.execute().actionGet();

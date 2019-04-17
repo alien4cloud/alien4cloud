@@ -19,8 +19,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
-import org.elasticsearch.common.lucene.search.function.FiltersFunctionScoreQuery.ScoreMode;
-//import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.common.lucene.search.function.FunctionScoreQuery.ScoreMode;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
@@ -70,7 +69,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         if (query != null) {
             countRequestBuilder.setQuery(query);
         }
-        return countRequestBuilder.execute().actionGet().getHits().totalHits();
+        return countRequestBuilder.execute().actionGet().getHits().getTotalHits();
     }
 
     @Override
@@ -92,14 +91,14 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         while (somethingFound(response)) {
             BulkRequestBuilder bulkRequestBuilder = getClient().prepareBulk().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
 
-            for (int i = 0; i < response.getHits().hits().length; i++) {
-                String id = response.getHits().hits()[i].getId();
+            for (int i = 0; i < response.getHits().getHits().length; i++) {
+                String id = response.getHits().getHits()[i].getId();
                 bulkRequestBuilder.add(getClient().prepareDelete(indexName, typeName, id));
             }
 
             bulkRequestBuilder.execute().actionGet();
 
-            if (response.getHits().totalHits() == response.getHits().hits().length) {
+            if (response.getHits().getTotalHits() == response.getHits().getHits().length) {
                 response = null;
             } else {
                 response = searchRequestBuilder.execute().actionGet();
@@ -333,7 +332,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             finalResponse.setFrom(from);
             finalResponse.setTo(to);
             finalResponse.setTotalResults(searchResponse.getHits().getTotalHits());
-            finalResponse.setQueryDuration(searchResponse.getTookInMillis());
+            finalResponse.setQueryDuration(searchResponse.getTook().getMillis());
         }
 
         String[] resultTypes = new String[searchResponse.getHits().getHits().length];
@@ -467,7 +466,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             T[] resultData = (T[]) Array.newInstance(clazz, 0);
             FacetedSearchResult toReturn = new FacetedSearchResult(from, 0, 0, 0, new String[0], resultData, new HashMap<String, FacetedSearchFacet[]>());
             if (searchResponse != null) {
-                toReturn.setQueryDuration(searchResponse.getTookInMillis());
+                toReturn.setQueryDuration(searchResponse.getTook().getMillis());
             }
             return toReturn;
         }
@@ -575,7 +574,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
          * @return The count response.
          */
         public long count() {
-            return super.count(indices, esTypes).getHits().totalHits();
+            return super.count(indices, esTypes).getHits().getTotalHits();
         }
 
         @Override

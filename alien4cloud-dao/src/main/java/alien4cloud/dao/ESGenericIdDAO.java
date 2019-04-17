@@ -12,6 +12,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
+import org.elasticsearch.common.xcontent.XContentType;
 import com.google.common.collect.Lists;
 import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
@@ -58,14 +59,15 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
         updateDate(data);
         String json = getJsonMapper().writeValueAsString(data);
 	String idValue = null;
-	try {
-	   idValue = (new FieldsMappingBuilder()).getIdValue(data);
-	} catch (Exception e) {}
-        //getClient().prepareIndex(indexName, typeName).setOperationThreaded(false).setSource(json).setRefresh(true).execute().actionGet();
+        try {
+           idValue = (new FieldsMappingBuilder()).getIdValue(data);
+        } catch (Exception e) {}
         if (idValue == null) {
-	   getClient().prepareIndex(indexName, typeName).setSource(json).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
+	   getClient().prepareIndex(indexName, typeName).setSource(json, XContentType.JSON)
+                      .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
 	} else {
-	   getClient().prepareIndex(indexName, typeName, idValue).setSource(json).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
+	   getClient().prepareIndex(indexName, typeName, idValue).setSource(json, XContentType.JSON)
+                      .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
     }
 
@@ -86,11 +88,10 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
 	    try {
 		idValue = (new FieldsMappingBuilder()).getIdValue(data);
             } catch (Exception e) {}
-            //bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName).setSource(json));
             if (idValue == null) {
-		bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName).setSource(json));
+		bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName).setSource(json, XContentType.JSON));
             } else {
-		bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName, idValue).setSource(json));
+		bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName, idValue).setSource(json, XContentType.JSON));
             }
         }
         bulkRequestBuilder.execute().actionGet();

@@ -10,9 +10,10 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
-import org.elasticsearch.client.Client;
-import org.elasticsearch.mapping.ElasticSearchClient;
 import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.mapping.ElasticSearchClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,7 +73,8 @@ public class PaaSProviderPollingMonitorTest {
             eventMessage.setMessage("EVENT MESSAGE : " + eventMessage.getDate());
             eventJson = jsonMapper.writeValueAsString(eventMessage);
 
-            nodeClient.prepareIndex("deploymentmonitorevents", PaaSMessageMonitorEvent.class.getSimpleName().toLowerCase()).setSource(eventJson)
+            nodeClient.prepareIndex("deploymentmonitorevents", PaaSMessageMonitorEvent.class.getSimpleName().toLowerCase())
+                    .setSource(eventJson, XContentType.JSON)
                     .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
 
@@ -88,7 +90,8 @@ public class PaaSProviderPollingMonitorTest {
             eventDeploymentStatus.setDeploymentStatus(DeploymentStatus.DEPLOYED);
             eventJson = jsonMapper.writeValueAsString(eventDeploymentStatus);
 
-            nodeClient.prepareIndex("deploymentmonitorevents", PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase()).setSource(eventJson)
+            nodeClient.prepareIndex("deploymentmonitorevents", PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase())
+                    .setSource(eventJson, XContentType.JSON)
                     .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
 

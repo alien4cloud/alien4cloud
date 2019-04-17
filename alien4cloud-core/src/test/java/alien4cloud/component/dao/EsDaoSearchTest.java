@@ -15,9 +15,10 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
-import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -260,13 +261,12 @@ public class EsDaoSearchTest extends AbstractDAOTest {
             String json = jsonMapper.writeValueAsString(datum);
             String typeName = MappingBuilder.indexTypeFromClass(datum.getClass());
 
-			String idValue = null;
-			try {
-				idValue = (new FieldsMappingBuilder()).getIdValue(datum);
-			} catch (Exception e) {}
-            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
-
-            //nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
+            String idValue = null;
+            try {
+               idValue = (new FieldsMappingBuilder()).getIdValue(datum);
+            } catch (Exception e) {}
+            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json, XContentType.JSON)
+                      .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
 
             assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, datum.getId(), true);
         }

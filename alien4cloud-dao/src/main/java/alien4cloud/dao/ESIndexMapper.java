@@ -20,6 +20,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.mapping.ElasticSearchClient;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.elasticsearch.util.MapUtil;
@@ -115,12 +116,12 @@ public abstract class ESIndexMapper {
                 }
 
                 String mapping = jsonMapper.writeValueAsString(typesMap);
-                createIndexRequestBuilder.addMapping(typeName, mapping);
+                createIndexRequestBuilder.addMapping(typeName, mapping, XContentType.JSON);
 
                 // add settings if any (including analysers definitions)
                 String indexSettings = mappingBuilder.getIndexSettings(clazz);
                 if (StringUtils.isNotBlank(indexSettings)) {
-                    createIndexRequestBuilder.setSettings(indexSettings);
+                    createIndexRequestBuilder.setSettings(indexSettings, XContentType.JSON);
                 }
             }
             try {
@@ -146,8 +147,8 @@ public abstract class ESIndexMapper {
             Map<String, Object> typeMappingMap = (Map<String, Object>) typeMappingObject;
             Map<String, Object> propertiesMap = (Map<String, Object>) typeMappingMap.get("properties");
             Map<String, Object> scoreMapping = MapUtil.getMap(
-                    new String[] { "include_in_all", "index", "boost", "store", "ignore_malformed", "type" },
-                    new String[] { "false", "true", "1.0", "false", "false", "long" });
+                    new String[] { "index", "boost", "store", "ignore_malformed", "type" },
+                    new String[] { "true", "1.0", "false", "false", "long" });
             propertiesMap.put(ALIEN_SCORE, scoreMapping);
         }
     }

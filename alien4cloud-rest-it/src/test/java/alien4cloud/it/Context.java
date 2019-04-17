@@ -15,8 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-//import org.elasticsearch.node.NodeBuilder;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
@@ -127,7 +126,7 @@ public class Context {
                 .put("cluster.name", ES_CLUSTER)
                 .build();
             TransportClient transportClient = new PreBuiltTransportClient(settings);
-            transportClient.addTransportAddress(new InetSocketTransportAddress(new InetSocketAddress(ES_HOST, 9300)));
+            transportClient.addTransportAddress(new TransportAddress(new InetSocketAddress(ES_HOST, 9300)));
 
             ES_CLIENT_INSTANCE = transportClient;
         }

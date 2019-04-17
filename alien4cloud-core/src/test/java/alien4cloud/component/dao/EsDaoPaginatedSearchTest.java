@@ -99,7 +99,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
 
         // text search based
         String searchText = "jndi";
-        int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        //int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("all", searchText).maxExpansions(10));
         int size = 7;
         assertTrue(maxElement > 0);
         testTextBasedSearchWellPaginated(maxElement, size, searchText, null);
@@ -116,7 +117,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
 
         // test when nothing found
         searchText = "pacpac";
-        maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        //maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("all", searchText).maxExpansions(10));
         assertEquals(0, maxElement);
         GetMultipleDataResult<NodeType> searchResp = dao.search(NodeType.class, searchText, null, 0, size);
         assertNotNull(searchResp);
@@ -131,7 +133,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     @Test
     public void facetedSearchPaginatedTest() throws IndexingServiceException, IOException, InterruptedException {
         String searchText = "jndi";
-        int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        //int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("all", searchText).maxExpansions(10));
         int size = 7;
 
         // simple faceted pagination
@@ -153,7 +156,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         // test nothing found
         // test when nothing found
         searchText = "pacpac";
-        maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        //maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("all", searchText).maxExpansions(10));
         assertEquals(0, maxElement);
         GetMultipleDataResult<NodeType> searchResp = dao.facetedSearch(NodeType.class, searchText, null, null, 0, size);
         assertNotNull(searchResp);
@@ -290,7 +294,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
 
     private int getCount(QueryBuilder queryBuilder) {
         return (int) nodeClient.prepareSearch(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).setTypes(MappingBuilder.indexTypeFromClass(NodeType.class)).setSize(0)
-                .setQuery(queryBuilder).execute().actionGet().getHits().totalHits();
+                .setQuery(queryBuilder).execute().actionGet().getHits().getTotalHits();
     }
 
     private void saveDataToES() throws IOException, IndexingServiceException {

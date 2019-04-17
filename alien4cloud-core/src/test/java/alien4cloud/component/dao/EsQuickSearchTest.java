@@ -19,6 +19,7 @@ import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.Before;
@@ -123,13 +124,13 @@ public class EsQuickSearchTest extends AbstractDAOTest {
             String json = jsonMapper.writeValueAsString(datum);
             String typeName = MappingBuilder.indexTypeFromClass(datum.getClass());
 
-			String idValue = null;
-			try {
-				idValue = (new FieldsMappingBuilder()).getIdValue(datum);
-			} catch (Exception e) {}
+            String idValue = null;
+            try {
+               idValue = (new FieldsMappingBuilder()).getIdValue(datum);
+            } catch (Exception e) {}
 
-            //nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
-            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
+            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json, XContentType.JSON)
+                      .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
 
             assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, datum.getId(), true);
             refresh();

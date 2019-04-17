@@ -33,6 +33,7 @@ import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.xcontent.XContentType;
 import com.google.common.collect.Maps;
 import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
@@ -338,13 +339,13 @@ public class TopologyStepDefinitions {
             }
         }
 
-		String idValue = null;
-		try {
-			idValue = (new FieldsMappingBuilder()).getIdValue(relationship);
-		} catch (Exception e) {}
+       String idValue = null;
+       try {
+          idValue = (new FieldsMappingBuilder()).getIdValue(relationship);
+       } catch (Exception e) {}
 
         esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(RelationshipType.class), idValue)
-                .setSource(JsonUtil.toString(relationship)).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
+                .setSource(JsonUtil.toString(relationship), XContentType.JSON).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
     }
 
     @Given("^I create a \"([^\"]*)\" \"([^\"]*)\" in an archive name \"([^\"]*)\" version \"([^\"]*)\"$")
@@ -362,12 +363,13 @@ public class TopologyStepDefinitions {
             throw new PendingException("creation of Type " + componentType + "not supported!");
         }
 
-		String idValue = null;
-		try {
-			idValue = (new FieldsMappingBuilder()).getIdValue(element);
-		} catch (Exception e) {}
+        String idValue = null;
+        try {
+           idValue = (new FieldsMappingBuilder()).getIdValue(element);
+        } catch (Exception e) {}
 
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz), idValue).setSource(JsonUtil.toString(element))
+        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz), idValue)
+                .setSource(JsonUtil.toString(element), XContentType.JSON)
                 .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
     }
 

@@ -59,7 +59,7 @@ public class DeploymentEventsController {
         GetMultipleJsonResult result = new GetMultipleJsonResult();
         result.setData(ResponseUtil.rawMultipleData(response));
         result.setTotalResults(response.getHits().getTotalHits());
-        result.setQueryDuration(response.getTookInMillis());
+        result.setQueryDuration(response.getTook().getMillis());
         return result;
     }
 
@@ -104,7 +104,7 @@ public class DeploymentEventsController {
         result.setData(ResponseUtil.rawMultipleData(response));
         result.setScrollId(response.getScrollId());
         result.setTotalResults(response.getHits().getTotalHits());
-        result.setQueryDuration(response.getTookInMillis());
+        result.setQueryDuration(response.getTook().getMillis());
         return result;
     }
 }

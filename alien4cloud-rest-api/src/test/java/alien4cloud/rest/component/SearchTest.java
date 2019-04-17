@@ -22,6 +22,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.ElasticSearchClient;
@@ -173,13 +174,14 @@ public class SearchTest {
             String json = jsonMapper.writeValueAsString(datum);
             String typeName = MappingBuilder.indexTypeFromClass(datum.getClass());
 
-			String idValue = null;
-			try {
-				idValue = (new FieldsMappingBuilder()).getIdValue(datum);
-			} catch (Exception e) {}
+            String idValue = null;
+            try {
+               idValue = (new FieldsMappingBuilder()).getIdValue(datum);
+            } catch (Exception e) {}
 
-            //nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
-            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
+            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue)
+                      .setSource(json, XContentType.JSON)
+                      .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
     }
 
@@ -201,14 +203,14 @@ public class SearchTest {
         while (somethingFound(response)) {
             BulkRequestBuilder bulkRequestBuilder = nodeClient.prepareBulk().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
 
-            for (int i = 0; i < response.getHits().hits().length; i++) {
-                String id = response.getHits().hits()[i].getId();
+            for (int i = 0; i < response.getHits().getHits().length; i++) {
+                String id = response.getHits().getHits()[i].getId();
                 bulkRequestBuilder.add(nodeClient.prepareDelete(indexName, typeName, id));
             }
 
             bulkRequestBuilder.execute().actionGet();
 
-            if (response.getHits().totalHits() == response.getHits().hits().length) {
+            if (response.getHits().getTotalHits() == response.getHits().getHits().length) {
                 response = null;
             } else {
                 response = searchRequestBuilder.execute().actionGet();
