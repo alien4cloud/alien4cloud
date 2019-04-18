@@ -38,6 +38,9 @@ public class Operation {
     /** This element is not part of TOSCA but allows to specifies some portability meta-data on the operation. */
     private Map<String, AbstractPropertyValue> portability;
 
+    /** operationHost for this operation  */
+    private String operationHost;
+
     /**
      * This OPTIONAL property contains a map of one or more outputs this operation execution might generate.
      * This is not part of TOSCA, and is populated when building the plan, based on the use of the get_operation_output function in the types definition

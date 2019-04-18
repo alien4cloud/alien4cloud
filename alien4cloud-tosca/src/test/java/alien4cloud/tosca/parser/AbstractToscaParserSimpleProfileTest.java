@@ -182,7 +182,8 @@ public abstract class AbstractToscaParserSimpleProfileTest {
     }
 
     public static void assertNoBlocker(ParsingResult<?> parsingResult) {
-        Assert.assertFalse(countErrorByLevelAndCode(parsingResult, ParsingErrorLevel.ERROR, null) > 0);
+        Assert.assertFalse("Parsing context contains blocking errors: " +parsingResult.getContext().getParsingErrors().toString(),
+                countErrorByLevelAndCode(parsingResult, ParsingErrorLevel.ERROR, null) > 0);
     }
 
 }

@@ -334,6 +334,7 @@
       list: dependencies
       type: deployment_artifact
   description: description
+  operation_host: operationHost
   inputs:
     map: inputParameters
     type: input

@@ -1,0 +1,42 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: name
+  template_author: author
+  template_version: 1.4.0-SNAPSHOT
+
+description: This is an example of a single line description (no folding).
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+artifact_types:
+  tosca.artifacts.Root:
+    description: root type
+  tosca.artifacts.Implementation.Bash:
+    derived_from: tosca.artifacts.Root
+    description: Script artifact for the Unix Bash shell
+    mime_type: application/x-sh
+    file_ext: [ sh, bash ]
+
+
+node_types:
+  my_company.my_types.MyAppNodeType:
+    derived_from: tosca.nodes.Root
+    interfaces:
+      Standard:
+        create:
+          description: An operation that should be executed on orchestrator host
+          operation_host: ORCHESTRATOR
+          implementation: scripts/create.sh
+
+relationship_types:
+  my_company.my_types.MyAppRelType:
+    derived_from: tosca.relationships.Root
+    interfaces:
+      Configure:
+        post_configure_target:
+          description: An operation that should be executed on the TARGET
+          operation_host: TARGET
+          implementation: scripts/pct.sh
+

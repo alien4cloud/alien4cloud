@@ -1,15 +1,16 @@
 package alien4cloud.tosca.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.paas.wf.util.WorkflowUtils;
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -22,15 +23,18 @@ import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity;
 import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.google.common.collect.Lists;
-
-import alien4cloud.paas.wf.util.WorkflowUtils;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.impl.ErrorCode;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTest {
 
@@ -54,6 +58,15 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
         nodeType.setAbstract(true);
         Mockito.when(csarRepositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
                 .thenReturn(nodeType);
+        RelationshipType relType = new RelationshipType();
+        relType.setElementId("tosca.relationships.Root");
+        relType.setArchiveName("tosca-normative-types");
+        relType.setArchiveVersion("1.0.0-ALIEN14");
+        relType.setAbstract(true);
+        Mockito.when(csarRepositorySearchService
+                .getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.Root"),
+                        Mockito.any(Set.class)))
+                .thenReturn(relType);
     }
 
     @Test
@@ -476,6 +489,40 @@ public class ToscaParserAlien200Test extends AbstractToscaParserSimpleProfileTes
                 .parseFile(Paths.get(getRootDirectory(), "tosca-topology-template-workflow-relationship-operation-invalid-target.yml"));
         // Same error is duplicated but is it that bad ?
         assertEquals(2, parsingResult.getContext().getParsingErrors().size());
-        assertEquals(ErrorCode.UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET, parsingResult.getContext().getParsingErrors().get(0).getErrorCode());
+        assertEquals(ErrorCode.UNKNWON_WORKFLOW_STEP_RELATIONSHIP_TARGET, parsingResult.getContext().getParsingErrors().get(0)
+                .getErrorCode());
     }
+
+    @Test
+    public void testOperationHost() throws ParsingException {
+        mockNormativeTypes();
+        ParsingResult<ArchiveRoot> parsingResult =
+                parser.parseFile(Paths.get(getRootDirectory(), "tosca-instantiable-type-operation-host.yml"));
+        assertNoBlocker(parsingResult);
+
+        Map<String, NodeType> nodeTypes = parsingResult.getResult().getNodeTypes();
+        assertNotNull(nodeTypes);
+        assertThat(nodeTypes.keySet(), hasItem("my_company.my_types.MyAppNodeType"));
+
+        NodeType nodeType = nodeTypes.get("my_company.my_types.MyAppNodeType");
+        assertNotNull(nodeType.getInterfaces());
+        assertThat(nodeType.getInterfaces().keySet(), hasItem("tosca.interfaces.node.lifecycle.Standard"));
+        assertThat(nodeType.getInterfaces().get("tosca.interfaces.node.lifecycle.Standard").getOperations().keySet(),
+                hasItem("create"));
+        Operation createOp = nodeType.getInterfaces().get("tosca.interfaces.node.lifecycle.Standard").getOperations().get("create");
+        assertEquals("ORCHESTRATOR", createOp.getOperationHost());
+
+        Map<String, RelationshipType> relTypes = parsingResult.getResult().getRelationshipTypes();
+        assertNotNull(relTypes);
+        assertThat(relTypes.keySet(), hasItem("my_company.my_types.MyAppRelType"));
+
+        RelationshipType relType = relTypes.get("my_company.my_types.MyAppRelType");
+        assertNotNull(relType.getInterfaces());
+        assertThat(relType.getInterfaces().keySet(), hasItem("tosca.interfaces.relationship.Configure"));
+        assertThat(relType.getInterfaces().get("tosca.interfaces.relationship.Configure").getOperations().keySet(),
+                hasItem("post_configure_target"));
+        Operation pctOp = relType.getInterfaces().get("tosca.interfaces.relationship.Configure").getOperations().get("post_configure_target");
+        assertEquals("TARGET", pctOp.getOperationHost());
+    }
+
 }
