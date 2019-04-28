@@ -23,7 +23,7 @@ topology_template:
       # short notation for a function
       value: { get_property: [ apache, port ] }
     www_host:
-      decription: The IP address of the apache server
+      description: The IP address of the apache server
       value:
         # this is another YAML notation
         get_attribute:
