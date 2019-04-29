@@ -3,6 +3,7 @@ package alien4cloud.orchestrators.services;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 
@@ -10,6 +11,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import alien4cloud.paas.IPaaSProviderConfiguration;
+import com.google.common.collect.Maps;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.springframework.stereotype.Component;
 
@@ -193,8 +195,22 @@ public class OrchestratorStateService {
             archiveIndexer.indexOrchestratorArchives(orchestratorFactory, orchestratorInstance);
 
             try {
+                Deployment[] deployments = deploymentService.getOrchestratorActiveDeployments(orchestrator.getId());
+                Map<String, String> deploymentIdsMap = Maps.newHashMap();
+                Map<String, Deployment> deploymentsMap = Maps.newHashMap();
+                for (Deployment deployment : deployments) {
+                    deploymentIdsMap.put(deployment.getOrchestratorDeploymentId(), deployment.getId());
+                    deploymentsMap.put(deployment.getOrchestratorDeploymentId(), deployment);
+                }
                 // connect the orchestrator
-                orchestratorInstance.init(deploymentService.getCloudActiveDeploymentContexts(orchestrator.getId()));
+                Set<String> reallyActiveDeployments = orchestratorInstance.init(deploymentIdsMap);
+                deploymentsMap.forEach((deploymentPaasId, deployment) -> {
+                    if (!reallyActiveDeployments.contains(deploymentPaasId)) {
+                        // this deployment is not known by the orchestrator, maybe it has been undeployed during downtime
+                        log.info("Deployment {} ({}) no longer exists in orchestrator deployments, maybe undeployed during downtime, marking it as undeployed", deployment.getId(), deployment.getOrchestratorDeploymentId());
+                        deploymentService.markUndeployed(deployment);
+                    }
+                });
 
             } catch(Exception e) {
                 // Destroy contexts

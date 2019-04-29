@@ -3,6 +3,7 @@ package alien4cloud.paas.plan;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Getter;
 
@@ -32,8 +33,8 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
-    public void init(Map<String, String> activeDeployments) {
-
+    public Set<String> init(Map<String, String> activeDeployments) {
+        return activeDeployments.keySet();
     }
 
     @Override

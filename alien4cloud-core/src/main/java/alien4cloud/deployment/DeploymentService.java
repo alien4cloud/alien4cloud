@@ -263,7 +263,7 @@ public class DeploymentService {
         return result;
     }
 
-    private Deployment[] getOrchestratorActiveDeployments(String orchestratorId) {
+    public Deployment[] getOrchestratorActiveDeployments(String orchestratorId) {
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
                 new String[][] { new String[] { orchestratorId }, new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, Integer.MAX_VALUE);
