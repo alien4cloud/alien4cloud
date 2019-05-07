@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
-import org.alien4cloud.tosca.model.definitions.Interface;
-import org.alien4cloud.tosca.model.definitions.Operation;
-import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -170,6 +167,19 @@ public final class IndexedModelUtils {
                     for (Entry<String, Operation> fromOperationEntry : fromInterface.getOperations().entrySet()) {
                         if (!toOperations.containsKey(fromOperationEntry.getKey())) {
                             toOperations.put(fromOperationEntry.getKey(), fromOperationEntry.getValue());
+                        }
+                    }
+                }
+                Map<String, IValue> globalInputParameters = CollectionUtils.merge(fromInterface.getInputParameters(), toInterface.getInputParameters(), false);
+                if (globalInputParameters != null && toInterface.getOperations() != null) {
+                    for (Operation operation : toInterface.getOperations().values()) {
+                        if (operation.getInputParameters() == null) {
+                            operation.setInputParameters(Maps.newHashMap());
+                        }
+                        for (Entry<String, IValue> inputEntry : globalInputParameters.entrySet()) {
+                            if (!operation.getInputParameters().containsKey(inputEntry.getKey())) {
+                                operation.getInputParameters().put(inputEntry.getKey(), inputEntry.getValue());
+                            }
                         }
                     }
                 }
