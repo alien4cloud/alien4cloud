@@ -16,7 +16,7 @@
       <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
       <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
       <jclouds.version>1.9.1</jclouds.version>
-      <jetty.version>9.3.11.v20160721</jetty.version>
+      <jetty.version>9.4.9.v20180320</jetty.version>
     </properties>
 
     <dependencies>
@@ -284,7 +284,7 @@
                                 </artifactInstaller>
                                 <log>${basedir}/target/cargo.log</log>
                                 <output>${basedir}/target/jetty.log</output>
-                                <timeout>360000</timeout>
+                                <timeout>600000</timeout>
                             </container>
 
                             <configuration>

@@ -96,7 +96,7 @@
     <maven.assembly.version>2.4</maven.assembly.version>
     <jetty.version>9.4.12.v20180830</jetty.version>
     <jetty-jsp.version>2.2.0.v201112011158</jetty-jsp.version>
-    <maven.cargo.version>1.4.15</maven.cargo.version>
+    <maven.cargo.version>1.7.3</maven.cargo.version>
   </properties>
 
   <dependencies>

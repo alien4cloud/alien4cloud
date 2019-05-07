@@ -20,7 +20,6 @@ public class CsarSearchService implements ICsarSearchService {
 
     @Override
     public FacetedSearchResult search(String query, int from, int size, Map<String, String[]> filters) {
-System.out.println("### csar search " + query + " " + filters);
         return csarDAO.facetedSearch(Csar.class, query, FilterUtil.singleKeyFilter(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID), null, from, size);
     }
 }
