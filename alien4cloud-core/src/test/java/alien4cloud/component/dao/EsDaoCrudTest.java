@@ -76,10 +76,11 @@ public class EsDaoCrudTest extends AbstractDAOTest {
     @Test
     public void testInitIndexes() throws InterruptedException, ExecutionException, JsonGenerationException, JsonMappingException, IntrospectionException,
             IOException {
-        assertIndexExists(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, true);
+//        assertIndexExists(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, true);
+        assertIndexExists(NodeType.class.getSimpleName().toLowerCase(), true);
         assertIndexExists("toto", false);
-        assertTypeExists(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, NodeType.class, true);
-        assertTypeExists(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, "tata", false);
+//        assertTypeExists(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, NodeType.class, true);
+//        assertTypeExists(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, "tata", false);
     }
 
     @Test
@@ -88,7 +89,8 @@ public class EsDaoCrudTest extends AbstractDAOTest {
         String typeName1 = indexedNodeTypeTest.getClass().getSimpleName().toLowerCase();
         assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName1, indexedNodeTypeTest.getId(), true);
 
-        GetResponse resp = getDocument(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName1, indexedNodeTypeTest.getId());
+        //GetResponse resp = getDocument(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName1, indexedNodeTypeTest.getId());
+        GetResponse resp = getDocument(typeName1, ElasticSearchDAO.TYPE_NAME, indexedNodeTypeTest.getId());
         log.info(resp.getSourceAsString());
         NodeType nt = jsonMapper.readValue(resp.getSourceAsString(), NodeType.class);
 
@@ -175,7 +177,7 @@ public class EsDaoCrudTest extends AbstractDAOTest {
     @Test
     public void deleteToscaComponentSuccessfulTest() throws IndexingServiceException, JsonProcessingException {
 
-        String typeName1 = indexedNodeTypeTest.getClass().getSimpleName();
+        String typeName1 = indexedNodeTypeTest.getClass().getSimpleName().toLowerCase();
 
         saveDataToES(indexedNodeTypeTest);
         dao.delete(NodeType.class, indexedNodeTypeTest.getId());
@@ -244,7 +246,8 @@ public class EsDaoCrudTest extends AbstractDAOTest {
     }
 
     private void assertDocumentExisit(String indexName, String typeName, String id, boolean expected) {
-        GetResponse response = getDocument(indexName, typeName, id);
+        //GetResponse response = getDocument(indexName, typeName, id);
+        GetResponse response = getDocument(typeName, ElasticSearchDAO.TYPE_NAME, id);
         assertEquals(expected, response.isExists());
         assertEquals(expected, !response.isSourceEmpty());
     }
@@ -271,7 +274,8 @@ public class EsDaoCrudTest extends AbstractDAOTest {
         try {
            idValue = (new FieldsMappingBuilder()).getIdValue(element);
         } catch (Exception e) {}
-        nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json, XContentType.JSON)
+        //nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json, XContentType.JSON)
+        nodeClient.prepareIndex(typeName, ElasticSearchDAO.TYPE_NAME, idValue).setSource(json, XContentType.JSON)
                   .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
 
         assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, element.getId(), true);

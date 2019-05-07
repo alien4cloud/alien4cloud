@@ -39,7 +39,9 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @param clazz The class for which to get the index.
      * @return The name of the index in which the class lies.
      */
-    String getIndexForType(Class<?> clazz);
+    String[] getIndexForType(Class<?> clazz);
+
+    List<String> getClassesToIndicesGroups(String clazz);
 
     /**
      * Count the number of objects in the index in which a given class lies. The result is not limited to the actual given type.

@@ -179,7 +179,8 @@ public class SearchTest {
                idValue = (new FieldsMappingBuilder()).getIdValue(datum);
             } catch (Exception e) {}
 
-            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue)
+            //nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue)
+            nodeClient.prepareIndex(typeName, "_doc", idValue)
                       .setSource(json, XContentType.JSON)
                       .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
@@ -195,7 +196,8 @@ public class SearchTest {
 
     private void delete(String indexName, String typeName, QueryBuilder query) {
         // get all elements and then use a bulk delete to remove data.
-        SearchRequestBuilder searchRequestBuilder = nodeClient.prepareSearch(indexName).setTypes(typeName).setQuery(query)
+        //SearchRequestBuilder searchRequestBuilder = nodeClient.prepareSearch(indexName).setTypes(typeName).setQuery(query)
+        SearchRequestBuilder searchRequestBuilder = nodeClient.prepareSearch(typeName).setQuery(query)
                 .setFetchSource(false);
         searchRequestBuilder.setFrom(0).setSize(1000);
         SearchResponse response = searchRequestBuilder.execute().actionGet();
@@ -218,7 +220,7 @@ public class SearchTest {
         }
     }
     private void clearIndex(String indexName, Class<?> clazz) throws InterruptedException {
-        String typeName = clazz.getSimpleName();
+        String typeName = clazz.getSimpleName().toLowerCase();
         log.info("Cleaning ES Index " + ElasticSearchDAO.TOSCA_ELEMENT_INDEX + " and type " + typeName);
         //DeleteRequestBuilder drb = nodeClient.prepareDelete();
 	//	drb.setIndex(indexName).setType(typeName).execute().actionGet();

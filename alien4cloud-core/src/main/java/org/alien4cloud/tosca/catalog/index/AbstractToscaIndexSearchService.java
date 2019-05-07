@@ -69,7 +69,8 @@ public abstract class AbstractToscaIndexSearchService<T> {
                             for (SearchHit hit : topHits.getHits()) {
                                 resultTypes.add(hit.getType());
                                 resultData.add(
-                                        objectMapper.readValue(hit.getSourceAsString(), ((Function<String, Class>) getClassFromType).apply(hit.getType())));
+                                        //objectMapper.readValue(hit.getSourceAsString(), ((Function<String, Class>) getClassFromType).apply(hit.getType())));
+                                        objectMapper.readValue(hit.getSourceAsString(), ((Function<String, Class>) getClassFromType).apply(hit.getIndex())));
                             }
                         }
 

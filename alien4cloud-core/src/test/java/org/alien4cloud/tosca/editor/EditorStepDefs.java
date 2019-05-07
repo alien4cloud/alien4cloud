@@ -111,8 +111,8 @@ public class EditorStepDefs {
 
     public EditorStepDefs() {
         super();
-        typesToClean.add(AbstractInstantiableToscaType.class);
-        typesToClean.add(AbstractToscaType.class);
+        //typesToClean.add(AbstractInstantiableToscaType.class);
+        //typesToClean.add(AbstractToscaType.class);
         typesToClean.add(CapabilityType.class);
         typesToClean.add(ArtifactType.class);
         typesToClean.add(RelationshipType.class);

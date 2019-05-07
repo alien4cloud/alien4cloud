@@ -90,8 +90,9 @@ public class EsQuickSearchTest extends AbstractDAOTest {
         assertNotNull(searchResp.getData());
         assertEquals(2, searchResp.getTypes().length);
         assertEquals(2, searchResp.getData().length);
-        assertElementIn("nodetype", searchResp.getTypes());
-        assertElementIn("application", searchResp.getTypes());
+        assertElementIn("_doc", searchResp.getTypes());
+        //assertElementIn("nodetype", searchResp.getTypes());
+        //assertElementIn("application", searchResp.getTypes());
     }
 
     private void assertElementIn(Object element, Object[] elements) {
@@ -129,7 +130,8 @@ public class EsQuickSearchTest extends AbstractDAOTest {
                idValue = (new FieldsMappingBuilder()).getIdValue(datum);
             } catch (Exception e) {}
 
-            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json, XContentType.JSON)
+            //nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json, XContentType.JSON)
+            nodeClient.prepareIndex(typeName, ElasticSearchDAO.TYPE_NAME, idValue).setSource(json, XContentType.JSON)
                       .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
 
             assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, datum.getId(), true);
@@ -138,7 +140,8 @@ public class EsQuickSearchTest extends AbstractDAOTest {
     }
 
     private void assertDocumentExisit(String indexName, String typeName, String id, boolean expected) {
-        GetResponse response = getDocument(indexName, typeName, id);
+        //GetResponse response = getDocument(indexName, typeName, id);
+        GetResponse response = getDocument(typeName, ElasticSearchDAO.TYPE_NAME, id);
         assertEquals(expected, response.isExists());
         assertEquals(expected, !response.isSourceEmpty());
     }

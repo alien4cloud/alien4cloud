@@ -3,6 +3,7 @@ package alien4cloud.dao;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,9 +64,11 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
     @Override
     public <T> long count(Class<T> clazz, QueryBuilder query) {
-        String indexName = getIndexForType(clazz);
-        String typeName = MappingBuilder.indexTypeFromClass(clazz);
-        SearchRequestBuilder countRequestBuilder = getClient().prepareSearch(indexName).setTypes(typeName).setSize(0);
+        //String indexName = getIndexForType(clazz);
+        String[] indexName = getIndexForType(clazz);
+        //String typeName = MappingBuilder.indexTypeFromClass(clazz);
+        //SearchRequestBuilder countRequestBuilder = getClient().prepareSearch(indexName).setTypes(typeName).setSize(0);
+        SearchRequestBuilder countRequestBuilder = getClient().prepareSearch(indexName).setSize(0);
         if (query != null) {
             countRequestBuilder.setQuery(query);
         }
@@ -79,11 +82,13 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
     @Override
     public void delete(Class<?> clazz, QueryBuilder query) {
-        String indexName = getIndexForType(clazz);
+        String[] indexName = getIndexForType(clazz);
+        //String indexName = getIndexForType(clazz);
         String typeName = MappingBuilder.indexTypeFromClass(clazz);
 
         // get all elements and then use a bulk delete to remove data.
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setTypes(getTypesFromClass(clazz)).setQuery(query)
+        //SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setTypes(getTypesFromClass(clazz)).setQuery(query)
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setQuery(query)
                 .setFetchSource(false);
         searchRequestBuilder.setFrom(0).setSize(1000);
         SearchResponse response = searchRequestBuilder.execute().actionGet();
@@ -93,7 +98,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
             for (int i = 0; i < response.getHits().getHits().length; i++) {
                 String id = response.getHits().getHits()[i].getId();
-                bulkRequestBuilder.add(getClient().prepareDelete(indexName, typeName, id));
+                String respIndex = response.getHits().getHits()[i].getIndex();
+                //bulkRequestBuilder.add(getClient().prepareDelete(indexName, typeName, id));
+                bulkRequestBuilder.add(getClient().prepareDelete(respIndex, TYPE_NAME, id));
             }
 
             bulkRequestBuilder.execute().actionGet();
@@ -106,13 +113,23 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         }
     }
 
+    private String[] getIndicesFromClasses (Class[] clazzes) {
+       List<String> result = new ArrayList<String>();
+       for (Class clazz : clazzes) {
+          result.addAll (Arrays.asList(getIndexForType(clazz)));
+       }
+       return result.toArray(new String[result.size()]);
+    }
+
     @SneakyThrows({ IOException.class })
     private <T> List<T> doCustomFind(Class<T> clazz, QueryBuilder query, QueryBuilder filter, SortBuilder sortBuilder, int size) {
-        String indexName = getIndexForType(clazz);
+        //String indexName = getIndexForType(clazz);
+        String[] indexName = getIndexForType(clazz);
         if (size > 10000) {
            size = 10000;
         }
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setTypes(getTypesFromClass(clazz)).setSize(size);
+        //SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setTypes(getTypesFromClass(clazz)).setSize(size);
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setSize(size);
         if (query != null) {
             searchRequestBuilder.setQuery(query);
         }
@@ -227,7 +244,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         if (maxElements > 10000) {
           maxElements = 10000;
         }
-        SearchResponse searchResponse = queryHelper.buildQuery(searchText).types(classes).filters(filters, customFilter).prepareSearch(searchIndices)
+        //SearchResponse searchResponse = queryHelper.buildQuery(searchText).types(classes).filters(filters, customFilter).prepareSearch(searchIndices)
+        SearchResponse searchResponse = queryHelper.buildQuery(searchText).types(classes).filters(filters, customFilter)
+                .prepareSearch(getIndicesFromClasses(classes))
                 .fetchContext(fetchContext).execute(from, maxElements);
         return toGetMultipleDataResult(Object.class, searchResponse, from);
     }
@@ -266,7 +285,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         if (maxElements > 10000) {
           maxElements = 10000;
         }
-        SearchResponse searchResponse = queryHelper.buildQuery(suggestFieldPath, searchPrefix).types(requestedTypes).prepareSearch(searchIndices)
+        //SearchResponse searchResponse = queryHelper.buildQuery(suggestFieldPath, searchPrefix).types(requestedTypes).prepareSearch(searchIndices)
+        SearchResponse searchResponse = queryHelper.buildQuery(suggestFieldPath, searchPrefix).types(requestedTypes)
+                .prepareSearch(getIndicesFromClasses(requestedTypes))
                 .fetchContext(fetchContext).execute(from, maxElements);
 
         return toGetMultipleDataResult(Object.class, searchResponse, from);
@@ -349,7 +370,8 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     }
 
     public <T> T hitToObject(SearchHit hit) throws IOException {
-        return hitToObject((Class<? extends T>) getClassFromType(hit.getType()), hit);
+        //return hitToObject((Class<? extends T>) getClassFromType(hit.getType()), hit);
+        return hitToObject((Class<? extends T>) getClassFromType(hit.getIndex()), hit);
     }
 
     public <T> T hitToObject(Class<T> clazz, SearchHit hit) throws IOException {
@@ -408,7 +430,8 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
         // TODO: correctly manage "from" and "size"
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(getIndexForType(clazz))
-                .setQuery(QueryBuilders.idsQuery(MappingBuilder.indexTypeFromClass(clazz)).addIds(ids)).setFetchSource(inc, exc).setSize(20);
+                .setQuery(QueryBuilders.idsQuery().addIds(ids)).setFetchSource(inc, exc).setSize(20);
+        //        .setQuery(QueryBuilders.idsQuery(MappingBuilder.indexTypeFromClass(clazz)).addIds(ids)).setFetchSource(inc, exc).setSize(20);
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         return toGetListOfData(searchResponse, clazz);
@@ -433,10 +456,11 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         if (size > 10000) {
            size = 10000;
         }
-        SearchRequestBuilder searchRequestBuilder = esClient.getClient().prepareSearch(index);
+        //SearchRequestBuilder searchRequestBuilder = esClient.getClient().prepareSearch(index);
+        SearchRequestBuilder searchRequestBuilder = esClient.getClient().prepareSearch(types);
         searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH).setQuery(queryBuilder).setSize(size).setFrom(from);
         searchRequestBuilder.setFetchSource(path, null);
-        searchRequestBuilder.setTypes(types);
+        //searchRequestBuilder.setTypes(types);
         if (sortOrder != null) {
             searchRequestBuilder.addSort(SortBuilders.fieldSort(path).order(sortOrder));
         }
@@ -560,7 +584,8 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         protected EsQueryBuilderHelper(QueryHelper.QueryBuilderHelper from, Class<T> clazz) {
             super(from);
             this.clazz = clazz;
-            this.indices = clazz == null ? getAllIndexes() : new String[] { getIndexForType(clazz) };
+            //this.indices = clazz == null ? getAllIndexes() : new String[] { getIndexForType(clazz) };
+            this.indices = clazz == null ? getAllIndexes() : getIndexForType(clazz);
             this.requestedTypes = getRequestedTypes(clazz);
             super.types(requestedTypes);
             this.esTypes = getTypes();
@@ -585,7 +610,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         @Override
         public IESSearchQueryBuilderHelper prepareSearch() {
             super.prepareSearch(indices);
-            super.searchRequestBuilder.setTypes(esTypes);
+            //super.searchRequestBuilder.setTypes(esTypes);
             super.searchRequestBuilder.setQuery(queryBuilder);
             return this;
         }

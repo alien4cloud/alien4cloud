@@ -73,7 +73,8 @@ public class PaaSProviderPollingMonitorTest {
             eventMessage.setMessage("EVENT MESSAGE : " + eventMessage.getDate());
             eventJson = jsonMapper.writeValueAsString(eventMessage);
 
-            nodeClient.prepareIndex("deploymentmonitorevents", PaaSMessageMonitorEvent.class.getSimpleName().toLowerCase())
+            //nodeClient.prepareIndex("deploymentmonitorevents", PaaSMessageMonitorEvent.class.getSimpleName().toLowerCase())
+            nodeClient.prepareIndex(PaaSMessageMonitorEvent.class.getSimpleName().toLowerCase(),"_doc")
                     .setSource(eventJson, XContentType.JSON)
                     .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
@@ -90,7 +91,8 @@ public class PaaSProviderPollingMonitorTest {
             eventDeploymentStatus.setDeploymentStatus(DeploymentStatus.DEPLOYED);
             eventJson = jsonMapper.writeValueAsString(eventDeploymentStatus);
 
-            nodeClient.prepareIndex("deploymentmonitorevents", PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase())
+            //nodeClient.prepareIndex("deploymentmonitorevents", PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase())
+            nodeClient.prepareIndex(PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase(), "_doc")
                     .setSource(eventJson, XContentType.JSON)
                     .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }

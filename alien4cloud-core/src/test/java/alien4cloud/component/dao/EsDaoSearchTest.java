@@ -265,10 +265,11 @@ public class EsDaoSearchTest extends AbstractDAOTest {
             try {
                idValue = (new FieldsMappingBuilder()).getIdValue(datum);
             } catch (Exception e) {}
-            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json, XContentType.JSON)
+            //nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(json, XContentType.JSON)
+            nodeClient.prepareIndex(typeName, ElasticSearchDAO.TYPE_NAME, idValue).setSource(json, XContentType.JSON)
                       .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
 
-            assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, datum.getId(), true);
+            assertDocumentExisit(typeName, ElasticSearchDAO.TYPE_NAME, datum.getId(), true);
         }
         refresh();
     }

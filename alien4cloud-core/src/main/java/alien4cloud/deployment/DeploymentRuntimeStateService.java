@@ -161,7 +161,7 @@ public class DeploymentRuntimeStateService {
      */
     public GetMultipleDataResult<?> getDeploymentEvents(String applicationEnvironmentId, int from, int size) {
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(applicationEnvironmentId);
-        String index = alienMonitorDao.getIndexForType(AbstractMonitorEvent.class);
+        String[] index = alienMonitorDao.getIndexForType(AbstractMonitorEvent.class);
 
         QueryHelper.ISearchQueryBuilderHelper searchQueryHelperBuilder = queryHelper.buildQuery()
                 .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class,

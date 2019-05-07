@@ -262,7 +262,8 @@ public class ComponentTest {
         log.info("Cleaning ES Index " + ElasticSearchDAO.TOSCA_ELEMENT_INDEX + " and type " + typeName);
         //DeleteRequestBuilder drb = nodeClient.prepareDelete();
 	//	drb.setIndex(indexName).setType(typeName).execute().actionGet();
-	delete (indexName, typeName, QueryBuilders.matchAllQuery());
+	//delete (indexName, typeName, QueryBuilders.matchAllQuery());
+	delete (typeName, "_doc", QueryBuilders.matchAllQuery());
     }
 
     @After

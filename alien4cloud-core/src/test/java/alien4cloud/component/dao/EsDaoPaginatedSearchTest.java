@@ -293,7 +293,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     }
 
     private int getCount(QueryBuilder queryBuilder) {
-        return (int) nodeClient.prepareSearch(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).setTypes(MappingBuilder.indexTypeFromClass(NodeType.class)).setSize(0)
+        //return (int) nodeClient.prepareSearch(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).setTypes(MappingBuilder.indexTypeFromClass(NodeType.class)).setSize(0)
+        return (int) nodeClient.prepareSearch(MappingBuilder.indexTypeFromClass(NodeType.class)).setSize(0)
                 .setQuery(queryBuilder).execute().actionGet().getHits().getTotalHits();
     }
 
@@ -321,7 +322,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     }
 
     private void assertDocumentExisit(String indexName, String typeName, String id, boolean expected) {
-        GetResponse response = getDocument(indexName, typeName, id);
+        //GetResponse response = getDocument(indexName, typeName, id);
+        GetResponse response = getDocument(typeName, ElasticSearchDAO.TYPE_NAME, id);
         assertEquals(expected, response.isExists());
         assertEquals(expected, !response.isSourceEmpty());
     }

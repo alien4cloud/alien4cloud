@@ -1,6 +1,7 @@
 package alien4cloud.security;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -232,7 +233,7 @@ public class ResourceRoleService {
         Set<Class<?>> classes = TypeScanner.scanTypes("alien4cloud.model", ISecuredResource.class);
 
         for (Class<?> clazz : classes) {
-            indices.add(alienDAO.getIndexForType(clazz));
+            indices.addAll(Arrays.asList(alienDAO.getIndexForType(clazz)));
         }
 
         do {

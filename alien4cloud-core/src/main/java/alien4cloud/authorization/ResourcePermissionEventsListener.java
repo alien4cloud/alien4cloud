@@ -23,6 +23,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -135,6 +137,14 @@ public class ResourcePermissionEventsListener {
         void cleanPermission(AbstractSecurityEnabledResource resource, String subjectId);
     }
 
+    private String[] getIndicesFromClasses (Set<Class<?>> clazzes) {
+       List<String> result = new ArrayList<String>();
+       for (Class clazz : clazzes) {
+          result.addAll (Arrays.asList(alienDAO.getIndexForType(clazz)));
+       }
+       return (String[])result.toArray();
+    }
+
     private void deletePermissions(QueryBuilder appFilter, String ownerId, ResourcePermissionCleaner permissionCleaner, Class<?>... onClazzes)
             throws IOException, ClassNotFoundException {
         int from = 0;
@@ -142,9 +152,10 @@ public class ResourcePermissionEventsListener {
 
         Set<Class<?>> classes = ArrayUtils.isNotEmpty(onClazzes) ? Sets.newHashSet(onClazzes)
                 : TypeScanner.scanTypes("alien4cloud.model", AbstractSecurityEnabledResource.class);
-        Set<String> indices = classes.stream().map(clazz -> alienDAO.getIndexForType(clazz)).collect(Collectors.toSet());
+        //Set<String> indices = classes.stream().map(clazz -> alienDAO.getIndexForType(clazz)).collect(Collectors.toSet());
         do {
-            GetMultipleDataResult<Object> result = alienDAO.search(indices.toArray(new String[indices.size()]), classes.toArray(new Class<?>[classes.size()]),
+            //GetMultipleDataResult<Object> result = alienDAO.search(indices.toArray(new String[indices.size()]), classes.toArray(new Class<?>[classes.size()]),
+            GetMultipleDataResult<Object> result = alienDAO.search(getIndicesFromClasses(classes), classes.toArray(new Class<?>[classes.size()]),
                     null, null, appFilter, null, from, 20);
             Arrays.stream(result.getData()).forEach(resource -> permissionCleaner.cleanPermission((AbstractSecurityEnabledResource) resource, ownerId));
             from += result.getData().length;

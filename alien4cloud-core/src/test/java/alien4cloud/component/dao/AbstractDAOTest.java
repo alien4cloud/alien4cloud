@@ -32,7 +32,8 @@ public abstract class AbstractDAOTest {
 
     private void delete(String indexName, String typeName, QueryBuilder query) {
         // get all elements and then use a bulk delete to remove data.
-        SearchRequestBuilder searchRequestBuilder = nodeClient.prepareSearch(indexName).setTypes(typeName).setQuery(query)
+        //SearchRequestBuilder searchRequestBuilder = nodeClient.prepareSearch(indexName).setTypes(typeName).setQuery(query)
+        SearchRequestBuilder searchRequestBuilder = nodeClient.prepareSearch(typeName).setQuery(query)
                 .setFetchSource(false);
         searchRequestBuilder.setFrom(0).setSize(1000);
         SearchResponse response = searchRequestBuilder.execute().actionGet();
@@ -42,7 +43,8 @@ public abstract class AbstractDAOTest {
 
             for (int i = 0; i < response.getHits().getHits().length; i++) {
                 String id = response.getHits().getHits()[i].getId();
-                bulkRequestBuilder.add(nodeClient.prepareDelete(indexName, typeName, id));
+                //bulkRequestBuilder.add(nodeClient.prepareDelete(indexName, typeName, id));
+                bulkRequestBuilder.add(nodeClient.prepareDelete(typeName, ElasticSearchDAO.TYPE_NAME, id));
             }
 
             bulkRequestBuilder.execute().actionGet();
@@ -79,7 +81,9 @@ public abstract class AbstractDAOTest {
 
     public void refresh() {
         refresh(Application.class.getSimpleName().toLowerCase());
-        refresh(ElasticSearchDAO.TOSCA_ELEMENT_INDEX);
+        refresh(NodeType.class.getSimpleName().toLowerCase());
+        refresh(ArtifactType.class.getSimpleName().toLowerCase());
+        refresh(CapabilityType.class.getSimpleName().toLowerCase());
         refresh(Topology.class.getSimpleName().toLowerCase());
     }
 
