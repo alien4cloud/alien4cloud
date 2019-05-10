@@ -142,7 +142,7 @@ public class ResourcePermissionEventsListener {
        for (Class clazz : clazzes) {
           result.addAll (Arrays.asList(alienDAO.getIndexForType(clazz)));
        }
-       return (String[])result.toArray();
+       return result.toArray(new String[result.size()]);
     }
 
     private void deletePermissions(QueryBuilder appFilter, String ownerId, ResourcePermissionCleaner permissionCleaner, Class<?>... onClazzes)

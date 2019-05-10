@@ -137,7 +137,8 @@ public class QuickSearchDefinitionsSteps {
                idValue = (new FieldsMappingBuilder()).getIdValue(componentTemplate);
             } catch (Exception e) {}
 
-            esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(serializeDatum, XContentType.JSON)
+            //esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(serializeDatum, XContentType.JSON)
+            esClient.prepareIndex(typeName, "_doc", idValue).setSource(serializeDatum, XContentType.JSON)
                     .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
 
             if (componentTemplate instanceof NodeType) {

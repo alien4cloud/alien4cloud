@@ -29,12 +29,6 @@
                     <groupId>org.bouncycastle</groupId>
                     <artifactId>bcprov-jdk15</artifactId>
                 </exclusion>
-<!--
-                <exclusion>
-                    <groupId>org.elasticsearch.plugin</groupId>
-                    <artifactId>transport-netty4-client</artifactId>
-                </exclusion>
--->
             </exclusions>
         </dependency>
 
@@ -42,12 +36,14 @@
                 <groupId>org.elasticsearch.plugin</groupId>
                 <artifactId>transport-netty4-client</artifactId>
                 <version>${elasticsearch.version}</version>
+<!--
               <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
               </exclusions>
+-->
             </dependency>
 
         <dependency>
@@ -99,8 +95,11 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
+<!--
             <version>5.0.0.Alpha2</version>
             <classifier>ALIEN4CLOUD</classifier>
+-->
+            <version>4.1.32.Final</version>
         </dependency>
         <dependency>
             <groupId>org.apache.sshd</groupId>

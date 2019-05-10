@@ -107,7 +107,8 @@ public class CommonStepDefinitions {
 
     private void clearIndex(String indexName, String typeName) {
         // get all elements and then use a bulk delete to remove data.
-        SearchRequestBuilder searchRequestBuilder = esClient.prepareSearch(indexName).setTypes(typeName).setQuery(QueryBuilders.matchAllQuery())
+        //SearchRequestBuilder searchRequestBuilder = esClient.prepareSearch(indexName).setTypes(typeName).setQuery(QueryBuilders.matchAllQuery())
+        SearchRequestBuilder searchRequestBuilder = esClient.prepareSearch(typeName).setQuery(QueryBuilders.matchAllQuery())
                 .setFetchSource(false);
         searchRequestBuilder.setFrom(0).setSize(1000);
         SearchResponse response = searchRequestBuilder.execute().actionGet();
@@ -117,7 +118,8 @@ public class CommonStepDefinitions {
 
             for (int i = 0; i < response.getHits().getHits().length; i++) {
                 String id = response.getHits().getHits()[i].getId();
-                bulkRequestBuilder.add(esClient.prepareDelete(indexName, typeName, id));
+                //bulkRequestBuilder.add(esClient.prepareDelete(indexName, typeName, id));
+                bulkRequestBuilder.add(esClient.prepareDelete(typeName, "_doc", id));
             }
 
             bulkRequestBuilder.execute().actionGet();
@@ -197,8 +199,8 @@ public class CommonStepDefinitions {
         clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, DataType.class.getSimpleName().toLowerCase());
         clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, PrimitiveDataType.class.getSimpleName().toLowerCase());
         clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, PolicyType.class.getSimpleName().toLowerCase());
-        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, AbstractInstantiableToscaType.class.getSimpleName().toLowerCase());
-        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, AbstractToscaType.class.getSimpleName().toLowerCase());
+        //clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, AbstractInstantiableToscaType.class.getSimpleName().toLowerCase());
+        //clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, AbstractToscaType.class.getSimpleName().toLowerCase());
 
         clearIndex(Application.class.getSimpleName().toLowerCase());
         clearIndex(Orchestrator.class.getSimpleName().toLowerCase());
@@ -215,7 +217,7 @@ public class CommonStepDefinitions {
         clearIndex(AuditESDAO.ALIEN_AUDIT_INDEX, AuditTrace.class.getSimpleName().toLowerCase());
         clearIndex(AuditESDAO.ALIEN_AUDIT_INDEX, AuditConfiguration.class.getSimpleName().toLowerCase());
 
-        clearIndex(ElasticSearchDAO.SUGGESTION_INDEX, AbstractSuggestionEntry.class.getSimpleName().toLowerCase());
+        //clearIndex(ElasticSearchDAO.SUGGESTION_INDEX, AbstractSuggestionEntry.class.getSimpleName().toLowerCase());
         clearIndex(ElasticSearchDAO.SUGGESTION_INDEX, SuggestionEntry.class.getSimpleName().toLowerCase());
         clearIndex(ElasticSearchDAO.SUGGESTION_INDEX, SimpleSuggestionEntry.class.getSimpleName().toLowerCase());
 

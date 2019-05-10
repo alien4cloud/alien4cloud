@@ -122,7 +122,7 @@ public class Context {
             ES_CLIENT_INSTANCE = NodeBuilder.nodeBuilder().client(true).clusterName(ES_CLUSTER).local(false).settings(settings).node().client();
 ***/
             Settings settings = Settings.builder()
-                .put("transport.type", "netty3")
+                .put("transport.type", "netty4")
                 .put("cluster.name", ES_CLUSTER)
                 .build();
             TransportClient transportClient = new PreBuiltTransportClient(settings);

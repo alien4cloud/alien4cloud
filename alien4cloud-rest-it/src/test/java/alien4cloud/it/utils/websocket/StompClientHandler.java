@@ -50,7 +50,8 @@ public class StompClientHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
+    //public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         StompFrame frame = (StompFrame) msg;
         String destination = null;
         if (frame.headers().get(StompHeaders.DESTINATION) != null) {

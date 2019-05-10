@@ -344,7 +344,8 @@ public class TopologyStepDefinitions {
           idValue = (new FieldsMappingBuilder()).getIdValue(relationship);
        } catch (Exception e) {}
 
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(RelationshipType.class), idValue)
+        //esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(RelationshipType.class), idValue)
+        esClient.prepareIndex(MappingBuilder.indexTypeFromClass(RelationshipType.class), "_doc", idValue)
                 .setSource(JsonUtil.toString(relationship), XContentType.JSON).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
     }
 
@@ -368,7 +369,8 @@ public class TopologyStepDefinitions {
            idValue = (new FieldsMappingBuilder()).getIdValue(element);
         } catch (Exception e) {}
 
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz), idValue)
+        //esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz), idValue)
+        esClient.prepareIndex(MappingBuilder.indexTypeFromClass(clazz), "_doc", idValue)
                 .setSource(JsonUtil.toString(element), XContentType.JSON)
                 .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
     }

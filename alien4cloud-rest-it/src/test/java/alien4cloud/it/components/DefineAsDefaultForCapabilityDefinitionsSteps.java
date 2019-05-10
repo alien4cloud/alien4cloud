@@ -79,7 +79,8 @@ public class DefineAsDefaultForCapabilityDefinitionsSteps {
            idValue = (new FieldsMappingBuilder()).getIdValue(indexedNodeType);
         } catch (Exception e) {}
 
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(serializeDatum, XContentType.JSON)
+        //esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(serializeDatum, XContentType.JSON)
+        esClient.prepareIndex(typeName, "_doc", idValue).setSource(serializeDatum, XContentType.JSON)
                 .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
     }
 }
