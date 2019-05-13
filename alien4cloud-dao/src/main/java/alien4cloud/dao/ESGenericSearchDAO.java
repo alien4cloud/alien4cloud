@@ -361,7 +361,8 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         T[] resultData = (T[]) Array.newInstance(clazz, resultTypes.length);
         for (int i = 0; i < resultTypes.length; i++) {
             SearchHit hit = searchResponse.getHits().getAt(i);
-            resultTypes[i] = hit.getType();
+            //resultTypes[i] = hit.getType();
+            resultTypes[i] = hit.getIndex();
             resultData[i] = hitToObject(hit);
         }
         finalResponse.setData(resultData);

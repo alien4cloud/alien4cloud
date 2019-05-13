@@ -67,7 +67,8 @@ public abstract class AbstractToscaIndexSearchService<T> {
                         for (Terms.Bucket bucket : safe(((Terms) aggregation).getBuckets())) {
                             TopHits topHits = bucket.getAggregations().get("highest_version");
                             for (SearchHit hit : topHits.getHits()) {
-                                resultTypes.add(hit.getType());
+                                //resultTypes.add(hit.getType());
+                                resultTypes.add(hit.getIndex());
                                 resultData.add(
                                         //objectMapper.readValue(hit.getSourceAsString(), ((Function<String, Class>) getClassFromType).apply(hit.getType())));
                                         objectMapper.readValue(hit.getSourceAsString(), ((Function<String, Class>) getClassFromType).apply(hit.getIndex())));

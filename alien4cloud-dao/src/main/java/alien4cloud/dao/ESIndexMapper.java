@@ -26,6 +26,8 @@ import org.elasticsearch.mapping.ElasticSearchClient;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.elasticsearch.util.MapUtil;
 
+import org.elasticsearch.annotation.ESObject;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -110,7 +112,8 @@ public abstract class ESIndexMapper {
                 continue;
              }
 
-             if (Modifier.isAbstract(clazz.getModifiers())) {
+             if (Modifier.isAbstract(clazz.getModifiers()) || 
+                 !clazz.isAnnotationPresent(ESObject.class)) {
                  continue; // no mapping to register for abstract classes.
              }
 
@@ -217,11 +220,11 @@ public abstract class ESIndexMapper {
     private String addToMappedClasses(String indexName, Class<?> clazz) {
         //log.info("Mapping class <" + clazz.getName() + "> to index <" + indexName + ">");
         String typeName = MappingBuilder.indexTypeFromClass(clazz);
-        log.info("Mapping class <" + clazz.getName() + "> to index <" + typeName + ">");
         typesToIndices.put(typeName, indexName);
         typesToClasses.put(typeName, clazz);
 
-        if (!Modifier.isAbstract(clazz.getModifiers())) {
+        if (!Modifier.isAbstract(clazz.getModifiers()) &&
+            clazz.isAnnotationPresent(ESObject.class)) {
            List<String> indices = classesToIndicesGroups.get(indexName);
            if (indices == null) {
               indices = new ArrayList<String>();
@@ -229,6 +232,7 @@ public abstract class ESIndexMapper {
            }
            indices.add(typeName);
         }
+        log.info("Mapping class <" + clazz.getName() + "> to index <" + typeName + ">");
 
         return typeName;
     }
@@ -246,7 +250,8 @@ public abstract class ESIndexMapper {
             log.error("Class <" + clazz.getName() + "> is not registered in any indexes.");
             throw new IndexingServiceException("Requested type <" + typeName + "> is not registered in any indexes.");
         }
-        if (Modifier.isAbstract(clazz.getModifiers())) { // abstract class : get all associated indices
+        if (Modifier.isAbstract(clazz.getModifiers()) || // abstract class : get all associated indices
+            !clazz.isAnnotationPresent(ESObject.class)) {
            List<String> lresult = classesToIndicesGroups.get(index);
            String[] tresult = new String[lresult.size()];
            return lresult.toArray(tresult);
