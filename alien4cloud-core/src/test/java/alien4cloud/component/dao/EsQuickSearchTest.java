@@ -72,7 +72,7 @@ public class EsQuickSearchTest extends AbstractDAOTest {
         prepareToscaElement();
         saveDataToES(true);
         Application app = new Application();
-        app.setName("app lication-1"); // in order to phrase prefix match "app"
+        app.setName("application-1");
         Map<String, Set<String>> userRoles = Maps.newHashMap();
         userRoles.put("Igor", Sets.newHashSet("APPLICATION_MANAGER"));
         app.setUserRoles(userRoles);
@@ -90,9 +90,8 @@ public class EsQuickSearchTest extends AbstractDAOTest {
         assertNotNull(searchResp.getData());
         assertEquals(2, searchResp.getTypes().length);
         assertEquals(2, searchResp.getData().length);
-        assertElementIn("_doc", searchResp.getTypes());
-        //assertElementIn("nodetype", searchResp.getTypes());
-        //assertElementIn("application", searchResp.getTypes());
+        assertElementIn("nodetype", searchResp.getTypes());
+        assertElementIn("application", searchResp.getTypes());
     }
 
     private void assertElementIn(Object element, Object[] elements) {

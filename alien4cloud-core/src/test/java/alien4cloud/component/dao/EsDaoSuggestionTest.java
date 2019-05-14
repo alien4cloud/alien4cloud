@@ -92,8 +92,7 @@ public class EsDaoSuggestionTest extends AbstractDAOTest {
         assertNotNull(searchResp.getData());
         assertEquals(2, searchResp.getTypes().length);
         assertEquals(2, searchResp.getData().length);
-        //assertElementIn("nodetype", searchResp.getTypes());
-        assertElementIn("_doc", searchResp.getTypes());
+        assertElementIn("nodetype", searchResp.getTypes());
     }
 
     private void assertElementIn(Object element, Object[] elements) {
