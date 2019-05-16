@@ -109,9 +109,18 @@ public abstract class ESIndexMapper {
              String typeName = addToMappedClasses(indexName, clazz);
 
              if (indexExist(typeName)) {
+                Field generatedIdField = ReflectionUtil.getDeclaredField(clazz, EsGeneratedId.class);
+                if (generatedIdField != null) {
+                    generatedIdField.setAccessible(true);
+                    classTogeneratedIdFields.put(clazz, generatedIdField);
+                }
+                generatedIdField = ReflectionUtil.getDeclaredField(clazz, Id.class);
+                if (generatedIdField != null) {
+                    generatedIdField.setAccessible(true);
+                    classTogeneratedIdFields.put(clazz, generatedIdField);
+                }
                 continue;
              }
-
              if (Modifier.isAbstract(clazz.getModifiers()) || 
                  !clazz.isAnnotationPresent(ESObject.class)) {
                  continue; // no mapping to register for abstract classes.
@@ -201,6 +210,7 @@ public abstract class ESIndexMapper {
         return response.isExists();
     }
 
+/******************
     private void addToMappedClasses(String indexName, Class<?>[] classes) {
         for (Class<?> clazz : classes) {
             addToMappedClasses(indexName, clazz);
@@ -216,6 +226,7 @@ public abstract class ESIndexMapper {
             }
         }
     }
+************************/
 
     private String addToMappedClasses(String indexName, Class<?> clazz) {
         //log.info("Mapping class <" + clazz.getName() + "> to index <" + indexName + ">");
