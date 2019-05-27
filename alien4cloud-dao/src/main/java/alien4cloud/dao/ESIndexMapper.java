@@ -11,7 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +26,12 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsReques
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.index.reindex.DeleteByQueryAction;
+import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
 import org.elasticsearch.mapping.ElasticSearchClient;
+import org.elasticsearch.mapping.FieldsMappingBuilder;;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.elasticsearch.util.MapUtil;
 
@@ -31,6 +40,8 @@ import org.elasticsearch.annotation.ESObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import org.springframework.beans.factory.annotation.Value;
 
 import org.elasticsearch.annotation.Id;
 import alien4cloud.exception.IndexingServiceException;
@@ -80,6 +91,14 @@ public abstract class ESIndexMapper {
     @Setter
     private ObjectMapper jsonMapper = new ObjectMapper();
 
+    /** TTL scanning period, default is 1 day */
+    @Value("${ttl.period:86400}")
+    private String ttlPeriod;
+
+    private List<TTL> TTLs = new ArrayList<TTL>();
+
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+
     /**
      * Initialize the array of all indices managed by this dao.
      */
@@ -87,6 +106,30 @@ public abstract class ESIndexMapper {
         Set<String> indices = new HashSet<>(typesToIndices.values());
         allIndexes = indices.toArray(new String[indices.size()]);
         esClient.waitForGreenStatus(allIndexes);
+        if ((ttlPeriod != null) &&
+            !TTLs.isEmpty()) {
+           long period = Long.valueOf(ttlPeriod).longValue();
+           if (period > 0) {
+              executorService.scheduleWithFixedDelay(new Runnable() {
+                 @Override
+                 public void run() {
+                    log.debug ("Scanning TTLs");
+                    for (TTL ttl : TTLs) {
+                       cleanIndex (ttl.index, ttl.field, ttl.ttl);
+                    }
+                 }
+              }, period, period, TimeUnit.SECONDS);
+           }
+        }
+    }
+
+    @PreDestroy
+    public void destroy() {
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(5, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+        }
     }
 
     /**
@@ -108,6 +151,16 @@ public abstract class ESIndexMapper {
        for (Class<?> clazz : classes) {
              String typeName = addToMappedClasses(indexName, clazz);
 
+             if ( (ttl != null) && 
+                  !Modifier.isAbstract(clazz.getModifiers()) &&
+                  clazz.isAnnotationPresent(ESObject.class)) {
+                String ts = (new FieldsMappingBuilder()).getTimeStamp(clazz);
+                if (ts == null) {
+                   ts = "timestamp";
+                }
+                TTLs.add (new TTL(typeName, ts, ttl));
+             }
+
              if (indexExist(typeName)) {
                 Field generatedIdField = ReflectionUtil.getDeclaredField(clazz, EsGeneratedId.class);
                 if (generatedIdField != null) {
@@ -119,6 +172,7 @@ public abstract class ESIndexMapper {
                     generatedIdField.setAccessible(true);
                     classTogeneratedIdFields.put(clazz, generatedIdField);
                 }
+
                 continue;
              }
              if (Modifier.isAbstract(clazz.getModifiers()) || 
@@ -199,6 +253,15 @@ public abstract class ESIndexMapper {
             Map<String, Object> ttlMapping = MapUtil.getMap(new String[] { "enabled", "default" }, new String[] { "true", ttl });
             typeMappingMap.put("_ttl", ttlMapping);
         }
+    }
+
+    private void cleanIndex (String index, String ts, String ttl) {
+       log.debug ("Cleaning index " + index + "(" + ts + ") ttl=" + ttl);
+       BulkByScrollResponse response = new DeleteByQueryRequestBuilder(esClient.getClient(), DeleteByQueryAction.INSTANCE)
+               .source(index)
+               .filter(QueryBuilders.rangeQuery(ts).lte("now-" + ttl))
+               .get();
+       log.debug ("Deleted " + response.getDeleted() + " docs");
     }
 
     @SneakyThrows({ ExecutionException.class, InterruptedException.class })
@@ -328,5 +391,18 @@ public abstract class ESIndexMapper {
     public static org.slf4j.Logger getLog() {
         return log;
     }
+
+    private class TTL {
+
+       protected String index;
+       protected String field;
+       protected String ttl;
+
+       protected TTL (String index, String field, String ttl) {
+          this.index = index;
+          this.field = field;
+          this.ttl = ttl;
+       }
+    } 
 
 }
