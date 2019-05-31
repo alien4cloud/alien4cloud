@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Sets;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.*;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.DeleteRelationshipOperation;
@@ -265,11 +266,39 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
         return null;
     }
 
+    /**
+     * Remove all relationships that concern this node.
+     *
+     * @param topology
+     * @param nodeTemplate
+     */
+    private void removeRelationships(Csar csar, Topology topology, NodeTemplate nodeTemplate) {
+        Set<String> rsToRemove = Sets.newHashSet();
+        topology.getNodeTemplates().forEach((nodeName, node) -> {
+            rsToRemove.clear();
+            if (node == nodeTemplate) {
+                safe(node.getRelationships()).forEach((s, relationshipTemplate) -> {
+                    rsToRemove.add(s);
+                });
+            } else {
+                safe(node.getRelationships()).forEach((s, relationshipTemplate) -> {
+                    if (relationshipTemplate.getTarget().equals(nodeTemplate.getName())) {
+                        rsToRemove.add(s);
+                    }
+                });
+            }
+            rsToRemove.stream().forEach(s -> {
+                this.removeRelationship(csar, topology, node.getName(), s);
+            });
+        });
+    }
+
     // remove the node and all nested nodes (recursively)
     protected void removeNode(Topology topology, NodeTemplate nodeTemplate) {
         // keep track of the hosted nodes
         List<NodeTemplate> hostedNodes = TopologyNavigationUtil.getHostedNodes(topology, nodeTemplate.getName());
         Csar csar = new Csar(topology.getArchiveName(), topology.getArchiveVersion());
+        this.removeRelationships(csar, topology, nodeTemplate);
         DeleteNodeOperation deleteNodeOperation = new DeleteNodeOperation();
         deleteNodeOperation.setNodeName(nodeTemplate.getName());
         deleteNodeProcessor.process(csar, topology, deleteNodeOperation);

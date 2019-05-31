@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import alien4cloud.utils.CloneUtil;
 import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -162,12 +163,13 @@ public final class IndexedModelUtils {
                 // the target already have this entry, so we'll compare operations in detail
                 Map<String, Operation> toOperations = toInterface.getOperations();
                 if (toOperations == null) {
-                    toInterface.setOperations(fromInterface.getOperations());
-                } else if (fromInterface.getOperations() != null) {
-                    for (Entry<String, Operation> fromOperationEntry : fromInterface.getOperations().entrySet()) {
-                        if (!toOperations.containsKey(fromOperationEntry.getKey())) {
-                            toOperations.put(fromOperationEntry.getKey(), fromOperationEntry.getValue());
-                        }
+                    toOperations = Maps.newHashMap();
+                    toInterface.setOperations(toOperations);
+                }
+
+                for (Entry<String, Operation> fromOperationEntry : fromInterface.getOperations().entrySet()) {
+                    if (!toOperations.containsKey(fromOperationEntry.getKey())) {
+                        toOperations.put(fromOperationEntry.getKey(), CloneUtil.clone(fromOperationEntry.getValue()));
                     }
                 }
                 Map<String, IValue> globalInputParameters = CollectionUtils.merge(fromInterface.getInputParameters(), toInterface.getInputParameters(), false);
