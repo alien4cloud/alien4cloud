@@ -7,4 +7,6 @@ package alien4cloud.paas;
 public interface IPaasEventService {
 
     void addListener(IPaasEventListener<?> listener);
+
+    void removeListener(IPaasEventListener<?> listener);
 }
