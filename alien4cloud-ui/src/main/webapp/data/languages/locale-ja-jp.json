@@ -1303,6 +1303,9 @@
     "uninitialized" : "Uninitialized",
     "uninstalled" : "Uninstalled",
     "uninstalling" : "Uninstalling",
+    "submitting" : "Submitted",
+    "executing" : "Executing",
+    "executed" : "Executed",
     "unknown" : "Waiting for the orchestrator"
   },
   "SUGGESTIONS" : "suggestions",

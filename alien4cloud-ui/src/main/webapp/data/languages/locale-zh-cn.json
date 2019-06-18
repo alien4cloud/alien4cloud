@@ -1303,6 +1303,9 @@
     "uninitialized" : "未初始化的",
     "uninstalled" : "未安装的",
     "uninstalling" : "正在卸载",
+    "submitting" : "Submitted",
+    "executing" : "Executing",
+    "executed" : "Executed",
     "unknown" : "正在等待云编排工具"
   },
   "SUGGESTIONS" : "建议",
