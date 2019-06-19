@@ -1,5 +1,9 @@
 package alien4cloud.paas.model;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Objects;
 
@@ -161,13 +165,26 @@ public class PaaSDeploymentLog {
         return "PaaSDeploymentLog{" + toCompactString() + '}';
     }
 
-    public String toCompactString() {
-        return "deploymentPaaSId='" + deploymentPaaSId + '\'' + ", level=" + level + ", type='" + type + '\'' + ", timestamp="
-                + timestamp + ", workflowId='" + workflowId + '\'' + ", executionId='" + executionId + '\'' + ", taskId='" + taskId + '\'' + ", nodeId='" + nodeId + '\'' + ", instanceId='"
-                + instanceId + '\'' + ", interfaceName='" + interfaceName + '\'' + ", operationName='" + operationName + '\'' + ", content='" + content;
-    }
+    private final static String COMPACT_FORMAT = "[deploymentId=%s][deploymentPaasId=%s][operationName=%s][type=%s][timestamp=%s][workflowId=%s][taskId=%s][executionId=%s][nodeId=%s] | %s";
 
-    public final static String FORMAT = "[%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s]%s\n";
+    private final static String FORMAT = "[%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s]%s\n";
+
+    public String toCompactString() {
+        OffsetDateTime stamp = OffsetDateTime.ofInstant(Instant.ofEpochMilli(timestamp.getTime()), ZoneId.systemDefault());
+
+        return String.format(COMPACT_FORMAT,
+                formatEmptyString(deploymentId),
+                formatEmptyString(deploymentPaaSId),
+                formatEmptyString(operationName),
+                formatEmptyString(type),
+                formatEmptyString(stamp.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)),
+                formatEmptyString(workflowId),
+                formatEmptyString(taskId),
+                formatEmptyString(executionId),
+                formatEmptyString(nodeId),
+                formatEmptyString(content)
+        );
+    }
 
     private String formatEmptyString(String str) {
         return Objects.toString(str, "");
