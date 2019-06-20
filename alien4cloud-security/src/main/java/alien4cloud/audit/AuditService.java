@@ -8,6 +8,9 @@ import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +27,8 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.security.AuthorizationUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import static org.apache.commons.lang3.StringUtils.defaultString;
+
 @Component
 @Slf4j
 public class AuditService {
@@ -37,6 +42,16 @@ public class AuditService {
      * Cache the instance of audit configuration bad idea ?
      */
     private AuditConfiguration auditConfiguration;
+
+    /**
+     * Logger for audit events
+     */
+    private final Logger audit_logger = LoggerFactory.getLogger("AUDIT_LOGS_LOGGER");
+
+    @Value("${logs_audit_appender.enable}")
+    private boolean isLoggerEnabled;
+
+    private final static String OUTPUT_FORMAT = "%s %s.%s [method=%s][call=%s][response_code=%d][Ipsource=%s][Alien4cloud UI=%s] | %s";
 
     /**
      * Get the audit configuration, this method will cache the configuration in memory
@@ -56,7 +71,13 @@ public class AuditService {
     }
 
     public void saveAuditTrace(AuditTrace auditTrace) {
-        alienDAO.save(auditTrace);
+        try {
+            if (isLoggerEnabled) {
+                audit_logger.info("{}",toLogFormat(auditTrace));
+            }
+        } finally {
+            alienDAO.save(auditTrace);
+        }
     }
 
     public AuditConfiguration getMandatoryAuditConfiguration() {
@@ -148,4 +169,17 @@ public class AuditService {
         return audit.bodyHiddenFields();
     }
 
+    private String toLogFormat(AuditTrace auditTrace) {
+        return String.format(OUTPUT_FORMAT,
+                defaultString(auditTrace.getUserName()),
+                defaultString(auditTrace.getCategory()),
+                defaultString(auditTrace.getAction()),
+                defaultString(auditTrace.getMethod()),
+                defaultString(auditTrace.getPath()),
+                auditTrace.getResponseStatus(),
+                defaultString(auditTrace.getSourceIp()),
+                auditTrace.getAlien4CloudUI().toString(),
+                defaultString(auditTrace.getActionDescription())
+                );
+    }
 }
