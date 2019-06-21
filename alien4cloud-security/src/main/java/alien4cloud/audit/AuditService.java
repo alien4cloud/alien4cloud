@@ -48,7 +48,7 @@ public class AuditService {
      */
     private final Logger audit_logger = LoggerFactory.getLogger("AUDIT_LOGS_LOGGER");
 
-    @Value("${logs_audit_appender.enable}")
+    @Value("${logs_audit_appender.enable:false}")
     private boolean isLoggerEnabled;
 
     private final static String OUTPUT_FORMAT = "%s %s.%s [method=%s][call=%s][response_code=%d][Ipsource=%s][Alien4cloud UI=%s] | %s";
