@@ -147,6 +147,10 @@ ha:
 logs_deployment_appender:
   enable: false
 
+logs_audit_appender:
+  enable: false
+
+
 features:
   editor_auto_completion: false
   archive_indexer_lock_used_archive: false
@@ -155,3 +159,4 @@ features:
 languages:
   default: en-us
   prefix: locale
+

@@ -108,6 +108,14 @@ public class DeploymentTopologyController {
         // This method prepares the deployment and create a Deployment Topology DTO object.
         DeploymentTopologyDTO dto = deploymentTopologyDTOBuilder.prepareDeployment(topology, application, environment);
 
+        if (dto.getAvailableSubstitutions() != null && dto.getAvailableSubstitutions().getSubstitutionTypes() != null) {
+            // Fix for Services with abstract types
+            //  When the service is abstract, the type goes in configurationTypes but
+            // the UI need it also in nodeTypes
+            dto.getAvailableSubstitutions().getSubstitutionTypes().getNodeTypes().putAll(
+                    dto.getAvailableSubstitutions().getSubstitutionTypes().getConfigurationTypes()
+            );
+        }
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(dto).build();
     }
 

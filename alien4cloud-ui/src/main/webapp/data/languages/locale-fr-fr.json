@@ -1306,6 +1306,9 @@
     "uninitialized" : "Non initialisé",
     "uninstalled" : "Désinstallé",
     "uninstalling" : "Désinstallation",
+    "submitting" : "Soumis",
+    "executing" : "Execution en cours",
+    "executed" : "Executé",
     "unknown" : "En attente de l'orchestrateur"
   },
   "SUGGESTIONS" : "suggestions",
