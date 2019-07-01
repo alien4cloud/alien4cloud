@@ -76,8 +76,13 @@ public class ArchiveImageLoader {
         Path iconPath = null;
 
         try {
-            csarFS = FileSystems.newFileSystem(archiveFile, null);
-            iconPath = csarFS.getPath(iconTag.getValue());
+            if ( Files.isDirectory(archiveFile) ) {
+                csarFS = FileSystems.getDefault();
+                iconPath = csarFS.getPath(archiveFile.toString(), iconTag.getValue());
+            } else {
+                csarFS = FileSystems.newFileSystem(archiveFile, null);
+                iconPath = csarFS.getPath(iconTag.getValue());
+            }
             if (!Files.isDirectory(iconPath)) {
                 String iconId = UUID.randomUUID().toString();
                 // Saving the image
