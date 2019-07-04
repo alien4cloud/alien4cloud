@@ -86,6 +86,8 @@ public class InterfaceParser implements INodeParser<Interface> {
         }
 
         if (interfaceInputs != null) {
+            // set this inputs to the interface for merge with type hierarchy usage
+            interfaz.setInputParameters(interfaceInputs);
             for (Operation operation : operations.values()) {
                 if (operation.getInputParameters() == null) {
                     operation.setInputParameters(Maps.newHashMap());

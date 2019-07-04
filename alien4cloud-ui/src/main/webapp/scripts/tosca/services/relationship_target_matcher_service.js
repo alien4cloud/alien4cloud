@@ -72,7 +72,7 @@ define(function (require) {
               // but that's allowed by TOSCA Simple profile.
               var match =  this.getNodeTarget(validTargets, candidate, nodeTypes);
               if(match === null) {
-                match = this.getCapabilityTarget(validTargets, candidate, nodeTypes, capabilityTypes);
+                match = this.getCapabilityTarget(validTargets, candidate, nodeTypes, capabilityTypes, nodeTemplates);
               }
               if(match !== null) {
                 matches.push(match);
@@ -116,7 +116,7 @@ define(function (require) {
           return null;
         },
 
-        getCapabilityTarget: function(validTargets, candidateTemplate, nodeTypes, capabilityTypes) {
+        getCapabilityTarget: function(validTargets, candidateTemplate, nodeTypes, capabilityTypes, nodeTemplates) {
           var nodeCapabilities = nodeTypes[candidateTemplate.type].capabilities;
           if(_.undefined(nodeCapabilities)) {
             return null;
@@ -125,8 +125,9 @@ define(function (require) {
           var match = null;
           for(var i=0; i<nodeCapabilities.length; i++) {
             var capabilityId = nodeCapabilities[i].id;
+            var capabilityTypeName = nodeTypes[candidateTemplate.type].capabilities[i].type;
             if(candidateTemplate.capabilitiesMap[capabilityId].value.canAddRel.yes &&
-              this.isValidTarget(validTargets, candidateTemplate.type, i, nodeTypes, capabilityTypes)) {
+              this.isValidTarget(validTargets, candidateTemplate.type, capabilityTypeName, capabilityId, nodeTypes, capabilityTypes, candidateTemplate, nodeTemplates)) {
               if(match === null) {
                 match = { template: candidateTemplate, capabilities: [], capabilitiesIds: []};
               }
@@ -147,16 +148,41 @@ define(function (require) {
         * @param capabilityTypes A map of all available capability types (it must contains the candidate capability type).
         * @return true if the capability type is one of the valid targets, false if not.
         */
-        isValidTarget: function(validTargets, candidateNodeTypeName, candidateCapabilityIndex, nodeTypes, capabilityTypes) {
+        isValidTarget: function(validTargets, candidateNodeTypeName, capabilityTypeName, candidateCapabilityId, nodeTypes, capabilityTypes, candidateTemplate, nodeTemplates) {
           var isValid = true;
           // we should match all valid targets.
           for(var i=0; i<validTargets.length; i++) {
             // One of the validTargets[i] element should be either the capability type or the node type.
             isValid = isValid && (toscaService.isOneOfType(validTargets[i], candidateNodeTypeName, nodeTypes) ||
-              toscaService.isOneOfType(validTargets[i], nodeTypes[candidateNodeTypeName].capabilities[candidateCapabilityIndex].type, capabilityTypes));
+              toscaService.isOneOfType(validTargets[i], capabilityTypeName, capabilityTypes) ||
+              this.isValidProxy(validTargets, candidateNodeTypeName, capabilityTypeName, candidateCapabilityId, nodeTypes, capabilityTypes, candidateTemplate, nodeTemplates) );
+          }
+          return isValid;
+        },
+
+        /**
+         * The capability is of type proxy and actually proxify a capability that matches the valid types
+         **/
+        isValidProxy: function(validTargets, candidateNodeTypeName, capabilityTypeName, candidateCapabilityId, nodeTypes, capabilityTypes, candidateTemplate, nodeTemplates) {
+          var isValid = false;
+          if (toscaService.isProxyType(capabilityTypeName, capabilityTypes)) {
+            // the candidate capability is of type Proxy, let's see if it's wired to something and if the wired stuff is a good candidate
+            var requirementName = candidateTemplate.capabilitiesMap[candidateCapabilityId].value.propertiesMap['proxy_for'].value.value;
+            var proxyRelationships = toscaService.getRelationships(candidateTemplate, function(rs) { return rs.requirementName === requirementName});
+            for(var i=0; i<proxyRelationships.length; i++) {
+              var proxyRelationship = proxyRelationships[i];
+              // we have the relationship that is behind the proxyfied requirement, let's check if the capability this relationship targets is compatible
+              var proxyfiedNodeTemplate = nodeTemplates[proxyRelationship.target];
+              var proxyfiedCapabilityId = proxyRelationship.targetedCapabilityName;
+              var proxyfiedCapabilityTypeName = proxyfiedNodeTemplate.capabilitiesMap[proxyfiedCapabilityId].value.type;
+              if (this.isValidTarget(validTargets, proxyfiedNodeTemplate.type, proxyfiedCapabilityTypeName, proxyfiedCapabilityId, nodeTypes, capabilityTypes, proxyfiedNodeTemplate, nodeTemplates)) {
+                isValid = true;
+              }
+            }
           }
           return isValid;
         }
+
       };
     }
   ]);
