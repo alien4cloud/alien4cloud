@@ -82,6 +82,14 @@
   overflow-y: auto;
 }
 
+.topology-column-content-xscroll {
+  padding-left: 10px;
+  height: inherit;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
 .topology-column-content-left {
   padding-right: 10px;
   height: inherit;
