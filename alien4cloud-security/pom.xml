@@ -107,6 +107,13 @@
       <artifactId>springfox-swagger2</artifactId>
     </dependency>
 
+    <!-- JWT Stuff -->
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt</artifactId>
+      <version>0.9.1</version>
+    </dependency>
+
     <!-- tests -->
     <dependency>
       <groupId>junit</groupId>
