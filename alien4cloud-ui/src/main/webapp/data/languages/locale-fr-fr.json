@@ -799,6 +799,7 @@
     },
     "DOWNLOAD" : "Télécharger",
     "DO_NOT_SAVE" : "Ignorer",
+    "KEEP" : "Garder en session",
     "EMPTY_GIT_HISTORY" : "L'historique git est vide, vous devez sauver la topologie.",
     "GIT" : {
       "MODAL" : {

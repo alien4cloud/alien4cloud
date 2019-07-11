@@ -797,6 +797,7 @@
     },
     "DOWNLOAD" : "Download",
     "DO_NOT_SAVE" : "Skip",
+    "KEEP": "Keep in session",
     "EMPTY_GIT_HISTORY" : "The git history is empty, you need to save the topology.",
     "GIT" : {
       "MODAL" : {

@@ -325,6 +325,42 @@ public class EditorService {
         context.setLastOperationIndex(-1);
     }
 
+    /**
+     * Discard all pending changes to the topology.
+     *
+     * @param topologyId The id of the topology under edition.
+     * @param lastOperationId The id of the last operation.
+     */
+    public TopologyDTO discard(String topologyId, String lastOperationId) {
+        try {
+            initContext(topologyId, lastOperationId);
+
+            doDiscard();
+
+            return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
+        } catch (IOException e) {
+            // when there is a failure in file copy to the local repo.
+            // FIXME git revert to put back the local files state in the initial state.
+            throw new EditorIOException("Error while saving files state in local repository", e);
+        } finally {
+            EditionContextManager.get().setCurrentOperation(null);
+            editionContextManager.destroy();
+        }
+    }
+
+    private void doDiscard() throws IOException {
+        EditionContext context = EditionContextManager.get();
+        if (context.getLastOperationIndex() <= context.getLastSavedOperationIndex()) {
+            // nothing to discard..
+            return;
+        }
+
+        editionContextManager.reset();
+
+        context.setOperations(Lists.newArrayList());
+        context.setLastOperationIndex(-1);
+    }
+
     private void saveYamlAndZipFile() throws IOException {
         // Update the yaml in the archive
         Csar csar = EditionContextManager.getCsar();
