@@ -2,6 +2,7 @@ package alien4cloud.security.users;
 
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.User;
+import alien4cloud.security.users.rest.JwtToken;
 import com.google.common.collect.Sets;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -32,22 +33,27 @@ public class JwtTokenService {
     /**
      * In hours, the duration of the availability for a JWT token.
      */
-    @Value("${jwt.token.ttlInHours:24}")
+    @Value("${jwt.token.ttlInHours:12}")
     private Integer tokenTtlInHours;
 
-    public String createTokens(Authentication authentication) {
+    public JwtToken createTokens(Authentication authentication) {
         User user = (User) authentication.getPrincipal();
-        String token = createToken(user);
+        JwtToken token = createToken(user);
         return token;
     }
 
-    public String createToken(User user) {
-        return Jwts.builder()
+    public JwtToken createToken(User user) {
+        Date expirationDate = getTokenExpirationDate(false);
+        String token = Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .setClaims(buildUserClaims(user))
-                .setExpiration(getTokenExpirationDate(false))
+                .setExpiration(expirationDate)
                 .setIssuedAt(new Date())
                 .compact();
+        JwtToken jwtToken = new JwtToken();
+        jwtToken.setToken(token);
+        jwtToken.setExpireAt(expirationDate.getTime());
+        return jwtToken;
     }
 
     public Jws<Claims> validateJwtToken(String token) {
@@ -56,7 +62,7 @@ public class JwtTokenService {
 
     private Date getTokenExpirationDate(boolean refreshToken) {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MONTH, tokenTtlInHours);
+        calendar.add(Calendar.HOUR, tokenTtlInHours);
         return calendar.getTime();
     }
 

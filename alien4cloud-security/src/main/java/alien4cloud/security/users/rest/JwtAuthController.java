@@ -26,7 +26,7 @@ public class JwtAuthController {
     private JwtTokenService jwtTokenService;
 
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<String> authenticate(@RequestParam("user") String user, @RequestParam("password") String password) {
+    public RestResponse<JwtToken> authenticate(@RequestParam("user") String user, @RequestParam("password") String password) {
         Authentication authentication = authenticationProvider.authenticate(new Authentication() {
             @Override
             public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -65,8 +65,8 @@ public class JwtAuthController {
         });
 
         if(authentication != null && authentication.isAuthenticated()) {
-            String token = jwtTokenService.createTokens(authentication);
-            return RestResponseBuilder.<String> builder().data(token).build();
+            JwtToken token = jwtTokenService.createTokens(authentication);
+            return RestResponseBuilder.<JwtToken> builder().data(token).build();
         }
 
         throw new AuthenticationServiceException("Not able to authenticate using JWT");

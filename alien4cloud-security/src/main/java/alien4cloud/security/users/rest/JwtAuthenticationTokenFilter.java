@@ -42,15 +42,15 @@ public class JwtAuthenticationTokenFilter extends GenericFilterBean {
         final Optional<String> token = Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION));
 
         Authentication authentication;
-
+        boolean securityContextSet = false;
         if(token.isPresent() && token.get().startsWith(BEARER)) {
-
             String bearerToken = token.get().substring(BEARER.length()+1);
 
             try {
                 Jws<Claims> claims = jwtTokenService.validateJwtToken(bearerToken);
                 authentication = jwtTokenService.buildAuthenticationFromClaim(claims);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                securityContextSet = true;
             } catch (ExpiredJwtException exception) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "error.jwt.expired");
                 return;
@@ -62,6 +62,9 @@ public class JwtAuthenticationTokenFilter extends GenericFilterBean {
         }
 
         chain.doFilter(servletRequest, servletResponse);
+        if (securityContextSet) {
+            SecurityContextHolder.getContext().setAuthentication(null);
+        }
 
     }
 
