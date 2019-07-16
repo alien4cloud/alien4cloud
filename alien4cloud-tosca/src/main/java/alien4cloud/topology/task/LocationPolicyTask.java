@@ -1,6 +1,5 @@
 package alien4cloud.topology.task;
 
-import alien4cloud.utils.AlienConstants;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +13,7 @@ public class LocationPolicyTask extends AbstractTask {
     private String groupName;
 
     public LocationPolicyTask() {
-        this.groupName = AlienConstants.GROUP_ALL;
+        this.groupName = "";
         this.setCode(TaskCode.LOCATION_POLICY);
     }
 

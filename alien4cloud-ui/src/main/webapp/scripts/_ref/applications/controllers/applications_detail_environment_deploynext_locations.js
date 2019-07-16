@@ -36,21 +36,39 @@ define(function (require) {
           $state.go('applications.detail.environment.deploynext.locations');
         }
       });
-
-      if (_.has($scope, 'deploymentTopologyDTO.topology.orchestratorId') && _.has($scope, 'deploymentTopologyDTO.locationPolicies.' + locationsMatchingServices.GROUP_ALL)) {
-        $scope.oldSelectedOrchestratorId = $scope.deploymentTopologyDTO.topology.orchestratorId;
-        $scope.oldSelectedLocationId = $scope.deploymentTopologyDTO.locationPolicies[locationsMatchingServices.GROUP_ALL];
-      }
+      $scope.$watch('locationMatches', function(newValue){
+        $scope.orchestrators = {};
+        if( _.defined(newValue) ) {
+          _.each($scope.locationMatches, function(value){
+            $scope.orchestrators[value.orchestrator.id] = value.orchestrator.name
+          });
+        }
+      });
 
       //select a location
       $scope.selectLocation = function(locationMatch) {
-        // Do nothing if already selected or not ready
-        if(locationMatch.selected || !locationMatch.ready){
-          return;
-        }
 
         var groupsToLocations = {};
-        groupsToLocations[locationsMatchingServices.GROUP_ALL] = locationMatch.location.id;
+        var selectedOrchestratorId = "";
+
+        // let retrieve already selected locations if any
+        _.each($scope.deploymentTopologyDTO.topology.locationGroups, function(locationGrp) {
+          var locationId = locationGrp.policies[0].locationId;
+          groupsToLocations[locationId] = locationId;
+          selectedOrchestratorId = $scope.locationMatches[locationId].orchestrator.id;
+        });
+
+        if (locationMatch.selected) {
+          // Remove selected location from group
+          delete groupsToLocations[locationMatch.location.id];
+        } else {
+          if (locationMatch.location.orchestratorId != selectedOrchestratorId) {
+            // Selected a location from another orchestrator so let reset the map
+            groupsToLocations = {};
+          }
+          groupsToLocations[locationMatch.location.id] = locationMatch.location.id;
+        }
+
 
         var configRequest = {
           orchestratorId: locationMatch.location.orchestratorId,
@@ -62,7 +80,6 @@ define(function (require) {
           envId: $scope.environment.id
         }, angular.toJson(configRequest), function(response) {
           $scope.updateScopeDeploymentTopologyDTO(response.data);
-          $scope.selectedLocation = locationMatch.location;
           $scope.goToNextInvalidStep();
           // $state.go(thisMenu.nextStep.state);
         });

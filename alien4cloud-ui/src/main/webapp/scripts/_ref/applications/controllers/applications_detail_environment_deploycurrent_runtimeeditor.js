@@ -450,12 +450,17 @@ define(function (require) {
     */
     $scope.$watch('topology.topology', function(newValue){
       if( _.defined(newValue) ) {
-        locationService.get({
-          orchestratorId: $scope.topology.topology.orchestratorId,
-          locationId: $scope.topology.topology.locationGroups._A4C_ALL.policies[0].locationId
-        }, function(response) {
-          $scope.location = response.data.location;
+        $scope.locations = {}
+        _.each($scope.topology.topology.locationGroups, function(locationGroup) {
+          var locationId = locationGroup.policies[0].locationId;
+          locationService.get({
+            orchestratorId: $scope.topology.topology.orchestratorId,
+            locationId: locationId
+          }, function(response) {
+            $scope.locations[locationId] = response.data.location;
+          });
         });
+
         orchestratorService.get({
           orchestratorId: $scope.topology.topology.orchestratorId
         }, function(response) {

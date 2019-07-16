@@ -64,19 +64,12 @@ public class PolicyMatchingCandidateModifier implements ITopologyModifier {
     private Map<String, List<PolicyLocationResourceTemplate>> getAvailableMatches(Topology topology, FlowExecutionContext context,
             Map<String, NodeGroup> locationGroups, Map<String, Location> locationByIds, String environmentId) {
         Map<String, List<PolicyLocationResourceTemplate>> availableSubstitutions = Maps.newHashMap();
-        if (locationGroups.size() > 1) {
-            // Fail as not yet supported in alien4cloud.
-            // Supporting policy management on multiple locations could have limitations based on the policy (need to be defined on both locations with
-            // identical requirements / access to services etc.)
-            // Unless defined on nodes that are all in the same location.
-            context.log().warn("Policy are not supported when deployment is performed on multiple locations.");
-            return availableSubstitutions;
-        }
-
         // Fetch all policy types for templates in the topology
         Map<String, PolicyType> policyTypes = getPolicyTypes(topology);
-        availableSubstitutions
-                .putAll(policyMatcherService.match(topology.getPolicies(), policyTypes, locationByIds.get(AlienConstants.GROUP_ALL), environmentId));
+        for (Map.Entry<String, NodeGroup> entry: locationGroups.entrySet()) {
+            availableSubstitutions
+                .putAll(policyMatcherService.match(topology.getPolicies(), policyTypes, locationByIds.get(entry.getKey()), environmentId));
+        }
 
         return availableSubstitutions;
     }

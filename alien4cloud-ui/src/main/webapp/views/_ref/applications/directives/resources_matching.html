@@ -24,6 +24,7 @@
               <th>Name</th>
               <th></th>
               <th>Type</th>
+              <th>Location</th>
             </tr>
           </thead>
           <tbody>
@@ -45,6 +46,10 @@
               </td>
               <td class="col-md-7" ng-click="selectTemplate(nodeName, template)">
                 {{template.template.type}}
+              </td>
+              <td class="col-md-5" ng-click="selectTemplate(nodeName, template)">
+                <b>{{locationMatches[template.locationId].location.name}}</b> <br/>
+                <i>{{locationMatches[template.locationId].orchestrator.name}}</i>
               </td>
             </tr>
           </tbody>

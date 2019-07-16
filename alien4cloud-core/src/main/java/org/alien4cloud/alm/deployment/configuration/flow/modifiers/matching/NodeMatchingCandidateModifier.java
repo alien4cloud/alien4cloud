@@ -1,5 +1,6 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +24,6 @@ import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.topology.task.LocationPolicyTask;
 import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.utils.AlienConstants;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
@@ -51,9 +51,6 @@ public class NodeMatchingCandidateModifier implements ITopologyModifier {
         if (matchingConfiguration.getMatchedNodesConfiguration() == null) {
             matchingConfiguration.setMatchedNodesConfiguration(Maps.newHashMap());
         }
-        if (matchingConfiguration.getMatchedLocationResources() == null) {
-            matchingConfiguration.setMatchedLocationResources(Maps.newHashMap());
-        }
 
         Map<String, Location> locationMap = (Map<String, Location>) context.getExecutionCache().get(FlowExecutionContext.DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY);
         // TODO can we avoid update if the matching configuration is strickly younger than the context last conf update ?
@@ -75,14 +72,18 @@ public class NodeMatchingCandidateModifier implements ITopologyModifier {
             final NodeGroup locationNodeGroup = locationGroupEntry.getValue();
             Map<String, NodeTemplate> nodesToMatch = Maps.newHashMap();
             if (MapUtils.isNotEmpty(topology.getNodeTemplates())) {
-                if (AlienConstants.GROUP_ALL.equals(groupName)) {
-                    locationNodeGroup.setMembers(topology.getNodeTemplates().keySet());
-                    nodesToMatch = topology.getNodeTemplates();
-                } else {
-                    nodesToMatch = Maps.filterEntries(topology.getNodeTemplates(), input -> locationNodeGroup.getMembers().contains(input.getKey()));
-                }
+                locationNodeGroup.setMembers(topology.getNodeTemplates().keySet());
+                nodesToMatch = topology.getNodeTemplates();
             }
-            availableSubstitutions.putAll(nodeMatcherService.match(nodeTypes, nodesToMatch, locationByIds.get(groupName), environmentId));
+
+            for (Map.Entry<String, List<LocationResourceTemplate>> entry: nodeMatcherService.match(nodeTypes, nodesToMatch, locationByIds.get(groupName), environmentId).entrySet()) {
+                List<LocationResourceTemplate> resources = availableSubstitutions.get(entry.getKey());
+                if (resources == null) {
+                    resources = new ArrayList<>();
+                }
+                resources.addAll(entry.getValue());
+                availableSubstitutions.put(entry.getKey(), resources);
+            }
         }
         return availableSubstitutions;
     }

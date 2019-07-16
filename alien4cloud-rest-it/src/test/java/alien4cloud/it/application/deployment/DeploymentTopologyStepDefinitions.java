@@ -112,7 +112,7 @@ public class DeploymentTopologyStepDefinitions {
     @When("^I Set a unique location policy to \"([^\"]*)\"/\"([^\"]*)\" for all nodes$")
     public void I_Set_a_unique_location_policy_to_for_all_nodes(String orchestratorName, String locationName) throws Throwable {
         I_Set_the_following_location_policies_for_groups(orchestratorName,
-                MapUtil.newHashMap(new String[] { AlienConstants.GROUP_ALL }, new String[] { locationName }));
+                MapUtil.newHashMap(new String[] { "_A4C_ALL" }, new String[] { locationName }));
     }
 
     @When("^I get the deployment topology for the current application$")

@@ -40,12 +40,12 @@
           <td class="col-md-8" colspan="2">{{orchestrator.id}}</td>
         </tr>
         <tr>
-          <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.LOCATION_NAME' | translate}}</strong></td>
-          <td class="col-md-8" colspan="2">{{location.name}}</td>
-        </tr>
-        <tr>
-          <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.LOCATION_ID' | translate}}</strong></td>
-          <td class="col-md-8" colspan="2">{{location.id}}</td>
+          <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.LOCATIONS' | translate}}</strong></td>
+          <td class="col-md-8" colspan="2">
+            <div ng-repeat="(locationID, loc) in locations" style="padding-bottom:5px;">
+              Name: {{loc.name}}<br/>ID: {{locationID}}
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>

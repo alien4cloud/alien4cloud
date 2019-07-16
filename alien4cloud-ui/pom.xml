@@ -105,6 +105,9 @@
         <configuration>
           <classifier>standalone</classifier>
           <mainClass>alien4cloud.Application</mainClass>
+          <jvmArguments>
+            -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000  -DproxyHost=127.0.0.1 -DproxyPort=8888 -DnonProxyHosts=127.0.0.1 -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=8888 -Dhttp.nonProxyHosts=127.0.0.1 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=8888
+          </jvmArguments>
         </configuration>
       </plugin>
       <!-- Configure the clean plugin in order to delete generated directories -->

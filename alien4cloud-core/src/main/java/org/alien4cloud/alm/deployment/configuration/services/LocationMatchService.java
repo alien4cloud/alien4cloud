@@ -50,28 +50,15 @@ public class LocationMatchService {
 
         if (configuration == null) {
             configuration = new DeploymentMatchingConfiguration(environment.getTopologyVersion(), environment.getId());
-        } else if(configuration.getLocationGroups() == null) {
-            configuration.setLocationGroups(Maps.newHashMap());
         }
-
-        Map<String, String> currentConfiguration = configuration.getLocationIds();
-
-        // TODO For now, we only support one location policy for all nodes. So we have a group _A4C_ALL that represents all compute nodes in the topology
-        // To improve later on for multiple groups support
-        // throw an exception if multiple location policies provided: not yet supported
-        // throw an exception if group name is not _A4C_ALL
-        checkGroups(groupsLocationsMapping);
-        boolean updated = false;
+        configuration.setLocationGroups(Maps.newHashMap());
 
         for (Entry<String, String> matchEntry : groupsLocationsMapping.entrySet()) {
-            String current = currentConfiguration.get(matchEntry.getKey());
-            if (current != null && current.equals(matchEntry.getValue())) {
-                continue;
-            }
-            updated = true;
-
             String locationId = matchEntry.getValue();
             Location location = locationService.getOrFail(locationId);
+            if (!orchestratorId.equals(location.getOrchestratorId())) {
+                throw new IllegalArgumentException("Location "+location.getName()+" doesn't belong to the given orchestrator (Id: "+orchestratorId+")");
+            }
             locationSecurityService.checkAuthorisation(location, environment.getId());
             LocationPlacementPolicy locationPolicy = new LocationPlacementPolicy(locationId);
             locationPolicy.setName("Location policy");
@@ -83,10 +70,6 @@ public class LocationMatchService {
             groups.put(matchEntry.getKey(), group);
         }
 
-        if (!updated) {
-            return; // nothing has changed.
-        }
-
         configuration.setOrchestratorId(orchestratorId);
         configuration.setMatchedLocationResources(Maps.newHashMap());
         configuration.setMatchedNodesConfiguration(Maps.newHashMap());
@@ -94,17 +77,6 @@ public class LocationMatchService {
         publisher.publishEvent(new OnMatchedLocationChangedEvent(this, environment, orchestratorId, groupsLocationsMapping));
 
         deploymentConfigurationDao.save(configuration);
-    }
-
-    private void checkGroups(Map<String, String> groupsLocationsMapping) {
-        if (groupsLocationsMapping.size() > 1) {
-            throw new UnsupportedOperationException("Multiple Location policies not yet supported");
-        }
-
-        String groupName = groupsLocationsMapping.entrySet().iterator().next().getKey();
-        if (!Objects.equals(groupName, AlienConstants.GROUP_ALL)) {
-            throw new IllegalArgumentException("Group name should be <" + AlienConstants.GROUP_ALL + ">, as we do not yet support multiple Location policies.");
-        }
     }
 
     @EventListener

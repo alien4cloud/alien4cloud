@@ -95,6 +95,7 @@
         "DEPLOYMENT_ID" : "デプロイID",
         "LOCATION_ID" : "Location ID",
         "LOCATION_NAME" : "Location name",
+        "LOCATIONS" : "Locations",
         "ORCHESTRATOR_ID" : "Orchestrator ID",
         "ORCHESTRATOR_NAME" : "Orchestrator name"
       },

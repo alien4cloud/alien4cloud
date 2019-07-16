@@ -95,6 +95,7 @@
         "DEPLOYMENT_ID" : "部署 ID",
         "LOCATION_ID" : "地点 ID",
         "LOCATION_NAME" : "地点名称",
+        "LOCATIONS" : "地点",
         "ORCHESTRATOR_ID" : "编排工具 ID",
         "ORCHESTRATOR_NAME" : "编排工具 名称"
       },

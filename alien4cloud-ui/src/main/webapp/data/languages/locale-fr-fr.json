@@ -95,6 +95,7 @@
         "DEPLOYMENT_ID" : "ID du déploiement",
         "LOCATION_ID" : "ID de la location",
         "LOCATION_NAME" : "Nom de la location",
+        "LOCATIONS" : "Locations",
         "ORCHESTRATOR_ID" : "ID de l'orchestrateur",
         "ORCHESTRATOR_NAME" : "Nom de l'orchestrateur"
       },

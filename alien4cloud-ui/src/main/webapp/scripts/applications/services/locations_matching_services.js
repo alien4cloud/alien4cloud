@@ -13,8 +13,6 @@ define(function (require) {
       });
 
       return {
-        GROUP_ALL: '_A4C_ALL',
-
         getLocationsMatches: locationsMatcher.getLocationsMatches,
 
         processLocationMatches: function (scope, locationMatches) {
@@ -25,14 +23,15 @@ define(function (require) {
             locationMatch.selected = false;
           });
           // Process with location selection
-          delete scope.selectedLocation;
-          if (_.has(scope, 'deploymentTopologyDTO.locationPolicies.' + this.GROUP_ALL)) {
-            var selectedLocationId = scope.deploymentTopologyDTO.locationPolicies[this.GROUP_ALL];
+          scope.selectedLocations = [];
+
+          _.each(scope.deploymentTopologyDTO.locationPolicies, function(value, key) {
+            var selectedLocationId = value;
             if (scope.locationMatches && scope.locationMatches[selectedLocationId]) {
-              scope.selectedLocation = scope.locationMatches[selectedLocationId].location;
               scope.locationMatches[selectedLocationId].selected = true;
+              scope.selectedLocations.push(scope.locationMatches[selectedLocationId].location)
             }
-          }
+          });
         }
       };
     }

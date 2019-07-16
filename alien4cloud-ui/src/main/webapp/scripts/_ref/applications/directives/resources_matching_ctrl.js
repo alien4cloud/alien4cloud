@@ -8,8 +8,8 @@ define(function (require) {
   require('scripts/tosca/services/tosca_service');
 
   modules.get('a4c-applications').controller('ResourcesMatchingCtrl',
-    ['$scope', 'toscaService', 'topoEditProperties',
-    function ($scope, toscaService, topoEditProperties) {
+    ['$scope', 'toscaService', 'topoEditProperties', 'locationsMatchingServices',
+    function ($scope, toscaService, topoEditProperties, locationsMatchingServices) {
 
       topoEditProperties($scope);
 
@@ -132,6 +132,8 @@ define(function (require) {
       if(_.isFunction($scope.populateScope)){
         $scope.populateScope({scope:$scope});
       }
+
+      $scope.locationMatches = $scope.$parent.$parent.$parent.locationMatches;
     }
 
   ]);

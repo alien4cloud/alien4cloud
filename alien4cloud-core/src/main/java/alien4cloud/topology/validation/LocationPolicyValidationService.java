@@ -42,11 +42,10 @@ public class LocationPolicyValidationService {
         List<LocationPolicyTask> tasks = Lists.newArrayList();
         Location location = null;
         Orchestrator orchestrator = null;
-        // TODO change this later, as now we only support one location policy and only for _A4C_ALL group
-        String locationId = safe(matchingConfiguration.getLocationIds()).get(AlienConstants.GROUP_ALL);
-        if (StringUtils.isBlank(locationId)) {
-            tasks.add(new LocationPolicyTask());
-        } else {
+
+        boolean found = false;
+        for (String locationId : safe(matchingConfiguration.getLocationIds()).values()) {
+            found = true;
             location = locationService.getOrFail(locationId);
             orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
 
@@ -54,9 +53,9 @@ public class LocationPolicyValidationService {
                 // if a location already exists, then check the rigths on it
                 locationSecurityService.checkAuthorisation(location, matchingConfiguration.getEnvironmentId());
                 // check the orchestrator is still enabled
-
                 if (!Objects.equals(orchestrator.getState(), OrchestratorState.CONNECTED)) {
-                    UnavailableLocationTask task = new UnavailableLocationTask(location.getName(), orchestrator.getName());
+                    UnavailableLocationTask task = new UnavailableLocationTask(location.getName(),
+                            orchestrator.getName());
                     task.setCode(TaskCode.LOCATION_DISABLED);
                     tasks.add(task);
                 }
@@ -66,6 +65,9 @@ public class LocationPolicyValidationService {
                 task.setCode(TaskCode.LOCATION_UNAUTHORIZED);
                 tasks.add(task);
             }
+        }
+        if (!found) {
+            tasks.add(new LocationPolicyTask());
         }
 
         return tasks;

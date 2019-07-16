@@ -1,6 +1,5 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
-import static alien4cloud.utils.AlienConstants.GROUP_ALL;
 import static alien4cloud.utils.AlienUtils.safe;
 import static org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext.DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY;
 
@@ -41,8 +40,9 @@ public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifi
     @Override
 	@SuppressWarnings("unchecked")
     protected void init(Topology topology, FlowExecutionContext context) {
-		Location location = ((Map<String, Location>) context.getExecutionCache().get(DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY)).get(GROUP_ALL);
-		topology.getDependencies().addAll(location.getDependencies());
+        for (Location location: ((Map<String, Location>) context.getExecutionCache().get(DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY)).values()) {
+            topology.getDependencies().addAll(location.getDependencies());
+        }
         ToscaContext.get().resetDependencies(topology.getDependencies());
     }
 
