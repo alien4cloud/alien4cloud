@@ -258,6 +258,13 @@
           "PROPERTY_MISSING_ERROR" : "La cible de posséde pas cette propriété",
           "PROPERTY_TYPE_VIOLATION_ERROR" : "The property has no such target"
         },
+        "PLUGINS" : {
+          "LABEL" : "Validation plugin errors",
+          "NAME" : "Plugin Name",
+          "ERROR" : "Error",
+          "WARNING" : "Warning",
+          "INFO" : "Info"
+        },
         "RELATED_INPUT" : "Related input",
         "RELATIONSHIP" : "TRANSLATION_IS_REQUIRED",
         "REPLACE" : "指定内容で置換",

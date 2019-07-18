@@ -6,29 +6,14 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import alien4cloud.topology.task.*;
+import alien4cloud.topology.validation.*;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.topology.task.AbstractRelationshipTask;
-import alien4cloud.topology.task.AbstractTask;
-import alien4cloud.topology.task.ArtifactTask;
-import alien4cloud.topology.task.EmptyTask;
-import alien4cloud.topology.task.InputArtifactTask;
-import alien4cloud.topology.task.NodeFiltersTask;
-import alien4cloud.topology.task.PropertiesTask;
-import alien4cloud.topology.task.RequirementsTask;
-import alien4cloud.topology.task.SuggestionsTask;
-import alien4cloud.topology.task.TaskLevel;
-import alien4cloud.topology.task.WorkflowTask;
-import alien4cloud.topology.validation.DeprecatedNodeTypesValidationService;
-import alien4cloud.topology.validation.NodeFilterValidationService;
-import alien4cloud.topology.validation.TopologyAbstractRelationshipValidationService;
-import alien4cloud.topology.validation.TopologyArtifactsValidationService;
-import alien4cloud.topology.validation.TopologyPropertiesValidationService;
-import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
 import alien4cloud.tosca.context.ToscaContextual;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,6 +34,8 @@ public class TopologyValidationService {
     private TopologyArtifactsValidationService topologyArtifactsValidationService;
     @Resource
     private DeprecatedNodeTypesValidationService deprecatedNodeTypesValidationService;
+    @Resource
+    private TopologyPluginValidationService topologyPluginValidationService;
 
     /**
      * Validate if a topology is valid for deployment configuration or not,
@@ -74,6 +61,8 @@ public class TopologyValidationService {
             dto.setValid(false);
             return dto;
         }
+
+        topologyPluginValidationService.validate(dto,topology);
 
         // validate the workflows
         dto.addTasks(workflowBuilderService.validateWorkflows(topology));
@@ -139,7 +128,7 @@ public class TopologyValidationService {
             // checking some required tasks
             if (task instanceof SuggestionsTask || task instanceof RequirementsTask || task instanceof PropertiesTask || task instanceof NodeFiltersTask
                     || task instanceof WorkflowTask || task instanceof ArtifactTask || task instanceof InputArtifactTask
-                    || task instanceof AbstractRelationshipTask) {
+                    || task instanceof AbstractRelationshipTask || task instanceof PluginLogTask) {
                 return false;
             }
         }

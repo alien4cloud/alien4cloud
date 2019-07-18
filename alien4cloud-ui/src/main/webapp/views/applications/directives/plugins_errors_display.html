@@ -1,0 +1,21 @@
+<div class="content-head-error">
+    <span>{{'APPLICATIONS.TOPOLOGY.TASK.PLUGINS.LABEL' | translate}}</span>
+</div>
+<div class="content-body">
+    <table class="table table-condensed">
+        <thead>
+        <th>{{'APPLICATIONS.TOPOLOGY.TASK.PLUGINS.NAME' | translate}}</th>
+        <th>{{'APPLICATIONS.TOPOLOGY.TASK.PLUGINS.ERROR' | translate}}</th>
+        </thead>
+        <tbody>
+        <tr ng-repeat="task in stepTasks">
+            <td class="col-md-3">
+                <strong>{{task.plugin}}</strong>
+            </td>
+            <td class="col-md-9">
+                <strong>{{task.message}}</strong>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
