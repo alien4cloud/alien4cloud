@@ -3,51 +3,28 @@ package alien4cloud.rest.wizard;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.images.IImageDAO;
-import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.model.deployment.Deployment;
-import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.rest.application.model.CreateApplicationRequest;
-import alien4cloud.rest.application.model.UpdateApplicationRequest;
 import alien4cloud.rest.model.*;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.model.Role;
+import alien4cloud.rest.wizard.model.*;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.utils.VersionUtil;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
-import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -147,6 +124,8 @@ public class ApplicationWizardController {
     }
 
     private TopologyGraph buildTopologyGraph(Topology topology) {
+        Map<String, NodeType> indexedNodeTypesFromTopology = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true, false);
+
         TopologyGraph topologyGraph = new TopologyGraph();
         List<TopologyGraphNode> nodes = Lists.newArrayList();
         List<TopologyGraphEdge> edges = Lists.newArrayList();
@@ -154,6 +133,7 @@ public class ApplicationWizardController {
             TopologyGraphNode node = new TopologyGraphNode();
             node.setId(nodeName);
             node.setLabel(nodeName);
+            node.setNodeType(indexedNodeTypesFromTopology.get(nodeName));
             nodes.add(node);
             if (nodeTemplate.getRelationships() != null) {
                 nodeTemplate.getRelationships().forEach((id, relationshipTemplate) -> {
