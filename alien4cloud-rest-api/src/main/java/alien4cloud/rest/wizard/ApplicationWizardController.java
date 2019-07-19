@@ -114,13 +114,15 @@ public class ApplicationWizardController {
         applicationOverview.setTopologyVersion(applicationEnvironment.getTopologyVersion());
 
         Map<String, NodeType> indexedNodeTypesFromTopology = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true, false);
-        topology.getNodeTemplates().forEach((name, nodeTemplate) -> {
-            NodeType nodeType = indexedNodeTypesFromTopology.get(name);
-            ApplicationModule applicationModule = new ApplicationModule();
-            applicationModule.setNodeType(nodeType);
-            applicationModule.setNamedMetaProperties(getNamedMetaProperties(nodeType.getMetaProperties()));
-            modules.add(applicationModule);
-        });
+        if (topology.getNodeTemplates() != null) {
+            topology.getNodeTemplates().forEach((name, nodeTemplate) -> {
+                NodeType nodeType = indexedNodeTypesFromTopology.get(name);
+                ApplicationModule applicationModule = new ApplicationModule();
+                applicationModule.setNodeType(nodeType);
+                applicationModule.setNamedMetaProperties(getNamedMetaProperties(nodeType.getMetaProperties()));
+                modules.add(applicationModule);
+            });
+        }
         applicationOverview.setModules(modules);
         return RestResponseBuilder.<ApplicationOverview> builder().data(applicationOverview).build();
     }
