@@ -35,7 +35,7 @@ import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
  */
 @Slf4j
 @RestController
-@RequestMapping({ "/rest/wizard/applications", "/rest/v1/wizard/applications", "/rest/latest/wizard/applications" })
+@RequestMapping({"/rest/wizard", "/rest/v1/wizard", "/rest/latest/wizard"})
 @Api(value = "", description = "Operations on Applications")
 public class ApplicationWizardController {
     @Resource
@@ -63,33 +63,49 @@ public class ApplicationWizardController {
      * @param applicationId The application id.
      */
     @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/overview/{applicationId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/applications/overview/{applicationId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<ApplicationOverview> get(@PathVariable String applicationId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
-        ApplicationOverview applicationOverview = new ApplicationOverview();
+        ApplicationOverview overview = new ApplicationOverview();
         // not usefull for the moment
-//        applicationOverview.setApplication(application);
+        // applicationOverview.setApplication(application);
 
-        List<MetaProperty> metaProperties = getNamedMetaProperties(application.getMetaProperties());
-        applicationOverview.setNamedMetaProperties(metaProperties);
+        overview.setNamedMetaProperties(getNamedMetaProperties(application.getMetaProperties()));
 
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, null);
         DeploymentStatus status = null;
         try {
-            applicationOverview.setDeploymentStatus(applicationEnvironmentService.getStatus(applicationEnvironment));
-        } catch(Exception e) {
-            applicationOverview.setDeploymentStatus(DeploymentStatus.UNKNOWN);
+            overview.setDeploymentStatus(applicationEnvironmentService.getStatus(applicationEnvironment));
+        } catch (Exception e) {
+            overview.setDeploymentStatus(DeploymentStatus.UNKNOWN);
         }
 
-        applicationOverview.setDescription(application.getDescription());
+        overview.setDescription(application.getDescription());
 
-        List<ApplicationModule> modules = Lists.newArrayList();
         Topology topology = topologyServiceCore.getOrFail(applicationEnvironment.getApplicationId() + ":" + applicationEnvironment.getTopologyVersion());
-//        applicationOverview.setTopologyGraph(buildTopologyGraph(topology));
-        applicationOverview.setTopologyId(applicationEnvironment.getApplicationId());
-        applicationOverview.setTopologyVersion(applicationEnvironment.getTopologyVersion());
+        overview.setTopologyId(applicationEnvironment.getApplicationId());
+        overview.setTopologyVersion(applicationEnvironment.getTopologyVersion());
+        overview.setModules(getModules(topology));
 
+        return RestResponseBuilder.<ApplicationOverview>builder().data(overview).build();
+    }
+
+    @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value = "/topologies/overview/{topologyId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<TopologyOverview> getTopologyOverview(@PathVariable String topologyId) {
+        TopologyOverview overview = new TopologyOverview();
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
+        overview.setDescription(topology.getDescription());
+        overview.setTopologyId(topology.getArchiveName());
+        overview.setTopologyVersion(topology.getArchiveVersion());
+        overview.setModules(getModules(topology));
+        return RestResponseBuilder.<TopologyOverview>builder().data(overview).build();
+    }
+
+    private List<ApplicationModule> getModules(Topology topology) {
+        List<ApplicationModule> modules = Lists.newArrayList();
         Map<String, NodeType> indexedNodeTypesFromTopology = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true, false);
         if (topology.getNodeTemplates() != null) {
             topology.getNodeTemplates().forEach((name, nodeTemplate) -> {
@@ -100,17 +116,16 @@ public class ApplicationWizardController {
                 modules.add(applicationModule);
             });
         }
-        applicationOverview.setModules(modules);
-        return RestResponseBuilder.<ApplicationOverview> builder().data(applicationOverview).build();
+        return modules;
     }
 
     @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/graph/{topologyId:.+}:{topologyVersion:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/topologies/graph/{topologyId:.+}:{topologyVersion:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyGraph> getTopologyGraph(@PathVariable String topologyId, @PathVariable String topologyVersion) {
         Topology topology = topologyServiceCore.getOrFail(topologyId + ":" + topologyVersion);
         TopologyGraph topologyGraph = buildTopologyGraph(topology);
-        return RestResponseBuilder.<TopologyGraph> builder().data(topologyGraph).build();
+        return RestResponseBuilder.<TopologyGraph>builder().data(topologyGraph).build();
     }
 
     private List<MetaProperty> getNamedMetaProperties(Map<String, String> metaProperties) {
