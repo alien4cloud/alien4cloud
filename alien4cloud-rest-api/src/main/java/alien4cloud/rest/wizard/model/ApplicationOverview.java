@@ -1,6 +1,7 @@
 package alien4cloud.rest.wizard.model;
 
 import alien4cloud.model.application.Application;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.paas.model.DeploymentStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,8 @@ import java.util.List;
 public class ApplicationOverview extends TopologyOverview {
 
     private Application application;
+
+    private ApplicationEnvironment applicationEnvironment;
 
     private DeploymentStatus deploymentStatus;
 

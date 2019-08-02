@@ -74,6 +74,7 @@ public class ApplicationWizardController {
         overview.setNamedMetaProperties(getNamedMetaProperties(application.getMetaProperties()));
 
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, null);
+        overview.setApplicationEnvironment(applicationEnvironment);
         DeploymentStatus status = null;
         try {
             overview.setDeploymentStatus(applicationEnvironmentService.getStatus(applicationEnvironment));
@@ -82,6 +83,7 @@ public class ApplicationWizardController {
         }
 
         overview.setDescription(application.getDescription());
+        overview.setApplication(application);
 
         Topology topology = topologyServiceCore.getOrFail(applicationEnvironment.getApplicationId() + ":" + applicationEnvironment.getTopologyVersion());
         overview.setTopologyId(applicationEnvironment.getApplicationId());
