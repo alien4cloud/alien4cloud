@@ -155,7 +155,7 @@ public class ApplicationWizardController {
             if (nodeTemplate.getRelationships() != null) {
                 nodeTemplate.getRelationships().forEach((id, relationshipTemplate) -> {
                     TopologyGraphEdge edge = new TopologyGraphEdge();
-                    edge.setId(id);
+                    edge.setId(nodeName + "_" + id);
                     edge.setSource(nodeName);
                     edge.setTarget(relationshipTemplate.getTarget());
                     String words[] = relationshipTemplate.getType().split(".");
