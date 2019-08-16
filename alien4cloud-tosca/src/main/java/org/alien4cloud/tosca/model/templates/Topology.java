@@ -87,12 +87,12 @@ public class Topology implements IDatableResource, IWorkspaceResource, IMetaProp
     @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, NodeTemplate> nodeTemplates;
 
-    @MapKeyValue
+/*    @MapKeyValue
     @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = NodeTemplateDeserializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { SUMMARY }, include = { false })
-    private Map<String, NodeTemplate> unprocessedNodeTemplates;
+    private Map<String, NodeTemplate> unprocessedNodeTemplates;*/
 
     @MapKeyValue
     @ConditionalOnAttribute(ConditionalAttributes.ES)

@@ -15,7 +15,7 @@ public class BackupNodesModifier implements ITopologyModifier {
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
       // Backup the nodes before processing them
-      topology.setUnprocessedNodeTemplates(CloneUtil.clone(topology.getNodeTemplates()));
+//      topology.setUnprocessedNodeTemplates(CloneUtil.clone(topology.getNodeTemplates()));
       // The whole topology is saved in the execution cache for later use
       context.getExecutionCache().put(FlowExecutionContext.INITIAL_TOPOLOGY, CloneUtil.clone(topology));
     }
