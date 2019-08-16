@@ -302,8 +302,12 @@ public class DeploymentService {
             alienDao.save(deployment);
             // Switch the deployed field of the Deployment topology to false
             DeploymentTopology deploymentTopology = alienMonitorDao.findById(DeploymentTopology.class, deployment.getId());
-            deploymentTopology.setDeployed(false);
-            alienMonitorDao.save(deploymentTopology);
+            if (deploymentTopology != null) {
+                deploymentTopology.setDeployed(false);
+                alienMonitorDao.save(deploymentTopology);
+            } else {
+                log.warn("No deployment topology found for deployment " + deployment.getId());
+            }
         } else {
             log.info("Deployment <" + deployment.getId() + "> is already marked as undeployed.");
         }
