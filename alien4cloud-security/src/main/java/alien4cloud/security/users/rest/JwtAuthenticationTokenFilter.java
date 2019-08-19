@@ -62,9 +62,9 @@ public class JwtAuthenticationTokenFilter extends GenericFilterBean {
         }
 
         chain.doFilter(servletRequest, servletResponse);
-        if (securityContextSet) {
-            SecurityContextHolder.getContext().setAuthentication(null);
-        }
+//        if (securityContextSet) {
+//            SecurityContextHolder.getContext().setAuthentication(null);
+//        }
 
     }
 
