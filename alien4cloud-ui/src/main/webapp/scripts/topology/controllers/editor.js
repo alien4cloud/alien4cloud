@@ -165,6 +165,22 @@ define(function (require) {
         });
       };
 
+      var editorDiscardResource = $alresource('rest/latest/editor/:topologyId/discard');
+      $scope.discard = function() {
+        if($scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex===-1) {
+          // nothing to discard
+          return;
+        }
+        editorDiscardResource.create({
+          topologyId: $scope.topologyId,
+          lastOperationId: $scope.getLastOperationId(true)
+        }, null, function(result) {
+          if(_.undefined(result.error)) {
+            $scope.refreshTopology(result.data);
+          }
+        });
+      };
+
       var editorUndoResource = $alresource('rest/latest/editor/:topologyId/undo');
       function undoRedo(at) {
         editorUndoResource.create({
@@ -356,11 +372,15 @@ define(function (require) {
       var AskSaveTopologyController = ['$scope', '$uibModalInstance',
         function($scope, $uibModalInstance) {
           $scope.save = function () {
-            $uibModalInstance.close();
+            $uibModalInstance.close(0);
+          };
+
+          $scope.undo = function() {
+            $uibModalInstance.close(1);
           };
 
           $scope.doNotSave = function () {
-            $uibModalInstance.dismiss();
+            $uibModalInstance.close(2);
           };
         }];
 
@@ -399,8 +419,15 @@ define(function (require) {
             $state.go(toState, toParams);
           };
 
-          modalInstance.result.then(function() {
-            $scope.save();
+          modalInstance.result.then(function(result) {
+            switch(result) {
+            case 0:
+              $scope.save();
+              break;
+            case 1:
+               $scope.discard();
+               break;
+            }
             proceedToStateChange();
           }, function() {
             proceedToStateChange();

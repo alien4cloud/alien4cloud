@@ -2,9 +2,9 @@
   <h4 class="text-success"><i class="fa fa-check"></i> {{validMessage | translate}}</h4>
 </div>
 
-<div class="row" ng-if="!_.isEmpty(validationDto.taskList)">
+<div class="row" ng-if="!_.isEmpty(validationDto.taskList) || ( showWarnInfo && (validationDto.warnList['VALIDATION_PLUGIN'].length>0 || validationDto.infoList['VALIDATION_PLUGIN'].length>0))">
   <div id="deploymentTodoList" class="col-md-12">
-    <h4 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</h4>
+    <h4 class="text-danger" ng-if="!validationDto.valid"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</h4>
     <!-- case the topology is empty -->
     <div class="col-md-12" ng-if="validationDto.taskList['EMPTY'].length > 0">
       <div class="task-list-box">
@@ -75,5 +75,33 @@
         </div>
       </div>
     </div>
+
+    <!-- Plugins taskList  -->
+    <div class="col-md-12" ng-if="validationDto.taskList['VALIDATION_PLUGIN'].length>0">
+      <div class="task-list-box">
+        <plugins-errors-display
+                tasks="validationDto.taskList['VALIDATION_PLUGIN']">
+        </plugins-errors-display>
+      </div>
+    </div>
+
+    <!-- Plugins warningList  -->
+    <div class="col-md-12" ng-if="validationDto.warningList['VALIDATION_PLUGIN'].length>0">
+      <div class="warning-list-box">
+        <plugins-warnings-display
+                tasks="validationDto.warningList['VALIDATION_PLUGIN']">
+        </plugins-warnings-display>
+      </div>
+    </div>
+
+    <!-- Plugins infoList  -->
+    <div class="col-md-12" ng-if="validationDto.infoList['VALIDATION_PLUGIN'].length>0">
+      <div class="info-list-box">
+        <plugins-infos-display
+                tasks="validationDto.infoList['VALIDATION_PLUGIN']">
+        </plugins-infos-display>
+      </div>
+    </div>
+
   </div>
 </div>

@@ -258,6 +258,13 @@
           "PROPERTY_MISSING_ERROR" : "La cible de posséde pas cette propriété",
           "PROPERTY_TYPE_VIOLATION_ERROR" : "The property has no such target"
         },
+        "PLUGINS" : {
+          "LABEL" : "Validation plugin",
+          "NAME" : "Plugin Name",
+          "ERROR" : "Error",
+          "WARNING" : "Warning",
+          "INFO" : "Info"
+        },
         "RELATED_INPUT" : "Related input",
         "RELATIONSHIP" : "Relation",
         "REPLACE" : "Replace by one of the suggested",
@@ -799,6 +806,7 @@
     },
     "DOWNLOAD" : "Download",
     "DO_NOT_SAVE" : "Skip",
+    "KEEP" : "Keep in session",
     "EMPTY_GIT_HISTORY" : "The git history is empty, you need to save the topology.",
     "GIT" : {
       "MODAL" : {

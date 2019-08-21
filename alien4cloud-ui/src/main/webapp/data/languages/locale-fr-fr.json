@@ -258,6 +258,13 @@
           "PROPERTY_MISSING_ERROR" : "La cible de posséde pas cette propriété",
           "PROPERTY_TYPE_VIOLATION_ERROR" : "Le type de la propriété cible est invalide"
         },
+        "PLUGINS" : {
+            "LABEL" : "Plugin de validation",
+            "NAME" : "Nom du plugin",
+            "ERROR" : "Erreur",
+            "WARNING" : "Avertissement",
+            "INFO" : "Info"
+        },
         "RELATED_INPUT" : "Propriétée d'entrée",
         "RELATIONSHIP" : "Relation",
         "REPLACE" : "Remplacer par l'un des noeuds suggérés",
@@ -799,6 +806,7 @@
     },
     "DOWNLOAD" : "Télécharger",
     "DO_NOT_SAVE" : "Ignorer",
+    "KEEP" : "Garder en session",
     "EMPTY_GIT_HISTORY" : "L'historique git est vide, vous devez sauver la topologie.",
     "GIT" : {
       "MODAL" : {

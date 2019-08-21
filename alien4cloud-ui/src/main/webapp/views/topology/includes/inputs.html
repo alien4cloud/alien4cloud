@@ -19,8 +19,8 @@
   <tbody>
     <tr ng-repeat="(inputId, inputDefinition) in topology.topology.inputs">
       <td id="td_{{inputId}}">
-        <span id="span_{{inputId}}" editable-text="inputDefinition.inputId" buttons="no" onaftersave="inputs.update(inputId, inputDefinition.inputId, inputDefinition)" blur="submit">
-          {{inputDefinition.inputId}}
+        <span id="span_{{inputId}}" editable-text="inputDefinition.inputId" buttons="no" onaftersave="inputs.update(inputId, inputDefinition.inputId, inputDefinition)" blur="submit" uib-tooltip="{{inputDefinition.inputId}}">
+          {{inputDefinition.inputId | truncate:30}}
           <i class="fa fa-pencil-square-o"></i>
         </span>
       </td>
@@ -52,8 +52,8 @@
   <tbody>
     <tr ng-repeat="(inputArtifactId, inputArtifact) in topology.topology.inputArtifacts">
       <td>
-        <span editable-text="inputArtifactId" buttons="no" onbeforesave="inputs.updateArtifactId(inputArtifactId, $data)" blur="submit">
-          {{inputArtifactId}}
+        <span editable-text="inputArtifactId" buttons="no" onbeforesave="inputs.updateArtifactId(inputArtifactId, $data)" blur="submit" uib-tooltip="{{inputArtifactId}}">
+          {{inputArtifactId | truncate:30}}
           <i class="fa fa-pencil-square-o"></i>
         </span>
       </td>

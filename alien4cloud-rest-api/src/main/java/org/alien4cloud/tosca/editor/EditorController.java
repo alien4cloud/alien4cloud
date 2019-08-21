@@ -151,6 +151,25 @@ public class EditorController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
     }
 
+    /**
+     * Discard changes to the given topology
+     *
+     * @param topologyId The id of the topology/archive under edition to save.
+     * @param lastOperationId The id of the last operation from editor client point of view (for optimistic locking).
+     * @return A topology DTO with the updated topology.
+     */
+    @ApiIgnore
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/discard", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> discard(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
+        if (lastOperationId != null && "null".equals(lastOperationId)) {
+            lastOperationId = null;
+        }
+        // Call the service that will discard changes
+        TopologyDTO topologyDTO = editorService.discard(topologyId, lastOperationId);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
+    }
+
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId:.+}/isvalid", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)

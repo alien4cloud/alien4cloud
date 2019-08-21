@@ -15,7 +15,8 @@ define(function (require) {
         templateUrl: 'views/topology/topology_validation_display.html',
         scope: {
           validationDto: '=',
-          validMessage: '@?'
+          validMessage: '@?',
+          showWarnInfo: '@?'
         },
         link(scope){
           scope._ = _;

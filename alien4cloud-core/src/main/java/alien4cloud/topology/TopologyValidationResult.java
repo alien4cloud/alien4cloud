@@ -91,4 +91,14 @@ public class TopologyValidationResult {
         }
         infoList.add(info);
     }
+
+    public <T extends AbstractTask> void addInfos(List<T> infos) {
+        if (CollectionUtils.isEmpty(infos)) {
+            return;
+        }
+        if (infoList == null) {
+            infoList = Lists.newArrayList();
+        }
+        infoList.addAll(infos);
+    }
 }
