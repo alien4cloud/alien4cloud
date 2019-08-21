@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,7 @@ import java.util.Optional;
  * A filter that checks if a JWT authentication token is present in the header. If found, it's verified.
  */
 @Component
+@Slf4j
 public class JwtAuthenticationTokenFilter extends GenericFilterBean {
 
     private static final String BEARER = "Bearer";
@@ -44,6 +46,9 @@ public class JwtAuthenticationTokenFilter extends GenericFilterBean {
         Authentication authentication;
         boolean securityContextSet = false;
         if(token.isPresent() && token.get().startsWith(BEARER)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("A Authorization header was found, containing a Bearer, JWT auth is required !");
+            }
             String bearerToken = token.get().substring(BEARER.length()+1);
 
             try {
@@ -51,10 +56,19 @@ public class JwtAuthenticationTokenFilter extends GenericFilterBean {
                 authentication = jwtTokenService.buildAuthenticationFromClaim(claims);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 securityContextSet = true;
+                if (logger.isDebugEnabled()) {
+                    logger.debug("JWT authentication successfull");
+                }
             } catch (ExpiredJwtException exception) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("JWT token expired", exception);
+                }
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "error.jwt.expired");
                 return;
             } catch (JwtException exception) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("JWT authentication failed", exception);
+                }
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "error.jwt.invalid");
                 return;
             }
