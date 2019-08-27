@@ -14,19 +14,24 @@ import alien4cloud.rest.wizard.model.*;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
@@ -35,9 +40,14 @@ import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
  */
 @Slf4j
 @RestController
+//@ConfigurationProperties(prefix = "wizard.overview")
 @RequestMapping({"/rest/wizard", "/rest/v1/wizard", "/rest/latest/wizard"})
 @Api(value = "", description = "Operations on Applications")
 public class ApplicationWizardController {
+
+    @Resource
+    private ApplicationWizardConfiguration applicationWizardConfiguration;
+
     @Resource
     private IImageDAO imageDAO;
     @Resource(name = "alien-es-dao")
@@ -71,7 +81,7 @@ public class ApplicationWizardController {
         // not usefull for the moment
         // applicationOverview.setApplication(application);
 
-        overview.setNamedMetaProperties(getNamedMetaProperties(application.getMetaProperties()));
+        overview.setNamedMetaProperties(getNamedMetaProperties(application.getMetaProperties(), applicationWizardConfiguration.getApplicationOverviewMetapropertiesSet()));
 
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, null);
         overview.setApplicationEnvironment(applicationEnvironment);
@@ -111,11 +121,33 @@ public class ApplicationWizardController {
         Map<String, NodeType> indexedNodeTypesFromTopology = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true, false);
         if (topology.getNodeTemplates() != null) {
             topology.getNodeTemplates().forEach((name, nodeTemplate) -> {
+                boolean moduleAdded = false;
+
                 NodeType nodeType = indexedNodeTypesFromTopology.get(name);
-                ApplicationModule applicationModule = new ApplicationModule();
-                applicationModule.setNodeType(nodeType);
-                applicationModule.setNamedMetaProperties(getNamedMetaProperties(nodeType.getMetaProperties()));
-                modules.add(applicationModule);
+                List<MetaProperty> namedMetaProperties = getNamedMetaProperties(nodeType.getMetaProperties(), null);
+                Map<String, String> metaPropertyValues = Maps.newHashMap();
+                namedMetaProperties.forEach(metaProperty -> metaPropertyValues.put(metaProperty.getConfiguration().getName(), metaProperty.getValue()));
+                if (applicationWizardConfiguration.getComponentFilterByMetapropertyValuesSet() == null
+                        || applicationWizardConfiguration.getComponentFilterByMetapropertyValuesSet().isEmpty()) {
+                    moduleAdded = true;
+                } else {
+                    Iterator<Map.Entry<String, Set<String>>> entryIterator = applicationWizardConfiguration.getComponentFilterByMetapropertyValuesSet().entrySet().iterator();
+                    boolean passFilter = true;
+                    while (entryIterator.hasNext() && passFilter) {
+                        Map.Entry<String, Set<String>> filterEntry = entryIterator.next();
+                        if (!metaPropertyValues.containsKey(filterEntry.getKey()) || !filterEntry.getValue().contains(metaPropertyValues.get(filterEntry.getKey()))) {
+                            passFilter = false;
+                        }
+                    }
+                    moduleAdded = passFilter;
+                }
+
+                if (moduleAdded) {
+                    ApplicationModule applicationModule = new ApplicationModule();
+                    applicationModule.setNodeType(nodeType);
+                    applicationModule.setNamedMetaProperties(getNamedMetaProperties(nodeType.getMetaProperties(), applicationWizardConfiguration.getComponentOverviewMetapropertiesSet()));
+                    modules.add(applicationModule);
+                }
             });
         }
         return modules;
@@ -130,12 +162,14 @@ public class ApplicationWizardController {
         return RestResponseBuilder.<TopologyGraph>builder().data(topologyGraph).build();
     }
 
-    private List<MetaProperty> getNamedMetaProperties(Map<String, String> metaProperties) {
+    private List<MetaProperty> getNamedMetaProperties(Map<String, String> metaProperties, Set<String> metaPropertiesFilter) {
         List<MetaProperty> namedMetaProperties = Lists.newArrayList();
         metaProperties.forEach((id, value) -> {
             MetaPropConfiguration configuration = dao.findById(MetaPropConfiguration.class, id);
             // TODO: here filter returned meta properties for applications
-            namedMetaProperties.add(new MetaProperty(configuration, value));
+            if (metaPropertiesFilter == null || metaPropertiesFilter.isEmpty() || metaPropertiesFilter.contains(configuration.getName())) {
+                namedMetaProperties.add(new MetaProperty(configuration, value));
+            }
         });
         return namedMetaProperties;
     }

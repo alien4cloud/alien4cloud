@@ -156,6 +156,16 @@ features:
   archive_indexer_lock_used_archive: false
   no_deployed_envs_renaming: false
 
+
+wizard:
+  application-overview-metaproperties:
+    - "Mention de manipulation"
+    - "Habilitation requise"
+  component-overview-metaproperties:
+    - "Type de composant"
+  component-filter-by-metaproperty-values:
+    "Type de composant": "Module"
+
 languages:
   default: en-us
   prefix: locale

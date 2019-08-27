@@ -20,5 +20,6 @@
         <logger name="org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhaseModifiersExecutor"
                 level="debug"/>
         <logger name="alien4cloud.tosca.container.ToscaTypeLoader" level="error"/>
+        <logger name="org.alien4cloud.exception.rest.RestTechnicalExceptionHandler" level="debug"/>
     </Loggers>
 </Configuration>
