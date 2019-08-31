@@ -86,7 +86,7 @@ public class JwtTokenService {
 
     public Authentication buildAuthenticationFromClaim(Jws<Claims> claims) {
         String username = claims.getBody().get("username").toString();
-        String email = claims.getBody().get("email").toString();
+        String email = (claims.getBody().get("email") != null) ? claims.getBody().get("email").toString() : "";
 
         String password = claims.getBody().get(USER_SECRET).toString();
 
