@@ -21,13 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.inject.Inject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +76,7 @@ public class ApplicationWizardController {
     public RestResponse<ApplicationOverview> get(@PathVariable String applicationId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationOverview overview = new ApplicationOverview();
+        overview.setComponentCategories(applicationWizardConfiguration.getComponentCategories());
         // not usefull for the moment
         // applicationOverview.setApplication(application);
 
@@ -98,7 +97,7 @@ public class ApplicationWizardController {
         Topology topology = topologyServiceCore.getOrFail(applicationEnvironment.getApplicationId() + ":" + applicationEnvironment.getTopologyVersion());
         overview.setTopologyId(applicationEnvironment.getApplicationId());
         overview.setTopologyVersion(applicationEnvironment.getTopologyVersion());
-        overview.setModules(getModules(topology));
+        overview.setComponentsPerCategory(getModulesPerCatgory(topology));
 
         return RestResponseBuilder.<ApplicationOverview>builder().data(overview).build();
     }
@@ -108,49 +107,64 @@ public class ApplicationWizardController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyOverview> getTopologyOverview(@PathVariable String topologyId) {
         TopologyOverview overview = new TopologyOverview();
+        overview.setComponentCategories(applicationWizardConfiguration.getComponentCategories());
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         overview.setDescription(topology.getDescription());
         overview.setTopologyId(topology.getArchiveName());
         overview.setTopologyVersion(topology.getArchiveVersion());
-        overview.setModules(getModules(topology));
+        overview.setComponentsPerCategory(getModulesPerCatgory(topology));
         return RestResponseBuilder.<TopologyOverview>builder().data(overview).build();
     }
 
-    private List<ApplicationModule> getModules(Topology topology) {
-        List<ApplicationModule> modules = Lists.newArrayList();
+    private Map<String, List<ApplicationModule>> getModulesPerCatgory(Topology topology) {
+        Map<String, List<ApplicationModule>> modulesPerCategory = Maps.newHashMap();
+
         Map<String, NodeType> indexedNodeTypesFromTopology = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true, false);
         if (topology.getNodeTemplates() != null) {
+
             topology.getNodeTemplates().forEach((name, nodeTemplate) -> {
-                boolean moduleAdded = false;
 
                 NodeType nodeType = indexedNodeTypesFromTopology.get(name);
                 List<MetaProperty> namedMetaProperties = getNamedMetaProperties(nodeType.getMetaProperties(), null);
                 Map<String, String> metaPropertyValues = Maps.newHashMap();
                 namedMetaProperties.forEach(metaProperty -> metaPropertyValues.put(metaProperty.getConfiguration().getName(), metaProperty.getValue()));
-                if (applicationWizardConfiguration.getComponentFilterByMetapropertyValuesSet() == null
-                        || applicationWizardConfiguration.getComponentFilterByMetapropertyValuesSet().isEmpty()) {
-                    moduleAdded = true;
-                } else {
-                    Iterator<Map.Entry<String, Set<String>>> entryIterator = applicationWizardConfiguration.getComponentFilterByMetapropertyValuesSet().entrySet().iterator();
-                    boolean passFilter = true;
-                    while (entryIterator.hasNext() && passFilter) {
-                        Map.Entry<String, Set<String>> filterEntry = entryIterator.next();
-                        if (!metaPropertyValues.containsKey(filterEntry.getKey()) || !filterEntry.getValue().contains(metaPropertyValues.get(filterEntry.getKey()))) {
-                            passFilter = false;
-                        }
-                    }
-                    moduleAdded = passFilter;
-                }
 
-                if (moduleAdded) {
-                    ApplicationModule applicationModule = new ApplicationModule();
-                    applicationModule.setNodeType(nodeType);
-                    applicationModule.setNamedMetaProperties(getNamedMetaProperties(nodeType.getMetaProperties(), applicationWizardConfiguration.getComponentOverviewMetapropertiesSet()));
-                    modules.add(applicationModule);
-                }
+                applicationWizardConfiguration.getComponentFilterByCategorySet().forEach((categoryName, filterConfig) -> {
+                    boolean moduleAdded = false;
+
+                    List<ApplicationModule> modules = modulesPerCategory.get(categoryName);
+                    if (modules == null) {
+                        modules = Lists.newArrayList();
+                        modulesPerCategory.put(categoryName, modules);
+                    }
+
+                    if (filterConfig.isEmpty()) {
+                        moduleAdded = true;
+                    } else {
+                        Iterator<Map.Entry<String, Set<String>>> entryIterator = filterConfig.entrySet().iterator();
+                        boolean passFilter = true;
+                        while (entryIterator.hasNext() && passFilter) {
+                            Map.Entry<String, Set<String>> filterEntry = entryIterator.next();
+                            if (!metaPropertyValues.containsKey(filterEntry.getKey()) || !filterEntry.getValue().contains(metaPropertyValues.get(filterEntry.getKey()))) {
+                                passFilter = false;
+                            }
+                        }
+                        moduleAdded = passFilter;
+                    }
+
+                    if (moduleAdded) {
+                        ApplicationModule applicationModule = new ApplicationModule();
+                        applicationModule.setNodeName(name);
+                        applicationModule.setNodeType(nodeType);
+                        applicationModule.setNamedMetaProperties(getNamedMetaProperties(nodeType.getMetaProperties(), applicationWizardConfiguration.getComponentOverviewMetapropertiesSet()));
+                        modules.add(applicationModule);
+                    }
+
+                });
+
             });
         }
-        return modules;
+        return modulesPerCategory;
     }
 
     @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")

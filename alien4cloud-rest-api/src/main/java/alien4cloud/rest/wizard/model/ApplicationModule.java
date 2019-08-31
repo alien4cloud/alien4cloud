@@ -14,6 +14,8 @@ import java.util.List;
 @Setter
 public class ApplicationModule {
 
+    private String nodeName;
+
     /**
      * A short readable name for the module (without package).
      */

@@ -26,7 +26,9 @@ public class ApplicationWizardConfiguration {
 
     private Set<String> applicationOverviewMetapropertiesSet;
     private Set<String> componentOverviewMetapropertiesSet;
-    private Map<String, Set<String>> componentFilterByMetapropertyValuesSet;
+
+    // key: categorie, value: { key: metaproperty name, values : accepted values)
+    private Map<String, Map<String, Set<String>>> componentFilterByMetapropertyValuesSet;
 
     /**
      * The list of metaproperty names that should be returned for applications. No filter if empty.
@@ -43,12 +45,19 @@ public class ApplicationWizardConfiguration {
     private String[] componentOverviewMetaproperties;
 
     /**
+     * The list categories where to put components.
+     */
+    @Setter
+    @Getter
+    private String[] componentCategories;
+
+    /**
      * In order to filter the nodes that are are returned as application / topology modules, a map where the key is the property name,
      * the value the property value (or coma separated values). A OR operator is used for values, a AND operator is used for meta property names.
      */
     @Setter
     @Getter
-    private Map<String, String> componentFilterByMetapropertyValues;
+    private Map<String, Map<String, String>> componentFilterByMetapropertyValues;
 
 
     public synchronized Set<String> getApplicationOverviewMetapropertiesSet() {
@@ -65,11 +74,23 @@ public class ApplicationWizardConfiguration {
         return componentOverviewMetapropertiesSet;
     }
 
-    public synchronized Map<String, Set<String>> getComponentFilterByMetapropertyValuesSet() {
+    public synchronized Map<String, Map<String, Set<String>>> getComponentFilterByCategorySet() {
+        Set<String> catagories = Sets.newHashSet(componentCategories);
         if (componentFilterByMetapropertyValuesSet == null && componentFilterByMetapropertyValues != null && componentFilterByMetapropertyValues.size() > 0) {
             componentFilterByMetapropertyValuesSet = Maps.newHashMap();
             componentFilterByMetapropertyValues.forEach((key, value) -> {
-                componentFilterByMetapropertyValuesSet.put(key, Sets.newHashSet(value.split(",")));
+                if (catagories.contains(key)) {
+                    Map<String, String> categoryComponentFilterByMetapropertyValues = value;
+                    if (categoryComponentFilterByMetapropertyValues.size() > 0) {
+                        Map<String, Set<String>> categoryComponentFilterByMetapropertyValuesSet = Maps.newHashMap();
+                        componentFilterByMetapropertyValuesSet.put(key, categoryComponentFilterByMetapropertyValuesSet);
+                        categoryComponentFilterByMetapropertyValues.forEach((k, v) -> {
+                            categoryComponentFilterByMetapropertyValuesSet.put(k, Sets.newHashSet(v.split(",")));
+                        });
+                    }
+                } else {
+                    // TODO log warn
+                }
             });
         }
         return componentFilterByMetapropertyValuesSet;
