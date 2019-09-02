@@ -15,6 +15,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,6 +61,16 @@ public class ApplicationWizardConfiguration {
     private Map<String, Map<String, String>> componentFilterByMetapropertyValues;
 
 
+    @PostConstruct
+    void init() {
+        if (componentCategories == null) {
+            // by default, we'll display all nodes, with no filter
+            componentCategories = new String[] {"Nodes"};
+            componentFilterByMetapropertyValues = Maps.newHashMap();
+            componentFilterByMetapropertyValues.put("Nodes", Maps.newHashMap());
+        }
+    }
+
     public synchronized Set<String> getApplicationOverviewMetapropertiesSet() {
         if (applicationOverviewMetapropertiesSet == null && applicationOverviewMetaproperties != null) {
             applicationOverviewMetapropertiesSet = Sets.newHashSet(applicationOverviewMetaproperties);
@@ -81,9 +92,9 @@ public class ApplicationWizardConfiguration {
             componentFilterByMetapropertyValues.forEach((key, value) -> {
                 if (catagories.contains(key)) {
                     Map<String, String> categoryComponentFilterByMetapropertyValues = value;
+                    Map<String, Set<String>> categoryComponentFilterByMetapropertyValuesSet = Maps.newHashMap();
+                    componentFilterByMetapropertyValuesSet.put(key, categoryComponentFilterByMetapropertyValuesSet);
                     if (categoryComponentFilterByMetapropertyValues.size() > 0) {
-                        Map<String, Set<String>> categoryComponentFilterByMetapropertyValuesSet = Maps.newHashMap();
-                        componentFilterByMetapropertyValuesSet.put(key, categoryComponentFilterByMetapropertyValuesSet);
                         categoryComponentFilterByMetapropertyValues.forEach((k, v) -> {
                             categoryComponentFilterByMetapropertyValuesSet.put(k, Sets.newHashSet(v.split(",")));
                         });
