@@ -4,11 +4,13 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.rest.component.ComponentSearchRequest;
 import alien4cloud.rest.model.*;
 import alien4cloud.rest.wizard.model.*;
 import alien4cloud.topology.TopologyDTO;
@@ -16,11 +18,14 @@ import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.springframework.http.MediaType;
@@ -33,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
@@ -69,6 +75,8 @@ public class ApplicationWizardController {
     private IGenericSearchDAO dao;
     @Inject
     private TopologyDTOBuilder topologyDTOBuilder;
+    @Resource
+    private IToscaTypeSearchService toscaTypeSearchService;
 
     /**
      * Get an application from it's id.
@@ -179,7 +187,7 @@ public class ApplicationWizardController {
         List<MetaProperty> namedMetaProperties = Lists.newArrayList();
         metaProperties.forEach((id, value) -> {
             MetaPropConfiguration configuration = dao.findById(MetaPropConfiguration.class, id);
-            // TODO: here filter returned meta properties for applications
+            // filter returned meta properties for applications
             if (metaPropertiesFilter == null || metaPropertiesFilter.isEmpty() || metaPropertiesFilter.contains(configuration.getName())) {
                 namedMetaProperties.add(new MetaProperty(configuration, value));
             }
@@ -187,4 +195,33 @@ public class ApplicationWizardController {
         return namedMetaProperties;
     }
 
+    /**
+     * Search for TOSCA elements.
+     *
+     * @param searchRequest The search request.
+     * @return A {@link RestResponse} that contains a {@link FacetedSearchResult} of {@link NodeType}.
+     */
+    @ApiOperation(value = "Search for components (tosca types) in alien.")
+    @RequestMapping(value = "/components/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
+    public RestResponse<FacetedSearchResult<? extends AbstractToscaType>> search(@RequestBody ComponentSearchRequest searchRequest) {
+        final Map<String, String[]> filters = (searchRequest.getFilters() == null) ? Maps.newHashMap() : searchRequest.getFilters();
+        applicationWizardConfiguration.getAllComponentFiltersSet().forEach((metaPropertyKey, values) -> {
+            String[] filetred = filters.get("metaProperties." + metaPropertyKey);
+            if (filetred == null) {
+                filetred = new String[]{};
+                filters.put("metaProperties." + metaPropertyKey, values.toArray(filetred));
+            } else {
+                Set<String> filetredSet = Sets.newHashSet(filetred);
+                filetredSet.addAll(values);
+                String[] merged = new String[]{};
+                filters.put("metaProperties." + metaPropertyKey, filetredSet.toArray(merged));
+            }
+        });
+        Class<? extends AbstractToscaType> queryClass = searchRequest.getType() == null ? AbstractToscaType.class
+                : searchRequest.getType().getIndexedToscaElementClass();
+        FacetedSearchResult<? extends AbstractToscaType> searchResult = toscaTypeSearchService.search(queryClass, searchRequest.getQuery(),
+                searchRequest.getSize(), filters);
+        return RestResponseBuilder.<FacetedSearchResult<? extends AbstractToscaType>> builder().data(searchResult).build();
+    }
 }

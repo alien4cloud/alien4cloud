@@ -31,6 +31,8 @@ public class ApplicationWizardConfiguration {
     // key: categorie, value: { key: metaproperty name, values : accepted values)
     private Map<String, Map<String, Set<String>>> componentFilterByMetapropertyValuesSet;
 
+    private Map<String, Set<String>> allComponentFiltersSet = Maps.newHashMap();
+
     /**
      * The list of metaproperty names that should be returned for applications. No filter if empty.
      */
@@ -69,42 +71,62 @@ public class ApplicationWizardConfiguration {
             componentFilterByMetapropertyValues = Maps.newHashMap();
             componentFilterByMetapropertyValues.put("Nodes", Maps.newHashMap());
         }
+
+        // init the componentFilterByMetapropertyValuesSet
+        componentFilterByMetapropertyValuesSet = Maps.newHashMap();
+        Set<String> catagories = Sets.newHashSet(componentCategories);
+        componentFilterByMetapropertyValues.forEach((key, value) -> {
+            if (catagories.contains(key)) {
+                Map<String, String> categoryComponentFilterByMetapropertyValues = value;
+                Map<String, Set<String>> categoryComponentFilterByMetapropertyValuesSet = Maps.newHashMap();
+                componentFilterByMetapropertyValuesSet.put(key, categoryComponentFilterByMetapropertyValuesSet);
+                if (categoryComponentFilterByMetapropertyValues.size() > 0) {
+                    categoryComponentFilterByMetapropertyValues.forEach((k, v) -> {
+                        String[] values = v.split(",");
+                        categoryComponentFilterByMetapropertyValuesSet.put(k, Sets.newHashSet(values));
+                        Set<String> metaprops = allComponentFiltersSet.get(k);
+                        if (metaprops == null) {
+                            metaprops = Sets.newHashSet();
+                            allComponentFiltersSet.put(k, metaprops);
+                        }
+                        for (int i=0; i<values.length; i++) {
+                            metaprops.add(values[i].toLowerCase());
+                        }
+                    });
+                }
+            } else {
+                // TODO log warn
+            }
+        });
+
+        if (applicationOverviewMetaproperties != null) {
+            applicationOverviewMetapropertiesSet = Sets.newHashSet(applicationOverviewMetaproperties);
+        } else {
+            applicationOverviewMetapropertiesSet = Sets.newHashSet();
+        }
+
+        if (componentOverviewMetaproperties != null) {
+            componentOverviewMetapropertiesSet = Sets.newHashSet(componentOverviewMetaproperties);
+        } else {
+            componentOverviewMetapropertiesSet = Sets.newHashSet();
+        }
+
     }
 
-    public synchronized Set<String> getApplicationOverviewMetapropertiesSet() {
-        if (applicationOverviewMetapropertiesSet == null && applicationOverviewMetaproperties != null) {
-            applicationOverviewMetapropertiesSet = Sets.newHashSet(applicationOverviewMetaproperties);
-        }
+    public Set<String> getApplicationOverviewMetapropertiesSet() {
         return applicationOverviewMetapropertiesSet;
     }
 
-    public synchronized Set<String> getComponentOverviewMetapropertiesSet() {
-        if (componentOverviewMetapropertiesSet == null && componentOverviewMetaproperties != null) {
-            componentOverviewMetapropertiesSet = Sets.newHashSet(componentOverviewMetaproperties);
-        }
+    public Set<String> getComponentOverviewMetapropertiesSet() {
         return componentOverviewMetapropertiesSet;
     }
 
-    public synchronized Map<String, Map<String, Set<String>>> getComponentFilterByCategorySet() {
-        Set<String> catagories = Sets.newHashSet(componentCategories);
-        if (componentFilterByMetapropertyValuesSet == null && componentFilterByMetapropertyValues != null && componentFilterByMetapropertyValues.size() > 0) {
-            componentFilterByMetapropertyValuesSet = Maps.newHashMap();
-            componentFilterByMetapropertyValues.forEach((key, value) -> {
-                if (catagories.contains(key)) {
-                    Map<String, String> categoryComponentFilterByMetapropertyValues = value;
-                    Map<String, Set<String>> categoryComponentFilterByMetapropertyValuesSet = Maps.newHashMap();
-                    componentFilterByMetapropertyValuesSet.put(key, categoryComponentFilterByMetapropertyValuesSet);
-                    if (categoryComponentFilterByMetapropertyValues.size() > 0) {
-                        categoryComponentFilterByMetapropertyValues.forEach((k, v) -> {
-                            categoryComponentFilterByMetapropertyValuesSet.put(k, Sets.newHashSet(v.split(",")));
-                        });
-                    }
-                } else {
-                    // TODO log warn
-                }
-            });
-        }
+    public Map<String, Map<String, Set<String>>> getComponentFilterByCategorySet() {
         return componentFilterByMetapropertyValuesSet;
+    }
+
+    public Map<String, Set<String>> getAllComponentFiltersSet() {
+        return allComponentFiltersSet;
     }
 
 }
