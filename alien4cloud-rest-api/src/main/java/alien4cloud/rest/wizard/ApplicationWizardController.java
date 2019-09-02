@@ -11,6 +11,7 @@ import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.rest.model.*;
 import alien4cloud.rest.wizard.model.*;
+import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import com.google.common.collect.Lists;
@@ -21,11 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +67,8 @@ public class ApplicationWizardController {
     private TopologyServiceCore topologyServiceCore;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO dao;
+    @Inject
+    private TopologyDTOBuilder topologyDTOBuilder;
 
     /**
      * Get an application from it's id.
@@ -77,8 +82,6 @@ public class ApplicationWizardController {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationOverview overview = new ApplicationOverview();
         overview.setComponentCategories(applicationWizardConfiguration.getComponentCategories());
-        // not usefull for the moment
-        // applicationOverview.setApplication(application);
 
         overview.setNamedMetaProperties(getNamedMetaProperties(application.getMetaProperties(), applicationWizardConfiguration.getApplicationOverviewMetapropertiesSet()));
 
@@ -95,9 +98,12 @@ public class ApplicationWizardController {
         overview.setApplication(application);
 
         Topology topology = topologyServiceCore.getOrFail(applicationEnvironment.getApplicationId() + ":" + applicationEnvironment.getTopologyVersion());
-        overview.setTopologyId(applicationEnvironment.getApplicationId());
-        overview.setTopologyVersion(applicationEnvironment.getTopologyVersion());
+//        overview.setTopologyId(applicationEnvironment.getApplicationId());
+//        overview.setTopologyVersion(applicationEnvironment.getTopologyVersion());
         overview.setComponentsPerCategory(getModulesPerCatgory(topology));
+
+        TopologyDTO topologyDTO = topologyDTOBuilder.initTopologyDTO(topology, new TopologyDTO());
+        overview.setTopologyDTO(topologyDTO);
 
         return RestResponseBuilder.<ApplicationOverview>builder().data(overview).build();
     }
@@ -110,8 +116,10 @@ public class ApplicationWizardController {
         overview.setComponentCategories(applicationWizardConfiguration.getComponentCategories());
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         overview.setDescription(topology.getDescription());
-        overview.setTopologyId(topology.getArchiveName());
-        overview.setTopologyVersion(topology.getArchiveVersion());
+        TopologyDTO topologyDTO = topologyDTOBuilder.initTopologyDTO(topology, new TopologyDTO());
+        overview.setTopologyDTO(topologyDTO);
+//        overview.setTopologyId(topology.getArchiveName());
+//        overview.setTopologyVersion(topology.getArchiveVersion());
         overview.setComponentsPerCategory(getModulesPerCatgory(topology));
         return RestResponseBuilder.<TopologyOverview>builder().data(overview).build();
     }
@@ -167,15 +175,6 @@ public class ApplicationWizardController {
         return modulesPerCategory;
     }
 
-    @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/topologies/graph/{topologyId:.+}:{topologyVersion:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyGraph> getTopologyGraph(@PathVariable String topologyId, @PathVariable String topologyVersion) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId + ":" + topologyVersion);
-        TopologyGraph topologyGraph = buildTopologyGraph(topology);
-        return RestResponseBuilder.<TopologyGraph>builder().data(topologyGraph).build();
-    }
-
     private List<MetaProperty> getNamedMetaProperties(Map<String, String> metaProperties, Set<String> metaPropertiesFilter) {
         List<MetaProperty> namedMetaProperties = Lists.newArrayList();
         metaProperties.forEach((id, value) -> {
@@ -186,35 +185,6 @@ public class ApplicationWizardController {
             }
         });
         return namedMetaProperties;
-    }
-
-    private TopologyGraph buildTopologyGraph(Topology topology) {
-        Map<String, NodeType> indexedNodeTypesFromTopology = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true, false);
-
-        TopologyGraph topologyGraph = new TopologyGraph();
-        List<TopologyGraphNode> nodes = Lists.newArrayList();
-        List<TopologyGraphEdge> edges = Lists.newArrayList();
-        topology.getNodeTemplates().forEach((nodeName, nodeTemplate) -> {
-            TopologyGraphNode node = new TopologyGraphNode();
-            node.setId(nodeName);
-            node.setLabel(nodeName);
-            node.setNodeType(indexedNodeTypesFromTopology.get(nodeName));
-            nodes.add(node);
-            if (nodeTemplate.getRelationships() != null) {
-                nodeTemplate.getRelationships().forEach((id, relationshipTemplate) -> {
-                    TopologyGraphEdge edge = new TopologyGraphEdge();
-                    edge.setId(nodeName + "_" + id);
-                    edge.setSource(nodeName);
-                    edge.setTarget(relationshipTemplate.getTarget());
-                    String words[] = relationshipTemplate.getType().split(".");
-                    edge.setLabel((relationshipTemplate.getType().lastIndexOf(".") > -1) ? relationshipTemplate.getType().substring(relationshipTemplate.getType().lastIndexOf(".") + 1) : relationshipTemplate.getType());
-                    edges.add(edge);
-                });
-            }
-        });
-        topologyGraph.setNodes(nodes);
-        topologyGraph.setEdges(edges);
-        return topologyGraph;
     }
 
 }

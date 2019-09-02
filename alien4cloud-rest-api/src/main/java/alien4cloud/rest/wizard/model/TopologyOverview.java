@@ -2,6 +2,7 @@ package alien4cloud.rest.wizard.model;
 
 import alien4cloud.model.application.Application;
 import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.topology.TopologyDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,7 +30,11 @@ public class TopologyOverview {
      */
     private Map<String, List<ApplicationModule>> componentsPerCategory;
 
+/*
     private String topologyId;
     private String topologyVersion;
+*/
+
+    private TopologyDTO topologyDTO;
 
 }
