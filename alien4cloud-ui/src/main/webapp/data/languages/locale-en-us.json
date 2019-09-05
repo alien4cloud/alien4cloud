@@ -1067,6 +1067,7 @@
   "NAVBAR" : {
     "BUTTON_LOGIN" : "Login",
     "BUTTON_LOGOUT" : "Logout",
+    "W4C" : "Wizard 4 Cloud (Beta)",
     "INPUT_SEARCH_MESSAGE" : "What do you need ?",
     "MENU_ADMIN" : "Administration",
     "MENU_APPS" : "Applications",
