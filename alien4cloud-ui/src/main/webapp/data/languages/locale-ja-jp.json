@@ -1065,7 +1065,7 @@
   "NAVBAR" : {
     "BUTTON_LOGIN" : "ログイン",
     "BUTTON_LOGOUT" : "ログアウト",
-    "W4C" : "Wizard 4 Cloud (Beta)",
+    "MENU_W4C" : "Wizard 4 Cloud (Beta)",
     "INPUT_SEARCH_MESSAGE" : "検索",
     "MENU_ADMIN" : "管理",
     "MENU_APPS" : "アプリケーション",
