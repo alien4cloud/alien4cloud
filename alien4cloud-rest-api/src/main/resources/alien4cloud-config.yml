@@ -163,9 +163,9 @@ wizard:
     - "Habilitation requise"
   component-overview-metaproperties:
     - "Type de composant"
-  component-categories:
-    - "Modules"
-    - "Espaces de stockage"
+#  component-categories:
+#    - "Modules"
+#    - "Espaces de stockage"
   component-filter-by-metaproperty-values:
     "Modules":
       "Type de composant": "Module"
