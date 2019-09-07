@@ -5,6 +5,7 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -38,6 +39,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
@@ -78,11 +81,41 @@ public class ApplicationWizardController {
     @Resource
     private IToscaTypeSearchService toscaTypeSearchService;
 
-    /**
-     * Get an application from it's id.
-     *
-     * @param applicationId The application id.
-     */
+    private static final Pattern NUMBER_DETECTION_PATTERN = Pattern.compile("(.*\\D+)(\\d+)");
+
+    @RequestMapping(value = "/applications/suggestion/{applicationName:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<String> getSuggestedName(@PathVariable String applicationName) {
+        String generatedName = generateUniqueApplicationName(applicationName);
+        return RestResponseBuilder.<String> builder().data(generatedName).build();
+    }
+
+    private String generateUniqueApplicationName(String suggestedName) {
+        try {
+            applicationService.checkApplicationName(suggestedName);
+            return suggestedName;
+        } catch(AlreadyExistException e) {
+            log.debug("Application name already used: " + suggestedName);
+        }
+
+        String generatedName = suggestedName;
+        Matcher m = NUMBER_DETECTION_PATTERN.matcher(suggestedName);
+        if (m.matches()) {
+            String prefixeName = m.group(1);
+            Integer suffixeNumber = Integer.parseInt(m.group(2));
+            generatedName = prefixeName + (++suffixeNumber);
+        } else {
+            generatedName += "2";
+        }
+
+        return generateUniqueApplicationName(generatedName);
+    }
+
+        /**
+         * Get an application from it's id.
+         *
+         * @param applicationId The application id.
+         */
     @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/applications/overview/{applicationId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
@@ -224,4 +257,7 @@ public class ApplicationWizardController {
                 searchRequest.getSize(), filters);
         return RestResponseBuilder.<FacetedSearchResult<? extends AbstractToscaType>> builder().data(searchResult).build();
     }
+
+
+
 }
