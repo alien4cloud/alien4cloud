@@ -25,7 +25,7 @@
         </span>
       </td>
       <td>{{inputDefinition.type}}</td>
-      <td>{{inputDefinition.constraints}}</td>
+      <td>{{inputs.serializeConstraints(inputDefinition) | truncate:30}}</td>
       <td>
         <delete-confirm id="{{inputId}}_delete" class="pull-right" func="inputs.remove(inputId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
         </delete-confirm>
