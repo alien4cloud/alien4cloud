@@ -66,6 +66,9 @@ import lombok.extern.slf4j.Slf4j;
 public class FlowExecutor {
 
     @Inject
+    private BackupNodesModifier backupNodesModifier;
+
+    @Inject
     private DeploymentConfigurationDao deploymentConfigurationDao;
     @Inject
     private SubstitutionCompositionModifier substitutionCompositionModifier;
@@ -130,6 +133,10 @@ public class FlowExecutor {
      */
     public List<ITopologyModifier> getDefaultFlowModifiers() {
         List<ITopologyModifier> topologyModifiers = Lists.newArrayList();
+
+        // Backup unprocessed nodes
+        topologyModifiers.add(backupNodesModifier);
+
         // Future: process pre-environment topology executors
         // Future: Process environment in-topology variables (different from inputs as configured by the topology editor)
         // Process topology compositions (in case of usage of substitution nodes)

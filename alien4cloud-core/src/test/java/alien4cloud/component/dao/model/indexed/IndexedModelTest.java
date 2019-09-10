@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.rest.utils.JsonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.elasticsearch.common.collect.Maps;
 import org.junit.Test;
 
@@ -259,12 +261,13 @@ public class IndexedModelTest {
     }
 
     @Test
-    public void testMergeInterfaceOperationsToNull() {
+    public void testMergeInterfaceOperationsToNull() throws JsonProcessingException {
         // TO's operation is null
         Map<String, Interface> from = Maps.newHashMap();
         Interface i1 = new Interface();
         Map<String, Operation> ios1 = Maps.newHashMap();
         Operation o1 = new Operation();
+        o1.setDescription("My Operation");
         ios1.put("o1", o1);
         i1.setOperations(ios1);
         from.put("i1", i1);
@@ -272,8 +275,12 @@ public class IndexedModelTest {
         Interface i2 = new Interface();
         to.put("i1", i2);
         Map<String, Interface> merged = IndexedModelUtils.mergeInterfaces(from, to);
+
         assertEquals(1, merged.size());
-        assertSame(merged.get("i1").getOperations().get("o1"), o1);
+
+        String mergedOpString = JsonUtil.toString(merged.get("i1").getOperations().get("o1"));
+        String fromOpString = JsonUtil.toString(o1);
+        assertEquals(mergedOpString, fromOpString);
     }
 
     @Test
@@ -295,12 +302,13 @@ public class IndexedModelTest {
     }
 
     @Test
-    public void testMergeInterfaceOperationsMerge() {
+    public void testMergeInterfaceOperationsMerge() throws JsonProcessingException {
         // both are merged
         Map<String, Interface> from = Maps.newHashMap();
         Interface i1 = new Interface();
         Map<String, Operation> ios1 = Maps.newHashMap();
         Operation o1 = new Operation();
+        o1.setDescription("Operation o1");
         ios1.put("o1", o1);
         i1.setOperations(ios1);
         from.put("i1", i1);
@@ -308,14 +316,15 @@ public class IndexedModelTest {
         Interface i2 = new Interface();
         Map<String, Operation> ios2 = Maps.newHashMap();
         Operation o2 = new Operation();
+        o2.setDescription("Operation o2");
         ios2.put("o2", o2);
         i2.setOperations(ios2);
         to.put("i1", i2);
         Map<String, Interface> merged = IndexedModelUtils.mergeInterfaces(from, to);
         assertEquals(1, merged.size());
         assertEquals(2, merged.get("i1").getOperations().size());
-        assertSame(merged.get("i1").getOperations().get("o1"), o1);
-        assertSame(merged.get("i1").getOperations().get("o2"), o2);
+        assertEquals(JsonUtil.toString(merged.get("i1").getOperations().get("o1")), JsonUtil.toString(o1));
+        assertEquals(JsonUtil.toString(merged.get("i1").getOperations().get("o2")), JsonUtil.toString(o2));
     }
 
 }

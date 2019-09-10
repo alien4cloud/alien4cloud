@@ -31,5 +31,8 @@ public class EditorTopologyValidator implements ITopologyModifier {
         for (AbstractTask error : safe(validationResult.getTaskList())) {
             context.log().error(error);
         }
+        for (AbstractTask info : safe(validationResult.getInfoList())) {
+            context.log().info(info);
+        }
     }
 }

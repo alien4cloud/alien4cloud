@@ -28,6 +28,12 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>alien4cloud</groupId>
+      <artifactId>alien4cloud-wizard-ui</artifactId>
+      <version>${project.version}</version>
+      <type>zip</type>
+    </dependency>
+    <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-webapp</artifactId>
     </dependency>
@@ -89,6 +95,15 @@
               <filtering>true</filtering>
             </resource>
           </webResources>
+          <!-- Add wizard ui -->
+          <overlays>
+            <overlay>
+              <groupId>alien4cloud</groupId>
+              <artifactId>alien4cloud-wizard-ui</artifactId>
+              <type>zip</type>
+              <targetPath>wizard</targetPath>
+            </overlay>
+          </overlays>
         </configuration>
       </plugin>
       <plugin>

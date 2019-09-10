@@ -37,6 +37,8 @@ public class FlowExecutionContext {
     public static final String MATCHING_ORIGINAL_POLICIES = "matching_original_policies";
     public static final String SECRET_CREDENTIAL = "secret_credential";
     public static final String MATCHING_REPLACED_POLICIES = "matching_replaced_policies";
+    // the initial topology before modifiers transformations
+    public static final String INITIAL_TOPOLOGY = "INITIAL_TOPOLOGY";
 
     /** Injected dao for configuration retrieval management. */
     private final DeploymentConfigurationDao deploymentConfigurationDao;

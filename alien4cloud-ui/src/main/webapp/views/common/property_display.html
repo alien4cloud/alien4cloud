@@ -61,7 +61,7 @@
           </div>
           <div ng-if="unitError" class="help-inline text-danger">{{unitError}}</div>
         </span>
-        <em ng-if="!definitionObject.uiPassword && !editable">{{definitionObject.uiValue || '...'}}</em>
+        <em ng-if="!definitionObject.uiPassword && !editable" uib-tooltip="{{definitionObject.uiValue}}">{{ (definitionObject.uiValue) ? (definitionObject.uiValue|truncate:30) : '...'}}</em>
         <em ng-if="!definitionObject.uiPassword && !editable && definitionObject.uiValue" uib-tooltip="{{definitionObject.uiValue}}" class="fa fa-clipboard btn-cb clickable"></em>
 
         <!-- Case : password -->

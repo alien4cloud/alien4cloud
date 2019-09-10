@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.PostConstruct;
@@ -45,7 +46,7 @@ public class OrchestratorPluginService implements IPaasEventService {
     private Map<String, Registration> monitorRegistrations = Maps.newHashMap();
 
     @SuppressWarnings("rawtypes")
-    private List<IPaasEventListener> listeners = Collections.synchronizedList(new ArrayList<IPaasEventListener>());
+    private List<IPaasEventListener> listeners = new CopyOnWriteArrayList<IPaasEventListener>();
 
     public OrchestratorPluginService() {
         log.info("Create new PaaSProvider instance.");
@@ -54,6 +55,11 @@ public class OrchestratorPluginService implements IPaasEventService {
     @Override
     public void addListener(IPaasEventListener<?> listener) {
         listeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(IPaasEventListener<?> listener) {
+        listeners.remove(listener);
     }
 
     @PostConstruct

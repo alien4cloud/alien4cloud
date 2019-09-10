@@ -1,8 +1,12 @@
 package alien4cloud.paas.model;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.Objects;
 
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.annotation.*;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.annotation.query.TermsFacet;
@@ -15,6 +19,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import static org.apache.commons.lang.StringUtils.defaultString;
 
 /**
  * This represents a log entry from orchestrator
@@ -161,20 +167,29 @@ public class PaaSDeploymentLog {
         return "PaaSDeploymentLog{" + toCompactString() + '}';
     }
 
+    private final static String COMPACT_FORMAT = "[deploymentId=%s][deploymentPaasId=%s][operationName=%s][type=%s][timestamp=%s][workflowId=%s][taskId=%s][executionId=%s][nodeId=%s] | %s";
+
+    private final static String FORMAT = "[%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s]%s\n";
+
     public String toCompactString() {
-        return "deploymentPaaSId='" + deploymentPaaSId + '\'' + ", level=" + level + ", type='" + type + '\'' + ", timestamp="
-                + timestamp + ", workflowId='" + workflowId + '\'' + ", executionId='" + executionId + '\'' + ", taskId='" + taskId + '\'' + ", nodeId='" + nodeId + '\'' + ", instanceId='"
-                + instanceId + '\'' + ", interfaceName='" + interfaceName + '\'' + ", operationName='" + operationName + '\'' + ", content='" + content;
-    }
+        OffsetDateTime stamp = OffsetDateTime.ofInstant(Instant.ofEpochMilli(timestamp.getTime()), ZoneId.systemDefault());
 
-    public final static String FORMAT = "[%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s]%s\n";
-
-    private String formatEmptyString(String str) {
-        return Objects.toString(str, "");
+        return String.format(COMPACT_FORMAT,
+                defaultString(deploymentId),
+                defaultString(deploymentPaaSId),
+                defaultString(operationName),
+                defaultString(type),
+                defaultString(stamp.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)),
+                defaultString(workflowId),
+                defaultString(taskId),
+                defaultString(executionId),
+                defaultString(nodeId),
+                defaultString(content)
+        );
     }
     
     public String toFormattedString() {
-        return String.format(FORMAT, formatEmptyString(timestamp.toString()), formatEmptyString(level.name().toUpperCase()), formatEmptyString(deploymentPaaSId), formatEmptyString(workflowId), formatEmptyString(executionId), formatEmptyString(taskId), formatEmptyString(nodeId), formatEmptyString(instanceId), formatEmptyString(interfaceName), formatEmptyString(operationName), formatEmptyString(type), formatEmptyString(content));
+        return String.format(FORMAT, defaultString(timestamp.toString()), defaultString(level.name().toUpperCase()), defaultString(deploymentPaaSId), defaultString(workflowId), defaultString(executionId), defaultString(taskId), defaultString(nodeId), defaultString(instanceId), defaultString(interfaceName), defaultString(operationName), defaultString(type), defaultString(content));
     }
     
 }

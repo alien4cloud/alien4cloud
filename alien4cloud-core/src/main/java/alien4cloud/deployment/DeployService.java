@@ -191,6 +191,8 @@ public class DeployService {
                             && deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null) {
                         scheduler.execute(() -> tryLaunchingPostUpdateWorkflow(System.currentTimeMillis(), existingDeployment, orchestratorPlugin,
                                 deploymentContext, callback));
+                    } else {
+                        callback.onSuccess(data);
                     }
                 }
 

@@ -41,15 +41,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private SecurityProperties security;
     @Resource
     private Alien4CloudAccessDeniedHandler accessDeniedHandler;
-    @Resource
-    private Alien4CloudAuthenticationProvider authenticationProvider;
+
+    private Alien4CloudAuthenticationProvider authenticationProvider = new Alien4CloudAuthenticationProvider();
 
     @Autowired
     private Environment env;
 
     @Bean
     public Alien4CloudAuthenticationProvider authenticationProvider() {
-        return new Alien4CloudAuthenticationProvider();
+        return authenticationProvider;
     }
 
     @Bean

@@ -198,9 +198,11 @@ public class OrchestratorStateService {
                 Deployment[] deployments = deploymentService.getOrchestratorActiveDeployments(orchestrator.getId());
                 Map<String, String> deploymentIdsMap = Maps.newHashMap();
                 Map<String, Deployment> deploymentsMap = Maps.newHashMap();
-                for (Deployment deployment : deployments) {
-                    deploymentIdsMap.put(deployment.getOrchestratorDeploymentId(), deployment.getId());
-                    deploymentsMap.put(deployment.getOrchestratorDeploymentId(), deployment);
+                if (deployments != null) {
+                    for (Deployment deployment : deployments) {
+                        deploymentIdsMap.put(deployment.getOrchestratorDeploymentId(), deployment.getId());
+                        deploymentsMap.put(deployment.getOrchestratorDeploymentId(), deployment);
+                    }
                 }
                 // connect the orchestrator
                 Set<String> reallyActiveDeployments = orchestratorInstance.init(deploymentIdsMap);

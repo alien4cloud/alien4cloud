@@ -153,7 +153,7 @@ public class ApplicationService {
         }
     }
 
-    private void checkApplicationName(String name) {
+    public void checkApplicationName(String name) {
         NameValidationUtils.validateApplicationName(name);
 
         if (alienDAO.buildQuery(Application.class).setFilters(singleKeyFilter("name", name)).count() > 0) {

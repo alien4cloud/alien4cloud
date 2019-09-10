@@ -40,5 +40,8 @@ public enum TaskCode {
     ORCHESTRATOR_PROPERTY,
 
     /** Specific code for cloudify */
-    CFY_MULTI_RELATIONS
+    CFY_MULTI_RELATIONS,
+
+    /** Validation Plugins */
+    VALIDATION_PLUGIN
 }

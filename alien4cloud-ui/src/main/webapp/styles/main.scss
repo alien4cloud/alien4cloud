@@ -457,6 +457,16 @@ img.icon_32 {
   border-bottom: 1px solid $brand-danger;
 }
 
+.content-head-warning {
+  @extend .content-head;
+  border-bottom: 1px solid $brand-warning;
+}
+
+.content-head-info {
+  @extend .content-head;
+  border-bottom: 1px solid $brand-info;
+}
+
 .content-body {
   padding-left: 0.5em;
 }
