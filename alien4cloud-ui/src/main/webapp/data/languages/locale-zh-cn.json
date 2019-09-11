@@ -7,7 +7,9 @@
     "EXECUTION" : {
       "HISTORY" : {
         "DESCRIPTION" : "List of executions"
-      }
+      },
+      "CANCEL": "Cancel execution",
+      "CANCEL_CONFIRM": "Are you sure to cancel this execution ?"
     },
     "DEPLOYMENT" : {
       "HISTORY" : {

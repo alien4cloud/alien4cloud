@@ -7,7 +7,9 @@
     "EXECUTION" : {
       "HISTORY" : {
         "DESCRIPTION" : "Liste des exécutions"
-      }
+      },
+      "CANCEL": "Annuler l'exécution",
+      "CANCEL_CONFIRM": "Êtes-vous sûr d'annuler cette exécution ?"
     },
     "DEPLOYMENT" : {
       "HISTORY" : {

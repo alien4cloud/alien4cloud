@@ -20,7 +20,7 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-applications', [ 'ngResource','toaster']).controller('ApplicationEnvDeployCurrentExecutionsCtrl',
+  modules.get('a4c-applications', [ 'ngResource', 'toaster']).controller('ApplicationEnvDeployCurrentExecutionsCtrl',
   ['$scope', '$resource', 'toaster', 'applicationServices', 'application', '$state','breadcrumbsService', '$translate', 'searchServiceFactory',
   function($scope, $resource, toaster, applicationServices, applicationResult, $state, breadcrumbsService, $translate, searchServiceFactory) {
 
@@ -47,20 +47,13 @@ define(function (require) {
     };
 
     $scope.cancelTask = function(execution) {
-        console.log("CANCELING TASK : " + execution.id);
-
         var request = {
             'environmentId' : $scope.environment.id,
             'executionId' : execution.id,
         };
 
-        execution.cancelRequested = true;
-
         $scope.cancelExecutionResource.cancel([],request).$promise.then(function(response) {
-            if (!response.error ) {
-                console.log("CANCELING TASK RESPONSE : " + response);
-                execution.cancelRequested = true;
-            } else {
+            if (response.error ) {
                 toaster.pop('error', $translate.instant('ERRORS.376.TITLE'), $translate.instant('ERRORS.376.MESSAGE',request), 4000, 'trustedHtml', null);
             }
         });
