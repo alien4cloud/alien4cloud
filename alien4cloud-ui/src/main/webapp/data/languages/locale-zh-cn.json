@@ -538,7 +538,8 @@
           "SUCCEEDED" : "Succeeded",
           "FAILED" : "Failed",
           "RUNNING" : "Running",
-          "CANCELLED" : "Cancelled"
+          "CANCELLED" : "Cancelled",
+          "CANCELLING" : "Cancelling"
         }
       }
     },
@@ -888,6 +889,10 @@
     "375" : {
       "MESSAGE" : "尝试扩展时，提供商发生错误。",
       "TITLE" : "插件错误"
+    },
+    "376" : {
+      "MESSAGE" : "Error while cancelling execution {{executionId}}.",
+      "TITLE" : "The execution cancellation has failed"
     },
     "390" : "禁止删除最后一个管理员用户。",
     "391" : "禁止删除最后一个管理员用户的ADMIN角色。",

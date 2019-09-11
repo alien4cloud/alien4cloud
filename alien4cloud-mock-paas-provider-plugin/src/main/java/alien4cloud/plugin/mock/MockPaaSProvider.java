@@ -460,6 +460,12 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
+    public void cancelTask(PaaSDeploymentContext deploymentContext, String taskId, IPaaSCallback<String> callback) {
+        log.info(String.format("Cancelling task %s", taskId));
+        callback.onSuccess(null);
+    }
+
+    @Override
     public void getStatus(PaaSDeploymentContext deploymentContext, IPaaSCallback<DeploymentStatus> callback) {
         DeploymentStatus status = doGetStatus(deploymentContext.getDeploymentPaaSId(), false);
         callback.onSuccess(status);

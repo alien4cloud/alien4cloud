@@ -540,7 +540,8 @@
           "SUCCEEDED" : "Succès",
           "FAILED" : "Echec",
           "RUNNING" : "En cours",
-          "CANCELLED" : "Annulée"
+          "CANCELLED" : "Annulée",
+          "CANCELLING" : "Annulation"
         }
       }
     },
@@ -890,6 +891,10 @@
     "375" : {
       "MESSAGE" : "L'orchestrateur a rencontré une erreur lors de l'opération de redimensionnement.",
       "TITLE" : "Erreur du plugin"
+    },
+    "376" : {
+      "MESSAGE" : "Erreur lors de l'annulation de l'execution {{executionId}}.",
+      "TITLE" : "L'annulation de l'execution a echoué"
     },
     "390" : "Il est interdit de supprimer le dernier utilisateur ayant les droits d'administration.",
     "391" : "Il est interdit de supprimer le role ADMIN du dernier utilisateur ayant les droits d'administration.",

@@ -74,6 +74,7 @@
             </td>
             <td class="col-md-1 clickable">
                 <i class="fa fa-newspaper-o" ng-click="displayLogs(execution.id)"></i>
+                <i ng-if="execution.status == 'RUNNING'" class="fa fa-times-circle text-danger" ng-click="cancelTask(execution)"></i>
             </td>
         </tr>
         </tbody>
