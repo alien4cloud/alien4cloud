@@ -76,7 +76,7 @@ define(function (require) {
               applicationEnvironmentId: $scope.environment.id
             }, angular.toJson(secretProviderCredentials), function (data) {
               if (data.error === null) {
-                $scope.environment.status = 'UPDATE_IN_PROGRESS';
+                //$scope.environment.status = 'UPDATE_IN_PROGRESS';
                 $scope.setEnvironment($scope.environment);
               } else {
                 $scope.environment.status = 'UPDATE_FAILURE';
