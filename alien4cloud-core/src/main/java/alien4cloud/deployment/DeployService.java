@@ -12,8 +12,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.deployment.*;
 import org.alien4cloud.secret.services.SecretProviderService;
 import org.alien4cloud.tosca.model.templates.ServiceNodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -38,10 +40,6 @@ import alien4cloud.events.DeploymentCreatedEvent;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.deployment.DeploymentSourceType;
-import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
@@ -209,6 +207,13 @@ public class DeployService {
 
             return null;
         });
+    }
+
+    public void backupUnprocessedTopology(String deploymentId,Topology topology) {
+        DeploymentUnprocessedTopology dut = new DeploymentUnprocessedTopology();
+        dut.setId(deploymentId);
+        dut.setUnprocessedTopology(topology);
+        alienMonitorDao.save(dut);
     }
 
     private long timeout = 60 * 60 * 1000;

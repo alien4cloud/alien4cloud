@@ -165,6 +165,7 @@ public class ApplicationDeploymentController {
 
     private RestResponse<?> doDeploy(DeployApplicationRequest deployApplicationRequest, Application application, ApplicationEnvironment environment,
             Topology topology) {
+        String deploymentId;
         DeploymentTopologyDTO deploymentTopologyDTO = deploymentTopologyDTOBuilder.prepareDeployment(topology, application, environment);
         TopologyValidationResult validation = deploymentTopologyDTO.getValidation();
 
@@ -190,7 +191,9 @@ public class ApplicationDeploymentController {
         }
 
         // process with the deployment
-        deployService.deploy(deployer, secretProviderCredentials, deploymentTopologyDTO.getTopology(), application);
+        deploymentId = deployService.deploy(deployer, secretProviderCredentials, deploymentTopologyDTO.getTopology(), application);
+
+        deployService.backupUnprocessedTopology(deploymentId,deploymentTopologyDTO.getUnprocessedTopology());
         return RestResponseBuilder.<Void> builder().build();
     }
 
