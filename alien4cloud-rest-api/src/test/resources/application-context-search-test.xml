@@ -31,6 +31,8 @@
         <context:exclude-filter type="regex" expression="alien4cloud.deployment.DeploymentTopologyDTOBuilder"/>
     </context:component-scan>
 
+    <bean id="jwtAuthController" class="alien4cloud.security.spring.Alien4CloudAuthenticationProvider"/>
+
     <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory"/>
     <bean id="alienconfig" factory-bean="alienconfigFactory" factory-method="get"/>
     <alias name="alienconfig" alias="elasticsearchConfig"/>
