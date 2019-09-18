@@ -120,13 +120,29 @@ public class ApplicationWizardController {
     @RequestMapping(value = "/applications/overview/{applicationId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<ApplicationOverview> get(@PathVariable String applicationId) {
+        return _getApplicationEnvironmentOverview(applicationId, null);
+    }
+
+    /**
+     * Get an application from it's id.
+     *
+     * @param applicationId The application id.
+     */
+    @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value = "/applications/overview/{applicationId:.+}/{environmentId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<ApplicationOverview> getApplicationEnvironmentOverview(@PathVariable String applicationId, @PathVariable String environmentId) {
+        return _getApplicationEnvironmentOverview(applicationId, environmentId);
+    }
+
+    private RestResponse<ApplicationOverview> _getApplicationEnvironmentOverview(String applicationId, String environmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationOverview overview = new ApplicationOverview();
         overview.setComponentCategories(applicationWizardConfiguration.getComponentCategories());
 
         overview.setNamedMetaProperties(getNamedMetaProperties(application.getMetaProperties(), applicationWizardConfiguration.getApplicationOverviewMetapropertiesSet()));
 
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, null);
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, environmentId);
         overview.setApplicationEnvironment(applicationEnvironment);
         DeploymentStatus status = null;
         try {
