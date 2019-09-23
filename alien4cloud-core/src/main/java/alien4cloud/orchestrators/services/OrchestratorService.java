@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -23,6 +24,9 @@ import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationSupport;
+import alien4cloud.orchestrators.events.AfterOrchestratorCreated;
+import alien4cloud.orchestrators.events.AfterOrchestratorDeleted;
+import alien4cloud.orchestrators.events.BeforeOrchestratorDeleted;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.utils.MapUtil;
@@ -43,6 +47,9 @@ public class OrchestratorService {
     private OrchestratorFactoriesRegistry orchestratorFactoriesRegistry;
     @Inject
     private LocationService locationService;
+
+    @Inject
+    private ApplicationEventPublisher publisher;
 
     /**
      * Creates an orchestrator.
@@ -69,6 +76,7 @@ public class OrchestratorService {
         ensureNameUnicityAndSave(orchestrator);
         alienDAO.save(configuration);
 
+        publisher.publishEvent(new AfterOrchestratorCreated(this, orchestrator));
         return orchestrator.getId();
     }
 
@@ -102,6 +110,7 @@ public class OrchestratorService {
      * @param id The id of the orchestrator to delete.
      */
     public void delete(String id) {
+        publisher.publishEvent(new BeforeOrchestratorDeleted(this, id));
         // delete all locations for the orchestrator
         Location[] locations = locationService.getOrchestratorLocations(id);
         if (locations != null) {
@@ -116,6 +125,7 @@ public class OrchestratorService {
         // delete the orchestrator configuration
         alienDAO.delete(OrchestratorConfiguration.class, id);
         alienDAO.delete(Orchestrator.class, id);
+        publisher.publishEvent(new AfterOrchestratorDeleted(this, id));
     }
 
     /**
