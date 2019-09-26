@@ -23,7 +23,8 @@ local.properties
 .loadpath
 
 # VS code IDE files
-alien4cloud-ui/.vscode/
+**/.vscode/
+**/.factorypath
 
 # External tool builders
 .externalToolBuilders/
