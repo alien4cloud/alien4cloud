@@ -258,6 +258,13 @@
           "PROPERTY_MISSING_ERROR" : "目标不拥有这个属性",
           "PROPERTY_TYPE_VIOLATION_ERROR" : "属性没有这个目标"
         },
+        "PLUGINS" : {
+          "LABEL" : "Validation plugin errors",
+          "NAME" : "Plugin Name",
+          "ERROR" : "Error",
+          "WARNING" : "Warning",
+          "INFO" : "Info"
+        },
         "RELATED_INPUT" : "相关输入",
         "RELATIONSHIP" : "关系",
         "REPLACE" : "用被建议的一个来替换",
@@ -797,6 +804,7 @@
     },
     "DOWNLOAD" : "下载",
     "DO_NOT_SAVE" : "跳过",
+    "KEEP": "Keep in session",
     "EMPTY_GIT_HISTORY" : "git历史记录为空，您需要保存拓扑。",
     "GIT" : {
       "MODAL" : {
@@ -915,6 +923,7 @@
       "TITLE" : "Workflow execution",
       "MESSAGE" : "Workflow {{workflowId}} fails to be executed."
     },
+    "620" : "A deployed object cannot be renamed.",
     "650" : "您的Compute中至少有两个具有冲突名称。",
     "651" : "当云具有“可删除”选项设置时，BlockStorage不能具有VolumeID。",
     "680" : "Git存储库url不存在或不是正确的。",
@@ -1056,6 +1065,7 @@
   "NAVBAR" : {
     "BUTTON_LOGIN" : "登录",
     "BUTTON_LOGOUT" : "注销",
+    "MENU_W4C" : "Wizard 4 Cloud (Beta)",
     "INPUT_SEARCH_MESSAGE" : "您需要什么？",
     "MENU_ADMIN" : "管理",
     "MENU_APPS" : "应用",
@@ -1302,6 +1312,9 @@
     "uninitialized" : "未初始化的",
     "uninstalled" : "未安装的",
     "uninstalling" : "正在卸载",
+    "submitting" : "Submitted",
+    "executing" : "Executing",
+    "executed" : "Executed",
     "unknown" : "正在等待云编排工具"
   },
   "SUGGESTIONS" : "建议",

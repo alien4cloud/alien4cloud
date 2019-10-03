@@ -258,6 +258,13 @@
           "PROPERTY_MISSING_ERROR" : "La cible de posséde pas cette propriété",
           "PROPERTY_TYPE_VIOLATION_ERROR" : "The property has no such target"
         },
+        "PLUGINS" : {
+          "LABEL" : "Validation plugin errors",
+          "NAME" : "Plugin Name",
+          "ERROR" : "Error",
+          "WARNING" : "Warning",
+          "INFO" : "Info"
+        },
         "RELATED_INPUT" : "Related input",
         "RELATIONSHIP" : "TRANSLATION_IS_REQUIRED",
         "REPLACE" : "指定内容で置換",
@@ -797,6 +804,7 @@
     },
     "DOWNLOAD" : "Download",
     "DO_NOT_SAVE" : "Skip",
+    "KEEP": "Keep in session",
     "EMPTY_GIT_HISTORY" : "The git history is empty, you need to save the topology.",
     "GIT" : {
       "MODAL" : {
@@ -915,6 +923,7 @@
       "TITLE" : "Workflow execution",
       "MESSAGE" : "Workflow {{workflowId}} fails to be executed."
     },
+    "620" : "A deployed object cannot be renamed.",
     "650" : "At least two of your Compute have a conflict name.",
     "651" : "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "680" : "The Git repository url doesn't exists or isn't a correct one.",
@@ -1056,6 +1065,7 @@
   "NAVBAR" : {
     "BUTTON_LOGIN" : "ログイン",
     "BUTTON_LOGOUT" : "ログアウト",
+    "MENU_W4C" : "Wizard 4 Cloud (Beta)",
     "INPUT_SEARCH_MESSAGE" : "検索",
     "MENU_ADMIN" : "管理",
     "MENU_APPS" : "アプリケーション",
@@ -1302,6 +1312,9 @@
     "uninitialized" : "Uninitialized",
     "uninstalled" : "Uninstalled",
     "uninstalling" : "Uninstalling",
+    "submitting" : "Submitted",
+    "executing" : "Executing",
+    "executed" : "Executed",
     "unknown" : "Waiting for the orchestrator"
   },
   "SUGGESTIONS" : "suggestions",

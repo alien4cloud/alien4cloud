@@ -297,6 +297,14 @@ define(function (require) {
             type: 'org.alien4cloud.tosca.editor.operations.inputs.DeleteInputArtifactOperation',
             inputName: inputArtifactId
           });
+        },
+
+        serializeConstraints: function (inputDefinition) {
+          if (_.defined(inputDefinition.constraints)) {
+            return JSON.stringify(inputDefinition.constraints);
+          } else {
+            return "";
+          }
         }
       };
 

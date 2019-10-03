@@ -47,6 +47,7 @@
     <commons-compress.version>1.9</commons-compress.version>
     <spring.fsm.version>2.0.3.RELEASE</spring.fsm.version>
     <rxjava.version>2.2.4</rxjava.version>
+    <io.jsonwebtoken.jjwt.version>0.9.1</io.jsonwebtoken.jjwt.version>
 
     <!-- JSON and YAML Parsing -->
     <jackson.version>2.9.3</jackson.version>
@@ -71,7 +72,7 @@
     <!-- Elastic Search mapper (reference the elastic search version actually). -->
     <!-- Elastic Search is in Elastic Search dependencies -->
     <elasticsearch.version>6.6.2</elasticsearch.version>
-    <es-mapping.version>1.7.8-SNAPSHOT</es-mapping.version>
+    <es-mapping.version>2.0.0-SNAPSHOT</es-mapping.version>
     <!-- Groovy is required for ElasticSearch to run as server in order to process scripts -->
     <groovy.version>2.3.5</groovy.version>
 
@@ -466,6 +467,13 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-ext</artifactId>
         <version>${slf4j.version}</version>
+      </dependency>
+
+      <!-- JWT -->
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt</artifactId>
+        <version>${io.jsonwebtoken.jjwt.version}</version>
       </dependency>
 
       <!-- XML parsing -->

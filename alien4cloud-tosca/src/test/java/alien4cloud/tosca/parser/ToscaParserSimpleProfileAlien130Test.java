@@ -816,7 +816,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals("tosca.artifacts.Deployment.War", artifact.getArtifactType());
         assertNull(artifact.getRepositoryCredential());
         assertNull(artifact.getRepositoryName());
-        Assert.assertEquals(ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY, artifact.getArtifactRepository());
+        assertNull(artifact.getArtifactRepository());
 
         assertNull(artifact.getRepositoryURL());
 

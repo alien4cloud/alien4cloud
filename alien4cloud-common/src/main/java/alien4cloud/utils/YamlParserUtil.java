@@ -51,7 +51,6 @@ public final class YamlParserUtil {
         ObjectMapper mapper = new ObjectMapper(factory);
         mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         return mapper;
     }

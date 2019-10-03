@@ -173,6 +173,8 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
         deploymentTopologyDTO
                 .setSecretCredentialInfos((List<SecretCredentialInfo>) executionContext.getExecutionCache().get(FlowExecutionContext.SECRET_CREDENTIAL));
 
+        deploymentTopologyDTO.setUnprocessedTopology((Topology) executionContext.getExecutionCache().get(FlowExecutionContext.INITIAL_TOPOLOGY));
+
         return deploymentTopologyDTO;
     }
 

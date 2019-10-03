@@ -6,14 +6,16 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Sets;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
+import alien4cloud.orchestrators.events.OnOrchestratorConfigurationChanged;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.paas.OrchestratorPluginService;
@@ -32,6 +34,9 @@ public class OrchestratorConfigurationService {
     private IGenericSearchDAO alienDAO;
     @Inject
     private OrchestratorPluginService orchestratorPluginService;
+
+    @Inject
+    private ApplicationEventPublisher publisher;
 
     /**
      * Return the type of configuration for a given orchestrator.
@@ -132,5 +137,7 @@ public class OrchestratorConfigurationService {
         }
 
         alienDAO.save(configuration);
+
+        publisher.publishEvent(new OnOrchestratorConfigurationChanged(this, id, configuration));
     }
 }

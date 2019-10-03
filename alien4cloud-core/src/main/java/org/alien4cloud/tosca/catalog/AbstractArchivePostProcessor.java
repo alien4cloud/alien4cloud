@@ -103,12 +103,13 @@ public abstract class AbstractArchivePostProcessor {
         }
     }
 
-    private void processLocalArtifact(ArchivePathChecker archivePathResolver, AbstractArtifact artifact, ParsingResult<ArchiveRoot> parsedArchive) {
+    private void processLocalArtifact(ArchivePathChecker archivePathResolver, AbstractArtifact artifact, ParsingResult<ArchiveRoot> parsedArchive,boolean allowMissingArtifact) {
         if (artifact.getArtifactRef() == null || artifact.getArtifactRef().isEmpty()) {
             return; // Artifact may not be specified and may be set in alien4cloud.
         }
         if (!archivePathResolver.exists(artifact.getArtifactRef())) {
-            parsedArchive.getContext().getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ARTIFACT_REFERENCE,
+            ParsingErrorLevel level = allowMissingArtifact == true ? ParsingErrorLevel.WARNING : ParsingErrorLevel.ERROR;
+            parsedArchive.getContext().getParsingErrors().add(new ParsingError(level, ErrorCode.INVALID_ARTIFACT_REFERENCE,
                     "Invalid artifact reference", null, "CSAR's artifact does not exist", null, artifact.getArtifactRef()));
         }
     }
@@ -117,7 +118,7 @@ public abstract class AbstractArchivePostProcessor {
         return parsedArchive.getResult().getTopology() != null && parsedArchive.getResult().getTopology().getInputArtifacts() != null;
     }
 
-    private void processArtifact(ArchivePathChecker archivePathResolver, AbstractArtifact artifact, ParsingResult<ArchiveRoot> parsedArchive) {
+    private void processArtifact(ArchivePathChecker archivePathResolver, AbstractArtifact artifact, ParsingResult<ArchiveRoot> parsedArchive,boolean allowMissingArtifact) {
         if (!(parsedArchive.getResult().getArchive().getName().equals(artifact.getArchiveName())
                 && parsedArchive.getResult().getArchive().getVersion().equals(artifact.getArchiveVersion()))) {
             // if the artifact is not defined in the current archive then we don't have to perform validation.
@@ -144,7 +145,7 @@ public abstract class AbstractArchivePostProcessor {
                     log.debug("Archive artifact validation - Processing local artifact {}", artifact);
                 }
                 // Not a URL then must be a relative path to a file inside the csar
-                processLocalArtifact(archivePathResolver, artifact, parsedArchive);
+                processLocalArtifact(archivePathResolver, artifact, parsedArchive,allowMissingArtifact);
                 return;
             }
         }
@@ -171,9 +172,9 @@ public abstract class AbstractArchivePostProcessor {
         if (interfaceMap != null) {
             interfaceMap.values().stream().filter(interfazz -> interfazz.getOperations() != null).forEach(interfazz -> interfazz.getOperations().values()
                     .stream().filter(operation -> operation.getImplementationArtifact() != null).forEach(operation -> {
-                        processArtifact(archivePathResolver, operation.getImplementationArtifact(), parsedArchive);
+                        processArtifact(archivePathResolver, operation.getImplementationArtifact(), parsedArchive,false);
                         for (DeploymentArtifact artifact : safe(operation.getDependencies())) {
-                            processArtifact(archivePathResolver, artifact, parsedArchive);
+                            processArtifact(archivePathResolver, artifact, parsedArchive,false);
                         }
                     }));
         }
@@ -185,7 +186,7 @@ public abstract class AbstractArchivePostProcessor {
             for (T type : types.values()) {
                 if (type.getArtifacts() != null) {
                     type.getArtifacts().values().stream().filter(artifact -> artifact != null)
-                            .forEach(artifact -> processArtifact(archivePathResolver, artifact, parsedArchive));
+                            .forEach(artifact -> processArtifact(archivePathResolver, artifact, parsedArchive,true));
                 }
                 processInterfaces(archivePathResolver, type.getInterfaces(), parsedArchive);
             }
@@ -196,7 +197,7 @@ public abstract class AbstractArchivePostProcessor {
             ParsingResult<ArchiveRoot> parsedArchive) {
         if (template.getArtifacts() != null) {
             template.getArtifacts().values().stream().filter(artifact -> artifact != null)
-                    .forEach(artifact -> processArtifact(archivePathResolver, artifact, parsedArchive));
+                    .forEach(artifact -> processArtifact(archivePathResolver, artifact, parsedArchive,true));
         }
         processInterfaces(archivePathResolver, template.getInterfaces(), parsedArchive);
     }
@@ -206,7 +207,7 @@ public abstract class AbstractArchivePostProcessor {
             parsedArchive.getResult().getTopology().getInputArtifacts().values().stream()
                     // If artifact reference is null it means it's to be uploaded with the GUI
                     .filter(inputArtifact -> StringUtils.isNotBlank(inputArtifact.getArtifactRef()))
-                    .forEach(inputArtifact -> this.processArtifact(archivePathResolver, inputArtifact, parsedArchive));
+                    .forEach(inputArtifact -> this.processArtifact(archivePathResolver, inputArtifact, parsedArchive,true));
         }
     }
 

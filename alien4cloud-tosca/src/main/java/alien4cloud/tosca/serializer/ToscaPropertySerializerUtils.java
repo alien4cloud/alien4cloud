@@ -134,9 +134,13 @@ public class ToscaPropertySerializerUtils {
     private static String formatListValue(int indentLevel, List<Object> value) {
         indentLevel++;
         StringBuilder buffer = new StringBuilder();
-        for (Object element : value) {
-            if (element != null) {
-                buffer.append("\n").append(indent(indentLevel)).append("- ").append(formatValue(false, indentLevel, element));
+        if (value.isEmpty()) {
+            buffer.append("[]");
+        } else {
+            for (Object element : value) {
+                if (element != null) {
+                    buffer.append("\n").append(indent(indentLevel)).append("- ").append(formatValue(false, indentLevel, element));
+                }
             }
         }
         return buffer.toString();

@@ -147,10 +147,32 @@ ha:
 logs_deployment_appender:
   enable: false
 
+logs_audit_appender:
+  enable: false
+
+
 features:
   editor_auto_completion: false
   archive_indexer_lock_used_archive: false
+  no_deployed_envs_renaming: false
+
+
+wizard:
+  application-overview-metaproperties:
+    - "Mention de manipulation"
+    - "Habilitation requise"
+  component-overview-metaproperties:
+    - "Type de composant"
+#  component-categories:
+#    - "Modules"
+#    - "Espaces de stockage"
+  component-filter-by-metaproperty-values:
+    "Modules":
+      "Type de composant": "Module"
+    "Espaces de stockage":
+      "Type de composant": "Moyen_De_Stockage_Echange"
 
 languages:
   default: en-us
   prefix: locale
+

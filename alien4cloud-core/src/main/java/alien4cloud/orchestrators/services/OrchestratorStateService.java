@@ -3,22 +3,24 @@ package alien4cloud.orchestrators.services;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.paas.IPaaSProviderConfiguration;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.springframework.stereotype.Component;
-
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -29,11 +31,14 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.OrchestratorState;
+import alien4cloud.orchestrators.events.AfterOrchestratorEnabled;
+import alien4cloud.orchestrators.events.BeforeOrchestratorDisabled;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.locations.services.PluginArchiveIndexer;
 import alien4cloud.orchestrators.plugin.ILocationAutoConfigurer;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
+import alien4cloud.paas.IPaaSProviderConfiguration;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.utils.MapUtil;
@@ -59,6 +64,9 @@ public class OrchestratorStateService {
     private LocationService locationService;
     @Inject
     private PluginArchiveIndexer archiveIndexer;
+
+    @Inject
+    private ApplicationEventPublisher publisher;
 
     /**
      * Unload all orchestrators from JVM memory, it's typically to refresh/reload code
@@ -152,6 +160,7 @@ public class OrchestratorStateService {
     public synchronized void enable(Orchestrator orchestrator) throws PluginConfigurationException {
         if (orchestrator.getState().equals(OrchestratorState.DISABLED)) {
             load(orchestrator);
+
         } else {
             log.debug("Request to enable ignored: orchestrator {} (id: {}) is already enabled", orchestrator.getName(), orchestrator.getId());
             throw new AlreadyExistException("Orchestrator {} is already instanciated.");
@@ -191,8 +200,38 @@ public class OrchestratorStateService {
 
             // index the archive in alien catalog
             archiveIndexer.indexOrchestratorArchives(orchestratorFactory, orchestratorInstance);
-            // connect the orchestrator
-            orchestratorInstance.init(deploymentService.getCloudActiveDeploymentContexts(orchestrator.getId()));
+
+            try {
+                Deployment[] deployments = deploymentService.getOrchestratorActiveDeployments(orchestrator.getId());
+                Map<String, String> deploymentIdsMap = Maps.newHashMap();
+                Map<String, Deployment> deploymentsMap = Maps.newHashMap();
+                if (deployments != null) {
+                    for (Deployment deployment : deployments) {
+                        deploymentIdsMap.put(deployment.getOrchestratorDeploymentId(), deployment.getId());
+                        deploymentsMap.put(deployment.getOrchestratorDeploymentId(), deployment);
+                    }
+                }
+                // connect the orchestrator
+                Set<String> reallyActiveDeployments = orchestratorInstance.init(deploymentIdsMap);
+                deploymentsMap.forEach((deploymentPaasId, deployment) -> {
+                    if (!reallyActiveDeployments.contains(deploymentPaasId)) {
+                        // this deployment is not known by the orchestrator, maybe it has been undeployed during downtime
+                        log.info("Deployment {} ({}) no longer exists in orchestrator deployments, maybe undeployed during downtime, marking it as undeployed", deployment.getId(), deployment.getOrchestratorDeploymentId());
+                        deploymentService.markUndeployed(deployment);
+                    }
+                });
+
+            } catch(Exception e) {
+                // Destroy contexts
+                orchestratorFactory.destroy(orchestratorInstance);
+
+                // Reset the connection state
+                orchestrator.setState(OrchestratorState.DISABLED);
+                alienDAO.save(orchestrator);
+
+                // Propagate the exception
+                throw e;
+            }
 
             // register the orchestrator instance to be polled for updates
             orchestratorPluginService.register(orchestrator.getId(), orchestratorInstance);
@@ -203,6 +242,7 @@ public class OrchestratorStateService {
                 locationService.autoConfigure(orchestrator, (ILocationAutoConfigurer) orchestratorInstance);
             }
             indexLocationsArchives(orchestrator);
+            publisher.publishEvent(new AfterOrchestratorEnabled(this, orchestrator));
 
         } catch (IOException e) {
             // TODO: change orchestrator state ?
@@ -241,7 +281,7 @@ public class OrchestratorStateService {
                 return usages;
             }
         }
-
+        publisher.publishEvent(new BeforeOrchestratorDisabled(this, orchestrator));
         try {
             // unregister the orchestrator.
             IOrchestratorPlugin orchestratorInstance = orchestratorPluginService.unregister(orchestrator.getId());

@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.exception.RenameDeployedException;
 import com.google.common.collect.Maps;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
@@ -17,7 +19,9 @@ import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConf
 import org.alien4cloud.alm.deployment.configuration.services.DeploymentConfigurationDao;
 import org.alien4cloud.tosca.model.Csar;
 import org.apache.commons.lang.StringUtils;
+
 import org.elasticsearch.index.query.QueryBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -71,6 +75,12 @@ public class ApplicationEnvironmentController {
     private ApplicationEnvironmentDTOBuilder dtoBuilder;
     @Inject
     private DeploymentConfigurationDao deploymentConfigurationDao;
+
+    @Resource
+    private DeploymentService deploymentService;
+
+    @Value("${features.no_deployed_envs_renaming:#{false}}")
+    private boolean deployed_check;
 
     /**
      * Search for application environment for a given application id
@@ -253,6 +263,12 @@ public class ApplicationEnvironmentController {
         if (applicationEnvironment == null) {
             return RestResponseBuilder.<Void> builder().data(null).error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
                     .message("Application environment with id <" + applicationEnvironmentId + "> does not exist").build()).build();
+        }
+
+        if (deployed_check == true && request.getName() != null && (!request.getName().equals(applicationEnvironment.getName()))) {
+            if (deploymentService.getActiveDeployment(applicationEnvironmentId) != null) {
+                throw new RenameDeployedException("Environment [" + applicationEnvironment.getName() + "] is deployed");
+            }
         }
 
         applicationEnvironmentService.ensureNameUnicity(applicationEnvironment.getApplicationId(), request.getName());

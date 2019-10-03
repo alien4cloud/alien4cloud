@@ -62,14 +62,47 @@ define(function(require) {
     };
   });
   modules.get('a4c-topology-editor').directive('artifactsErrorsDisplay', function() {
-    return {
-      templateUrl: 'views/applications/directives/artifacts_errors_display.html',
-      restrict: 'E',
-      scope: {
-        'stepTasks': '=tasks'
-      },
-      link: function (){
-      }
-    };
+          return {
+            templateUrl: 'views/applications/directives/artifacts_errors_display.html',
+            restrict: 'E',
+            scope: {
+              'stepTasks': '=tasks'
+            },
+            link: function (){
+            }
+          };
   });
+  modules.get('a4c-topology-editor').directive('pluginsErrorsDisplay', function() {
+          return {
+            templateUrl: 'views/applications/directives/plugins_errors_display.html',
+            restrict: 'E',
+            scope: {
+              'stepTasks': '=tasks'
+            },
+            link: function (){
+            }
+          };
+  });
+    modules.get('a4c-topology-editor').directive('pluginsWarningsDisplay', function() {
+            return {
+              templateUrl: 'views/applications/directives/plugins_warnings_display.html',
+              restrict: 'E',
+              scope: {
+                'stepTasks': '=tasks'
+              },
+              link: function (){
+              }
+            };
+    });
+      modules.get('a4c-topology-editor').directive('pluginsInfosDisplay', function() {
+              return {
+                templateUrl: 'views/applications/directives/plugins_infos_display.html',
+                restrict: 'E',
+                scope: {
+                  'stepTasks': '=tasks'
+                },
+                link: function (){
+                }
+              };
+      });
 });

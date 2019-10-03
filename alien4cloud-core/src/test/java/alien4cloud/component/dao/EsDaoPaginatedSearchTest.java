@@ -229,6 +229,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
             for (Object element : data) {
                 NodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(element), NodeType.class);
 
+                log.info ("Got " + nt.getElementId() + "/" + nt.getArchiveName() + "/" + nt.getArchiveVersion());
+
                 // TODO assert fetch context result.
                 assertTrue(expectedDataList.contains(nt));
                 expectedDataList.remove(nt);

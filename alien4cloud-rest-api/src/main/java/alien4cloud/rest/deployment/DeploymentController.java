@@ -250,9 +250,6 @@ public class DeploymentController {
                     });
                     try {
                         DeploymentStatus currentStatus = statusSettableFuture.get();
-                        if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
-                            deploymentService.markUndeployed(deployment);
-                        }
                         return RestResponseBuilder.<DeploymentStatus> builder().data(currentStatus).build();
                     } catch (Exception e) {
                         throw new PaaSTechnicalException("Could not retrieve status from PaaS", e);

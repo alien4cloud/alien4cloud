@@ -2,6 +2,7 @@ package alien4cloud.paas;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
@@ -22,8 +23,9 @@ public interface IPaaSProvider {
      * The provider must implement this method in order to restore its state
      *
      * @param activeDeployments a map of passDeploymentId -> deploymentId (active deployments).
+     * @return set of really active passDeploymentIds (those that are effectively known as not undeployed).
      */
-    void init(Map<String, String> activeDeployments);
+    Set<String> init(Map<String, String> activeDeployments);
 
     /**
      * Deploy a topology

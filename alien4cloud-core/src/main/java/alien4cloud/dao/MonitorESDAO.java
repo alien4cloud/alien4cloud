@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
+import alien4cloud.model.deployment.DeploymentUnprocessedTopology;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +42,7 @@ public class MonitorESDAO extends ESGenericSearchDAO {
                 WorkflowStepCompletedEvent.class
         };
         initIndices("deployedtopologies", null, DeploymentTopology.class);
+        initIndices("deployedunprocessedtopologies", null, DeploymentUnprocessedTopology.class);
         initIndices("deploymentmonitorevents", eventMonitoringTtl, classes);
         initIndices(PaaSDeploymentLog.class.getSimpleName().toLowerCase(), eventMonitoringTtl, PaaSDeploymentLog.class);
         initCompleted();

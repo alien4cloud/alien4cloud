@@ -162,9 +162,6 @@ public class TemplateBuilder {
             if (artifactFromType != null && StringUtils.isBlank(entryArtifact.getValue().getArtifactType())) {
                 entryArtifact.getValue().setArtifactType(artifactFromType.getArtifactType());
             }
-            if (artifactFromType.getArtifactRepository() == null) {
-                artifactFromType.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY);
-            }
         }
     }
 

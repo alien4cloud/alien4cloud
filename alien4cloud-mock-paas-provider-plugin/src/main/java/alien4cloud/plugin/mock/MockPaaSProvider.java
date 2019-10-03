@@ -1,15 +1,7 @@
 package alien4cloud.plugin.mock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -414,8 +406,8 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
-    public void init(Map<String, String> activeDeployments) {
-
+    public Set<String> init(Map<String, String> activeDeployments) {
+        return activeDeployments.keySet();
     }
 
     @Override

@@ -12,6 +12,8 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import alien4cloud.common.MetaPropertiesService;
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.exception.RenameDeployedException;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.common.MetaPropertyTarget;
 import alien4cloud.model.common.Tag;
@@ -21,6 +23,8 @@ import org.alien4cloud.tosca.catalog.index.ArchiveImageLoader;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -63,6 +67,12 @@ public class ApplicationService {
     private ResourceUpdateInterceptor resourceUpdateInterceptor;
     @Inject
     private MetaPropertiesService metaPropertiesService;
+
+    @Resource
+    private DeploymentService deploymentService;
+
+    @Value("${features.no_deployed_envs_renaming:#{false}}")
+    private boolean deployed_check;
 
     /**
      * Create a new application and return it's id
@@ -144,7 +154,7 @@ public class ApplicationService {
         }
     }
 
-    private void checkApplicationName(String name) {
+    public void checkApplicationName(String name) {
         NameValidationUtils.validateApplicationName(name);
 
         if (alienDAO.buildQuery(Application.class).setFilters(singleKeyFilter("name", name)).count() > 0) {
@@ -162,6 +172,13 @@ public class ApplicationService {
      */
     public void update(String applicationId, String newName, String newDescription) {
         Application application = checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
+
+        if (deployed_check) {
+            Deployment[] deployments = deploymentService.getActiveDeployments(null, applicationId, 0, 1);
+            if (deployments.length > 0) {
+                throw new RenameDeployedException("Application [" + applicationId + "] is deployed");
+            }
+        }
 
         if (newName != null && !newName.isEmpty() && !application.getName().equals(newName)) {
             checkApplicationName(newName);

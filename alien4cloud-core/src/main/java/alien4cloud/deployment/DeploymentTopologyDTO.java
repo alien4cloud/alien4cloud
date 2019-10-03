@@ -3,6 +3,7 @@ package alien4cloud.deployment;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Maps;
 
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
@@ -14,6 +15,8 @@ import alien4cloud.topology.TopologyValidationResult;
 import lombok.Getter;
 import lombok.Setter;
 import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 
 @Getter
 @Setter
@@ -35,6 +38,10 @@ public class DeploymentTopologyDTO extends AbstractTopologyDTO<DeploymentTopolog
 
     /** Information about the vault credentials **/
     private List<SecretCredentialInfo> secretCredentialInfos;
+
+    /** Nodes before processing */
+    @JsonIgnore
+    private Topology unprocessedTopology;
 
     public DeploymentTopologyDTO() {
     }

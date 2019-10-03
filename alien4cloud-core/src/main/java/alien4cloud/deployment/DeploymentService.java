@@ -106,6 +106,28 @@ public class DeploymentService {
     }
 
     /**
+     * Get all active deployments for a given orchestrator an application
+     *
+     * @param orchestratorId Id of the cloud for which to get deployments (can be null to get deployments for all clouds).
+     * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
+     * @return An array of deployments.
+     */
+    public Deployment[] getActiveDeployments(String orchestratorId, String sourceId, int from, int size) {
+        BoolQueryBuilder filterBuilder = QueryBuilders.boolQuery();
+
+        if (orchestratorId != null) {
+            filterBuilder.must(QueryBuilders.termQuery("orchestratorId", orchestratorId));
+        }
+        if (sourceId != null) {
+            filterBuilder.must(QueryBuilders.termQuery("sourceId", sourceId));
+        }
+        filterBuilder.mustNot(QueryBuilders.existsQuery("endDate"));
+
+        IESQueryBuilderHelper<Deployment> queryBuilderHelper = alienDao.buildQuery(Deployment.class);
+        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", "long", true).search(from, size).getData();
+    }
+
+    /**
      * Get a deployment given its id
      *
      * @param id id of the deployment
@@ -237,7 +259,7 @@ public class DeploymentService {
         return result;
     }
 
-    private Deployment[] getOrchestratorActiveDeployments(String orchestratorId) {
+    public Deployment[] getOrchestratorActiveDeployments(String orchestratorId) {
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
                 new String[][] { new String[] { orchestratorId }, new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, Integer.MAX_VALUE);

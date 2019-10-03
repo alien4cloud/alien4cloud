@@ -123,9 +123,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
                         }
 
                         // dispatch the event to all listeners
-                        for (IPaasEventListener listener : listeners) {
-                            dispatchEvent(listener, event);
-                        }
+                        listeners.forEach( listener -> dispatchEvent(listener,event));
                     }
                     monitorDAO.save(auditEvents);
                     if (lastEventDate != null) {

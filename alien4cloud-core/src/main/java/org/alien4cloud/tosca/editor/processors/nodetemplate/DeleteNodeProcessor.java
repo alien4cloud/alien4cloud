@@ -108,29 +108,17 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
      * @param typesTobeUnloaded List of types to remove from the topology (when relationships are removed)
      */
     private void removeRelationShipReferences(String removedNode, Csar csar, Topology topology, List<String> typesTobeUnloaded) {
-        List<String> relationshipsToRemove = Lists.newArrayList();
-
         for (NodeTemplate nodeTemplate : safe(topology.getNodeTemplates()).values()) {
-            if (removedNode.equals(nodeTemplate.getName())) {
-                // remove all relationships
-                for (Entry<String, RelationshipTemplate> relationshipTemplateEntry : safe(nodeTemplate.getRelationships()).entrySet()) {
-                    typesTobeUnloaded.add(relationshipTemplateEntry.getValue().getType());
+            for (Iterator<RelationshipTemplate> i = safe(nodeTemplate.getRelationships()).values().iterator(); i.hasNext() ;) {
+                RelationshipTemplate relationshipTemplate = i.next();
+
+                if (removedNode.equals(relationshipTemplate.getTarget())) {
+                    typesTobeUnloaded.add(relationshipTemplate.getType());
+
                     workflowBuilderService.removeRelationship(topology, csar, nodeTemplate.getName(),
-                            relationshipTemplateEntry.getKey(), relationshipTemplateEntry.getValue());
-                }
-            } else {
-                relationshipsToRemove.clear(); // This is for later removal
-                for (RelationshipTemplate relationshipTemplate : safe(nodeTemplate.getRelationships()).values()) {
-                    if (removedNode.equals(relationshipTemplate.getTarget())) {
-                        relationshipsToRemove.add(relationshipTemplate.getName());
-                        typesTobeUnloaded.add(relationshipTemplate.getType());
-                        workflowBuilderService.removeRelationship(topology, csar, nodeTemplate.getName(),
-                                relationshipTemplate.getName(), relationshipTemplate);
-                    }
-                }
-                // remove the relationship from the node's relationship map.
-                for (String relationshipToRemove : relationshipsToRemove) {
-                    nodeTemplate.getRelationships().remove(relationshipToRemove);
+                            relationshipTemplate.getName(), relationshipTemplate);
+
+                    i.remove();
                 }
             }
         }

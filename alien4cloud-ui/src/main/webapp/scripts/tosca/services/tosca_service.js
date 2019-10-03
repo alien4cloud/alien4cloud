@@ -14,7 +14,7 @@ define(function (require) {
       var dockerType = 'tosca.nodes.Container.Application.DockerContainer';
       var capabilityScalableName = 'tosca.capabilities.Scalable';
       var capabilityClusterControllerName = 'org.alien4cloud.capabilities.ClusterController';
-
+      var proxyType = 'org.alien4cloud.capabilities.Proxy';
 
       var getScalingProperty = function(scalableCapability, propertyName) {
         var propertyEntry = scalableCapability.propertiesMap[propertyName];
@@ -178,6 +178,16 @@ define(function (require) {
          */
         isAttachedToType: function(relationshipTypeName, relationshipTypes) {
           return this.isOneOfType([attachedToType], relationshipTypeName, relationshipTypes);
+        },
+
+        /**
+         * Checks if a relationshipType is an instance of attached to.
+         *
+         * @param relationshipTypeName The name of the relationship type to check.
+         * @param relationshipTypes A map of available relationships types. It must contains the actual relationshipTypeName.
+         */
+        isProxyType: function(capabilityTypeName, capabilityTypes) {
+          return this.isOneOfType([proxyType], capabilityTypeName, capabilityTypes);
         },
 
         /**

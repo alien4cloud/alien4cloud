@@ -330,9 +330,6 @@ public class ApplicationEnvironmentService {
         }
         return deploymentLockService.doWithDeploymentReadLock(deployment.getOrchestratorDeploymentId(), () -> {
             DeploymentStatus currentStatus = deploymentRuntimeStateService.getDeploymentStatus(deployment);
-            if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
-                deploymentService.markUndeployed(deployment);
-            }
             return currentStatus;
         });
     }
