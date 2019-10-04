@@ -16,10 +16,13 @@
       <div class="col-md-9">
         <span id="p_{{propertyName}}" ng-if=" !definitionObject.uiPassword && !definitionObject.units && editable">
           <span ng-if="!isLongText"
-                ng-click="switchLongTextChoice(true)"
+                tabindex="0"
+                ng-keypress="switchLongTextChoice(true); myForm.$show();"
+                ng-click="switchLongTextChoice(true);myForm.$show();"
                 editable-text="definitionObject.uiValue" buttons="no"
                 onbeforesave="propertySave($data)" blur="submit"
                 onhide="switchLongTextChoice(false)"
+                e-form="myForm"
                 e-uib-typeahead="suggestion for suggestion in suggestion.get($viewValue)" class="typeahead editable-property"
                 e-typeahead-min-length="suggestion.minLength"
                 e-typeahead-wait-ms="suggestion.waitBeforeRequest"
@@ -28,10 +31,14 @@
             <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
           </span>
           <span ng-if="isLongText"
+                tabindex="0"
+                ng-keypress="switchLongTextChoice(true); myForm.$show();"
+                ng-click="switchLongTextChoice(true); myForm.$show();"
                 ng-click="switchLongTextChoice(true)"
                 editable-textarea="definitionObject.uiValue" buttons="no"
                 onbeforesave="propertySave($data)" blur="submit"
                 onhide="switchLongTextChoice(false)"
+                e-form="myForm"
                 e-uib-typeahead="suggestion for suggestion in suggestion.get($viewValue)" class="typeahead editable-property"
                 e-typeahead-min-length="suggestion.minLength"
                 e-typeahead-wait-ms="suggestion.waitBeforeRequest"
@@ -44,17 +51,17 @@
         </span>
         <span id="p_{{propertyName}}" ng-if=" !definitionObject.uiPassword && definitionObject.units && editable">
           <!-- Property with unit -->
-          <span editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit" e-form="scalarForm"
+          <span tabindex="0" ng-keypress="scalarForm.$show()" editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit" e-form="scalarForm"
                 ng-click="scalarForm.$show()" class="editable editable-click">
             {{definitionObject.uiValue}} <i class="fa fa-pencil-square-o"></i>
           </span>
           <div ng-if="definitionObject.units" class="btn-group btn-group-xs" uib-dropdown>
-            <button type="button" class="btn btn-default btn-xs" uib-dropdown-toggle>
+            <button tabindex="-1"  type="button" class="btn btn-default btn-xs" uib-dropdown-toggle>
               {{definitionObject.uiUnit}}
               <span class="caret"></span>
             </button>
-            <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
-              <li ng-repeat="unit in definitionObject.units" ng-class="{'option-selected selected': definitionObject.uiUnit === unit}">
+            <ul class="dropdown-menu dropdown-menu-right nav" uib-dropdown-menu role="menu">
+              <li ng-repeat="unit in definitionObject.units" ng-class="{'option-selected selected': definitionObject.uiUnit === unit}" class="nav-item">
                 <a id="p_{{propertyName}}_unit_{{unit}}" ng-click="saveUnit(unit)">{{unit}}</a>
               </li>
             </ul>
