@@ -22,8 +22,8 @@ class MetaPropertyAggregationBuilderHelper extends TermsFilterBuilderHelper impl
 
     @Override
     public List<AggregationBuilder> buildFacets() {
-        TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(getEsFieldName()).field(getEsFieldName()).size(size);
-        MissingAggregationBuilder missingBuilder = AggregationBuilders.missing("missing_" + getEsFieldName()).field(getEsFieldName());
+        TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(getEsFieldName()).field(getEsFieldName()+".keyword").size(size);
+        MissingAggregationBuilder missingBuilder = AggregationBuilders.missing("missing_" + getEsFieldName()).field(getEsFieldName()+".keyword");
 
         return Lists.newArrayList(termsBuilder, missingBuilder);
     }
