@@ -1,6 +1,9 @@
 package alien4cloud.metaproperty;
 
 import com.google.common.collect.Lists;
+import org.elasticsearch.index.query.ExistsQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.IFacetBuilderHelper;
 import org.elasticsearch.mapping.TermsFilterBuilderHelper;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -15,7 +18,7 @@ class MetaPropertyAggregationBuilderHelper extends TermsFilterBuilderHelper impl
     private final int size;
 
     MetaPropertyAggregationBuilderHelper(String nestedPath,String esFieldName) {
-        super(false,nestedPath,esFieldName);
+        super(false,nestedPath,esFieldName );
 
         this.size = 10;
     }
@@ -27,4 +30,11 @@ class MetaPropertyAggregationBuilderHelper extends TermsFilterBuilderHelper impl
 
         return Lists.newArrayList(termsBuilder, missingBuilder);
     }
+
+
+    @Override
+    public QueryBuilder buildFilter(final String key, final String... values) {
+        return super.buildFilter(key + ".keyword",values);
+    }
+
 }
