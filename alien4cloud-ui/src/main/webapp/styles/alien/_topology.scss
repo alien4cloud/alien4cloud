@@ -157,6 +157,12 @@ h4 .editable-error {
   font-size: 14px;
 }
 
+.editable-empty,
+.editable-empty:hover,
+.editable-empty:focus {
+  color: #428bca;
+}
+
 #relationshipProperties .form-editable {
   margin-top: 0px;
 }
