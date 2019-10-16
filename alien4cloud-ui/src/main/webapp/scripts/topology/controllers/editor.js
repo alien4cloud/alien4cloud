@@ -27,7 +27,7 @@ define(function (require) {
   require('scripts/common/directives/parsing_errors');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
-    ['$scope', '$state', '$stateParams', '$alresource', '$uibModal', '$translate', 'toaster', 'hotkeys', 'menu', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topologyRecoveryServices',
+    ['$scope', '$state','$stateParams', '$alresource', '$uibModal', '$translate', 'toaster', 'hotkeys', 'menu', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topologyRecoveryServices',
     function($scope, $state, $stateParams, $alresource, $uibModal, $translate, toaster, hotkeys, menu,  topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topologyRecoveryServices) {
       // This controller acts as a specific layout for the topology edition.
       $scope.menu = menu;
@@ -68,6 +68,23 @@ define(function (require) {
           toscaCardinalitiesService.fillCapabilityBounds($scope.topology.nodeTypes, $scope.topology.topology.nodeTemplates, nodeTemplate);
         });
       }
+
+
+      var editedTopologyValidatorResource = $alresource('rest/latest/editor/:topologyId/isvalid');
+      function updateValidationDtos() {
+              //validate topology beeing edited
+              editedTopologyValidatorResource.create({
+                topologyId: $scope.topologyId
+              }, null, function(result) {
+                if(_.undefined(result.error)) {
+                  $scope.editedTopologyValidationDTO = result.data;
+                  tasksProcessor.processAll($scope.editedTopologyValidationDTO);
+                }
+              });
+      }
+      updateValidationDtos();
+
+
 
       // Version selection management is below, find here topology update handling
       /**
@@ -161,6 +178,7 @@ define(function (require) {
         }, null, function(result) {
           if(_.undefined(result.error)) {
             $scope.refreshTopology(result.data);
+            $state.reload() ;
           }
         });
       };

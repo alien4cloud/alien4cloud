@@ -28,6 +28,8 @@ define(function (require) {
         state: prefix + '.editor',
         key: 'EDITOR.MENU_TOPOLOGY',
         icon: 'fa fa-sitemap',
+        icon_invalid: 'fa fa-sitemap',
+        invalidation_state: false,
         show: true,
         priority: 10
       })
@@ -42,6 +44,8 @@ define(function (require) {
         state: prefix + '.workflow',
         key: 'EDITOR.MENU_WORKFLOW',
         icon: 'fa fa-code-fork fa-rotate-90',
+        icon_invalid: 'fa fa-code-fork fa-rotate-90',
+        invalidation_state: false,
         show: true,
         priority: 20
       })
@@ -56,6 +60,8 @@ define(function (require) {
         state: prefix + '.inputs',
         key: 'EDITOR.MENU_INPUTS_VAR',
         icon: 'fa fa-sign-in',
+        icon_invalid: 'fa fa-sign-in',
+        invalidation_state: false,
         show: true,
         priority: 25
       })
@@ -70,6 +76,8 @@ define(function (require) {
         state: prefix + '.files',
         key: 'EDITOR.MENU_FILES',
         icon: 'fa fa-folder-open',
+        icon_invalid: 'fa fa-folder-open',
+        invalidation_state: false,
         show: true,
         priority: 30
       })
@@ -84,6 +92,8 @@ define(function (require) {
         state: prefix + '.validation',
         key: 'EDITOR.MENU_VALIDATION',
         icon: 'fa fa-check',
+        icon_invalid: 'fa fa-exclamation-triangle',
+        invalidation_state: true,
         show: true,
         priority: 40
       })
@@ -98,6 +108,8 @@ define(function (require) {
         state: prefix + '.history',
         key: 'EDITOR.MENU_HISTORY',
         icon: 'fa fa-history',
+        icon_invalid: 'fa fa-history',
+        invalidation_state: false, // control icon validation change
         show: true,
         priority: 50
       })
