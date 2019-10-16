@@ -20,9 +20,13 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentExecutionsCtrl',
-  ['$scope', 'applicationServices', 'application', '$state','breadcrumbsService', '$translate', 'searchServiceFactory',
-  function($scope, applicationServices, applicationResult, $state, breadcrumbsService, $translate, searchServiceFactory) {
+  modules.get('a4c-applications', [ 'ngResource', 'toaster']).controller('ApplicationEnvDeployCurrentExecutionsCtrl',
+  ['$scope', '$resource', 'toaster', 'applicationServices', 'application', '$state','breadcrumbsService', '$translate', 'searchServiceFactory',
+  function($scope, $resource, toaster, applicationServices, applicationResult, $state, breadcrumbsService, $translate, searchServiceFactory) {
+
+    $scope.cancelExecutionResource= $resource('rest/latest/executions/cancel', {}, {
+        'cancel': { method: 'POST' }
+    });
 
     breadcrumbsService.putConfig({
       state : 'applications.detail.environment.deploycurrent.executions',
@@ -41,6 +45,19 @@ define(function (require) {
         'executionId': executionId
       });
     };
+
+    $scope.cancelTask = function(execution) {
+        var request = {
+            'environmentId' : $scope.environment.id,
+            'executionId' : execution.id,
+        };
+
+        $scope.cancelExecutionResource.cancel([],request).$promise.then(function(response) {
+            if (response.error ) {
+                toaster.pop('error', $translate.instant('ERRORS.376.TITLE'), $translate.instant('ERRORS.376.MESSAGE',request), 4000, 'trustedHtml', null);
+            }
+        });
+    }
 
     $scope.displayTasks = function(execution) {
       $state.go('applications.detail.environment.deploycurrent.executiontasks', {

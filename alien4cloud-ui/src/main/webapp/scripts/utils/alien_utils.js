@@ -109,6 +109,8 @@ define(function () {
           return 'fa-circle text-danger';
         case 'CANCELLED':
           return 'fa-circle text-warning';
+        case 'CANCELLING':
+          return 'fa-spinner fa-spin text-warning';
         case 'RUNNING':
           return 'fa-spinner fa-spin text-primary';
         default:
@@ -124,6 +126,8 @@ define(function () {
         case 'RUNNING':
           return 'text-primary';
         case 'CANCELLED':
+          return 'text-warning';
+        case 'CANCELLING':
           return 'text-warning';
         default:
           return 'text-warning';

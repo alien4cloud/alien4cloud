@@ -7,6 +7,7 @@ public enum ExecutionStatus {
     SCHEDULED,
     RUNNING,
     SUCCEEDED,
+    CANCELLING,
     CANCELLED,
     FAILED
 }
