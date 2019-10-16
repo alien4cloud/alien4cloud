@@ -184,14 +184,7 @@ public class DeployService {
                 public void onSuccess(Object data) {
                     existingDeployment.setVersionId(deploymentTopology.getVersionId());
                     alienDao.save(existingDeployment);
-                    // Trigger post update workflow if defined in both the initial and current topologies.
-                    if (deploymentTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null
-                            && deployedTopology.getWorkflows().get(NormativeWorkflowNameConstants.POST_UPDATE) != null) {
-                        scheduler.execute(() -> tryLaunchingPostUpdateWorkflow(System.currentTimeMillis(), existingDeployment, orchestratorPlugin,
-                                deploymentContext, callback));
-                    } else {
-                        callback.onSuccess(data);
-                    }
+                    callback.onSuccess(data);
                 }
 
                 @Override
