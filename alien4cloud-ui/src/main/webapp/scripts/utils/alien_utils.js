@@ -6,6 +6,7 @@ define(function () {
   var colors = {
     'DEPLOYED': '#398439',
     'UPDATED': '#398439',
+    'UPDATE_FAILURE': '#DE9600',
     'UNDEPLOYED': '#D8D8D8',
     'UNKNOWN': '#505050',
     'WARNING': '#DE9600',
