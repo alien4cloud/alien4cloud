@@ -42,6 +42,19 @@ topology_template:
 #if($application_description)
   description: ${utils.renderDescription(${topology_description}, "    ")}
 #end## if application_description defined
+#if($utils.collectionIsNotEmpty($topology.tags) || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.metaProperties))
+  tags:
+#if($utils.collectionIsNotEmpty($topology.tags))
+#foreach($tag in ${topology.tags})
+    "${tag.name}": "$propertyUtils.renderScalar(${tag.value})"
+#end##foreach($tag in ${topology.tags})
+#end##if($utils.collectionIsNotEmpty($topology.tags))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.metaProperties))
+#foreach($metaProperty in ${$topology.metaProperties.entrySet()})
+    "A4C_META_${metaProperty.key}": "${metaProperty.value}"
+#end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.metaProperties))
+#end##foreach($metaProperty in ${$topology.metaProperties.entrySet()})
+#end##if($utils.collectionIsNotEmpty($topology.tags) || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.metaProperties))
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputs))
   inputs:
 #foreach($inputEntry in $topology.inputs.entrySet())

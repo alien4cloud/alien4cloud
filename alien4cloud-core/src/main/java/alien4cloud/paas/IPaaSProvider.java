@@ -68,6 +68,11 @@ public interface IPaaSProvider {
     void launchWorkflow(PaaSDeploymentContext deploymentContext, String workflowName, Map<String, Object> inputs, IPaaSCallback<String> callback);
 
     /**
+     *  Cancel a task
+     */
+    void cancelTask(PaaSDeploymentContext deploymentContext, String taskId,IPaaSCallback<String> callback);
+
+    /**
      * Get status of a deployment
      *
      * @param deploymentContext the deployment context

@@ -93,4 +93,8 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     public void launchWorkflow(PaaSDeploymentContext deploymentContext, String workflowName, Map<String, Object> inputs, IPaaSCallback<String> callback) {
     }
 
+    @Override
+    public void cancelTask(PaaSDeploymentContext deploymentContext, String taskId, IPaaSCallback<String> callback) {
+
+    }
 }

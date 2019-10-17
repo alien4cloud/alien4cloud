@@ -21,5 +21,6 @@ public final class NormativeWorkflowNameConstants {
     public static final Set<String> STANDARD_WORKFLOWS = Sets.newHashSet(INSTALL, UNINSTALL, START, STOP, RUN, CANCEL);
 
     /** Not officially normative but static in alien4cloud */
+    public static final String PRE_UPDATE = "pre_update";
     public static final String POST_UPDATE = "post_update";
 }

@@ -6,6 +6,7 @@ define(function () {
   var colors = {
     'DEPLOYED': '#398439',
     'UPDATED': '#398439',
+    'UPDATE_FAILURE': '#DE9600',
     'UNDEPLOYED': '#D8D8D8',
     'UNKNOWN': '#505050',
     'WARNING': '#DE9600',
@@ -109,6 +110,8 @@ define(function () {
           return 'fa-circle text-danger';
         case 'CANCELLED':
           return 'fa-circle text-warning';
+        case 'CANCELLING':
+          return 'fa-spinner fa-spin text-warning';
         case 'RUNNING':
           return 'fa-spinner fa-spin text-primary';
         default:
@@ -124,6 +127,8 @@ define(function () {
         case 'RUNNING':
           return 'text-primary';
         case 'CANCELLED':
+          return 'text-warning';
+        case 'CANCELLING':
           return 'text-warning';
         default:
           return 'text-warning';
