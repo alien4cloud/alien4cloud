@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
@@ -25,6 +26,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
@@ -95,6 +97,12 @@ public abstract class ESIndexMapper {
     @Value("${ttl.period:86400}")
     private String ttlPeriod;
 
+    @Value("${elasticSearch.shard_count:-1}")
+    private Integer shardCount;
+
+    @Value("${elasticSearch.replica_count:-1}")
+    private Integer replicaCount;
+
     private List<TTL> TTLs = new ArrayList<TTL>();
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
@@ -103,8 +111,13 @@ public abstract class ESIndexMapper {
      * Initialize the array of all indices managed by this dao.
      */
     public void initCompleted() {
-        Set<String> indices = new HashSet<>(typesToIndices.values());
+        Set<String> indices = typesToClasses.entrySet().stream()
+                .filter(e -> ! Modifier.isAbstract(e.getValue().getModifiers()) && e.getValue().isAnnotationPresent(ESObject.class))
+                .map( e -> e.getKey())
+                .collect(Collectors.toSet());
+
         allIndexes = indices.toArray(new String[indices.size()]);
+
         esClient.waitForGreenStatus(allIndexes);
         if ((ttlPeriod != null) &&
             !TTLs.isEmpty()) {
@@ -202,12 +215,25 @@ public abstract class ESIndexMapper {
              //createIndexRequestBuilder.addMapping(typeName, mapping, XContentType.JSON);
              createIndexRequestBuilder.addMapping(TYPE_NAME, mapping, XContentType.JSON);
 
+             Settings.Builder settingsBuilder = Settings.builder();
+
              // add settings if any (including analysers definitions)
              String indexSettings = mappingBuilder.getIndexSettings(clazz);
              if (StringUtils.isNotBlank(indexSettings)) {
-                 createIndexRequestBuilder.setSettings(indexSettings, XContentType.JSON);
+                 settingsBuilder.loadFromSource(indexSettings,XContentType.JSON);
+                 //createIndexRequestBuilder.setSettings(indexSettings, XContentType.JSON);
              }
-       
+
+             if (shardCount > 0) {
+                 settingsBuilder.put("index.number_of_shards", shardCount);
+             }
+
+             if (replicaCount >= 0) {
+                 settingsBuilder.put("index.number_of_replicas", replicaCount);
+             }
+
+             createIndexRequestBuilder.setSettings(settingsBuilder);
+
             try {
                 final CreateIndexResponse createResponse = createIndexRequestBuilder.execute().actionGet();
                 if (!createResponse.isAcknowledged()) {
