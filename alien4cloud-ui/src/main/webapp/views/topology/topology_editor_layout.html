@@ -44,6 +44,12 @@
     </button>
   </div>
 
+  <div class="btn-group" role="group">
+    <h4 class="text-danger" ng-if="!editedTopologyValidationDTO.valid"><i class="fa fa-exclamation-triangle" ></i> {{ invalidTopo }}</h4>
+  </div>
+
+
+
   <div id="editor-context-container" class="pull-right"></div>
 </div>
 <div id="editor-content" ui-view style="height: {{dimensions.height}}px; width: {{dimensions.width}}px;"></div>
