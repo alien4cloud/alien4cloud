@@ -4,7 +4,10 @@
       <a id="{{menuItem.id}}"
         ng-click="onItemClick($event, menuItem)"
         ng-class="{'text-muted' : menuItem.disabled}"
-        ui-sref="{{menuItem.state}}"><i class="{{menuItem.icon}} fa-2x" ng-if="menuItem.icon"></i><br/>{{menuItem.key | translate}}</a>
+        ui-sref="{{menuItem.state}}">
+        <i class="fa"  ng-class="{ '{{menuItem.icon}} fa-2x' : editedTopologyValidationDTO.valid , ' {{menuItem.icon_invalid}} fa-2x ' : !editedTopologyValidationDTO.valid , 'text-danger' : !editedTopologyValidationDTO.valid && menuItem.invalidation_state } " ng-if="menuItem.icon"></i><br/>
+        {{menuItem.key | translate}}
+      </a>
     </li>
   </ul>
 </div>

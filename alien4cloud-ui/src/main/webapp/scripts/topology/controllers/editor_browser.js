@@ -13,8 +13,8 @@ define(function (require) {
   require('scripts/topology/services/topology_browser_service');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace', 'treeControl']).controller('TopologyBrowserCtrl',
-    ['$scope', '$http', 'explorerService', '$stateParams', 'topoEditDisplay', 'uploadServiceFactory', '$translate', 'topoBrowserService',
-    function($scope, $http, explorerService, $stateParams, topoEditDisplay, uploadServiceFactory, $translate, topoBrowserService) {
+    ['$scope', '$http', 'explorerService','$stateParams', 'topoEditDisplay', 'uploadServiceFactory', '$translate', 'topoBrowserService','$state',
+    function($scope, $http, explorerService, $stateParams, topoEditDisplay, uploadServiceFactory, $translate, topoBrowserService , $state) {
     var openOnFile = $stateParams.file;
 
     $scope.displays = {
@@ -181,10 +181,13 @@ define(function (require) {
           aceEditor.getSession().setAnnotations(annotations);
           //also display a modal with erros.
           $scope.showParsingErrors(response);
+          //$state.reload();
         }else{
           aceEditor.getSession().clearAnnotations();
           setAceEditorContent($scope.editorContent.new);
+          //$state.reload();
         }
+
       });
     };
   }]);
