@@ -282,6 +282,7 @@
           "MISSING" : "必須プロパティ"
         },
         "TOADD_RELATIONSHIP_LABEL" : "要求不足 (関連を追加する必要あり)",
+        "VALIDATION_ALERT" : "Invalid topology",
         "VALIDATION_FAILED" : "The last saved topology is not valid, go to the topology editor for more informations.",
         "VALIDATION_SUCCESS" : "The last saved topology is valid.",
         "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "The current topology is valid.",

@@ -12,6 +12,7 @@ define(function () {
     'WARNING': '#DE9600',
     'FAILURE': '#C51919',
     'DEPLOYMENT_IN_PROGRESS': '#2C80D3',
+    'UPDATE_IN_PROGRESS': '#2C80D3',
     'UNDEPLOYMENT_IN_PROGRESS': '#D0ADAD'
   };
 

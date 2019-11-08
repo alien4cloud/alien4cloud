@@ -282,6 +282,7 @@
           "MISSING" : "Mandatory property"
         },
         "TOADD_RELATIONSHIP_LABEL" : "Unsatisfied requirements (relationship should be added)",
+        "VALIDATION_ALERT" : "Invalid topology",
         "VALIDATION_FAILED" : "The last saved topology is not valid, go to the topology editor for more informations.",
         "VALIDATION_SUCCESS" : "The last saved topology is valid.",
         "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "The topology being edited is valid.",
