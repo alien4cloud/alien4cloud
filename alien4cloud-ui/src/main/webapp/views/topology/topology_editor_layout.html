@@ -44,8 +44,8 @@
     </button>
   </div>
 
-  <div class="btn-group" role="group">
-    <h4 class="text-danger" ng-if="!editedTopologyValidationDTO.valid"><i class="fa fa-exclamation-triangle" ></i> {{ invalidTopo }}</h4>
+  <div class="btn-group btn-default btn-xs" role="group" ng-if="!editedTopologyIsValid">
+    <div class="text-danger"><i class="fa fa-exclamation-triangle" ></i>&nbsp;{{'APPLICATIONS.TOPOLOGY.TASK.VALIDATION_ALERT' | translate}}</div>
   </div>
 
 

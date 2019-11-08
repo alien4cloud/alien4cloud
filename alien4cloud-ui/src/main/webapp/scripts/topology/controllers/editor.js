@@ -259,21 +259,22 @@ define(function (require) {
       };
 
 
-      $scope.invalidTopo = $translate.instant('APPLICATIONS.TOPOLOGY.TASK.LABEL').replace(/:/g,"");;
-            // Fetching topology validation status
+      // Fetching topology validation status
       var editedTopologyValidatorResource = $alresource('rest/latest/editor/:topologyId/isvalid');
       function updateValidationDtos() {
-              //validate topology beeing edited
+        //validate topology beeing edited
         editedTopologyValidatorResource.create({
           topologyId: $scope.topologyId
         }, null, function (result) {
           if (_.undefined(result.error)) {
-            $scope.editedTopologyValidationDTO = result.data;
-            tasksProcessor.processAll($scope.editedTopologyValidationDTO);
+            $scope.editedTopologyIsValid = result.data.valid;
           }
         });
       }
       updateValidationDtos();
+      $scope.validateTopology = function() {
+
+      }
 
 
       // GIT PUSH FUNCTION
