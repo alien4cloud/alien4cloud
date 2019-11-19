@@ -117,7 +117,7 @@ public class SuggestionController {
         if (isAbstract != null) {
             query = boolQueryBuilder.must(QueryBuilders.termQuery("abstract", isAbstract));
         }
-        return RestResponseBuilder.<String[]> builder().data(dao.selectPath(dao.getIndexForType(NodeType.class),
+        return RestResponseBuilder.<String[]> builder().data(dao.selectPath(dao.getIndexForType(NodeType.class)[0],
                 new String[] { MappingBuilder.indexTypeFromClass(NodeType.class) }, query, SortOrder.ASC, "elementId", 0, 10)).build();
     }
 

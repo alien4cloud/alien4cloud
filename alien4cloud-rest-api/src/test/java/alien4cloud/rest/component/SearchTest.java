@@ -17,9 +17,16 @@ import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.ElasticSearchClient;
+import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.After;
 import org.junit.Before;
@@ -166,14 +173,58 @@ public class SearchTest {
         for (NodeType datum : dataTest) {
             String json = jsonMapper.writeValueAsString(datum);
             String typeName = MappingBuilder.indexTypeFromClass(datum.getClass());
-            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
+
+            String idValue = null;
+            try {
+               idValue = (new FieldsMappingBuilder()).getIdValue(datum);
+            } catch (Exception e) {}
+
+            //nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue)
+            nodeClient.prepareIndex(typeName, "_doc", idValue)
+                      .setSource(json, XContentType.JSON)
+                      .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
     }
 
+    private boolean somethingFound(final SearchResponse searchResponse) {
+        if (searchResponse == null || searchResponse.getHits() == null || searchResponse.getHits().getHits() == null
+                || searchResponse.getHits().getHits().length == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    private void delete(String indexName, String typeName, QueryBuilder query) {
+        // get all elements and then use a bulk delete to remove data.
+        //SearchRequestBuilder searchRequestBuilder = nodeClient.prepareSearch(indexName).setTypes(typeName).setQuery(query)
+        SearchRequestBuilder searchRequestBuilder = nodeClient.prepareSearch(typeName).setQuery(query)
+                .setFetchSource(false);
+        searchRequestBuilder.setFrom(0).setSize(1000);
+        SearchResponse response = searchRequestBuilder.execute().actionGet();
+
+        while (somethingFound(response)) {
+            BulkRequestBuilder bulkRequestBuilder = nodeClient.prepareBulk().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
+
+            for (int i = 0; i < response.getHits().getHits().length; i++) {
+                String id = response.getHits().getHits()[i].getId();
+                bulkRequestBuilder.add(nodeClient.prepareDelete(indexName, typeName, id));
+            }
+
+            bulkRequestBuilder.execute().actionGet();
+
+            if (response.getHits().getTotalHits() == response.getHits().getHits().length) {
+                response = null;
+            } else {
+                response = searchRequestBuilder.execute().actionGet();
+            }
+        }
+    }
     private void clearIndex(String indexName, Class<?> clazz) throws InterruptedException {
-        String typeName = clazz.getSimpleName();
+        String typeName = clazz.getSimpleName().toLowerCase();
         log.info("Cleaning ES Index " + ElasticSearchDAO.TOSCA_ELEMENT_INDEX + " and type " + typeName);
-        nodeClient.prepareDeleteByQuery(indexName).setQuery(QueryBuilders.matchAllQuery()).setTypes(typeName).execute().actionGet();
+        //DeleteRequestBuilder drb = nodeClient.prepareDelete();
+	//	drb.setIndex(indexName).setType(typeName).execute().actionGet();
+        delete (indexName, typeName, QueryBuilders.matchAllQuery());
     }
 
     private void assertElementIn(String element, String[] elements) {

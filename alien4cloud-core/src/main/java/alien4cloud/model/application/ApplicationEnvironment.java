@@ -26,7 +26,7 @@ import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
 import lombok.Getter;
 import lombok.Setter;
 
-@ESObject(analyzerDefinitions = @IndexAnalyserDefinition(name = "case_insensitive_sort", filters = "lowercase", tokenizer = "keyword"))
+@ESObject(analyzerDefinitions = @IndexAnalyserDefinition(name = "case_insensitive_sort", filters = "lowercase", tokenizer = "keyword", type = "custom"))
 @Getter
 @Setter
 @JsonInclude(Include.NON_NULL)

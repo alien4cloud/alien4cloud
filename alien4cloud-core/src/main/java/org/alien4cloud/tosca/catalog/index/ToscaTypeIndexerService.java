@@ -4,6 +4,7 @@ import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -42,7 +43,9 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     private IImageDAO imageDAO;
 
     private void refreshIndexForSearching() {
-        elasticSearchClient.getClient().admin().indices().prepareRefresh(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).execute().actionGet();
+        List<String> indices = alienDAO.getClassesToIndicesGroups(ElasticSearchDAO.TOSCA_ELEMENT_INDEX);
+        //elasticSearchClient.getClient().admin().indices().prepareRefresh(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).execute().actionGet();
+        elasticSearchClient.getClient().admin().indices().prepareRefresh(indices.toArray(new String[indices.size()])).execute().actionGet();
     }
 
     @Override
@@ -53,7 +56,7 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     @Override
     public <T extends AbstractToscaType> Map<String, T> getArchiveElements(String archiveName, String archiveVersion, Class<T> type) {
         GetMultipleDataResult<T> elements = alienDAO.buildQuery(type)
-                .setFilters(fromKeyValueCouples("archiveName", archiveName, "archiveVersion", archiveVersion)).prepareSearch().search(0, Integer.MAX_VALUE);
+                .setFilters(fromKeyValueCouples("archiveName", archiveName, "archiveVersion", archiveVersion)).prepareSearch().search(0, 10000);
 
         Map<String, T> elementsByIds = Maps.newHashMap();
         if (elements == null) {
@@ -70,7 +73,7 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     public void deleteElements(String name, String version) {
         GetMultipleDataResult<AbstractToscaType> result = alienDAO.buildQuery(AbstractToscaType.class)
                 .setFilters(fromKeyValueCouples("archiveName", name, "archiveVersion", version)).prepareSearch().setFetchContext(FetchContext.SUMMARY)
-                .search(0, Integer.MAX_VALUE);
+                .search(0, 10000);
 
         AbstractToscaType[] elements = result.getData();
 

@@ -32,7 +32,8 @@ public class CsarServiceTest {
 
     @Test
     public void isArchiveDeployedTest() throws ExecutionException, InterruptedException {
-        alienDao.getClient().prepareDeleteByQuery(new String[] { "csar" }).setQuery(QueryBuilders.matchAllQuery()).execute().get();
+        //alienDao.getClient().prepareDeleteByQuery(new String[] { "csar" }).setQuery(QueryBuilders.matchAllQuery()).execute().get();
+        alienDao.delete (Csar.class, QueryBuilders.matchAllQuery());
         Csar csar = new Csar("archive", "1.0.0-SNAPSHOT");
         csar.setDependencies(Sets.newHashSet(new CSARDependency("toto", "1.0.0"), new CSARDependency("titi", "2.0.0")));
         alienDao.save(csar);

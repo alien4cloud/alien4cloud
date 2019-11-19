@@ -17,8 +17,6 @@ import javax.annotation.Resource;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.MappingBuilder;
@@ -83,9 +81,9 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         testSimpleSearchWellPaginated(maxElement, size, null);
 
         // test simple find with filters
-        FilterBuilder filter = FilterBuilders.termFilter("capabilities.type", "jndi");
+        QueryBuilder filter = QueryBuilders.termQuery("capabilities.type", "jndi");
         QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
-        queryBuilder = QueryBuilders.filteredQuery(queryBuilder, filter);
+        queryBuilder = QueryBuilders.boolQuery().filter(filter);
 
         maxElement = getCount(queryBuilder);
         size = 4;
@@ -101,15 +99,16 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
 
         // text search based
         String searchText = "jndi";
-        int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        //int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("all", searchText).maxExpansions(10));
         int size = 7;
         assertTrue(maxElement > 0);
         testTextBasedSearchWellPaginated(maxElement, size, searchText, null);
 
         // text search based with filters
-        FilterBuilder filter = FilterBuilders.termFilter("capabilities.type", "jndi");
+        QueryBuilder filter = QueryBuilders.termQuery("capabilities.type", "jndi");
         QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
-        queryBuilder = QueryBuilders.filteredQuery(queryBuilder, filter);
+        queryBuilder = QueryBuilders.boolQuery().filter(filter);
         maxElement = getCount(queryBuilder);
         Map<String, String[]> filters = new HashMap<String, String[]>();
         filters.put("capabilities.type", new String[] { "jndi" });
@@ -118,7 +117,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
 
         // test when nothing found
         searchText = "pacpac";
-        maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        //maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("all", searchText).maxExpansions(10));
         assertEquals(0, maxElement);
         GetMultipleDataResult<NodeType> searchResp = dao.search(NodeType.class, searchText, null, 0, size);
         assertNotNull(searchResp);
@@ -133,7 +133,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     @Test
     public void facetedSearchPaginatedTest() throws IndexingServiceException, IOException, InterruptedException {
         String searchText = "jndi";
-        int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        //int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("all", searchText).maxExpansions(10));
         int size = 7;
 
         // simple faceted pagination
@@ -141,9 +142,9 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         testFacetedSearchWellPaginated(maxElement, size, searchText, null, null);
 
         // faceted search with filters
-        FilterBuilder filter = FilterBuilders.termFilter("capabilities.type", "jndi");
+        QueryBuilder filter = QueryBuilders.termQuery("capabilities.type", "jndi");
         QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
-        queryBuilder = QueryBuilders.filteredQuery(queryBuilder, filter);
+        queryBuilder = QueryBuilders.boolQuery().filter(filter);
         maxElement = getCount(queryBuilder);
 
         Map<String, String[]> filters = new HashMap<String, String[]>();
@@ -155,7 +156,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         // test nothing found
         // test when nothing found
         searchText = "pacpac";
-        maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        //maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
+        maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("all", searchText).maxExpansions(10));
         assertEquals(0, maxElement);
         GetMultipleDataResult<NodeType> searchResp = dao.facetedSearch(NodeType.class, searchText, null, null, 0, size);
         assertNotNull(searchResp);
@@ -293,8 +295,9 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     }
 
     private int getCount(QueryBuilder queryBuilder) {
-        return (int) nodeClient.prepareCount(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).setTypes(MappingBuilder.indexTypeFromClass(NodeType.class))
-                .setQuery(queryBuilder).execute().actionGet().getCount();
+        //return (int) nodeClient.prepareSearch(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).setTypes(MappingBuilder.indexTypeFromClass(NodeType.class)).setSize(0)
+        return (int) nodeClient.prepareSearch(MappingBuilder.indexTypeFromClass(NodeType.class)).setSize(0)
+                .setQuery(queryBuilder).execute().actionGet().getHits().getTotalHits();
     }
 
     private void saveDataToES() throws IOException, IndexingServiceException {
@@ -321,7 +324,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     }
 
     private void assertDocumentExisit(String indexName, String typeName, String id, boolean expected) {
-        GetResponse response = getDocument(indexName, typeName, id);
+        //GetResponse response = getDocument(indexName, typeName, id);
+        GetResponse response = getDocument(typeName, ElasticSearchDAO.TYPE_NAME, id);
         assertEquals(expected, response.isExists());
         assertEquals(expected, !response.isSourceEmpty());
     }

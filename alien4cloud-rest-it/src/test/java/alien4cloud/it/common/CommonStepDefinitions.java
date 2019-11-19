@@ -13,15 +13,21 @@ import org.alien4cloud.exception.rest.FieldErrorDTO;
 import org.alien4cloud.server.MaintenanceModeState;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 
 import alien4cloud.audit.AuditESDAO;
+import alien4cloud.audit.model.*;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
@@ -30,7 +36,7 @@ import alien4cloud.it.security.AuthenticationStepDefinitions;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.common.*;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.git.CsarGitRepository;
@@ -55,9 +61,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CommonStepDefinitions {
     private final Client esClient = Context.getEsClientInstance();
-    private List<String> indicesToClean;
+    //private List<String> indicesToClean;
 
     public CommonStepDefinitions() {
+/**************
         indicesToClean = Lists.newArrayList();
         indicesToClean.add(ApplicationEnvironment.class.getSimpleName().toLowerCase());
         indicesToClean.add(ApplicationVersion.class.getSimpleName().toLowerCase());
@@ -80,10 +87,49 @@ public class CommonStepDefinitions {
         indicesToClean.add(ElasticSearchDAO.SUGGESTION_INDEX);
         indicesToClean.add(Repository.class.getSimpleName().toLowerCase());
         indicesToClean.add(ServiceResource.class.getSimpleName().toLowerCase());
-
         indicesToClean.add(MaintenanceModeState.class.getSimpleName().toLowerCase());
         indicesToClean.add(Plugin.class.getSimpleName().toLowerCase());
         indicesToClean.add(PluginConfiguration.class.getSimpleName().toLowerCase());
+*****************/
+    }
+
+    private boolean somethingFound(final SearchResponse searchResponse) {
+        if (searchResponse == null || searchResponse.getHits() == null || searchResponse.getHits().getHits() == null
+                || searchResponse.getHits().getHits().length == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    private void clearIndex(String indexName) {
+       clearIndex (indexName, indexName);
+    }
+
+    private void clearIndex(String indexName, String typeName) {
+        // get all elements and then use a bulk delete to remove data.
+        //SearchRequestBuilder searchRequestBuilder = esClient.prepareSearch(indexName).setTypes(typeName).setQuery(QueryBuilders.matchAllQuery())
+        SearchRequestBuilder searchRequestBuilder = esClient.prepareSearch(typeName).setQuery(QueryBuilders.matchAllQuery())
+                .setFetchSource(false);
+        searchRequestBuilder.setFrom(0).setSize(1000);
+        SearchResponse response = searchRequestBuilder.execute().actionGet();
+
+        while (somethingFound(response)) {
+            BulkRequestBuilder bulkRequestBuilder = esClient.prepareBulk().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
+
+            for (int i = 0; i < response.getHits().getHits().length; i++) {
+                String id = response.getHits().getHits()[i].getId();
+                //bulkRequestBuilder.add(esClient.prepareDelete(indexName, typeName, id));
+                bulkRequestBuilder.add(esClient.prepareDelete(typeName, "_doc", id));
+            }
+
+            bulkRequestBuilder.execute().actionGet();
+
+            if (response.getHits().getTotalHits() == response.getHits().getHits().length) {
+                response = null;
+            } else {
+                response = searchRequestBuilder.execute().actionGet();
+            }
+        }
     }
 
     @Before(value = "@reset", order = 1)
@@ -134,9 +180,54 @@ public class CommonStepDefinitions {
         Files.createDirectories(Context.getInstance().getArtifactDirPath());
 
         // Clean elastic search cluster
+/*******************
         for (String index : indicesToClean) {
-            esClient.prepareDeleteByQuery(new String[] { index }).setQuery(QueryBuilders.matchAllQuery()).execute().get();
+            //esClient.prepareDeleteByQuery(new String[] { index }).setQuery(QueryBuilders.matchAllQuery()).execute().get();
+            //esClient.prepareDelete().setIndex(index).execute().get();
         }
+********************/
+        clearIndex(ApplicationEnvironment.class.getSimpleName().toLowerCase());
+        clearIndex(ApplicationVersion.class.getSimpleName().toLowerCase());
+        clearIndex(DeploymentInputs.class.getSimpleName().toLowerCase());
+        clearIndex(DeploymentMatchingConfiguration.class.getSimpleName().toLowerCase());
+        clearIndex(OrchestratorDeploymentProperties.class.getSimpleName().toLowerCase());
+
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, CapabilityType.class.getSimpleName().toLowerCase());
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, ArtifactType.class.getSimpleName().toLowerCase());
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, RelationshipType.class.getSimpleName().toLowerCase());
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, NodeType.class.getSimpleName().toLowerCase());
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, DataType.class.getSimpleName().toLowerCase());
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, PrimitiveDataType.class.getSimpleName().toLowerCase());
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, PolicyType.class.getSimpleName().toLowerCase());
+        //clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, AbstractInstantiableToscaType.class.getSimpleName().toLowerCase());
+        //clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, AbstractToscaType.class.getSimpleName().toLowerCase());
+
+        clearIndex(Application.class.getSimpleName().toLowerCase());
+        clearIndex(Orchestrator.class.getSimpleName().toLowerCase());
+        clearIndex(Location.class.getSimpleName().toLowerCase());
+        clearIndex(Csar.class.getSimpleName().toLowerCase());
+        clearIndex(Topology.class.getSimpleName().toLowerCase());
+        clearIndex(Deployment.class.getSimpleName().toLowerCase());
+        clearIndex(Group.class.getSimpleName().toLowerCase());
+        clearIndex(User.class.getSimpleName().toLowerCase());
+        clearIndex(MetaPropConfiguration.class.getSimpleName().toLowerCase());
+        clearIndex(CsarGitRepository.class.getSimpleName().toLowerCase());
+        clearIndex(PaaSDeploymentLog.class.getSimpleName().toLowerCase());
+
+        clearIndex(AuditESDAO.ALIEN_AUDIT_INDEX, AuditTrace.class.getSimpleName().toLowerCase());
+        clearIndex(AuditESDAO.ALIEN_AUDIT_INDEX, AuditConfiguration.class.getSimpleName().toLowerCase());
+
+        //clearIndex(ElasticSearchDAO.SUGGESTION_INDEX, AbstractSuggestionEntry.class.getSimpleName().toLowerCase());
+        clearIndex(ElasticSearchDAO.SUGGESTION_INDEX, SuggestionEntry.class.getSimpleName().toLowerCase());
+        clearIndex(ElasticSearchDAO.SUGGESTION_INDEX, SimpleSuggestionEntry.class.getSimpleName().toLowerCase());
+
+        clearIndex(Repository.class.getSimpleName().toLowerCase());
+        clearIndex(ServiceResource.class.getSimpleName().toLowerCase());
+
+        clearIndex(MaintenanceModeState.class.getSimpleName().toLowerCase());
+        clearIndex(Plugin.class.getSimpleName().toLowerCase());
+        clearIndex(PluginConfiguration.class.getSimpleName().toLowerCase());
+
 
         // clean things in Context
         Context.getInstance().clearComponentsIds();

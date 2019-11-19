@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@ESObject(analyzerDefinitions = @IndexAnalyserDefinition(name = "case_insensitive_sort", filters = "lowercase", tokenizer = "keyword"))
+@ESObject(analyzerDefinitions = @IndexAnalyserDefinition(name = "case_insensitive_sort", filters = "lowercase", tokenizer = "keyword", type = "custom"))
 @ApiModel(value = "Orchestrator.", description = "An orchestrator is alien 4 cloud is a software engine that alien 4 cloud connects to in order to orchestrate"
         + " a topology deployment. An orchestrator may manage one or multiple locations.")
 public class Orchestrator {

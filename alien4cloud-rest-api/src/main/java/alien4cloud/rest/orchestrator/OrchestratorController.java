@@ -6,7 +6,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -101,7 +101,7 @@ public class OrchestratorController {
             @ApiParam(value = "If true only connected orchestrators will be retrieved.") @RequestParam(required = false, defaultValue = "false") boolean connectedOnly,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
-        FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
+        QueryBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
         OrchestratorState filterStatus = connectedOnly ? OrchestratorState.CONNECTED : null;
         GetMultipleDataResult<Orchestrator> result = orchestratorService.search(query, filterStatus, from, size, authorizationFilter);
         return RestResponseBuilder.<GetMultipleDataResult<Orchestrator>> builder().data(result).build();

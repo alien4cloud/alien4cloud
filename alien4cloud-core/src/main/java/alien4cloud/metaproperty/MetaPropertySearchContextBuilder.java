@@ -16,8 +16,8 @@ import com.google.common.collect.HashBiMap;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.elasticsearch.common.collect.Maps;
-import org.elasticsearch.index.query.FilterBuilder;
+import com.google.common.collect.Maps;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.mapping.IFacetBuilderHelper;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
@@ -133,8 +133,8 @@ public class MetaPropertySearchContextBuilder implements IESMetaPropertiesSearch
         }
 
         @Override
-        public FilterBuilder[] getFilterBuilders(Map<String, String[]> filters) {
-            List<FilterBuilder> result = new ArrayList<>();
+        public QueryBuilder[] getFilterBuilders(Map<String, String[]> filters) {
+            List<QueryBuilder> result = new ArrayList<>();
 
             if (filters != null) {
                 for (IFacetBuilderHelper helper : getFacetBuilderHelpers()) {
@@ -146,7 +146,7 @@ public class MetaPropertySearchContextBuilder implements IESMetaPropertiesSearch
                 }
             }
 
-            return result.toArray(new FilterBuilder[0]);
+            return result.toArray(new QueryBuilder[0]);
         }
 
         @Override

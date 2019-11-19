@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import static alien4cloud.dao.ESIndexMapper.TYPE_NAME;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.ResponseUtil;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -36,7 +37,8 @@ public class EnvironmentBulkController {
     public JsonRawRestResponse getByIds(@RequestBody String[] deploymentIds) {
         // Check topology status for this deployment object
         MultiGetResponse response = alienDAO.getClient().prepareMultiGet()
-                .add(alienDAO.getIndexForType(ApplicationEnvironment.class), MappingBuilder.indexTypeFromClass(ApplicationEnvironment.class), deploymentIds)
+                //.add(alienDAO.getIndexForType(ApplicationEnvironment.class), MappingBuilder.indexTypeFromClass(ApplicationEnvironment.class), deploymentIds)
+                .add(MappingBuilder.indexTypeFromClass(ApplicationEnvironment.class), TYPE_NAME, deploymentIds)
                 .get();
         JsonRawRestResponse restResponse = new JsonRawRestResponse();
         restResponse.setData(ResponseUtil.rawMultipleData(response));

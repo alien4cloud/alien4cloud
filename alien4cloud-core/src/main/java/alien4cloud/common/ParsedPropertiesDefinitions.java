@@ -6,8 +6,8 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.common.collect.Maps;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import alien4cloud.model.common.SimpleSuggestionEntry;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;

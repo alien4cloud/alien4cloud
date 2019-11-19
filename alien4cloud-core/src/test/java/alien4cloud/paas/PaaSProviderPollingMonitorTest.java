@@ -10,7 +10,9 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.mapping.ElasticSearchClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,8 +73,10 @@ public class PaaSProviderPollingMonitorTest {
             eventMessage.setMessage("EVENT MESSAGE : " + eventMessage.getDate());
             eventJson = jsonMapper.writeValueAsString(eventMessage);
 
-            nodeClient.prepareIndex("deploymentmonitorevents", PaaSMessageMonitorEvent.class.getSimpleName().toLowerCase()).setSource(eventJson)
-                    .setRefresh(true).execute().actionGet();
+            //nodeClient.prepareIndex("deploymentmonitorevents", PaaSMessageMonitorEvent.class.getSimpleName().toLowerCase())
+            nodeClient.prepareIndex(PaaSMessageMonitorEvent.class.getSimpleName().toLowerCase(),"_doc")
+                    .setSource(eventJson, XContentType.JSON)
+                    .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
 
         // add 3 deployment status events
@@ -87,8 +91,10 @@ public class PaaSProviderPollingMonitorTest {
             eventDeploymentStatus.setDeploymentStatus(DeploymentStatus.DEPLOYED);
             eventJson = jsonMapper.writeValueAsString(eventDeploymentStatus);
 
-            nodeClient.prepareIndex("deploymentmonitorevents", PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase()).setSource(eventJson)
-                    .setRefresh(true).execute().actionGet();
+            //nodeClient.prepareIndex("deploymentmonitorevents", PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase())
+            nodeClient.prepareIndex(PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase(), "_doc")
+                    .setSource(eventJson, XContentType.JSON)
+                    .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
 
         // save the last inserted date (PaaSDeploymentStatusMonitorEvent should be generated from alien only and never from the orchestrator).

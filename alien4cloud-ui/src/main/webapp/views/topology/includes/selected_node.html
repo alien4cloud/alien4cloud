@@ -168,7 +168,7 @@
       <tr ng-repeat="propEntry in selectedNodeTemplate.properties">
         <td class="topology-props-td-inp">
           <div class="btn-group" uib-dropdown>
-            <button id="p_secret_pro_{{propEntry.key}}"
+            <button tabindex="-1" id="p_secret_pro_{{propEntry.key}}"
                ng-click="secrets.togglePropertySecret(propEntry)"
                class="btn btn-default btn-xs"
                ng-disabled="properties.isInputProperty(propEntry.key) || properties.isOutputProperty(propEntry.key)"
@@ -176,7 +176,7 @@
                tooltip-append-to-body="true">
               <i class="fa fa-key "></i>
             </button>
-            <button id="p_input_pro_{{propEntry.key}}"
+            <button tabindex="-1"  id="p_input_pro_{{propEntry.key}}"
                ng-click="inputs.getCandidatesForProperty(propEntry.key)"
                class="btn btn-default btn-xs"
                uib-dropdown-toggle
@@ -200,7 +200,7 @@
                 </a>
               </li>
             </ul>
-            <button id="p_output_pro_{{propEntry.key}}"
+            <button tabindex="-1"  id="p_output_pro_{{propEntry.key}}"
                 ng-click="outputs.toggleOutputProperty(propEntry.key)"
                 class="btn btn-default btn-xs"
                 ng-disabled="properties.isSecretValue(propEntry.value)"
@@ -288,7 +288,7 @@
         <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
           <td class="topology-props-td-inp">
             <div class="btn-group" uib-dropdown>
-              <button id="p_secret_cap_{{propertyEntry.key}}"
+              <button tabindex="-1"  id="p_secret_cap_{{propertyEntry.key}}"
                  ng-click="secrets.toggleCapabilitySecret(propertyEntry, capabilityEntry.key)"
                  class="btn btn-default btn-xs"
                  ng-disabled="properties.isInputPropertyValue(propertyEntry.value) || properties.isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
@@ -296,7 +296,7 @@
                  tooltip-append-to-body="true">
                 <i class="fa fa-key "></i>
               </button>
-              <button id="p_input_cap_{{propertyEntry.key}}"
+              <button tabindex="-1" id="p_input_cap_{{propertyEntry.key}}"
                  ng-click="inputs.getCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                  class="btn btn-default btn-xs"
                  uib-dropdown-toggle
@@ -305,7 +305,7 @@
                  tooltip-append-to-body="true">
                 <i class="fa fa-sign-in"></i>
               </button>
-              <button id="p_output_cap_{{propertyEntry.key}}"
+              <button tabindex="-1"  id="p_output_cap_{{propertyEntry.key}}"
                   ng-click="outputs.toggleOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                   class="btn btn-default btn-xs"
                   ng-class="{'active' : properties.isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}"

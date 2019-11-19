@@ -12,7 +12,10 @@ import java.util.List;
 
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -124,7 +127,14 @@ public class UpdateDeleteTagDefinitionsSteps {
             }
 
             String serializeDatum = jsonMapper.writeValueAsString(indexedNodeType);
-            esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
+            String idValue = null;
+            try {
+               idValue = (new FieldsMappingBuilder()).getIdValue(indexedNodeType);
+            } catch (Exception e) {}
+
+            //esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, idValue).setSource(serializeDatum, XContentType.JSON)
+            esClient.prepareIndex(typeName, "_doc", idValue).setSource(serializeDatum, XContentType.JSON)
+                    .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
         }
     }
 }

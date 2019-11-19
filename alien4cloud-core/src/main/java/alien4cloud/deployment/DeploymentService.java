@@ -16,8 +16,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -54,7 +55,7 @@ public class DeploymentService {
      * @return Array of all active deployments.
      */
     public Deployment[] getActiveDeployments() {
-        return alienDao.buildQuery(Deployment.class).prepareSearch().setFilters(fromKeyValueCouples("endDate", null)).search(0, Integer.MAX_VALUE).getData();
+        return alienDao.buildQuery(Deployment.class).prepareSearch().setFilters(fromKeyValueCouples("endDate", null)).search(0, 10000).getData();
     }
 
     /**
@@ -66,9 +67,9 @@ public class DeploymentService {
      * @return An array of deployments.
      */
     public Deployment[] getDeployments(String orchestratorId, String sourceId, String environmentId, int from, int size) {
-        FilterBuilder filterBuilder = buildDeploymentFilters(orchestratorId, sourceId, environmentId);
+        QueryBuilder filterBuilder = buildDeploymentFilters(orchestratorId, sourceId, environmentId);
         IESQueryBuilderHelper<Deployment> queryBuilderHelper = alienDao.buildQuery(Deployment.class);
-        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", true).search(from, size).getData();
+        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", "long", true).search(from, size).getData();
     }
 
     /**
@@ -83,23 +84,23 @@ public class DeploymentService {
      * @return the deployments with pagination
      */
     public FacetedSearchResult searchDeployments(String query, String orchestratorId, String environmentId, String sourceId, int from, int size) {
-        FilterBuilder filterBuilder = buildDeploymentFilters(orchestratorId, sourceId, environmentId);
-        return alienDao.facetedSearch(Deployment.class, query, null, filterBuilder, null, from, size, "startDate", true);
+        QueryBuilder filterBuilder = buildDeploymentFilters(orchestratorId, sourceId, environmentId);
+        return alienDao.facetedSearch(Deployment.class, query, null, filterBuilder, null, from, size, "startDate", "long", true);
     }
 
-    private FilterBuilder buildDeploymentFilters(String orchestratorId, String sourceId, String environmentId) {
-        FilterBuilder filterBuilder = null;
+    private QueryBuilder buildDeploymentFilters(String orchestratorId, String sourceId, String environmentId) {
+        BoolQueryBuilder filterBuilder = null;
+        if ( (orchestratorId != null) || (environmentId != null) || (sourceId != null) ) {
+           filterBuilder = QueryBuilders.boolQuery();
+        }
         if (orchestratorId != null) {
-            FilterBuilder orchestratorFilter = FilterBuilders.termFilter("orchestratorId", orchestratorId);
-            filterBuilder = filterBuilder == null ? orchestratorFilter : FilterBuilders.andFilter(orchestratorFilter, filterBuilder);
+            filterBuilder.must(QueryBuilders.termQuery("orchestratorId", orchestratorId));
         }
         if (environmentId != null) {
-            FilterBuilder environmentFilter = FilterBuilders.termFilter("environmentId", environmentId);
-            filterBuilder = filterBuilder == null ? environmentFilter : FilterBuilders.andFilter(environmentFilter, filterBuilder);
+            filterBuilder.must(QueryBuilders.termQuery("environmentId", environmentId));
         }
         if (sourceId != null) {
-            FilterBuilder sourceFilter = FilterBuilders.termFilter("sourceId", sourceId);
-            filterBuilder = filterBuilder == null ? sourceFilter : FilterBuilders.andFilter(sourceFilter, filterBuilder);
+            filterBuilder.must(QueryBuilders.termQuery("sourceId", sourceId));
         }
         return filterBuilder;
     }
@@ -112,23 +113,18 @@ public class DeploymentService {
      * @return An array of deployments.
      */
     public Deployment[] getActiveDeployments(String orchestratorId, String sourceId, int from, int size) {
-        FilterBuilder filterBuilder = null;
+        BoolQueryBuilder filterBuilder = QueryBuilders.boolQuery();
+
         if (orchestratorId != null) {
-            filterBuilder = FilterBuilders.termFilter("orchestratorId", orchestratorId);
+            filterBuilder.must(QueryBuilders.termQuery("orchestratorId", orchestratorId));
         }
         if (sourceId != null) {
-            FilterBuilder sourceFilter = FilterBuilders.termFilter("sourceId", sourceId);
-            filterBuilder = filterBuilder == null ? sourceFilter : FilterBuilders.andFilter(sourceFilter, filterBuilder);
+            filterBuilder.must(QueryBuilders.termQuery("sourceId", sourceId));
         }
-
-        FilterBuilder missingFilter = FilterBuilders.missingFilter("endDate");
-        filterBuilder = filterBuilder == null ? missingFilter : FilterBuilders.andFilter(missingFilter, filterBuilder);
+        filterBuilder.mustNot(QueryBuilders.existsQuery("endDate"));
 
         IESQueryBuilderHelper<Deployment> queryBuilderHelper = alienDao.buildQuery(Deployment.class);
-        if (filterBuilder != null) {
-            queryBuilderHelper.setFilters(filterBuilder);
-        }
-        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", true).search(from, size).getData();
+        return queryBuilderHelper.setFilters(filterBuilder).prepareSearch().setFieldSort("startDate", "long", true).search(from, size).getData();
     }
 
     /**
@@ -179,7 +175,7 @@ public class DeploymentService {
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "environmentId" },
                 new String[][] { new String[] { applicationEnvironmentId } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, null, null, 0, Integer.MAX_VALUE,
-                "endDate", true);
+                "endDate", "long", true);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             if (dataResult.getData()[dataResult.getData().length - 1].getEndDate() == null) {
                 return dataResult.getData()[dataResult.getData().length - 1];

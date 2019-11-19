@@ -20,8 +20,8 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.alien4cloud.tosca.utils.TopologyUtils;
-import org.elasticsearch.common.joda.time.DateTime;
-import org.elasticsearch.common.joda.time.DateTimeZone;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -165,6 +165,7 @@ public class ApplicationDeploymentController {
 
     private RestResponse<?> doDeploy(DeployApplicationRequest deployApplicationRequest, Application application, ApplicationEnvironment environment,
             Topology topology) {
+        String deploymentId;
         DeploymentTopologyDTO deploymentTopologyDTO = deploymentTopologyDTOBuilder.prepareDeployment(topology, application, environment);
         TopologyValidationResult validation = deploymentTopologyDTO.getValidation();
 
@@ -190,7 +191,9 @@ public class ApplicationDeploymentController {
         }
 
         // process with the deployment
-        deployService.deploy(deployer, secretProviderCredentials, deploymentTopologyDTO.getTopology(), application);
+        deploymentId = deployService.deploy(deployer, secretProviderCredentials, deploymentTopologyDTO.getTopology(), application);
+
+        deployService.backupUnprocessedTopology(deploymentId,deploymentTopologyDTO.getUnprocessedTopology());
         return RestResponseBuilder.<Void> builder().build();
     }
 

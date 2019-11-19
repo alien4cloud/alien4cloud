@@ -266,7 +266,7 @@ public class PluginArchiveIndexer {
     public Map<String, List<Location>> getAllExposedArchivesIdsExluding(Location excludedLocation) {
         // exclude a location from the search
         QueryBuilder query = QueryBuilders.boolQuery()
-                .mustNot(QueryBuilders.idsQuery(Location.class.getSimpleName().toLowerCase()).ids(excludedLocation.getId()));
+                .mustNot(QueryBuilders.idsQuery(Location.class.getSimpleName().toLowerCase()).addIds(excludedLocation.getId()));
         List<Location> locations = alienDAO.customFindAll(Location.class, query);
         Map<String, List<Location>> archiveIds = Maps.newHashMap();
         if (locations != null) {

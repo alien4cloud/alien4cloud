@@ -8,7 +8,7 @@ import javax.annotation.Resource;
 import io.swagger.annotations.Api;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.apache.commons.lang3.ArrayUtils;
-import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -67,7 +67,7 @@ public class QuickSearchController {
 
         // Adding filters to get only authorized applications
         // only filter on users roles on the application if the current user is not an ADMIN
-        FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
+        QueryBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
 
         GetMultipleDataResult<?> searchResultApplications = searchByType(requestObject, authoIndexes, classes, null, authorizationFilter);
 
@@ -99,7 +99,7 @@ public class QuickSearchController {
     }
 
     private GetMultipleDataResult searchByType(BasicSearchRequest requestObject, Set<String> authoIndexes, Set<Class<?>> classes,
-            Map<String, String[]> filters, FilterBuilder filterBuilder) {
+            Map<String, String[]> filters, QueryBuilder filterBuilder) {
 
         String[] indices = authoIndexes.toArray(new String[authoIndexes.size()]);
         if (indices.length == 0) {

@@ -12,7 +12,7 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.elasticsearch.common.collect.Sets;
+import com.google.common.collect.Sets;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;

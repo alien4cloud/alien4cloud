@@ -134,6 +134,7 @@ public class StompConnection {
         }
         final WebSocketClientHandler webSocketHandler = new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(new URI(wsUrl),
                 WebSocketVersion.V13, null, false, handshakeHeaders), host, user, password, loginUrl);
+        WebSocketClientOutHandler webSocketOutHandler = new WebSocketClientOutHandler(30);
         Bootstrap b = new Bootstrap();
         b.group(eventLoopGroup).channel(NioSocketChannel.class);
         b.handler(new ChannelInitializer<SocketChannel>() {
@@ -143,8 +144,10 @@ public class StompConnection {
                 ChannelPipeline pipeline = ch.pipeline();
                 pipeline.addLast(HttpClientCodec.class.getName(), new HttpClientCodec());
                 pipeline.addLast(HttpObjectAggregator.class.getName(), new HttpObjectAggregator(8192));
-                pipeline.addLast(WebSocketClientCompressionHandler.class.getName(), new WebSocketClientCompressionHandler());
+                //pipeline.addLast(WebSocketClientCompressionHandler.class.getName(), new WebSocketClientCompressionHandler());
+                pipeline.addLast(WebSocketClientCompressionHandler.class.getName(), WebSocketClientCompressionHandler.INSTANCE);
                 pipeline.addLast(WebSocketClientHandler.class.getName(), webSocketHandler);
+                pipeline.addLast(WebSocketClientOutHandler.class.getName(), webSocketOutHandler);
                 pipeline.addLast(StompSubframeDecoder.class.getName(), new StompSubframeDecoder());
                 pipeline.addLast(StompSubframeEncoder.class.getName(), new StompSubframeEncoder());
                 pipeline.addLast(StompSubframeAggregator.class.getName(), new StompSubframeAggregator(1048576));

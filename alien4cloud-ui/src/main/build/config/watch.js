@@ -5,6 +5,7 @@ module.exports = {
     files: ['<%= yeoman.app %>/scripts/**/*.js'],
     // tasks: ['newer:jshint:all'],
     options: {
+      interval: 5000,
       livereload: true
     }
   },

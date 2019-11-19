@@ -25,9 +25,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.collections4.MapUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.IdsFilterBuilder;
+import com.google.common.collect.Lists;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.IdsQueryBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -141,8 +141,8 @@ public class LocationSecurityController {
         if (MapUtils.isEmpty(location.getUserPermissions())) {
             return RestResponseBuilder.<GetMultipleDataResult<UserDTO>> builder().data(new GetMultipleDataResult<>()).build();
         }
-        IdsFilterBuilder idFilters = FilterBuilders.idsFilter()
-                .ids(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
+        IdsQueryBuilder idFilters = QueryBuilders.idsQuery()
+                .addIds(location.getUserPermissions().keySet().toArray(new String[location.getUserPermissions().size()]));
         GetMultipleDataResult<User> tempResult = alienUserDao.find(query, from, size, idFilters);
         return RestResponseBuilder.<GetMultipleDataResult<UserDTO>> builder().data(UserDTO.convert(tempResult)).build();
     }
@@ -223,8 +223,8 @@ public class LocationSecurityController {
         if (MapUtils.isEmpty(location.getGroupPermissions())) {
             return RestResponseBuilder.<GetMultipleDataResult<GroupDTO>> builder().data(new GetMultipleDataResult<>()).build();
         }
-        IdsFilterBuilder idFilters = FilterBuilders.idsFilter()
-                .ids(location.getGroupPermissions().keySet().toArray(new String[location.getGroupPermissions().size()]));
+        IdsQueryBuilder idFilters = QueryBuilders.idsQuery()
+                .addIds(location.getGroupPermissions().keySet().toArray(new String[location.getGroupPermissions().size()]));
         GetMultipleDataResult<Group> tempResult = alienGroupDao.find(query, from, size, idFilters);
         return RestResponseBuilder.<GetMultipleDataResult<GroupDTO>> builder().data(GroupDTO.convert(tempResult)).build();
     }
@@ -360,8 +360,8 @@ public class LocationSecurityController {
         int to = (from + size < allDTOs.size()) ? from + size : allDTOs.size();
         allDTOs = IntStream.range(from, to).mapToObj(allDTOs::get).collect(Collectors.toList());
         List<String> ids = allDTOs.stream().map(appEnvDTO -> appEnvDTO.getApplication().getId()).collect(Collectors.toList());
-        IdsFilterBuilder idFilters = FilterBuilders.idsFilter().ids(ids.toArray(new String[ids.size()]));
-        GetMultipleDataResult<Application> tempResult = alienDAO.search(Application.class, query, null,  idFilters, null, from,  to,  "id",  false);
+        IdsQueryBuilder idFilters = QueryBuilders.idsQuery().addIds(ids.toArray(new String[ids.size()]));
+        GetMultipleDataResult<Application> tempResult = alienDAO.search(Application.class, query, null,  idFilters, null, from,  to,  "id", "keyword", false);
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationEnvironmentAuthorizationDTO>> builder().data(ApplicationEnvironmentAuthorizationDTO.convert(tempResult, allDTOs)).build();
     }
 }

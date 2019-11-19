@@ -14,14 +14,17 @@ import org.alien4cloud.alm.events.BeforeApplicationDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentTypeDeleted;
 import org.apache.commons.lang3.ArrayUtils;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.apache.lucene.search.join.ScoreMode;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -98,34 +101,34 @@ public class ResourcePermissionEventsListener {
     }
 
     private void deleteUserPermissionOn(String username, Class<?>... resourceClasses) throws IOException, ClassNotFoundException {
-        FilterBuilder resourceFilter = FilterBuilders.nestedFilter("userPermissions", FilterBuilders.termFilter("userPermissions.key", username));
+        QueryBuilder resourceFilter = QueryBuilders.nestedQuery("userPermissions", QueryBuilders.termQuery("userPermissions.key", username), ScoreMode.None);
         deletePermissions(resourceFilter, username, ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.USER, subjectId)),
                 resourceClasses);
     }
 
     private void deleteGroupPermissionOn(String groupId, Class<?>... resourceClasses) throws IOException, ClassNotFoundException {
-        FilterBuilder resourceFilter = FilterBuilders.nestedFilter("groupPermissions", FilterBuilders.termFilter("groupPermissions.key", groupId));
+        QueryBuilder resourceFilter = QueryBuilders.nestedQuery("groupPermissions", QueryBuilders.termQuery("groupPermissions.key", groupId), ScoreMode.None);
         deletePermissions(resourceFilter, groupId, ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.GROUP, subjectId)),
                 resourceClasses);
     }
 
     private void deleteApplicationPermissionOn(String applicationId, Class<?>... resourceClasses) throws IOException, ClassNotFoundException {
-        FilterBuilder resourceFilter = FilterBuilders.nestedFilter("applicationPermissions",
-                FilterBuilders.termFilter("applicationPermissions.key", applicationId));
+        QueryBuilder resourceFilter = QueryBuilders.nestedQuery("applicationPermissions",
+                QueryBuilders.termQuery("applicationPermissions.key", applicationId), ScoreMode.None);
         deletePermissions(resourceFilter, applicationId,
                 ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.APPLICATION, subjectId)), resourceClasses);
     }
 
     private void deleteEnvironmentPermissionOn(String environmentId, Class<?>... resourceClasses) throws IOException, ClassNotFoundException {
-        FilterBuilder resourceFilter = FilterBuilders.nestedFilter("environmentPermissions",
-                FilterBuilders.termFilter("environmentPermissions.key", environmentId));
+        QueryBuilder resourceFilter = QueryBuilders.nestedQuery("environmentPermissions",
+                QueryBuilders.termQuery("environmentPermissions.key", environmentId), ScoreMode.None);
         deletePermissions(resourceFilter, environmentId,
                 ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.ENVIRONMENT, subjectId)), resourceClasses);
     }
 
     private void deleteEnvironmentTypePermissionOn(String environmentId, Class<?>... resourceClasses) throws IOException, ClassNotFoundException {
-        FilterBuilder resourceFilter = FilterBuilders.nestedFilter("environmentTypePermissions",
-                FilterBuilders.termFilter("environmentTypePermissions.key", environmentId));
+        QueryBuilder resourceFilter = QueryBuilders.nestedQuery("environmentTypePermissions",
+                QueryBuilders.termQuery("environmentTypePermissions.key", environmentId), ScoreMode.None);
         deletePermissions(resourceFilter, environmentId,
                 ((resource, subjectId) -> resourcePermissionService.revokePermission(resource, Subject.ENVIRONMENT_TYPE, subjectId)), resourceClasses);
     }
@@ -134,16 +137,25 @@ public class ResourcePermissionEventsListener {
         void cleanPermission(AbstractSecurityEnabledResource resource, String subjectId);
     }
 
-    private void deletePermissions(FilterBuilder appFilter, String ownerId, ResourcePermissionCleaner permissionCleaner, Class<?>... onClazzes)
+    private String[] getIndicesFromClasses (Set<Class<?>> clazzes) {
+       List<String> result = new ArrayList<String>();
+       for (Class clazz : clazzes) {
+          result.addAll (Arrays.asList(alienDAO.getIndexForType(clazz)));
+       }
+       return result.toArray(new String[result.size()]);
+    }
+
+    private void deletePermissions(QueryBuilder appFilter, String ownerId, ResourcePermissionCleaner permissionCleaner, Class<?>... onClazzes)
             throws IOException, ClassNotFoundException {
         int from = 0;
         long totalResult;
 
         Set<Class<?>> classes = ArrayUtils.isNotEmpty(onClazzes) ? Sets.newHashSet(onClazzes)
                 : TypeScanner.scanTypes("alien4cloud.model", AbstractSecurityEnabledResource.class);
-        Set<String> indices = classes.stream().map(clazz -> alienDAO.getIndexForType(clazz)).collect(Collectors.toSet());
+        //Set<String> indices = classes.stream().map(clazz -> alienDAO.getIndexForType(clazz)).collect(Collectors.toSet());
         do {
-            GetMultipleDataResult<Object> result = alienDAO.search(indices.toArray(new String[indices.size()]), classes.toArray(new Class<?>[classes.size()]),
+            //GetMultipleDataResult<Object> result = alienDAO.search(indices.toArray(new String[indices.size()]), classes.toArray(new Class<?>[classes.size()]),
+            GetMultipleDataResult<Object> result = alienDAO.search(getIndicesFromClasses(classes), classes.toArray(new Class<?>[classes.size()]),
                     null, null, appFilter, null, from, 20);
             Arrays.stream(result.getData()).forEach(resource -> permissionCleaner.cleanPermission((AbstractSecurityEnabledResource) resource, ownerId));
             from += result.getData().length;

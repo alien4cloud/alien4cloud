@@ -22,7 +22,7 @@ import org.alien4cloud.tosca.normative.constants.NormativeComputeConstants;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.alien4cloud.tosca.utils.ToscaTypeUtils;
-import org.elasticsearch.common.collect.Maps;
+import com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -457,6 +457,12 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
                 callback.onSuccess(null);
             }
         }, 5l, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void cancelTask(PaaSDeploymentContext deploymentContext, String taskId, IPaaSCallback<String> callback) {
+        log.info(String.format("Cancelling task %s", taskId));
+        callback.onSuccess(null);
     }
 
     @Override

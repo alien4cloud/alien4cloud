@@ -22,7 +22,7 @@ import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.common.collect.Maps;
+import com.google.common.collect.Maps;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

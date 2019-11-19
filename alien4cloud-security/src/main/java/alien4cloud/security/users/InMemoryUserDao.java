@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -65,8 +65,8 @@ public class InMemoryUserDao implements IAlienUserDao {
     }
 
     @Override
-    public GetMultipleDataResult<User> find(String searchQuery, int from, int size, FilterBuilder customFilter) {
-        // TODO: add support of FilterBuilder
+    public GetMultipleDataResult<User> find(String searchQuery, int from, int size, QueryBuilder customFilter) {
+        // TODO: add support of QueryBuilder
         return search(searchQuery, null, from, size);
     }
 

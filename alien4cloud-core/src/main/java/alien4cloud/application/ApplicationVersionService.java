@@ -692,7 +692,7 @@ public class ApplicationVersionService {
     public List<ApplicationEnvironment> findAllApplicationVersionUsage(String applicationId, String applicationVersion) {
         // find all linked environment
         ApplicationEnvironment[] aes = alienDAO.buildQuery(ApplicationEnvironment.class).setFilters(fromKeyValueCouples("applicationId", applicationId, "version", applicationVersion))
-                .prepareSearch().search(0, Integer.MAX_VALUE).getData();
+                .prepareSearch().search(0, 10000).getData();
         return Lists.newArrayList(aes);
     }
 

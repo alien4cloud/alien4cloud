@@ -11,9 +11,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import alien4cloud.rest.utils.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.elasticsearch.common.collect.Maps;
+
 import org.junit.Test;
 
 import alien4cloud.model.common.Tag;

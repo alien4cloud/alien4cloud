@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.stereotype.Component;
 
@@ -86,7 +86,7 @@ public class ElasticSearchUserDao extends ESGenericSearchDAO implements IAlienUs
     }
 
     @Override
-    public GetMultipleDataResult<User> find(String searchQuery, int from, int size, FilterBuilder customFilter) {
-        return super.search(User.class, searchQuery, null, customFilter, null, from, size, "username", false);
+    public GetMultipleDataResult<User> find(String searchQuery, int from, int size, QueryBuilder customFilter) {
+        return super.search(User.class, searchQuery, null, customFilter, null, from, size, "username", "keyword", false);
     }
 }

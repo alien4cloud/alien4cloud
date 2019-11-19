@@ -108,7 +108,7 @@ public class PluginController {
         // search for a previous version
         // TODO manage the case there are many previous versions
         QueryBuilder macthNameQuerybuilder = QueryBuilders.matchQuery("descriptor.id", plugin.getDescriptor().getId());
-        QueryBuilder idQueryBuilder = QueryBuilders.idsQuery(MappingBuilder.indexTypeFromClass(Plugin.class)).ids(plugin.getId());
+        QueryBuilder idQueryBuilder = QueryBuilders.idsQuery(MappingBuilder.indexTypeFromClass(Plugin.class)).addIds(plugin.getId());
         QueryBuilder boolQuery = QueryBuilders.boolQuery().must(macthNameQuerybuilder).mustNot(idQueryBuilder);
         Plugin oldVersionPlugin = alienDAO.customFind(Plugin.class, boolQuery);
         if (oldVersionPlugin != null && oldVersionPlugin.isConfigurable()) {

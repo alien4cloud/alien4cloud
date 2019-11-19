@@ -69,10 +69,18 @@ public class PaaSProviderPollingMonitor implements Runnable {
         Map<String, String[]> filter = Maps.newHashMap();
         filter.put("orchestratorId", new String[] { this.orchestratorId });
 
+        String[] indices = new String[eventClasses.size()];
+        int i = 0;
+        for (Class<?> clazz : eventClasses) {
+           indices[i] = clazz.getSimpleName().toLowerCase();
+           i++;
+        }
+
         // sort by filed date DESC
         QueryHelper.ISearchQueryBuilderHelper searchQueryHelperBuilder = monitorDAO.getQueryHelper().buildQuery()
-                .types(eventClasses.toArray(new Class<?>[eventClasses.size()])).filters(filter).prepareSearch("deploymentmonitorevents")
-                .fieldSort("date", true);
+                //.types(eventClasses.toArray(new Class<?>[eventClasses.size()])).filters(filter).prepareSearch("deploymentmonitorevents")
+                .types(eventClasses.toArray(new Class<?>[eventClasses.size()])).filters(filter).prepareSearch(indices)
+                .fieldSort("date", "long", true);
 
         // the first one is the one with the latest date
         GetMultipleDataResult lastestEventResult = monitorDAO.search(searchQueryHelperBuilder, 0, 10);

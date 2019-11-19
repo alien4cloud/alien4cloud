@@ -168,7 +168,7 @@ public class ServiceResourceController {
     @Audit
     public RestResponse<FacetedSearchResult> search(@RequestBody SortedSearchRequest searchRequest) {
         FacetedSearchResult result = serviceResourceService.search(searchRequest.getQuery(), searchRequest.getFilters(),
-                searchRequest.getSortField(), searchRequest.isDesc(), searchRequest.getFrom(), searchRequest.getSize());
+                searchRequest.getSortField(), "keyword", searchRequest.isDesc(), searchRequest.getFrom(), searchRequest.getSize());
         return RestResponseBuilder.<GetMultipleDataResult<ServiceResource>> builder().data(result).build();
     }
 }

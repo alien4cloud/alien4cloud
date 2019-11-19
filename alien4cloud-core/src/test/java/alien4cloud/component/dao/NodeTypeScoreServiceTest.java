@@ -4,12 +4,12 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.elasticsearch.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

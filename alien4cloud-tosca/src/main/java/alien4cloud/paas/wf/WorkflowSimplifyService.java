@@ -18,6 +18,7 @@ import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkflows;
+import org.alien4cloud.tosca.model.workflow.declarative.NodeDeclarativeWorkflow;
 import org.alien4cloud.tosca.model.workflow.declarative.NodeOperationDeclarativeWorkflow;
 import org.springframework.stereotype.Component;
 
@@ -165,8 +166,11 @@ public class WorkflowSimplifyService {
     protected void removeOrphanSetStateSteps(DefaultDeclarativeWorkflows dwf, Workflow workflow) {
         // 1. Find all the set state operation pairs
         Map<String, String> pairs = new HashMap<>();
-        Map<String, NodeOperationDeclarativeWorkflow> standardOps = dwf.getNodeWorkflows().get(workflow.getName()).getOperations();
-        standardOps.values().forEach(a -> pairs.put(a.getPrecedingState(), a.getFollowingState()));
+
+        NodeDeclarativeWorkflow ndwf = dwf.getNodeWorkflows().get(workflow.getName());
+        if (ndwf != null) {
+            ndwf.getOperations().values().forEach(a -> pairs.put(a.getPrecedingState(), a.getFollowingState()));
+        }
 
         // 2. Iterate the current workflow to find the matched pairs
         // and then remove them

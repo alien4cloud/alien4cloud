@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.alien4cloud.tosca.model.workflow.Workflow;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 
 import alien4cloud.paas.wf.model.Path;
 import alien4cloud.paas.wf.TopologyContext;

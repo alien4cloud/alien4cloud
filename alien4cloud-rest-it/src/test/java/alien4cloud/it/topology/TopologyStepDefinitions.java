@@ -31,8 +31,11 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.collect.Maps;
+import org.elasticsearch.common.xcontent.XContentType;
+import com.google.common.collect.Maps;
+import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.Assert;
 
@@ -336,8 +339,14 @@ public class TopologyStepDefinitions {
             }
         }
 
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(RelationshipType.class))
-                .setSource(JsonUtil.toString(relationship)).setRefresh(true).execute().actionGet();
+       String idValue = null;
+       try {
+          idValue = (new FieldsMappingBuilder()).getIdValue(relationship);
+       } catch (Exception e) {}
+
+        //esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(RelationshipType.class), idValue)
+        esClient.prepareIndex(MappingBuilder.indexTypeFromClass(RelationshipType.class), "_doc", idValue)
+                .setSource(JsonUtil.toString(relationship), XContentType.JSON).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
     }
 
     @Given("^I create a \"([^\"]*)\" \"([^\"]*)\" in an archive name \"([^\"]*)\" version \"([^\"]*)\"$")
@@ -355,8 +364,15 @@ public class TopologyStepDefinitions {
             throw new PendingException("creation of Type " + componentType + "not supported!");
         }
 
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz)).setSource(JsonUtil.toString(element))
-                .setRefresh(true).execute().actionGet();
+        String idValue = null;
+        try {
+           idValue = (new FieldsMappingBuilder()).getIdValue(element);
+        } catch (Exception e) {}
+
+        //esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz), idValue)
+        esClient.prepareIndex(MappingBuilder.indexTypeFromClass(clazz), "_doc", idValue)
+                .setSource(JsonUtil.toString(element), XContentType.JSON)
+                .setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute().actionGet();
     }
 
     @Given("^I create \"([^\"]*)\" in an archive name \"([^\"]*)\" version \"([^\"]*)\"$")

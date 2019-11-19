@@ -89,6 +89,7 @@ public class Csar implements IManagedSecuredResource, IWorkspaceResource {
 
     /** Alien 4 Cloud meta-data to know how the archive has been imported. */
     @TermsFacet
+    @StringField(indexType = IndexType.not_analyzed)
     private String importSource;
     /** Date on which the archive has been imported or updated in alien4cloud. */
     private Date importDate;

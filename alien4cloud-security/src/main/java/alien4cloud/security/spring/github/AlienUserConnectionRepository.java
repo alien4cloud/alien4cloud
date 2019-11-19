@@ -5,8 +5,8 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.common.collect.Sets;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.social.connect.Connection;

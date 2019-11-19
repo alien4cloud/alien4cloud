@@ -161,6 +161,7 @@ define(function (require) {
         }, null, function(result) {
           if(_.undefined(result.error)) {
             $scope.refreshTopology(result.data);
+            $state.reload();
           }
         });
       };
@@ -256,6 +257,25 @@ define(function (require) {
             });
         });
       };
+
+
+      // Fetching topology validation status
+      var editedTopologyValidatorResource = $alresource('rest/latest/editor/:topologyId/isvalid');
+      function updateValidationDtos() {
+        //validate topology beeing edited
+        editedTopologyValidatorResource.create({
+          topologyId: $scope.topologyId
+        }, null, function (result) {
+          if (_.undefined(result.error)) {
+            $scope.editedTopologyIsValid = result.data.valid;
+          }
+        });
+      }
+      updateValidationDtos();
+      $scope.validateTopology = function() {
+
+      }
+
 
       // GIT PUSH FUNCTION
       //

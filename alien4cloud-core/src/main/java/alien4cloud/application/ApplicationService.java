@@ -21,9 +21,10 @@ import org.alien4cloud.alm.events.AfterApplicationDeleted;
 import org.alien4cloud.alm.events.BeforeApplicationDeleted;
 import org.alien4cloud.tosca.catalog.index.ArchiveImageLoader;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.elasticsearch.common.lang3.ArrayUtils;
-import org.elasticsearch.common.lang3.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 

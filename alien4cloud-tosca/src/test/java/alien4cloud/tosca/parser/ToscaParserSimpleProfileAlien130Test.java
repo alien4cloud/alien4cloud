@@ -41,7 +41,7 @@ import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.normative.constants.NormativeCapabilityTypes;
 import org.alien4cloud.tosca.normative.constants.NormativeCredentialConstant;
 import org.alien4cloud.tosca.normative.constants.NormativeTypesConstant;
-import org.elasticsearch.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -816,7 +816,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals("tosca.artifacts.Deployment.War", artifact.getArtifactType());
         assertNull(artifact.getRepositoryCredential());
         assertNull(artifact.getRepositoryName());
-        Assert.assertEquals(ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY, artifact.getArtifactRepository());
+        assertNull(artifact.getArtifactRepository());
 
         assertNull(artifact.getRepositoryURL());
 

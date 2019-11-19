@@ -7,10 +7,11 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -89,8 +90,8 @@ public class AuditService {
     }
 
     public FacetedSearchResult searchAuditTrace(String query, Map<String, String[]> filters, int from, int size) {
-        FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
-        return alienDAO.facetedSearch(AuditTrace.class, query, filters, authorizationFilter, null, from, size, "timestamp", true);
+        QueryBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
+        return alienDAO.facetedSearch(AuditTrace.class, query, filters, authorizationFilter, null, from, size, "timestamp", "long", true);
     }
 
     private String getRequestMappingMethod(RequestMapping requestMapping) {

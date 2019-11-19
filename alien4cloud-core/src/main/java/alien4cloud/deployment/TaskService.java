@@ -5,8 +5,8 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.model.runtime.Execution;
 import alien4cloud.model.runtime.Task;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -30,15 +30,16 @@ public class TaskService {
      * @return the tasks with pagination
      */
     public FacetedSearchResult<Task> searchTasks(String query, String executionId, int from, int size) {
-        FilterBuilder filterBuilder = buildFilters(executionId);
-        return alienDao.facetedSearch(Task.class, query, null, filterBuilder, null, from, size, "scheduleDate", true);
+        QueryBuilder filterBuilder = buildFilters(executionId);
+        return alienDao.facetedSearch(Task.class, query, null, filterBuilder, null, from, size, "scheduleDate", "date", true);
     }
 
-    private FilterBuilder buildFilters(String executionId) {
-        FilterBuilder filterBuilder = null;
+    private QueryBuilder buildFilters(String executionId) {
+        QueryBuilder filterBuilder = null;
         if (executionId != null) {
-            FilterBuilder filter = FilterBuilders.termFilter("executionId", executionId);
-            filterBuilder = filterBuilder == null ? filter : FilterBuilders.andFilter(filter, filterBuilder);
+            QueryBuilder filter = QueryBuilders.termQuery("executionId", executionId);
+            //filterBuilder = filterBuilder == null ? filter : QueryBuilders.andQuery(filter, filterBuilder);
+            filterBuilder = QueryBuilders.boolQuery().must(filter);
         }
         return filterBuilder;
     }

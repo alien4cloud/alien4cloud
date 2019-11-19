@@ -56,12 +56,12 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
     @Override
     public AbstractToscaType[] getArchiveTypes(String archiveName, String archiveVersion) {
         return searchDAO.buildQuery(AbstractToscaType.class).setFilters(fromKeyValueCouples("archiveName", archiveName, "archiveVersion", archiveVersion))
-                .prepareSearch().search(0, Integer.MAX_VALUE).getData();
+                .prepareSearch().search(0, 10000).getData();
     }
 
     @Override
     public <T extends AbstractToscaType> T find(Class<T> elementType, String elementId, String version) {
-        return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("rawElementId", elementId, "archiveVersion", version)).prepareSearch().find();
+ 	 return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("elementId.rawElementId", elementId, "archiveVersion", version)).prepareSearch().find();
     }
 
     public <T extends AbstractToscaType> T findByIdOrFail(Class<T> elementType, String toscaTypeId) {
@@ -83,7 +83,7 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
 
     @Override
     public <T extends AbstractToscaType> T findMostRecent(Class<T> elementType, String elementId) {
-        return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("rawElementId", elementId)).prepareSearch()
+        return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("elementId.rawElementId", elementId)).prepareSearch()
                 .alterSearchRequestBuilder(
                         searchRequestBuilder -> searchRequestBuilder.addSort(new FieldSortBuilder("nestedVersion.majorVersion").order(SortOrder.DESC))
                                 .addSort(new FieldSortBuilder("nestedVersion.minorVersion").order(SortOrder.DESC))
@@ -94,7 +94,7 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
 
     @Override
     public <T extends AbstractToscaType> T[] findAll(Class<T> elementType, String elementId) {
-        return searchDAO.buildQuery(elementType).setFilters(singleKeyFilter("rawElementId", elementId)).prepareSearch().search(0, Integer.MAX_VALUE).getData();
+        return searchDAO.buildQuery(elementType).setFilters(singleKeyFilter("elementId.rawElementId", elementId)).prepareSearch().search(0, 10000).getData();
     }
 
     /**
@@ -126,7 +126,7 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
         if (dependencies == null || dependencies.isEmpty()) {
             return false;
         }
-        return searchDAO.count(elementClass, getDependencyQuery(dependencies, "rawElementId", elementId)) > 0;
+        return searchDAO.count(elementClass, getDependencyQuery(dependencies, "elementId.rawElementId", elementId)) > 0;
     }
 
     private <T extends AbstractToscaType> T getLatestVersionOfElement(Class<T> elementClass, QueryBuilder queryBuilder) {
@@ -151,10 +151,10 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
 
     @Override
     public <T extends AbstractToscaType> T getElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies) {
-        if (dependencies == null || dependencies.isEmpty()) {
+        if (dependencies == null || dependencies.isEmpty() || (elementId == null)) {
             return null;
         }
-        BoolQueryBuilder boolQueryBuilder = getDependencyQuery(dependencies, "rawElementId", elementId);
+        BoolQueryBuilder boolQueryBuilder = getDependencyQuery(dependencies, "elementId.rawElementId", elementId);
         return getLatestVersionOfElement(elementClass, boolQueryBuilder);
     }
 
@@ -201,6 +201,6 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
 
     @Override
     protected String getAggregationField() {
-        return "rawElementId";
+        return "elementId.rawElementId";
     }
 }

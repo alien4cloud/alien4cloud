@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.FilterBuilder;
+//import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.elasticsearch.mapping.QueryHelper;
@@ -39,7 +39,9 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @param clazz The class for which to get the index.
      * @return The name of the index in which the class lies.
      */
-    String getIndexForType(Class<?> clazz);
+    String[] getIndexForType(Class<?> clazz);
+
+    List<String> getClassesToIndicesGroups(String clazz);
 
     /**
      * Count the number of objects in the index in which a given class lies. The result is not limited to the actual given type.
@@ -78,7 +80,7 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      */
     <T> T customFind(Class<T> clazz, QueryBuilder query);
 
-    <T> List<T> customFilterAll(Class<T> clazz, FilterBuilder query);
+    <T> List<T> customFilterAll(Class<T> clazz, QueryBuilder query);
 
     /**
      * Run a custom query on elastic search for the given class.
@@ -171,8 +173,8 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @return A {@link GetMultipleDataResult} instance that contains the result data. Empty instance if no data found.
      * @see IGenericSearchDAO#search(Class, String, Map, int)
      */
-    <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
-            int from, int maxElements, String fieldSort, boolean sortOrder);
+    <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter, String fetchContext,
+            int from, int maxElements, String fieldSort, String fieldType, boolean sortOrder);
 
     /**
      * Same as {@link IGenericSearchDAO#search(Class, String, Map, int)}, but with pagination supported.
@@ -187,7 +189,7 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @return A {@link GetMultipleDataResult} instance that contains the result data. Empty instance if no data found.
      * @see IGenericSearchDAO#search(Class, String, Map, int)
      */
-    <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
+    <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter, String fetchContext,
             int from, int maxElements);
 
     /**
@@ -219,7 +221,7 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @return A {@link GetMultipleDataResult} that contains the various elements to get.
      */
     GetMultipleDataResult<Object> search(String[] searchIndices, Class<?>[] classes, String searchText, Map<String, String[]> filters,
-            FilterBuilder customFilter, String fetchContext, int from, int maxElements);
+            QueryBuilder customFilter, String fetchContext, int from, int maxElements);
 
     /**
      * Search for data and get a list of facets if any are configured.
@@ -259,7 +261,7 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @return A {@link FacetedSearchResult} instance that contains the result data and associated facets. Empty instance if no data found.
      * @see IGenericSearchDAO#facetedSearch(Class, String, Map, int)
      */
-    <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
+    <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter, String fetchContext,
             int from, int maxElements);
 
     /**
@@ -277,8 +279,8 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @return A {@link FacetedSearchResult} instance that contains the result data and associated facets. Empty instance if no data found.
      * @see IGenericSearchDAO#facetedSearch(Class, String, Map, int)
      */
-    <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
-            int from, int maxElements, String fieldSort, boolean sortOrder);
+    <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter, String fetchContext,
+            int from, int maxElements, String fieldSort, String fieldType, boolean sortOrder);
 
     /**
      * Perform a suggestion search on a specific field.

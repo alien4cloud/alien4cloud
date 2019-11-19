@@ -3,11 +3,12 @@ package alien4cloud.dao;
 import java.util.Map;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
+//import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.elasticsearch.mapping.ISearchBuilderAdapter;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.mapping.QueryBuilderAdapter;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
 
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -72,7 +73,7 @@ public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T>
      * @param desc Descending or Ascending
      * @return this
      */
-    IESSearchQueryBuilderHelper<T> setFieldSort(String fieldName, boolean desc);
+    IESSearchQueryBuilderHelper<T> setFieldSort(String fieldName, String fieldType, boolean desc);
 
     /**
      * Add a fetch context to the query.
@@ -88,7 +89,7 @@ public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T>
      * @param topHitsBuilder The top hits aggregation builder on which to add fetch context include and excludes.
      * @return The search query builder helper with the top
      */
-    IESSearchQueryBuilderHelper<T> setFetchContext(String fetchContext, TopHitsBuilder topHitsBuilder);
+    IESSearchQueryBuilderHelper<T> setFetchContext(String fetchContext, TopHitsAggregationBuilder topHitsBuilder);
 
     @Override
     IESSearchQueryBuilderHelper<T> alterQueryBuilder(QueryBuilderAdapter queryBuilderAdapter);
@@ -97,13 +98,13 @@ public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T>
     IESSearchQueryBuilderHelper<T> setScriptFunction(String functionScore);
 
     @Override
-    IESSearchQueryBuilderHelper<T> setFilters(FilterBuilder... customFilter);
+    IESSearchQueryBuilderHelper<T> setFilters(QueryBuilder... customFilter);
 
     @Override
-    IESSearchQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, FilterBuilder... customFilters);
+    IESSearchQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, QueryBuilder... customFilters);
 
     @Override
     IESSearchQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, Map<String, FilterValuesStrategy> filterStrategies,
-            FilterBuilder... customFilters);
+            QueryBuilder... customFilters);
 
 }

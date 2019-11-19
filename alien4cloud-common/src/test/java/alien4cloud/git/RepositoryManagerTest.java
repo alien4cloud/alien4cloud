@@ -2,6 +2,17 @@ package alien4cloud.git;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -21,6 +32,30 @@ public class RepositoryManagerTest {
         RepositoryManager.create(localGitPath, null);
 
         FileUtil.delete(remoteGitPath);
+/*******************************
+ProxySelector.setDefault(new ProxySelector() {
+    final ProxySelector delegate = ProxySelector.getDefault();
+
+    @Override
+    public List<Proxy> select(URI uri) {
+		try {
+            return Arrays.asList(new Proxy(Proxy.Type.HTTP, new InetSocketAddress
+                    (InetAddress.getByName("193.56.47.20"), 8080)));
+		} catch (UnknownHostException e) {
+	        return delegate == null ? Arrays.asList(Proxy.NO_PROXY)
+                : delegate.select(uri);
+		}
+    }
+
+    @Override
+    public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+        if (uri == null || sa == null || ioe == null) {
+            throw new IllegalArgumentException(
+                    "Arguments can't be null.");
+        }
+    }
+});
+*********************/
     }
 
     @Test

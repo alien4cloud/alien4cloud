@@ -4,8 +4,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.apache.lucene.search.join.ScoreMode;
+
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -152,28 +155,33 @@ public final class AuthorizationUtil {
      * Add a filter that check for authorizations on resources
      * Takes also in account the ALL_USER group
      */
-    public static FilterBuilder getResourceAuthorizationFilters() {
+    public static QueryBuilder getResourceAuthorizationFilters() {
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Role.ADMIN.toString()))) {
             return null;
         }
 
-        FilterBuilder filterBuilder;
+        BoolQueryBuilder filterBuilder;
         User user = (User) auth.getPrincipal();
         if (user.getGroups() != null && !user.getGroups().isEmpty()) {
-            filterBuilder = FilterBuilders.boolFilter()
-                    .should(FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName())))
-                    .should(FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", user.getGroups().toArray())));
+            filterBuilder = QueryBuilders.boolQuery()
+                    .should(QueryBuilders.nestedQuery("userRoles", QueryBuilders.termQuery("userRoles.key", auth.getName()), ScoreMode.None))
+                    .should(QueryBuilders.nestedQuery("groupRoles", QueryBuilders.termsQuery("groupRoles.key", user.getGroups().toArray()), ScoreMode.None));
         } else {
-            filterBuilder = FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName()));
+            filterBuilder = QueryBuilders.boolQuery()
+                    .should(QueryBuilders.nestedQuery("userRoles", QueryBuilders.termQuery("userRoles.key", auth.getName()), ScoreMode.None));
         }
         Group group = getAllUsersGroup();
         if (group != null) {
             String groupId = group.getId();
             // add ALL_USERS group as OR filter
-            filterBuilder = FilterBuilders.orFilter(filterBuilder,
-                    FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", groupId)));
+/****
+            filterBuilder = QueryBuilders.orQuery(filterBuilder,
+**********/
+            filterBuilder = filterBuilder.should(
+                    QueryBuilders.nestedQuery("groupRoles", QueryBuilders.termsQuery("groupRoles.key", groupId), ScoreMode.None));
+           
         }
         return filterBuilder;
     }

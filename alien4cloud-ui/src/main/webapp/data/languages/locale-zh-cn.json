@@ -7,7 +7,9 @@
     "EXECUTION" : {
       "HISTORY" : {
         "DESCRIPTION" : "List of executions"
-      }
+      },
+      "CANCEL": "Cancel execution",
+      "CANCEL_CONFIRM": "Are you sure to cancel this execution ?"
     },
     "DEPLOYMENT" : {
       "HISTORY" : {
@@ -281,6 +283,7 @@
           "MISSING" : "必须的属性"
         },
         "TOADD_RELATIONSHIP_LABEL" : "没有被满足的要求（应添加关系）",
+        "VALIDATION_ALERT" : "Invalid topology",
         "VALIDATION_FAILED" : "最新保存的拓扑不是有效的，请到拓扑编辑器获取更多信息。",
         "VALIDATION_SUCCESS" : "最新保存的拓扑是有效的。",
         "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "目前的拓扑是有效的。",
@@ -539,7 +542,8 @@
           "SUCCEEDED" : "Succeeded",
           "FAILED" : "Failed",
           "RUNNING" : "Running",
-          "CANCELLED" : "Cancelled"
+          "CANCELLED" : "Cancelled",
+          "CANCELLING" : "Cancelling"
         }
       }
     },
@@ -889,6 +893,10 @@
     "375" : {
       "MESSAGE" : "尝试扩展时，提供商发生错误。",
       "TITLE" : "插件错误"
+    },
+    "376" : {
+      "MESSAGE" : "Error while cancelling execution {{executionId}}.",
+      "TITLE" : "The execution cancellation has failed"
     },
     "390" : "禁止删除最后一个管理员用户。",
     "391" : "禁止删除最后一个管理员用户的ADMIN角色。",

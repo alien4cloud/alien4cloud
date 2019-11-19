@@ -20,7 +20,7 @@ public class SecretProviderRegistry extends AbstractPluginLinker<ISecretProvider
 
     @Override
     public List<PluginUsage> usage(String pluginId) {
-        GetMultipleDataResult<Location> locationData = alienDAO.buildQuery(Location.class).prepareSearch().search(0, Integer.MAX_VALUE);
+        GetMultipleDataResult<Location> locationData = alienDAO.buildQuery(Location.class).prepareSearch().search(0, 10000);
 
         List<PluginUsage> usages = Lists.newArrayList();
         for (Location location : locationData.getData()) {

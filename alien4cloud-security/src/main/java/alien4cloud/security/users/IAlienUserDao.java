@@ -3,7 +3,7 @@ package alien4cloud.security.users;
 import java.util.List;
 import java.util.Map;
 
-import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -69,5 +69,5 @@ public interface IAlienUserDao {
      * @param size maximum amount of {@link User} to be returned.*
      * @param customFilter a customized filter.
      */
-    GetMultipleDataResult<User> find(String searchQuery, int from, int size, FilterBuilder customFilter);
+    GetMultipleDataResult<User> find(String searchQuery, int from, int size, QueryBuilder customFilter);
 }

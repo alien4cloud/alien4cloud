@@ -2,6 +2,7 @@ package alien4cloud.it;
 
 import java.beans.IntrospectionException;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -12,9 +13,10 @@ import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.node.NodeBuilder;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ClassPathResource;
@@ -114,9 +116,19 @@ public class Context {
 
     public static Client getEsClientInstance() {
         if (ES_CLIENT_INSTANCE == null) {
-            Settings settings = ImmutableSettings.settingsBuilder().put("discovery.zen.ping.multicast.enabled", false)
+/***
+            Settings settings = Settings.settingsBuilder().put("discovery.zen.ping.multicast.enabled", false)
                     .put("discovery.zen.ping.unicast.hosts", ES_HOST).put("discovery.zen.ping.unicast.enabled", true).build();
             ES_CLIENT_INSTANCE = NodeBuilder.nodeBuilder().client(true).clusterName(ES_CLUSTER).local(false).settings(settings).node().client();
+***/
+            Settings settings = Settings.builder()
+                .put("transport.type", "netty4")
+                .put("cluster.name", ES_CLUSTER)
+                .build();
+            TransportClient transportClient = new PreBuiltTransportClient(settings);
+            transportClient.addTransportAddress(new TransportAddress(new InetSocketAddress(ES_HOST, 9300)));
+
+            ES_CLIENT_INSTANCE = transportClient;
         }
         return ES_CLIENT_INSTANCE;
     }

@@ -7,7 +7,9 @@
     "EXECUTION" : {
       "HISTORY" : {
         "DESCRIPTION" : "List of executions"
-      }
+      },
+      "CANCEL": "Cancel execution",
+      "CANCEL_CONFIRM": "Are you sure to cancel this execution ?"
     },
     "DEPLOYMENT" : {
       "HISTORY" : {
@@ -281,6 +283,7 @@
           "MISSING" : "必須プロパティ"
         },
         "TOADD_RELATIONSHIP_LABEL" : "要求不足 (関連を追加する必要あり)",
+        "VALIDATION_ALERT" : "Invalid topology",
         "VALIDATION_FAILED" : "The last saved topology is not valid, go to the topology editor for more informations.",
         "VALIDATION_SUCCESS" : "The last saved topology is valid.",
         "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "The current topology is valid.",
@@ -539,7 +542,8 @@
           "SUCCEEDED" : "Succeeded",
           "FAILED" : "Failed",
           "RUNNING" : "Running",
-          "CANCELLED" : "Cancelled"
+          "CANCELLED" : "Cancelled",
+          "CANCELLING" : "Cancelling"
         }
       }
     },
@@ -889,6 +893,10 @@
     "375" : {
       "MESSAGE" : "Error occurred on provider when trying to scale.",
       "TITLE" : "Plugin error"
+    },
+    "376" : {
+      "MESSAGE" : "Error while cancelling execution {{executionId}}.",
+      "TITLE" : "The execution cancellation has failed"
     },
     "390" : "It's forbidden to remove the last admin user.",
     "391" : "It's forbidden to remove the ADMIN role of the last admin user.",

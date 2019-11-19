@@ -22,7 +22,7 @@ public class TopologyModifierPluginLinker extends AbstractPluginLinker<ITopology
     @Override
     public List<PluginUsage> usage(String pluginId) {
         // Get all modifiers associated with a location
-        GetMultipleDataResult<Location> locationData = alienDAO.buildQuery(Location.class).prepareSearch().search(0, Integer.MAX_VALUE);
+        GetMultipleDataResult<Location> locationData = alienDAO.buildQuery(Location.class).prepareSearch().search(0, 10000);
 
         List<PluginUsage> usages = Lists.newArrayList();
         for (Location location : locationData.getData()) {

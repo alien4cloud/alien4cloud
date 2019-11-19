@@ -8,7 +8,7 @@ import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 
 import com.google.common.base.Splitter;

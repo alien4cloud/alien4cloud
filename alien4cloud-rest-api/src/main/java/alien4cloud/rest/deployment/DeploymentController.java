@@ -2,6 +2,7 @@ package alien4cloud.rest.deployment;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
+import static alien4cloud.dao.ESIndexMapper.TYPE_NAME;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.ResponseUtil;
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -35,7 +36,7 @@ import io.swagger.annotations.Authorization;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.action.get.MultiGetResponse;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
@@ -296,7 +297,8 @@ public class DeploymentController {
     public JsonRawRestResponse getByIds(@RequestBody String[] deploymentIds) {
         // Check topology status for this deployment object
         MultiGetResponse response = alienDAO.getClient().prepareMultiGet()
-                .add(alienDAO.getIndexForType(Deployment.class), MappingBuilder.indexTypeFromClass(Deployment.class), deploymentIds).get();
+                //.add(alienDAO.getIndexForType(Deployment.class), MappingBuilder.indexTypeFromClass(Deployment.class), deploymentIds).get();
+                .add(MappingBuilder.indexTypeFromClass(Deployment.class), TYPE_NAME, deploymentIds).get();
         JsonRawRestResponse restResponse = new JsonRawRestResponse();
         restResponse.setData(ResponseUtil.rawMultipleData(response));
         return restResponse;

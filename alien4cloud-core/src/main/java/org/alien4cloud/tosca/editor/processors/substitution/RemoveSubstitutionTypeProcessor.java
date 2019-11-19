@@ -10,8 +10,8 @@ import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -56,8 +56,13 @@ public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcess
     private boolean hasArchiveUsing(String archiveName, String archiveVersion) {
         // FilterBuilders.boolFilter().mustNot(FilterBuilders.boolFilter().must()
         // .must());
-        FilterBuilder notThisArchiveFilter = FilterBuilders
-                .notFilter(FilterBuilders.andFilter(FilterBuilders.termFilter("name", archiveName), FilterBuilders.termFilter("version", archiveVersion)));
+        QueryBuilder notThisArchiveFilter = QueryBuilders
+                //.notQuery(QueryBuilders.andQuery(QueryBuilders.termQuery("name", archiveName), QueryBuilders.termQuery("version", archiveVersion)));
+               .boolQuery()
+               .mustNot (
+                 QueryBuilders.boolQuery()
+                     .must(QueryBuilders.termQuery("name", archiveName))
+                     .must(QueryBuilders.termQuery("version", archiveVersion)));
 
         return alienDAO.buildQuery(Csar.class)
                 .setFilters(fromKeyValueCouples("dependencies.name", archiveName, "dependencies.version", archiveVersion), notThisArchiveFilter).count() > 0;

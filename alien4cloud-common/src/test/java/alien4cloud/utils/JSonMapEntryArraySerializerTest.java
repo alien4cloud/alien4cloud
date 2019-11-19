@@ -5,7 +5,7 @@ import java.util.Map;
 
 import lombok.*;
 
-import org.elasticsearch.common.collect.Maps;
+import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Test;
 

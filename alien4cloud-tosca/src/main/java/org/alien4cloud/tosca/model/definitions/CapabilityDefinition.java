@@ -3,8 +3,10 @@ package org.alien4cloud.tosca.model.definitions;
 import java.util.Map;
 
 import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.query.TermsFacet;
+import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -34,6 +36,7 @@ public class CapabilityDefinition implements UpperBoundedDefinition {
     private String description;
     /** Identifies the type of the capability. */
     @FormSuggestion(fromClass = CapabilityType.class, path = "elementId")
+    @StringField(indexType = IndexType.analyzed)
     private String type;
 
     /**
@@ -50,6 +53,7 @@ public class CapabilityDefinition implements UpperBoundedDefinition {
     private Map<String, AbstractPropertyValue> properties;
 
     @TermsFacet
+    @StringField(indexType = IndexType.not_analyzed)
     private String[] validSources;
 
     /** Constructor for single line parsing definition based on type. */

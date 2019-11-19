@@ -14,8 +14,8 @@ import alien4cloud.model.runtime.*;
 import alien4cloud.paas.model.*;
 import lombok.extern.slf4j.Slf4j;
 
-import org.elasticsearch.common.collect.Maps;
-import org.elasticsearch.common.lang3.StringUtils;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

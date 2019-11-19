@@ -13,7 +13,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
@@ -38,11 +38,11 @@ public abstract class AbstractToscaIndexSearchService<T> {
     protected IGenericSearchDAO alienDAO;
 
     public FacetedSearchResult search(Class<? extends T> clazz, String query, Integer size, Map<String, String[]> filters) {
-        TopHitsBuilder topHitAggregation = AggregationBuilders.topHits("highest_version").setSize(1)
-                .addSort(new FieldSortBuilder("nestedVersion.majorVersion").order(SortOrder.DESC))
-                .addSort(new FieldSortBuilder("nestedVersion.minorVersion").order(SortOrder.DESC))
-                .addSort(new FieldSortBuilder("nestedVersion.incrementalVersion").order(SortOrder.DESC))
-                .addSort(new FieldSortBuilder("nestedVersion.qualifier").order(SortOrder.DESC).missing("_first"));
+        TopHitsAggregationBuilder topHitAggregation = AggregationBuilders.topHits("highest_version").size(1)
+                .sort(new FieldSortBuilder("nestedVersion.majorVersion").order(SortOrder.DESC))
+                .sort(new FieldSortBuilder("nestedVersion.minorVersion").order(SortOrder.DESC))
+                .sort(new FieldSortBuilder("nestedVersion.incrementalVersion").order(SortOrder.DESC))
+                .sort(new FieldSortBuilder("nestedVersion.qualifier").order(SortOrder.DESC).missing("_first"));
 
         AggregationBuilder aggregation = AggregationBuilders.terms("query_aggregation").field(getAggregationField()).size(size)
                 .subAggregation(topHitAggregation);
@@ -67,9 +67,11 @@ public abstract class AbstractToscaIndexSearchService<T> {
                         for (Terms.Bucket bucket : safe(((Terms) aggregation).getBuckets())) {
                             TopHits topHits = bucket.getAggregations().get("highest_version");
                             for (SearchHit hit : topHits.getHits()) {
-                                resultTypes.add(hit.getType());
+                                //resultTypes.add(hit.getType());
+                                resultTypes.add(hit.getIndex());
                                 resultData.add(
-                                        objectMapper.readValue(hit.getSourceAsString(), ((Function<String, Class>) getClassFromType).apply(hit.getType())));
+                                        //objectMapper.readValue(hit.getSourceAsString(), ((Function<String, Class>) getClassFromType).apply(hit.getType())));
+                                        objectMapper.readValue(hit.getSourceAsString(), ((Function<String, Class>) getClassFromType).apply(hit.getIndex())));
                             }
                         }
 

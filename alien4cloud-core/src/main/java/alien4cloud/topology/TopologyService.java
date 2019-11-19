@@ -37,7 +37,7 @@ import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.alien4cloud.tosca.utils.TopologyUtils.RelationshipEntry;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.springframework.stereotype.Service;
 

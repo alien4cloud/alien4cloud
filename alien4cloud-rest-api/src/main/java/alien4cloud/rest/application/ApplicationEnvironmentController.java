@@ -19,7 +19,8 @@ import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConf
 import org.alien4cloud.alm.deployment.configuration.services.DeploymentConfigurationDao;
 import org.alien4cloud.tosca.model.Csar;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.index.query.FilterBuilder;
+
+import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -149,7 +150,7 @@ public class ApplicationEnvironmentController {
     }
 
     private GetMultipleDataResult<ApplicationEnvironment> searchAuthorizedEnvironments(String applicationId, FilteredSearchRequest searchRequest) {
-        FilterBuilder authorizationFilter = getEnvironmentAuthorizationFilters(applicationId);
+        QueryBuilder authorizationFilter = getEnvironmentAuthorizationFilters(applicationId);
         Map<String, String[]> applicationEnvironmentFilters = getApplicationEnvironmentFilters(applicationId);
         return alienDAO.search(ApplicationEnvironment.class, searchRequest.getQuery(), applicationEnvironmentFilters, authorizationFilter, null,
                 searchRequest.getFrom(), searchRequest.getSize());
@@ -164,7 +165,7 @@ public class ApplicationEnvironmentController {
         return searchResultDTO;
     }
 
-    private FilterBuilder getEnvironmentAuthorizationFilters(String applicationId) {
+    private QueryBuilder getEnvironmentAuthorizationFilters(String applicationId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
         if (AuthorizationUtil.hasAuthorizationForApplication(application)) {
             return null;

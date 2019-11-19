@@ -7,7 +7,9 @@
     "EXECUTION" : {
       "HISTORY" : {
         "DESCRIPTION" : "Liste des exécutions"
-      }
+      },
+      "CANCEL": "Annuler l'exécution",
+      "CANCEL_CONFIRM": "Êtes-vous sûr d'annuler cette exécution ?"
     },
     "DEPLOYMENT" : {
       "HISTORY" : {
@@ -281,6 +283,7 @@
           "MISSING" : "Propriété obligatoire"
         },
         "TOADD_RELATIONSHIP_LABEL" : "Prérequis non statisfaits (ajoutez un lien)",
+        "VALIDATION_ALERT" : "Topology non valide",
         "VALIDATION_FAILED" : "La dernière topologie enregistrée n'est pas valide, aller dans l'éditeur de topology pour plus d'informations.",
         "VALIDATION_SUCCESS" : "La dernière topologie enregistrée est valide.",
         "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "La topologie en cours d'édition est valide.",
@@ -541,7 +544,8 @@
           "SUCCEEDED" : "Succès",
           "FAILED" : "Echec",
           "RUNNING" : "En cours",
-          "CANCELLED" : "Annulée"
+          "CANCELLED" : "Annulée",
+          "CANCELLING" : "Annulation"
         }
       }
     },
@@ -891,6 +895,10 @@
     "375" : {
       "MESSAGE" : "L'orchestrateur a rencontré une erreur lors de l'opération de redimensionnement.",
       "TITLE" : "Erreur du plugin"
+    },
+    "376" : {
+      "MESSAGE" : "Erreur lors de l'annulation de l'execution {{executionId}}.",
+      "TITLE" : "L'annulation de l'execution a echoué"
     },
     "390" : "Il est interdit de supprimer le dernier utilisateur ayant les droits d'administration.",
     "391" : "Il est interdit de supprimer le role ADMIN du dernier utilisateur ayant les droits d'administration.",
