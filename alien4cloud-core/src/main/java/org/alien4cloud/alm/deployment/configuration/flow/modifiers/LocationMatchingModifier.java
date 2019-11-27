@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
@@ -18,9 +21,6 @@ import org.alien4cloud.secret.services.SecretProviderService;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.deployment.matching.services.location.LocationMatchingService;

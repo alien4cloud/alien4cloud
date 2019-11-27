@@ -29,4 +29,7 @@ public class DeploymentSubstitutionConfiguration {
 
     @ApiModelProperty(value = "Location resources types contain types for the templates.")
     private LocationResourceTypes substitutionTypes;
+
+    @ApiModelProperty(value = "Map of abstract policies or nodes entities related to each others in such way they have to be in the same location.")
+    private Map<String, Set<String>> relatedAbstractEntities;
 }

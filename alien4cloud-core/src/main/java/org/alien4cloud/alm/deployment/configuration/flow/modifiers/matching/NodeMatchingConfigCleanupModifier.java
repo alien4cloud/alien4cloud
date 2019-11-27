@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -12,14 +13,14 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 /**
  * This modifier cleanup the user matching configuration in case it is not valid anymore based on the choices available (that must be fetched from prior
  * NodeMatchingCandidateModifier execution).
- * 
+ *
  * It does not update topology or matching configurations, these operations are done in sub-sequent modifiers.
  */
 @Component
 public class NodeMatchingConfigCleanupModifier extends AbstractMatchingConfigCleanupModifier<LocationResourceTemplate> {
 
     @Override
-    protected Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
+    protected Map<String, ResourceMatching> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedLocationResources();
     }
 

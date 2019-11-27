@@ -5,15 +5,18 @@ import java.util.Set;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
+
+import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 
 public class SetMatchedNodeModifier extends AbstractSetMatchedModifier {
 
-    public SetMatchedNodeModifier(String nodeId, String locationResourceTemplateId) {
-        super(nodeId, locationResourceTemplateId);
+    public SetMatchedNodeModifier(String nodeId, String locationResourceTemplateId, ILocationResourceService locationResourceService) {
+        super(nodeId, locationResourceTemplateId, locationResourceService);
     }
 
     @Override
-    Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
+    Map<String, ResourceMatching> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedLocationResources();
     }
 

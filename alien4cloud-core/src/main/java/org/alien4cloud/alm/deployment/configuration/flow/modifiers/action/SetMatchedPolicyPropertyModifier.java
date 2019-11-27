@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.PolicyType;
@@ -24,7 +25,7 @@ public class SetMatchedPolicyPropertyModifier extends AbstractSetMatchedProperty
     }
 
     @Override
-    Map<String, String> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
+    Map<String, ResourceMatching> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedPolicies();
     }
 

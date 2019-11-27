@@ -6,9 +6,13 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.alm.service.ServiceResourceService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -16,9 +20,6 @@ import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.springframework.context.annotation.Lazy;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import alien4cloud.model.orchestrators.locations.AbstractLocationResourceTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
@@ -61,7 +62,7 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
 
         DeploymentMatchingConfiguration matchingConfiguration = configurationOptional.get();
 
-        Map<String, String> lastUserSubstitutions = getUserMatches(matchingConfiguration);
+        Map<String, ResourceMatching> lastUserSubstitutions = getUserMatches(matchingConfiguration);
         Map<String, V> matchesById = getMatchesById(context);
 
         Map<String, T> topologyTemplateMap = getTopologyTemplates(topology);
@@ -69,10 +70,10 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
         Map<String, T> originalTemplates = Maps.newHashMap();
         Map<String, T> replacedTemplates = Maps.newHashMap();
         // Now modify the topology to replace nodes with the one selected during matching
-        for (Map.Entry<String, String> substitutedNodeEntry : lastUserSubstitutions.entrySet()) {
+        for (Map.Entry<String, ResourceMatching> substitutedNodeEntry : lastUserSubstitutions.entrySet()) {
             // Substitute the node template of the topology by those matched
             String templateId = substitutedNodeEntry.getKey();
-            String matchedLocationResourceId = substitutedNodeEntry.getValue();
+            String matchedLocationResourceId = substitutedNodeEntry.getValue().getResourceId();
             originalTemplates.put(templateId, topologyTemplateMap.get(templateId));
             processReplacement(topology, topologyTemplateMap, matchesById, templateId, matchedLocationResourceId);
             replacedTemplates.put(templateId, topologyTemplateMap.get(templateId));
@@ -124,7 +125,7 @@ public abstract class AbstractMatchingReplaceModifier<T extends AbstractTemplate
 
     protected abstract Map<String, V> getMatchesById(FlowExecutionContext context);
 
-    protected abstract Map<String, String> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration);
+    protected abstract Map<String, ResourceMatching> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration);
 
     protected abstract Map<String, T> getTopologyTemplates(Topology topology);
 

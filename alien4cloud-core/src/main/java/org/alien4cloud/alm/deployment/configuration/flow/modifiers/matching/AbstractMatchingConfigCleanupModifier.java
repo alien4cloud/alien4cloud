@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.model.templates.Topology;
 
 import alien4cloud.model.orchestrators.locations.AbstractLocationResourceTemplate;
@@ -30,14 +31,14 @@ public abstract class AbstractMatchingConfigCleanupModifier<T extends AbstractLo
 
         DeploymentMatchingConfiguration matchingConfiguration = configurationOptional.get();
 
-        Map<String, String> lastUserMatches = getLastUserMatches(matchingConfiguration);
+        Map<String, ResourceMatching> lastUserMatches = getLastUserMatches(matchingConfiguration);
         Map<String, List<T>> availableMatches = getAvailableMatches(context);
 
         // Last user defined matching choices may not be valid anymore so clean up
         // When the user has removed some mapped nodes from the topology the previous substitution configuration still exits.
-        Iterator<Entry<String, String>> lastUserSubstitutionsIterator = lastUserMatches.entrySet().iterator();
+        Iterator<Entry<String, ResourceMatching>> lastUserSubstitutionsIterator = lastUserMatches.entrySet().iterator();
         while (lastUserSubstitutionsIterator.hasNext()) {
-            Map.Entry<String, String> entry = lastUserSubstitutionsIterator.next();
+            Map.Entry<String, ResourceMatching> entry = lastUserSubstitutionsIterator.next();
             // The node is still in the topology but we have to check that the existing substitution value is still a valid option.
             List<T> availableSubstitutionsForPolicy = availableMatches.get(entry.getKey());
             if (availableSubstitutionsForPolicy == null) {
@@ -52,13 +53,13 @@ public abstract class AbstractMatchingConfigCleanupModifier<T extends AbstractLo
         }
     }
 
-    protected abstract Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration);
+    protected abstract Map<String, ResourceMatching> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration);
 
     protected abstract Map<String, List<T>> getAvailableMatches(FlowExecutionContext context);
 
-    private boolean contains(List<T> availableSubstitutionsForPolicy, String subtitutionId) {
+    private boolean contains(List<T> availableSubstitutionsForPolicy, ResourceMatching subtitution) {
         for (T availableSubstitutionForNode : availableSubstitutionsForPolicy) {
-            if (availableSubstitutionForNode.getId().equals(subtitutionId)) {
+            if (availableSubstitutionForNode.getId().equals(subtitution.getResourceId())) {
                 return true;
             }
         }

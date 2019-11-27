@@ -10,9 +10,12 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.model.templates.Topology;
 
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.orchestrators.locations.AbstractLocationResourceTemplate;
+import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.topology.task.LocationPolicyTask;
 import lombok.Getter;
 
@@ -27,9 +30,12 @@ public abstract class AbstractSetMatchedModifier implements ITopologyModifier {
     @Getter
     private boolean executed = false;
 
-    public AbstractSetMatchedModifier(String templateId, String resourceTemplateId) {
+    private ILocationResourceService locationResourceService;
+
+    public AbstractSetMatchedModifier(String templateId, String resourceTemplateId, ILocationResourceService locationResourceService) {
         this.templateId = templateId;
         this.resourceTemplateId = resourceTemplateId;
+        this.locationResourceService = locationResourceService;
     }
 
     @Override
@@ -44,14 +50,15 @@ public abstract class AbstractSetMatchedModifier implements ITopologyModifier {
         }
 
         DeploymentMatchingConfiguration matchingConfiguration = configurationOptional.get();
-        Map<String, String> lastUserSubstitutions = getLastUserMatches(matchingConfiguration);
+        Map<String, ResourceMatching> lastUserSubstitutions = getLastUserMatches(matchingConfiguration);
         Map<String, Set<String>> templateIdToAvailableSubstitutions = getAvailableSubstitutions(context);
 
         // Check the provided resourceTemplate is a valid substitution match and update matching configuration
         Set<String> availableSubstitutions = templateIdToAvailableSubstitutions.get(templateId);
         if (safe(availableSubstitutions).contains(resourceTemplateId)) {
-            lastUserSubstitutions.put(templateId, resourceTemplateId);
+            lastUserSubstitutions.put(templateId, new ResourceMatching(resourceTemplateId,false));
             context.saveConfiguration(matchingConfiguration);
+            checkDependEntities(context, matchingConfiguration);
             return;
         }
 
@@ -59,7 +66,31 @@ public abstract class AbstractSetMatchedModifier implements ITopologyModifier {
                 "Requested substitution <" + resourceTemplateId + "> for " + getSubject() + " <" + templateId + "> is not available as a match.");
     }
 
-    abstract Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration);
+    private void checkDependEntities(FlowExecutionContext context,
+            DeploymentMatchingConfiguration matchingConfiguration) {
+        AbstractLocationResourceTemplate<?> selectedLocRes = locationResourceService.getOrFail(this.resourceTemplateId);
+        matchingConfiguration.getRelatedMatchedEntities().get(this.templateId).forEach(e -> {
+
+            checkDependResourceMatching(matchingConfiguration.getMatchedLocationResources(), selectedLocRes, e);
+            checkDependResourceMatching(matchingConfiguration.getMatchedPolicies(), selectedLocRes, e);
+        });
+    }
+
+    private void checkDependResourceMatching(Map<String, ResourceMatching> locMatching,
+            AbstractLocationResourceTemplate<?> selectedLocRes, String e) {
+        if (locMatching.containsKey(e)) {
+            ResourceMatching rm = locMatching.get(e);
+            if (!rm.isAutomaticMatching()) {
+                AbstractLocationResourceTemplate<?> depLocRes = locationResourceService.getOrFail(rm.getResourceId());
+                if (!depLocRes.getLocationId().equals(selectedLocRes)) {
+                    // Remove user defined matching and let auto-matching apply in next steps
+                    locMatching.remove(e);
+                }
+            }
+        }
+    }
+
+    abstract Map<String, ResourceMatching> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration);
 
     abstract Map<String, Set<String>> getAvailableSubstitutions(FlowExecutionContext context);
 

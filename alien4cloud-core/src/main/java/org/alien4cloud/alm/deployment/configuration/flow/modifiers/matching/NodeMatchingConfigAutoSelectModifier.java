@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -12,24 +13,14 @@ import alien4cloud.topology.task.AbstractTask;
 
 /**
  * This node matching modifier is responsible for automatic selection of location resources that are not yet selected by the user.
- * 
+ *
  * It does not update topology or matching configurations, these operations are done in sub-sequent modifiers.
  */
 @Component
 public class NodeMatchingConfigAutoSelectModifier extends AbstractMatchingConfigAutoSelectModifier<LocationResourceTemplate> {
 
     @Override
-    protected String getResourceTemplateByTemplateIdCacheKey() {
-        return FlowExecutionContext.SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP;
-    }
-
-    @Override
-    protected String getResourceTemplateByIdMapCacheKey() {
-        return FlowExecutionContext.MATCHED_NODE_LOCATION_TEMPLATES_BY_ID_MAP;
-    }
-
-    @Override
-    protected Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
+    protected Map<String, ResourceMatching> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedLocationResources();
     }
 

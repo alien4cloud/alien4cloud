@@ -5,18 +5,21 @@ import java.util.Set;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
+
+import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 
 /**
  * MatchingModifier for {@link org.alien4cloud.tosca.model.templates.PolicyTemplate}
  */
 public class SetMatchedPolicyModifier extends AbstractSetMatchedModifier {
 
-    public SetMatchedPolicyModifier(String policyId, String policyLocationResourceTemplateId) {
-        super(policyId, policyLocationResourceTemplateId);
+    public SetMatchedPolicyModifier(String policyId, String policyLocationResourceTemplateId, ILocationResourceService locationResourceService) {
+        super(policyId, policyLocationResourceTemplateId, locationResourceService);
     }
 
     @Override
-    Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
+    Map<String, ResourceMatching> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedPolicies();
     }
 

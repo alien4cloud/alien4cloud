@@ -4,9 +4,8 @@ import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,12 +18,18 @@ import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.Id;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -33,19 +38,11 @@ import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
 import org.elasticsearch.mapping.ElasticSearchClient;
-import org.elasticsearch.mapping.FieldsMappingBuilder;;
+import org.elasticsearch.mapping.FieldsMappingBuilder;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.elasticsearch.util.MapUtil;
-
-import org.elasticsearch.annotation.ESObject;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import org.springframework.beans.factory.annotation.Value;
 
-import org.elasticsearch.annotation.Id;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -148,7 +145,7 @@ public abstract class ESIndexMapper {
     /**
      * Create if not exist indices.
      * A TTL can be defined for all indices under this index (ESearch TTL notation)
-     * 
+     *
      * @param indexName The index to initialize
      * @param classes An array of classes to map to this index.
      */
@@ -164,7 +161,7 @@ public abstract class ESIndexMapper {
        for (Class<?> clazz : classes) {
              String typeName = addToMappedClasses(indexName, clazz);
 
-             if ( (ttl != null) && 
+             if ( (ttl != null) &&
                   !Modifier.isAbstract(clazz.getModifiers()) &&
                   clazz.isAnnotationPresent(ESObject.class)) {
                 String ts = (new FieldsMappingBuilder()).getTimeStamp(clazz);
@@ -188,7 +185,7 @@ public abstract class ESIndexMapper {
 
                 continue;
              }
-             if (Modifier.isAbstract(clazz.getModifiers()) || 
+             if (Modifier.isAbstract(clazz.getModifiers()) ||
                  !clazz.isAnnotationPresent(ESObject.class)) {
                  continue; // no mapping to register for abstract classes.
              }
@@ -248,7 +245,7 @@ public abstract class ESIndexMapper {
 
     /**
      * Add the alien score field for each type in the map.
-     * 
+     *
      * @param typesMap The type map.
      */
     public static void addAlienScore(Map<String, Object> typesMap) {
@@ -429,6 +426,6 @@ public abstract class ESIndexMapper {
           this.field = field;
           this.ttl = ttl;
        }
-    } 
+    }
 
 }

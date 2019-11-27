@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Maps;
+
 import org.alien4cloud.alm.deployment.configuration.events.OnDeploymentConfigCopyEvent;
 import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
@@ -20,17 +22,17 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.Poli
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.PolicyMatchingConfigAutoSelectModifier;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Maps;
-
 import alien4cloud.application.ApplicationService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.topology.TopologyServiceCore;
 
 /**
@@ -48,6 +50,8 @@ public class PolicyMatchingSubstitutionService {
     private TopologyServiceCore topologyServiceCore;
     @Inject
     private ApplicationService applicationService;
+    @Inject
+    private ILocationResourceService locationResourceService;
 
     /**
      * Execute the deployment flow with a modification of changing the substitution for one of the nodes.
@@ -67,7 +71,7 @@ public class PolicyMatchingSubstitutionService {
 
         // add a modifier that will actually perform the configuration of a substitution from user request (after cleanup and prior to node matching
         // auto-selection).
-        SetMatchedPolicyModifier setMatchedPolicyModifier = new SetMatchedPolicyModifier(nodeId, resourceTemplateId);
+        SetMatchedPolicyModifier setMatchedPolicyModifier = new SetMatchedPolicyModifier(nodeId, resourceTemplateId, locationResourceService);
         List<ITopologyModifier> modifierList = getModifierListWithSelectionAction(setMatchedPolicyModifier);
 
         flowExecutor.execute(topology, modifierList, executionContext);
@@ -86,7 +90,7 @@ public class PolicyMatchingSubstitutionService {
                         "Unexpected exception in deployment flow to update node substitution; unable to find the master node matching modifier to inject selection action modifier."));
 
         // inject the SetMatchedNodeModifier into the nodeMatchingModifiers, just after policyMatchingConfigAutoSelectModifier
-        matchingModifier.addModifierAfter(matchedModifier, policyMatchingConfigAutoSelectModifier);
+        matchingModifier.addModifierBefore(matchedModifier, policyMatchingConfigAutoSelectModifier);
         return modifierList;
     }
 
@@ -119,7 +123,7 @@ public class PolicyMatchingSubstitutionService {
                     .get(FlowExecutionContext.SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP);
 
             // Update the substitution on the target if available substitution is always compatible
-            Map<String, String> validOnNewEnvSubstitutedNodes = safe(sourceConfiguration.getMatchedLocationResources()).entrySet().stream()
+            Map<String, ResourceMatching> validOnNewEnvSubstitutedNodes = safe(sourceConfiguration.getMatchedLocationResources()).entrySet().stream()
                     .filter(entry -> locResTemplateIdsPerNodeIds.containsKey(entry.getKey())
                             && locResTemplateIdsPerNodeIds.get(entry.getKey()).contains(entry.getValue()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

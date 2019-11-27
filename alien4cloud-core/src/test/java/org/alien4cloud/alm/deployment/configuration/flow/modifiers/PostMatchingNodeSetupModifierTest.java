@@ -7,11 +7,15 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionLog;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodeCapabilitiesPropsOverride;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodePropsOverride;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -34,9 +38,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.tosca.context.ToscaContext;
@@ -110,7 +111,7 @@ public class PostMatchingNodeSetupModifierTest {
             DeploymentMatchingConfiguration matchingConfiguration = new DeploymentMatchingConfiguration();
 
             matchingConfiguration.setMatchedLocationResources(Maps.newHashMap());
-            matchingConfiguration.getMatchedLocationResources().put("my_node", "a_location_resource");
+            matchingConfiguration.getMatchedLocationResources().put("my_node", new ResourceMatching("a_location_resource", false));
 
             NodePropsOverride nodePropsOverride = new NodePropsOverride();
             nodePropsOverride.getProperties().put("common_property", new ScalarPropertyValue("p_val"));

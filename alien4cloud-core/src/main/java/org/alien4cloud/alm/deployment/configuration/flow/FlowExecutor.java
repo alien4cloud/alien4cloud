@@ -5,6 +5,8 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import com.google.common.collect.Lists;
+
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.CfyMultirelationshipErrorModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.EditorTopologyValidator;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhaseModifiersExecutor;
@@ -19,6 +21,7 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputA
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputValidationModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputsModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.PreconfiguredInputsModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.ComputeMatchingElementsDependenciesModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingCandidateModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingCompositeModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
@@ -32,8 +35,6 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.Poli
 import org.alien4cloud.alm.deployment.configuration.services.DeploymentConfigurationDao;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
 
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -119,6 +120,9 @@ public class FlowExecutor {
     @Inject
     private PreDeploymentTopologyValidator preDeploymentTopologyValidator;
 
+    @Inject
+    private ComputeMatchingElementsDependenciesModifier computeMatchingElementsDependenciesModifier;
+
     private List<ITopologyModifier> topologyModifiers;
 
     @PostConstruct
@@ -162,6 +166,7 @@ public class FlowExecutor {
         // Process validation of constraints, and that no required inputs are missing
         topologyModifiers.add(inputValidationModifier);
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_INJECT_INPUT));
+        topologyModifiers.add(computeMatchingElementsDependenciesModifier);
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_POLICY_MATCH));
         topologyModifiers.add(new PolicyMatchingCompositeModifier(policyMatchingCandidateModifier, // Find candidate matches.
                 policyMatchingConfigCleanupModifier, // cleanup configuriton in case some matches are not valid anymore.

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodePropsOverride;
+import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.PolicyType;
@@ -19,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PostMatchingPolicySetupModifier extends AbstractPostMatchingSetupModifier<PolicyType, PolicyTemplate> {
 
     @Override
-    Map<String, String> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
+    Map<String, ResourceMatching> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedPolicies();
     }
 
