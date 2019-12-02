@@ -1,7 +1,10 @@
 package alien4cloud.deployment;
 
+import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.common.MetaPropertyTarget;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.deployment.DeploymentUnprocessedTopology;
@@ -14,6 +17,7 @@ import alien4cloud.utils.MapUtil;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.SettableFuture;
 import lombok.SneakyThrows;
+import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Service;
@@ -42,6 +46,12 @@ public class DeploymentRuntimeStateService {
     @Inject
     private DeploymentLockService deploymentLockService;
 
+    @Inject
+    private ArchiveIndexer archiveIndexer;
+
+    @Inject
+    private MetaPropertiesService metaPropertiesService;
+
     /**
      * Get the deployed (runtime) topology of an application from the environment id
      *
@@ -60,7 +70,10 @@ public class DeploymentRuntimeStateService {
      * @return
      */
     public DeploymentTopology getRuntimeTopology(String deploymentId) {
-        return alienMonitorDao.findById(DeploymentTopology.class, deploymentId);
+        DeploymentTopology deploymentTopology = alienMonitorDao.findById(DeploymentTopology.class, deploymentId);
+        Map<String, MetaPropConfiguration> metapropsNames = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.TOPOLOGY);
+        archiveIndexer.feedA4CMetaproperties(deploymentTopology, deploymentTopology.getTags(), metapropsNames);
+        return deploymentTopology;
     }
 
     public Topology getUnprocessedTopology(String deploymentId) {
