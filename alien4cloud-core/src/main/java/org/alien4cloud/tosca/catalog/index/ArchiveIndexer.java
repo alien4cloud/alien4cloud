@@ -389,7 +389,7 @@ public class ArchiveIndexer {
         }
     }
 
-    private void feedA4CMetaproperties(IMetaProperties newElement, List<Tag> tags, Map<String, MetaPropConfiguration> metapropsByNames) {
+    public void feedA4CMetaproperties(IMetaProperties newElement, List<Tag> tags, Map<String, MetaPropConfiguration> metapropsByNames) {
         if (tags == null) {
             return;
         }
@@ -410,7 +410,7 @@ public class ArchiveIndexer {
                     // validate tag value using meta prop constraints
                     try {
                         ConstraintPropertyService.checkPropertyConstraint(metaPropConfig.getId(), tag.getValue(), metaPropConfig);
-                        metaProperties.put(metaPropConfig.getId(), tag.getValue());
+                        metaProperties.put(metaPropConfig.getName(), tag.getValue());
                         tagIterator.remove();
                     } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
                         // TODO: manage error
