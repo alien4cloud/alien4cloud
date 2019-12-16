@@ -42,6 +42,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.utils.MetaPropertyFeeder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -72,11 +73,6 @@ import static alien4cloud.utils.AlienUtils.safe;
 @Component
 public class ArchiveIndexer {
 
-    /**
-     * If this prefix is found in TOSCA metadata name, A4C will try to find and feed the corresponding meta-property for NodeType.
-     */
-    public static final String A4C_METAPROPERTY_PREFIX = "A4C_META_";
-
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
@@ -103,6 +99,8 @@ public class ArchiveIndexer {
     private IArchiveIndexerAuthorizationFilter archiveIndexerAuthorizationFilter;
     @Inject
     private MetaPropertiesService metaPropertiesService;
+    @Inject
+    private MetaPropertyFeeder metaFeeder;
 
     @Value("${features.archive_indexer_lock_used_archive:#{true}}")
     private boolean lockUsedArchive;
@@ -150,7 +148,7 @@ public class ArchiveIndexer {
         if (csar.getYamlFilePath() == null) {
             csar.setYamlFilePath("topology.yml");
         }
-        String yaml = exportService.getYaml(csar, topology);
+        String yaml = exportService.getYaml(csar, topology,false,csar.getToscaDefinitionsVersion(),metaFeeder.buildContext());
 
         // synch the dependencies before indexing
         csar.setDependencies(topology.getDependencies());
@@ -286,7 +284,7 @@ public class ArchiveIndexer {
 
     private void manageTopologyMetaproperties(Topology topology) {
         Map<String, MetaPropConfiguration> metapropsNames = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.TOPOLOGY);
-        feedA4CMetaproperties(topology, topology.getTags(), metapropsNames);
+        metaFeeder.feed(topology, topology.getTags(), metapropsNames);
     }
 
     private void indexTopology(final ArchiveRoot archiveRoot, List<ParsingError> parsingErrors, String archiveName, String archiveVersion) {
@@ -389,41 +387,6 @@ public class ArchiveIndexer {
         }
     }
 
-    private void feedA4CMetaproperties(IMetaProperties newElement, List<Tag> tags, Map<String, MetaPropConfiguration> metapropsByNames) {
-        if (tags == null) {
-            return;
-        }
-        Map<String, String> metaProperties = newElement.getMetaProperties();
-        if (metaProperties == null) {
-            metaProperties = Maps.newHashMap();
-            newElement.setMetaProperties(metaProperties);
-        }
-        Set<String> tagsToRemove = Sets.newHashSet();
-
-        Iterator<Tag> tagIterator = tags.iterator();
-        while (tagIterator.hasNext()) {
-            Tag tag = tagIterator.next();
-            if (tag.getName().startsWith(A4C_METAPROPERTY_PREFIX)) {
-                String metapropertyName = tag.getName().substring(A4C_METAPROPERTY_PREFIX.length());
-                MetaPropConfiguration metaPropConfig = metapropsByNames.get(metapropertyName);
-                if (metaPropConfig != null) {
-                    // validate tag value using meta prop constraints
-                    try {
-                        ConstraintPropertyService.checkPropertyConstraint(metaPropConfig.getId(), tag.getValue(), metaPropConfig);
-                        metaProperties.put(metaPropConfig.getId(), tag.getValue());
-                        tagIterator.remove();
-                    } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                        // TODO: manage error
-                        // for the moment the error is ignored, but the meta-property is not set and the
-                        // tag not removed, so the user can easily guess that something gone wrong ...
-                    } catch (ConstraintViolationException e) {
-                        // TODO: manage error
-                    }
-                }
-            }
-        }
-    }
-
     private void updateComponentMetaProperties(Map<String, NodeType> newElements, Map<String, AbstractToscaType> previousElements, Map<String, MetaPropConfiguration> metapropsNames) {
         if (newElements == null) {
             return;
@@ -432,7 +395,7 @@ public class ArchiveIndexer {
 //        Map<String, MetaPropConfiguration> metapropsNames = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.COMPONENT);
 
         for (NodeType newElement : newElements.values()) {
-            feedA4CMetaproperties(newElement, newElement.getTags(), metapropsNames);
+            metaFeeder.feed(newElement, newElement.getTags(), metapropsNames);
             // now copy meta props from previous type if exists
             Map<String, String> metaProperties = newElement.getMetaProperties();
             if (metaProperties == null) {
@@ -466,7 +429,7 @@ public class ArchiveIndexer {
         indexerService.indexInheritableElements(root.getArtifactTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getCapabilityTypes(), root.getArchive().getDependencies());
         root.getNodeTypes().forEach((id, nodeType) -> {
-            feedA4CMetaproperties(nodeType, nodeType.getTags(), metapropsNames); }
+            metaFeeder.feed(nodeType, nodeType.getTags(), metapropsNames); }
         );
         indexerService.indexInheritableElements(root.getNodeTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getRelationshipTypes(), root.getArchive().getDependencies());
