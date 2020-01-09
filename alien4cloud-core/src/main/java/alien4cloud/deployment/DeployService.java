@@ -135,7 +135,12 @@ public class DeployService {
             setUsedServicesResourcesIds(deploymentTopology, deployment);
             alienDao.save(deployment);
             // publish an event for the eventual managed service
-            eventPublisher.publishEvent(new DeploymentCreatedEvent(this, deployment.getId()));
+            try {
+               eventPublisher.publishEvent(new DeploymentCreatedEvent(this, deployment.getId()));
+            } catch (Exception e) {
+               alienDao.delete(Deployment.class, deployment.getId());
+               throw e;
+            }
 
             PaaSTopologyDeploymentContext deploymentContext = saveDeploymentTopologyAndGenerateDeploymentContext(secretProviderCredentials, deploymentTopology,
                     deployment, locations);
