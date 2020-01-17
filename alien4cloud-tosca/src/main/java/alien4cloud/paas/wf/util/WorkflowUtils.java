@@ -204,19 +204,25 @@ public class WorkflowUtils {
     }
 
     public static String debugWorkflow(Workflow wf) {
+        return debugWorkflow(wf, true);
+    }
+
+    public static String debugWorkflow(Workflow wf, boolean clusterCompute) {
         StringBuilder stringBuilder = new StringBuilder("\n ======> Paste the folowing graph in http://www.webgraphviz.com/  !!\n");
         int subgraphCount = 0;
         stringBuilder.append("\ndigraph ").append(wf.getName()).append(" {");
         stringBuilder.append("\n  node [shape=box];");
-        for (String host : wf.getHosts()) {
-            stringBuilder.append("\n  subgraph cluster_").append(++subgraphCount).append(" {");
-            stringBuilder.append("\n    label = \"").append(host).append("\";\n    color=blue;");
-            for (WorkflowStep step : wf.getSteps().values()) {
-                if (step instanceof NodeWorkflowStep && host.equals(((NodeWorkflowStep) step).getHostId())) {
-                    stringBuilder.append("\n    \"").append(step.getName()).append("\";");
+        if (clusterCompute) {
+            for (String host : wf.getHosts()) {
+                stringBuilder.append("\n  subgraph cluster_").append(++subgraphCount).append(" {");
+                stringBuilder.append("\n    label = \"").append(host).append("\";\n    color=blue;");
+                for (WorkflowStep step : wf.getSteps().values()) {
+                    if (step instanceof NodeWorkflowStep && host.equals(((NodeWorkflowStep) step).getHostId())) {
+                        stringBuilder.append("\n    \"").append(step.getName()).append("\";");
+                    }
                 }
+                stringBuilder.append("\n  }\n");
             }
-            stringBuilder.append("\n  }\n");
         }
         for (WorkflowStep step : wf.getSteps().values()) {
             if (step.getOnSuccess() != null) {
