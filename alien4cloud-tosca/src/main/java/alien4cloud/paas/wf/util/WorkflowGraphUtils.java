@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.alien4cloud.tosca.model.definitions.Interface;
@@ -34,12 +35,59 @@ import alien4cloud.utils.AlienUtils;
 
 public class WorkflowGraphUtils {
 
-    /**
-     * Build the paths of the graph starting from the entry points (steps without predecessors, so connected to 'start').
-     * <p>
-     * Will also detect orphans brothers in the entire graph (cycles not connected to start).
-     */
+    private enum Color { WHITE, GRAY, BLACK};
+
     public static List<Path> getWorkflowGraphCycles(Workflow workflow) {
+        List<Path> cycles = new ArrayList<>();
+
+        Map<String,Color> colors = workflow.getSteps().keySet().stream().collect(Collectors.toMap(Function.identity(),x -> Color.WHITE));
+
+        Path path = new Path();
+
+        for (WorkflowStep step : workflow.getSteps().values()) {
+            if (colors.get(step.getName()) == Color.WHITE) {
+                if (doGetWorkflowGraphCycles(workflow,step,colors,path) == true) {
+                    cycles.add(path);
+                    return cycles;
+                }
+            }
+        }
+
+        return cycles;
+    }
+
+    private static boolean doGetWorkflowGraphCycles(Workflow workflow,WorkflowStep step,Map<String,Color> colors,Path path) {
+        colors.put(step.getName(),Color.GRAY);
+
+        path.add(step);
+
+        for (String stepName : step.getOnSuccess()) {
+                WorkflowStep nextStep = workflow.getSteps().get(stepName);
+
+                if (colors.get(stepName) == Color.GRAY) {
+                    path.setCycle(true);
+                    path.setLoopingStep(nextStep);
+                    return true;
+                }
+
+                if (colors.get(stepName) == Color.WHITE && doGetWorkflowGraphCycles(workflow,nextStep,colors,path)  == true) {
+                    return true;
+                }
+        }
+
+        path.remove(step);
+
+        colors.put(step.getName(),Color.BLACK);
+
+        return false;
+    }
+
+        /**
+         * Build the paths of the graph starting from the entry points (steps without predecessors, so connected to 'start').
+         * <p>
+         * Will also detect orphans brothers in the entire graph (cycles not connected to start).
+         */
+    public static List<Path> getOldWorkflowGraphCycles(Workflow workflow) {
         SubGraph subGraph = new SubGraph(workflow, stepId -> true);
         List<Path> cycles = new ArrayList<>();
         subGraph.browse(new SimpleGraphConsumer() {
