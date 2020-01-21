@@ -21,6 +21,7 @@ import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkfl
 import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
@@ -56,6 +57,9 @@ public class WorkflowsBuilderService {
     private WorkflowSimplifyService workflowSimplifyService;
 
     private Map<String, DefaultDeclarativeWorkflows> defaultDeclarativeWorkflowsPerDslVersion;
+
+    @Value("${features.auto_simplify_workflows:#{true}}")
+    private boolean autoSimplifyWorkflows;
 
     private DefaultDeclarativeWorkflows loadDefaultDeclarativeWorkflow(String configName) throws IOException {
         return YamlParserUtil.parse(DefaultDeclarativeWorkflows.class.getClassLoader().getResourceAsStream(configName), DefaultDeclarativeWorkflows.class);
@@ -111,7 +115,9 @@ public class WorkflowsBuilderService {
     	// Put aside the original workflow
     	whiteList.forEach(name -> topologyContext.getTopology().getUnprocessedWorkflows().put(name, WorkflowUtils.cloneWorkflow(topologyContext.getTopology().getWorkflow(name))));
     	// Simplify workflow
-        workflowSimplifyService.simplifyWorkflow(topologyContext, whiteList);
+        if (autoSimplifyWorkflows) {
+            workflowSimplifyService.simplifyWorkflow(topologyContext, whiteList);
+        }
         whiteList.forEach(name -> workflowValidator.validate(topologyContext, topologyContext.getTopology().getWorkflow(name)));
         debugWorkflow(topologyContext.getTopology());
     }
