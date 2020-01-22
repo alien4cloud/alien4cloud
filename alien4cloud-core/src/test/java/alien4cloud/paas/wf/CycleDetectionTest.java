@@ -82,7 +82,6 @@ public class CycleDetectionTest extends AbstractValidationTest<CycleDetection> {
      * </pre>
      */
     @Test
-    @Ignore // FIXME: this cycle is no more detected
     public void testOrphanCycle() {
         WorkflowStep a = wf.addStep(new SimpleStep("a"));
         WorkflowStep b = wf.addStep(new SimpleStep("b"));
