@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
@@ -32,35 +34,66 @@ import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.model.Path;
 import alien4cloud.utils.AlienUtils;
 
+@Slf4j
 public class WorkflowGraphUtils {
 
+    private enum Color { WHITE, GRAY, BLACK};
+
     /**
-     * Build the paths of the graph starting from the entry points (steps without predecessors, so connected to 'start').
-     * <p>
-     * Will also detect orphans brothers in the entire graph (cycles not connected to start).
+     * Detect oriented graph cycles using Depth First Traversal approach. Will fail fast and return the first cycle found.
+     *
+     * Cf. https://www.geeksforgeeks.org/detect-cycle-direct-graph-using-colors/
+     *
+     * @param workflow
+     * @return
      */
     public static List<Path> getWorkflowGraphCycles(Workflow workflow) {
-        SubGraph subGraph = new SubGraph(workflow, stepId -> true);
+        if (log.isDebugEnabled()) {
+            log.debug("Using Depth First Traversal to detect cycle in the oriented graph of workflow {}", workflow.getName());
+        }
+
         List<Path> cycles = new ArrayList<>();
-        subGraph.browse(new SimpleGraphConsumer() {
-            @Override
-            public boolean onNewPath(List<WorkflowStep> path) {
-                if (path.size() > 1) {
-                    Path parentPath = new Path(path.subList(0, path.size() - 1));
-                    WorkflowStep currentStep = path.get(path.size() - 1);
-                    if (parentPath.contains(currentStep)) {
-                        Path cycle = new Path(path);
-                        cycle.setCycle(true);
-                        cycle.setLoopingStep(currentStep);
-                        cycles.add(cycle);
-                        // abort so that do not run into loop
-                        return false;
-                    }
+
+        Map<String,Color> colors = workflow.getSteps().keySet().stream().collect(Collectors.toMap(Function.identity(),x -> Color.WHITE));
+
+        Path path = new Path();
+
+        for (WorkflowStep step : workflow.getSteps().values()) {
+            if (colors.get(step.getName()) == Color.WHITE) {
+                if (doGetWorkflowGraphCycles(workflow,step,colors,path) == true) {
+                    cycles.add(path);
+                    return cycles;
                 }
+            }
+        }
+
+        return cycles;
+    }
+
+    private static boolean doGetWorkflowGraphCycles(Workflow workflow, WorkflowStep step, Map<String, Color> colors, Path path) {
+        colors.put(step.getName(), Color.GRAY);
+
+        path.add(step);
+
+        for (String stepName : step.getOnSuccess()) {
+            WorkflowStep nextStep = workflow.getSteps().get(stepName);
+
+            if (colors.get(stepName) == Color.GRAY) {
+                path.setCycle(true);
+                path.setLoopingStep(nextStep);
                 return true;
             }
-        });
-        return cycles;
+
+            if (colors.get(stepName) == Color.WHITE && doGetWorkflowGraphCycles(workflow, nextStep, colors, path) == true) {
+                return true;
+            }
+        }
+
+        path.remove(step);
+
+        colors.put(step.getName(), Color.BLACK);
+
+        return false;
     }
 
     public static String getConcernedNodeName(WorkflowStep stepFound, Topology topology) {
