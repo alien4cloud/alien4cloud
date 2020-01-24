@@ -67,7 +67,7 @@ define(function (require) {
           return {
             url: 'rest/latest/orchestrators/:orchestratorId/locations/:locationId/security/' + subject + '/search',
             useParams: true,
-            params: _.clone(params, true)
+            params: _.cloneDeep(params)
           };
         };
 

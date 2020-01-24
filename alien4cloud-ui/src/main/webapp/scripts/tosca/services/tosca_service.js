@@ -203,7 +203,7 @@ define(function (require) {
             var validTarget = requestedTypes[i];
             if(candidateTypeName === validTarget ||
               (_.defined(typesMap[candidateTypeName]) &&
-                _.contains(typesMap[candidateTypeName].derivedFrom, validTarget))) {
+                _.includes(typesMap[candidateTypeName].derivedFrom, validTarget))) {
               return true;
             }
           }

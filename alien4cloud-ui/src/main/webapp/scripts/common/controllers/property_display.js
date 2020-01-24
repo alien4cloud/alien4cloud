@@ -126,7 +126,7 @@ define(function(require) {
           data = null;
         }
 
-        if (!force && !_.isEmpty($scope.definitionObject) && _.eq($scope.definitionObject.uiValue, data) && _.eq($scope.definitionObject.uiUnit, unit)) {
+        if (!force && !_.isEmpty($scope.definitionObject) && _.isEqual($scope.definitionObject.uiValue, data) && _.isEqual($scope.definitionObject.uiUnit, unit)) {
           return;
         }
 

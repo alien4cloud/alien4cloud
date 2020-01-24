@@ -56,7 +56,7 @@ define(function (require) {
         },
         isMemberOf: function(nodeName, groupId) {
           if (this.scope.selectedNodeTemplate) {
-            return _.contains(this.scope.selectedNodeTemplate.groups, groupId);
+            return _.includes(this.scope.selectedNodeTemplate.groups, groupId);
           }
         },
         create: function(nodeName) {

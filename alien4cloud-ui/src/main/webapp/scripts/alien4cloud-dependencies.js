@@ -3,7 +3,7 @@ define(function (require) {
 
 
   require('jquery');
-  require('bower_components/jquery-ui/ui/resizable');
+  require('bower_components/jquery-ui/ui/widgets/resizable');
   require('lodash-base');
   require('angular');
   require('angular-cookies');

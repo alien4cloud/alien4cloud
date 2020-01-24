@@ -130,7 +130,7 @@ define(function (require) {
           return;
         }
 
-        var clone = _.clone($scope.newAttribute, true);
+        var clone = _.cloneDeep($scope.newAttribute);
         $scope.selectedNodeType.attributesFromUser.push(clone);
         $scope.selectedNodeType.attributes.push(clone);
         $scope.selectedService.nodeInstance.attributeValues[clone.key] = clone.value.value;
@@ -149,7 +149,7 @@ define(function (require) {
       $scope.userAttributesKeys = [];
       function setSelectedTypesToScope() {
         $scope.selectedNodeType = $scope.selectedService.uiNodeType;
-        $scope.selectedNodeType.propertiesMap = _.indexBy($scope.selectedNodeType.properties, 'key');
+        $scope.selectedNodeType.propertiesMap = _.keyBy($scope.selectedNodeType.properties, 'key');
         // model attributes: $scope.selectedService.nodeInstance.nodeTemplate.attributes
         // model + user attributes: $scope.selectedService.nodeInstance.attributeValues
 

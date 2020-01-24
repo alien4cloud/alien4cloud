@@ -26,7 +26,7 @@ define(function (require) {
           return _.map(scope.resourcesTypes, function (res) {
             return _.assign(
               _.pick(res, 'elementId', 'archiveName', 'archiveVersion', 'id'),
-              {'provided': _.contains(provided, res.elementId)}
+              {'provided': _.includes(provided, res.elementId)}
             );
           });
         }

@@ -28,7 +28,7 @@ define(function(require) {
               var resourceType = res.data;
 
               // Compute properties map and update scope right after getting the resource type.
-              resourceType.propertiesMap = _.indexBy(resourceType.properties, 'key');
+              resourceType.propertiesMap = _.keyBy(resourceType.properties, 'key');
               $scope.resourcesTypesMap[typeId] = resourceType;
               $scope.resourcesTypes.push(resourceType);
               $scope.resourcesTemplates.push(response.data.resourceTemplate);

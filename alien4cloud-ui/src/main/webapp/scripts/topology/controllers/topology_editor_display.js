@@ -72,8 +72,8 @@ define(function (require) {
         // display given elements and hide others except keepDisplays if active
         displayOnly: function(displays, keepDisplays) {
           _.each(this.scope.displays, function(display, displayName) {
-            if(!_.contains(keepDisplays, displayName)) {
-              display.active = _.contains(displays, displayName);
+            if(!_.includes(keepDisplays, displayName)) {
+              display.active = _.includes(displays, displayName);
             }
           });
         },

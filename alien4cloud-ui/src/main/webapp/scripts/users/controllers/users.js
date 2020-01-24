@@ -89,7 +89,7 @@ define(function (require) {
         if (invalid) {
           return;
         }
-        if (_.contains(user.groups, groupId)) {
+        if (_.includes(user.groups, groupId)) {
           groupServices.removeUser([], {
             username: user.username,
             groupId: groupId

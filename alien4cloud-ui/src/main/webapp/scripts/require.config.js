@@ -16,7 +16,7 @@ require.config({
     // dependencies loading file (used to package all dependencies).
     'a4c-dependencies': 'scripts/alien4cloud-dependencies',
     // bower_components
-    'lodash-base': 'bower_components/lodash/lodash.min',
+    'lodash-base': 'bower_components/lodash/dist/lodash.min',
     'jquery': 'bower_components/jquery/dist/jquery.min',
     'angular': 'bower_components/angular/angular.min',
     'angular-cookies': 'bower_components/angular-cookies/angular-cookies.min',
@@ -51,7 +51,7 @@ require.config({
     'd3-pie': 'bower_components/d3pie/d3pie/d3pie.min',
     'dagre': 'bower_components/dagre/dist/dagre.core.min',
     'graphlib': 'bower_components/graphlib/dist/graphlib.core.min',
-    'js-yaml': 'bower_components/js-yaml/js-yaml.min',
+    'js-yaml': 'bower_components/js-yaml/dist/js-yaml.min',
     'clipboard' : 'bower_components/clipboard/dist/clipboard.min',
   },
   shim: {

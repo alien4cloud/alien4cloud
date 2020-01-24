@@ -109,7 +109,7 @@ define(function (require) {
           // update existing nodes
           nodeSelection.each(function(node) {
             var nodeGroup = d3.select(this);
-            nodeGroup.classed('node-hidden', function(){ return !_.isEmpty(selectedNodeNames) && !_.contains(selectedNodeNames, node.template.name); });
+            nodeGroup.classed('node-hidden', function(){ return !_.isEmpty(selectedNodeNames) && !_.includes(selectedNodeNames, node.template.name); });
           });
 
           // Update link selection

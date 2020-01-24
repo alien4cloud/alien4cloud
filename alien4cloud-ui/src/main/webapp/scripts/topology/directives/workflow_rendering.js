@@ -99,7 +99,7 @@ define(function (require) {
                 pinnedStyle: 'stroke: black; stroke-width: 5px;',
                 marker: 'arrow-standard'
               };
-              if (errorRenderingData.cycles[from] && _.contains(errorRenderingData.cycles[from], to)) {
+              if (errorRenderingData.cycles[from] && _.includes(errorRenderingData.cycles[from], to)) {
                 // the edge is in a cycle, make it red
                 style = {
                   lineInterpolate: 'basis',

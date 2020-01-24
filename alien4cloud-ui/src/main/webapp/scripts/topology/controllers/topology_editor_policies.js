@@ -67,7 +67,7 @@ define(function (require) {
           var self = this;
           this.edit.targetSuggestions = [];
           _.each(this.scope.topology.topology.nodeTemplates, function(nodeTemplate) {
-            if(!_.contains(self.selectedTemplate.targets, nodeTemplate.name)) {
+            if(!_.includes(self.selectedTemplate.targets, nodeTemplate.name)) {
               self.edit.targetSuggestions.push(nodeTemplate.name);
             }
           });

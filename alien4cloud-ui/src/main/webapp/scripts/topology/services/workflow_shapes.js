@@ -84,14 +84,14 @@ define(function (require) {
             icon = parent.append('text').attr('class', 'fa').attr('x', x + w - 22).attr('y', y + 16).text(scope.workflows.getStepActivityTypeIcon(step));
           }
           if (shortActivityType === 'CallOperationWorkflowActivity') {
-            parent.append('text').attr('class', 'wfOperationLabel').attr('y', y + h - 10).text(_.trunc(step.activities[0].operationName, {'length': 10})).style('text-anchor', 'middle');
+            parent.append('text').attr('class', 'wfOperationLabel').attr('y', y + h - 10).text(_.truncate(step.activities[0].operationName, {'length': 10})).style('text-anchor', 'middle');
           } else if (shortActivityType === 'DelegateWorkflowActivity') {
-            parent.append('text').attr('class', 'wfDelegateLabel').attr('fill', '#7A7A52').attr('y', y + h - 10).text(_.trunc(step.activities[0].workflowName, {'length': 10})).style('text-anchor', 'middle');
+            parent.append('text').attr('class', 'wfDelegateLabel').attr('fill', '#7A7A52').attr('y', y + h - 10).text(_.truncate(step.activities[0].workflowName, {'length': 10})).style('text-anchor', 'middle');
           } else if (shortActivityType === 'SetStateWorkflowActivity' && !simpleView) {
-            parent.append('text').attr('class', 'wfStateLabel').attr('fill', '#003399').attr('y', y + h - 8).text(_.trunc(step.activities[0].stateName, {'length': 13})).style('text-anchor', 'middle');
+            parent.append('text').attr('class', 'wfStateLabel').attr('fill', '#003399').attr('y', y + h - 8).text(_.truncate(step.activities[0].stateName, {'length': 13})).style('text-anchor', 'middle');
             iconSize = 16;
           } else if (!simpleView) {
-            parent.append('text').attr('class', 'wfDelegateLabel').attr('fill', '#7A7A52').attr('y', y + h - 10).text(_.trunc(step.activities[0].inline, {'length': 10})).style('text-anchor', 'middle');
+            parent.append('text').attr('class', 'wfDelegateLabel').attr('fill', '#7A7A52').attr('y', y + h - 10).text(_.truncate(step.activities[0].inline, {'length': 10})).style('text-anchor', 'middle');
           }
           if (nodeType && nodeType.tags && !simpleView) {
             var nodeIcon = toscaService.getIcon(nodeType.tags);

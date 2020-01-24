@@ -48,7 +48,7 @@ define(function(require) {
                   var p = componentService.getInArchives(capability.type, 'CAPABILITY_TYPE', response.data.newDependencies)
                     .then(function (res) {
                       var capabilityType = res.data.data;
-                      capabilityType.propertiesMap = _.indexBy(capabilityType.properties, 'key');
+                      capabilityType.propertiesMap = _.keyBy(capabilityType.properties, 'key');
                       $scope.context.locationResources.capabilityTypes[capability.type] = capabilityType;
                     });
                   promises.push(p);
@@ -64,7 +64,7 @@ define(function(require) {
               });
 
               // Compute properties map and update scope right after getting the resource type.
-              resourceType.propertiesMap = _.indexBy(resourceType.properties, 'key');
+              resourceType.propertiesMap = _.keyBy(resourceType.properties, 'key');
               $scope.resourcesTypesMap[typeId] = resourceType;
               $scope.resourcesTypes.push(resourceType);
               $scope.resourcesTemplates.push(response.data.resourceTemplate);

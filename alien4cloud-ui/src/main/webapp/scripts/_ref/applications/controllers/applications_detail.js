@@ -46,7 +46,7 @@ define(function (require) {
             }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
               _.each(result.data.data, function(version) {
                 // sort the variant versions by qualifier
-                version.topologyVersions = _.zipObject(_.sortBy(_.pairs(version.topologyVersions), function(variantArr) {
+                version.topologyVersions = _.fromPairs(_.sortBy(_.pairs(version.topologyVersions), function(variantArr) {
                     return variantArr[1].qualifier ? variantArr[1].qualifier : '';
                   }));
               });

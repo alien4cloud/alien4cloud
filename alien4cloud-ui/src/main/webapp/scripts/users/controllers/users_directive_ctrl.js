@@ -82,7 +82,7 @@ define(function (require) {
       };
 
       $scope.checkIfAppGroupSelected = function(user, group) {
-        return _.contains(user.groups, group);
+        return _.includes(user.groups, group);
       };
 
       //check if a env role is selected for a user
@@ -103,7 +103,7 @@ define(function (require) {
       };
 
       $scope.checkIfEnvGroupSelected = function(user, group) {
-        return _.contains(user.groups, group);
+        return _.includes(user.groups, group);
       };
 
       $scope.$watch('managedAppRoleList', function(newVal) {
@@ -142,7 +142,7 @@ define(function (require) {
         }
         var filteredGroups = [];
         for (var int = 0; int < groups.length; int++) {
-          if (!_.contains(user.groups, groups[int].name)) {
+          if (!_.includes(user.groups, groups[int].name)) {
             filteredGroups.push(groups[int]);
           }
         }
