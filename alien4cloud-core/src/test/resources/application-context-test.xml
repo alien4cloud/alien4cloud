@@ -52,6 +52,7 @@
     </context:component-scan>
 
     <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory"/>
+    <bean id="metaFeeder" class="org.alien4cloud.tosca.utils.MetaPropertyFeeder"/>
     <bean id="alienconfig" factory-bean="alienconfigFactory" factory-method="get"/>
     <alias name="alienconfig" alias="elasticsearchConfig"/>
     <context:property-placeholder properties-ref="alienconfig"/>

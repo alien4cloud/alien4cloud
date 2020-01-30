@@ -3,10 +3,14 @@ package org.alien4cloud.tosca.editor.services;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.common.MetaPropertiesService;
+import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.common.MetaPropertyTarget;
 import org.alien4cloud.tosca.catalog.ArchiveParserUtil;
 import org.alien4cloud.tosca.catalog.IArchivePostProcessor;
 import org.alien4cloud.tosca.editor.EditionContextManager;
@@ -16,6 +20,7 @@ import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.workflow.Workflow;
+import org.alien4cloud.tosca.utils.MetaPropertyFeeder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +44,10 @@ public class EditorTopologyUploadService {
     private IArchivePostProcessor postProcessor;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
+    @Inject
+    private MetaPropertiesService metaPropertiesService;
+    @Inject
+    private MetaPropertyFeeder metaFeeder;
 
     public void processTopologyDir(Path archivePath, String workspace) {
         // parse the archive.
@@ -95,6 +104,10 @@ public class EditorTopologyUploadService {
 
         // Copy static elements from the topology
         parsedTopology.setId(currentTopology.getId());
+
+        Map<String, MetaPropConfiguration> metapropsNames = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.TOPOLOGY);
+        metaFeeder.feed(parsedTopology, parsedTopology.getTags(), metapropsNames);
+
         // Update editor tosca context
         ToscaContext.get().resetDependencies(parsedTopology.getDependencies());
 
