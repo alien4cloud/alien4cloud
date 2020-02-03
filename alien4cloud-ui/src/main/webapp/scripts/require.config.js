@@ -28,7 +28,7 @@ require.config({
     'angular-resource': 'bower_components/angular-resource/angular-resource.min',
     'angular-sanitize': 'bower_components/angular-sanitize/angular-sanitize.min',
     'angular-ui-router': 'bower_components/angular-ui-router/release/angular-ui-router.min',
-    'angular-translate-base': 'bower_components/angular-translate/angular-translate.min',
+    'angular-translate-base': 'bower_components/angular-translate/angular-translate',
     'angular-translate': 'bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min',
     'angular-translate-storage-cookie' : 'bower_components/angular-translate-storage-cookie/angular-translate-storage-cookie.min',
     'angular-animate': 'bower_components/angular-animate/angular-animate.min',
