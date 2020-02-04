@@ -21,7 +21,7 @@ define(function (require) {
       icon: '',
       priority: 200,
       step: {
-        taskCodes: ['EMPTY', 'IMPLEMENT_RELATIONSHIP', 'SATISFY_LOWER_BOUND', 'PROPERTIES',
+        taskCodes: ['EMPTY', 'VALIDATION_PLUGIN', 'IMPLEMENT_RELATIONSHIP', 'SATISFY_LOWER_BOUND', 'PROPERTIES',
                     'SCALABLE_CAPABILITY_INVALID', 'NODE_FILTER_INVALID', 'WORKFLOW_INVALID', 'ARTIFACT_INVALID'],
         source: 'topology'
       }

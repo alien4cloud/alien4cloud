@@ -43,5 +43,7 @@ public enum TaskCode {
     CFY_MULTI_RELATIONS,
 
     /** Validation Plugins */
-    VALIDATION_PLUGIN
+    VALIDATION_PLUGIN,
+
+    REDIRECTION_REQUIRED
 }
