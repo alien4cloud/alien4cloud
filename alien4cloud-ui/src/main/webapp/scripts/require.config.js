@@ -15,21 +15,22 @@ require.config({
 
     // dependencies loading file (used to package all dependencies).
     'a4c-dependencies': 'scripts/alien4cloud-dependencies',
+
     // bower_components
     'lodash-base': 'bower_components/lodash/dist/lodash.min',
     'jquery': 'bower_components/jquery/dist/jquery.min',
     'angular': 'bower_components/angular/angular.min',
     'angular-cookies': 'bower_components/angular-cookies/angular-cookies.min',
     'angular-bootstrap': 'bower_components/angular-bootstrap/ui-bootstrap-tpls',
-    'angular-bootstrap-datetimepicker-template': 'bower_components/angular-bootstrap-datetimepicker/src/js/datetimepicker',
-    'angular-bootstrap-datetimepicker': 'bower_components/angular-bootstrap-datetimepicker/src/js/datetimepicker.templates',
+    'angular-bootstrap-datetimepicker': 'bower_components/angular-bootstrap-datetimepicker/src/js/datetimepicker',
+    'angular-bootstrap-datetimepicker-template': 'bower_components/angular-bootstrap-datetimepicker/src/js/datetimepicker.templates',
     'moment': 'bower_components/moment/min/moment.min',
     'angular-moment': 'bower_components/angular-moment/angular-moment.min',
     'angular-resource': 'bower_components/angular-resource/angular-resource.min',
     'angular-sanitize': 'bower_components/angular-sanitize/angular-sanitize.min',
     'angular-ui-router': 'bower_components/angular-ui-router/release/angular-ui-router.min',
-    'angular-translate-base': 'bower_components/angular-translate/angular-translate',
-    'angular-translate': 'bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min',
+    'angular-translate': 'bower_components/angular-translate/angular-translate',
+    'angular-translate-loader-static-files': 'bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min',
     'angular-translate-storage-cookie' : 'bower_components/angular-translate-storage-cookie/angular-translate-storage-cookie.min',
     'angular-animate': 'bower_components/angular-animate/angular-animate.min',
     'angular-xeditable': 'bower_components/angular-xeditable/dist/js/xeditable.min',
@@ -61,13 +62,13 @@ require.config({
     },
     'angular-cookies': { deps: ['angular'] },
     'angular-bootstrap': { deps: ['angular'] },
-    'angular-bootstrap-datetimepicker': { deps: ['angular-bootstrap-datetimepicker-template', 'angular-bootstrap', 'moment'] },
+    'angular-bootstrap-datetimepicker-template': { deps: ['angular-bootstrap-datetimepicker', 'angular-bootstrap', 'moment'] },
     'angular-resource': { deps: ['angular'] },
     'angular-sanitize': { deps: ['angular'] },
     'angular-ui-router': { deps: ['angular'] },
-    'angular-translate-base': { deps: ['angular'] },
-    'angular-translate-storage-cookie' : { deps: ['angular'] },
-    'angular-translate': { deps: ['angular-translate-base' , 'angular-translate-storage-cookie'] },
+    'angular-translate': { deps: ['angular'] },
+    'angular-translate-storage-cookie' : { deps: ['angular-translate', 'angular'] },
+    'angular-translate-loader-static-files': { deps: ['angular-translate' , 'angular-translate-storage-cookie'] },
     'angular-hotkeys': { deps: ['angular'] },
     'autofill-event': { deps: ['angular'] },
     'angular-all': { deps: ['angular-cookies', 'angular-translate', 'angular-ui-router', 'angular-sanitize', 'angular-resource', 'angular-bootstrap', 'angular-bootstrap-datetimepicker', 'angular-cookies'] },
@@ -87,6 +88,7 @@ require.config({
       exports: 'ClipboardJS',
       deps: ['jquery']
     },
+    'jquery': { exports: 'jquery' },
   },
   onNodeCreated: function(node, config, moduleName, url) {
     'use strict';

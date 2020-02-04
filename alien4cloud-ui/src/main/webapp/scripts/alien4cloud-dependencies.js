@@ -1,7 +1,6 @@
 define(function (require) {
   'use strict';
 
-
   require('jquery');
   require('bower_components/jquery-ui/ui/widgets/resizable');
   require('lodash-base');
@@ -15,9 +14,9 @@ define(function (require) {
   require('angular-resource');
   require('angular-sanitize');
   require('angular-ui-router');
-  require('angular-translate-base');
   require('angular-translate');
   require('angular-translate-storage-cookie');
+  require('angular-translate-loader-static-files');
   require('angular-animate');
   require('angular-xeditable');
   require('angular-ui-select');
@@ -40,7 +39,7 @@ define(function (require) {
   require('graphlib');
   require('clipboard');
 
+  console.debug('Dependencies loaded');
   return function() {
-    console.debug('Dependencies loaded');
   };
 });
