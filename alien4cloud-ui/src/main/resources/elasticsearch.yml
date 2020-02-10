@@ -1,0 +1,25 @@
+# This file will be parsed in case of ES embedded mode when you launch a4c from your IDE
+path:
+  # You can put an absolute path here
+  home: target/eshome
+
+transport:
+  type: mock-socket-network
+
+cluster:
+  name: escluster
+#  routing:
+#    allocation:
+#      disk:
+#        threshold_enabled: false
+#        watermark:
+#          flood_stage: 0.99
+#          low: 0.96
+#          high: 0.99
+http:
+  enabled: true
+node:
+  name: alien
+network:
+  host: 0.0.0.0
+

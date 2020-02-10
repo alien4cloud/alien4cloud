@@ -103,6 +103,12 @@ public abstract class ESIndexMapper {
     @Value("${elasticSearch.replica_count:-1}")
     private Integer replicaCount;
 
+    @Value("${elasticSearch._initIndex:true}")
+    private Boolean initIndex;
+
+    @Value("${elasticSearch._nowait:false}")
+    private Boolean nowait;
+
     private List<TTL> TTLs = new ArrayList<TTL>();
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
@@ -118,7 +124,9 @@ public abstract class ESIndexMapper {
 
         allIndexes = indices.toArray(new String[indices.size()]);
 
-        esClient.waitForGreenStatus(allIndexes);
+        if (!nowait) {
+            esClient.waitForGreenStatus(allIndexes);
+        }
         if ((ttlPeriod != null) &&
             !TTLs.isEmpty()) {
            long period = Long.valueOf(ttlPeriod).longValue();
@@ -148,33 +156,27 @@ public abstract class ESIndexMapper {
     /**
      * Create if not exist indices.
      * A TTL can be defined for all indices under this index (ESearch TTL notation)
-     * 
+     *
      * @param indexName The index to initialize
-     * @param classes An array of classes to map to this index.
+     * @param classes   An array of classes to map to this index.
      */
-    @SneakyThrows({ IOException.class, IntrospectionException.class })
+    @SneakyThrows({IOException.class, IntrospectionException.class})
     public void initIndices(String indexName, String ttl, Class<?>... classes) {
-/***
-        if (indexExist(indexName)) :b
-            addToMappedClasses(indexName, classes);
-        :b else :b
-            // create the index and add the mapping
-            CreateIndexRequestBuilder createIndexRequestBuilder = esClient.getClient().admin().indices().prepareCreate(indexName);
-***/
-       for (Class<?> clazz : classes) {
-             String typeName = addToMappedClasses(indexName, clazz);
 
-             if ( (ttl != null) && 
-                  !Modifier.isAbstract(clazz.getModifiers()) &&
-                  clazz.isAnnotationPresent(ESObject.class)) {
+        for (Class<?> clazz : classes) {
+            String typeName = addToMappedClasses(indexName, clazz);
+
+            if ((ttl != null) &&
+                    !Modifier.isAbstract(clazz.getModifiers()) &&
+                    clazz.isAnnotationPresent(ESObject.class)) {
                 String ts = (new FieldsMappingBuilder()).getTimeStamp(clazz);
                 if (ts == null) {
-                   ts = "timestamp";
+                    ts = "timestamp";
                 }
-                TTLs.add (new TTL(typeName, ts, ttl));
-             }
+                TTLs.add(new TTL(typeName, ts, ttl));
+            }
 
-             if (indexExist(typeName)) {
+            if (indexExist(typeName)) {
                 Field generatedIdField = ReflectionUtil.getDeclaredField(clazz, EsGeneratedId.class);
                 if (generatedIdField != null) {
                     generatedIdField.setAccessible(true);
@@ -187,61 +189,65 @@ public abstract class ESIndexMapper {
                 }
 
                 continue;
-             }
-             if (Modifier.isAbstract(clazz.getModifiers()) || 
-                 !clazz.isAnnotationPresent(ESObject.class)) {
-                 continue; // no mapping to register for abstract classes.
-             }
+            }
+            if (Modifier.isAbstract(clazz.getModifiers()) ||
+                    !clazz.isAnnotationPresent(ESObject.class)) {
+                continue; // no mapping to register for abstract classes.
+            }
 
-             CreateIndexRequestBuilder createIndexRequestBuilder = esClient.getClient().admin().indices().prepareCreate(typeName);
-             String typeMapping = mappingBuilder.getMapping(clazz);
-             Map<String, Object> typesMap = JsonUtil.toMap(typeMapping);
+            CreateIndexRequestBuilder createIndexRequestBuilder = esClient.getClient().admin().indices().prepareCreate(typeName);
+            String typeMapping = mappingBuilder.getMapping(clazz);
+            Map<String, Object> typesMap = JsonUtil.toMap(typeMapping);
 
-             addAlienScore(typesMap);
-             //addTTL(typesMap, ttl); not supported in ES 5
+            addAlienScore(typesMap);
+            //addTTL(typesMap, ttl); not supported in ES 5
 
-             Field generatedIdField = ReflectionUtil.getDeclaredField(clazz, EsGeneratedId.class);
-             if (generatedIdField != null) {
-                 generatedIdField.setAccessible(true);
-                 classTogeneratedIdFields.put(clazz, generatedIdField);
-             }
-             generatedIdField = ReflectionUtil.getDeclaredField(clazz, Id.class);
-             if (generatedIdField != null) {
-                 generatedIdField.setAccessible(true);
-                 classTogeneratedIdFields.put(clazz, generatedIdField);
-             }
+            Field generatedIdField = ReflectionUtil.getDeclaredField(clazz, EsGeneratedId.class);
+            if (generatedIdField != null) {
+                generatedIdField.setAccessible(true);
+                classTogeneratedIdFields.put(clazz, generatedIdField);
+            }
+            generatedIdField = ReflectionUtil.getDeclaredField(clazz, Id.class);
+            if (generatedIdField != null) {
+                generatedIdField.setAccessible(true);
+                classTogeneratedIdFields.put(clazz, generatedIdField);
+            }
 
-             String mapping = jsonMapper.writeValueAsString(typesMap);
-             //createIndexRequestBuilder.addMapping(typeName, mapping, XContentType.JSON);
-             createIndexRequestBuilder.addMapping(TYPE_NAME, mapping, XContentType.JSON);
+            String mapping = jsonMapper.writeValueAsString(typesMap);
+            //createIndexRequestBuilder.addMapping(typeName, mapping, XContentType.JSON);
+            createIndexRequestBuilder.addMapping(TYPE_NAME, mapping, XContentType.JSON);
 
-             Settings.Builder settingsBuilder = Settings.builder();
+            Settings.Builder settingsBuilder = Settings.builder();
 
-             // add settings if any (including analysers definitions)
-             String indexSettings = mappingBuilder.getIndexSettings(clazz);
-             if (StringUtils.isNotBlank(indexSettings)) {
-                 settingsBuilder.loadFromSource(indexSettings,XContentType.JSON);
-                 //createIndexRequestBuilder.setSettings(indexSettings, XContentType.JSON);
-             }
+            // add settings if any (including analysers definitions)
+            String indexSettings = mappingBuilder.getIndexSettings(clazz);
+            if (StringUtils.isNotBlank(indexSettings)) {
+                settingsBuilder.loadFromSource(indexSettings, XContentType.JSON);
+                //createIndexRequestBuilder.setSettings(indexSettings, XContentType.JSON);
+            }
 
-             if (shardCount > 0) {
-                 settingsBuilder.put("index.number_of_shards", shardCount);
-             }
+            if (shardCount > 0) {
+                settingsBuilder.put("index.number_of_shards", shardCount);
+            }
 
-             if (replicaCount >= 0) {
-                 settingsBuilder.put("index.number_of_replicas", replicaCount);
-             }
+            if (replicaCount >= 0) {
+                settingsBuilder.put("index.number_of_replicas", replicaCount);
+            }
 
-             createIndexRequestBuilder.setSettings(settingsBuilder);
+            createIndexRequestBuilder.setSettings(settingsBuilder);
 
-            try {
-                final CreateIndexResponse createResponse = createIndexRequestBuilder.execute().actionGet();
-                if (!createResponse.isAcknowledged()) {
-                    throw new IndexingServiceException("Failed to create index <" + indexName + ">");
+            if (!initIndex) {
+                log.warn("Init index is disabled !");
+            } else {
+                try {
+                    final CreateIndexResponse createResponse = createIndexRequestBuilder.execute().actionGet();
+                    if (!createResponse.isAcknowledged()) {
+                        throw new IndexingServiceException("Failed to create index <" + indexName + ">");
+                    }
+                } catch (Exception e) {
+                    log.warn("Not able to init indice for index {}, maybe it has been created elsewhere", indexName);
+                    log.error(e.getMessage());
                 }
-            } catch (Exception e) {
-                log.warn("Not able to init indice for index {}, maybe it has been created elsewhere", indexName);
-                log.error(e.getMessage());
             }
         }
     }
