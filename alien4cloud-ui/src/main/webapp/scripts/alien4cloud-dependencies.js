@@ -9,8 +9,8 @@ define(function (require) {
   require('angular-bootstrap');
   require('moment');
   require('angular-moment');
-  require('angular-bootstrap-datetimepicker-template');
   require('angular-bootstrap-datetimepicker');
+  require('angular-bootstrap-datetimepicker-template');
   require('angular-resource');
   require('angular-sanitize');
   require('angular-ui-router');
@@ -35,8 +35,8 @@ define(function (require) {
   require('d3');
   require('d3-tip');
   require('d3-pie');
+  require('graphlib'); // needs to be BEFORE dagre
   require('dagre');
-  require('graphlib');
   require('clipboard');
 
   console.debug('Dependencies loaded');
