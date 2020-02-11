@@ -15,7 +15,6 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodePropsOverride;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -47,7 +46,7 @@ public abstract class AbstractPostMatchingSetupModifier<T extends AbstractInheri
         }
 
         DeploymentMatchingConfiguration deploymentMatchingConfiguration = configurationOptional.get();
-        Map<String, ResourceMatching> lastUserSubstitutions = getUserMatches(deploymentMatchingConfiguration);
+        Map<String, String> lastUserSubstitutions = getUserMatches(deploymentMatchingConfiguration);
         Map<String, NodePropsOverride> propertiesOverrides = getPropertiesOverrides(deploymentMatchingConfiguration);
 
         boolean configChanged = false;
@@ -133,7 +132,7 @@ public abstract class AbstractPostMatchingSetupModifier<T extends AbstractInheri
         protected boolean changed = false;
     }
 
-    abstract Map<String, ResourceMatching> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration);
+    abstract Map<String, String> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration);
 
     abstract Map<String, NodePropsOverride> getPropertiesOverrides(DeploymentMatchingConfiguration matchingConfiguration);
 

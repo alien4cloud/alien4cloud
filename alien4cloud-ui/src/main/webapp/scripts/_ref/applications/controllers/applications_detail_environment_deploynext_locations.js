@@ -45,34 +45,108 @@ define(function (require) {
         }
       });
 
-      //select a location
-      $scope.selectLocation = function(locationMatch) {
+      $scope.$watch('deploymentTopologyDTO', function(newValue){
+        $scope.locationGroups = _.cloneDeep(newValue.topology.locationGroups);
+      })
 
-        var groupsToLocations = {};
-        var selectedOrchestratorId = "";
+      $scope.selectedGroups = {};
 
-        // let retrieve already selected locations if any
-        _.each($scope.deploymentTopologyDTO.topology.locationGroups, function(locationGrp) {
-          var locationId = locationGrp.policies[0].locationId;
-          groupsToLocations[locationId] = locationId;
-          selectedOrchestratorId = $scope.locationMatches[locationId].orchestrator.id;
-        });
-
-        if (locationMatch.selected) {
-          // Remove selected location from group
-          delete groupsToLocations[locationMatch.location.id];
+      $scope.groupClick = function(group) {
+        if (_.has($scope.selectedGroups, group.name)) {
+          // was selected, deselect it
+          delete $scope.selectedGroups[group.name];
         } else {
-          if (locationMatch.location.orchestratorId != selectedOrchestratorId) {
-            // Selected a location from another orchestrator so let reset the map
-            groupsToLocations = {};
-          }
-          groupsToLocations[locationMatch.location.id] = locationMatch.location.id;
+          $scope.selectedGroups[group.name] = group;
         }
 
+        // Now display orchestrator & location or selected groups if they are the same
+        var commonOrchestrator= "";
+        var commonLocation = "";
+        _.each($scope.selectedGroups, function(group) {
+          if (group.policies) {
+            var grpLoc = group.policies[0].locationId;
+            var grpOrc = $scope.locationMatches[grpLoc].orchestrator.id;
+            if (commonLocation == "") {
+              commonLocation = grpLoc;
+            } else if (commonLocation != grpLoc) {
+              commonLocation = null;
+            }
+            if (commonOrchestrator == "") {
+              commonOrchestrator = grpOrc;
+            } else if (commonOrchestrator != grpOrc) {
+              commonOrchestrator = null;
+              commonLocation = null;
+            }
+          }
+        });
+
+        //if (commonOrchestrator != null && commonOrchestrator != "") {
+          $scope.selectedOrchestratorId=commonOrchestrator;
+        //}
+
+        //if (commonLocation != null && commonLocation != "") {
+          $scope.selectedLocationMatch=commonLocation;
+        //}
+
+        $scope.hasGroupSelected = !_.isEmpty($scope.selectedGroups);
+      }
+
+      $scope.hasGroupSelected = false;
+
+      $scope.groupsToLocations = {};
+
+      $scope.isGroupSelected = function(locationGroupName) {
+        return _.has($scope.selectedGroups, locationGroupName);
+      }
+
+      $scope.isGroupReady = function(locationGroup) {
+        return !_.has($scope.selectedGroups, locationGroup.name) && locationGroup.policies;
+      }
+
+      $scope.isGroupDanger = function(locationGroup) {
+        return !_.has($scope.selectedGroups, locationGroup.name) && !locationGroup.policies;
+      }
+
+      //select a location
+      $scope.selectLocation = function(locationMatchId) {
+
+        if (_.isNull(locationMatchId) || _.isUndefined(locationMatchId)) {
+          return;
+        }
+
+        var locationMatch = $scope.locationMatches[locationMatchId];
+        var selectedOrchestratorId = locationMatch.location.orchestratorId;
+
+        // Affect selected location to all selected groups
+        _.each($scope.selectedGroups, function(group, groupName) {
+          $scope.groupsToLocations[groupName] = locationMatch.location.id;
+          if ($scope.locationGroups[groupName].policies) {
+            // Update location policy right now for bellow validation otherwise this will be done after
+            // getting the rest response
+            $scope.locationGroups[groupName].policies[0].locationId = locationMatch.location.id;
+          }
+
+        });
+
+
+        // Now consider not selected groups
+        _.each($scope.locationGroups, function(locationGrp) {
+          if (!_.has($scope.selectedGroups, locationGrp.name) && locationGrp.policies) {
+            var locationId = locationGrp.policies[0].locationId;
+            var grpOrchId = $scope.locationMatches[locationId].orchestrator.id;
+            if (selectedOrchestratorId == grpOrchId) {
+              // valid case lets include this group in the request
+              $scope.groupsToLocations[locationGrp.name] = locationId;
+            } else {
+              // invalidate mapping
+              $scope.locationGroups[locationGrp.name].policies = null;
+            }
+          }
+        });
 
         var configRequest = {
           orchestratorId: locationMatch.location.orchestratorId,
-          groupsToLocations: groupsToLocations
+          groupsToLocations: $scope.groupsToLocations
         };
 
         deploymentTopologyServices.setLocationPolicies({
@@ -83,6 +157,8 @@ define(function (require) {
           $scope.goToNextInvalidStep();
           // $state.go(thisMenu.nextStep.state);
         });
+
+        $scope.selectedGroups = {};
       };
     }
   ]);

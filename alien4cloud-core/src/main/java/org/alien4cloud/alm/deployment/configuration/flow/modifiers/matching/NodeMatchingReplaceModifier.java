@@ -11,7 +11,6 @@ import com.google.common.collect.Sets;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
@@ -72,7 +71,7 @@ public class NodeMatchingReplaceModifier extends AbstractMatchingReplaceModifier
     }
 
     @Override
-    protected Map<String, ResourceMatching> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
+    protected Map<String, String> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedLocationResources();
     }
 

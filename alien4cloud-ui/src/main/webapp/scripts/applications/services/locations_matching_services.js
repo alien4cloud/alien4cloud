@@ -20,16 +20,16 @@ define(function (require) {
           // Initialize the scope location matches with
           _.each(locationMatches, function(locationMatch) {
             scope.locationMatches[locationMatch.location.id] = locationMatch;
-            locationMatch.selected = false;
           });
           // Process with location selection
           scope.selectedLocations = [];
 
-          _.each(scope.deploymentTopologyDTO.locationPolicies, function(value, key) {
-            var selectedLocationId = value;
-            if (scope.locationMatches && scope.locationMatches[selectedLocationId]) {
-              scope.locationMatches[selectedLocationId].selected = true;
-              scope.selectedLocations.push(scope.locationMatches[selectedLocationId].location)
+          _.each(scope.deploymentTopologyDTO.topology.locationGroups, function(locationGrp, key) {
+            if (locationGrp.policies) {
+              var location = scope.locationMatches[locationGrp.policies[0].locationId].location
+              if (! scope.selectedLocations.includes(location)) {
+                scope.selectedLocations.push(location)
+              }
             }
           });
         }

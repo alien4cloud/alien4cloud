@@ -15,7 +15,6 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionLog;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodeCapabilitiesPropsOverride;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodePropsOverride;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -111,7 +110,7 @@ public class PostMatchingNodeSetupModifierTest {
             DeploymentMatchingConfiguration matchingConfiguration = new DeploymentMatchingConfiguration();
 
             matchingConfiguration.setMatchedLocationResources(Maps.newHashMap());
-            matchingConfiguration.getMatchedLocationResources().put("my_node", new ResourceMatching("a_location_resource", false));
+            matchingConfiguration.getMatchedLocationResources().put("my_node","a_location_resource");
 
             NodePropsOverride nodePropsOverride = new NodePropsOverride();
             nodePropsOverride.getProperties().put("common_property", new ScalarPropertyValue("p_val"));

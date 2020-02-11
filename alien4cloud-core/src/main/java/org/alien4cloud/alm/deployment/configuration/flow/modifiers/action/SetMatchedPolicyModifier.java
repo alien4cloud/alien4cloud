@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 
@@ -19,7 +18,7 @@ public class SetMatchedPolicyModifier extends AbstractSetMatchedModifier {
     }
 
     @Override
-    Map<String, ResourceMatching> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
+    Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedPolicies();
     }
 

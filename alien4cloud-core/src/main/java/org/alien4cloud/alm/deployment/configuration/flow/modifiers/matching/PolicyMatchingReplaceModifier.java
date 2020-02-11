@@ -15,7 +15,6 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.PolicyType;
@@ -104,7 +103,7 @@ public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifi
     }
 
     @Override
-    protected Map<String, ResourceMatching> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
+    protected Map<String, String> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedPolicies();
     }
 

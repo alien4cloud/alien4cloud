@@ -9,7 +9,6 @@ import javax.annotation.Resource;
 
 import com.google.common.collect.Maps;
 
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
@@ -34,7 +33,7 @@ public class TopologyAbstractNodeValidationService {
      * Build user error messages (contained into SuggestionsTask) if an abstract node is not substituted
      */
     @SneakyThrows({ IOException.class })
-    public List<SuggestionsTask> findReplacementForAbstracts(Topology topology, Map<String, ResourceMatching> substitutedNodes) {
+    public List<SuggestionsTask> findReplacementForAbstracts(Topology topology, Map<String, String> substitutedNodes) {
         Map<String, NodeType> nodeTempNameToAbstractIndexedNodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, true, true, true);
 
         // node type can be abstract if its substitute is a service (a service CANNOT be registered with a concrete type in A4C)
@@ -48,7 +47,7 @@ public class TopologyAbstractNodeValidationService {
         return topologyService.searchForNodeTypes(topology.getWorkspace(), nodeTemplatesToFilters, nodeTempNameToAbstractIndexedNodeTypes, true);
     }
 
-    private void exclude(Map<String, NodeType> nodeTempNameToAbstractIndexedNodeTypes, Map<String, ResourceMatching> substitutedNodes) {
+    private void exclude(Map<String, NodeType> nodeTempNameToAbstractIndexedNodeTypes, Map<String, String> substitutedNodes) {
         if (substitutedNodes == null) {
             return;
         }

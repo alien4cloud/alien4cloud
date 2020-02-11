@@ -9,7 +9,6 @@ import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodeCapabilitiesPropsOverride;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodePropsOverride;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
@@ -89,7 +88,7 @@ public class SetMatchedNodePropertyModifier extends AbstractSetMatchedPropertyMo
     }
 
     @Override
-    Map<String, ResourceMatching> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
+    Map<String, String> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedLocationResources();
     }
 

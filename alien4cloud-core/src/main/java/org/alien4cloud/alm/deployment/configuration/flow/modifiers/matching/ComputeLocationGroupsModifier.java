@@ -2,11 +2,14 @@ package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -14,6 +17,7 @@ import com.google.common.collect.Sets;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -25,7 +29,8 @@ import org.alien4cloud.tosca.utils.TopologyNavigationUtil;
 import org.alien4cloud.tosca.utils.ToscaTypeUtils;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.topology.task.LocationPolicyTask;
+import alien4cloud.deployment.DeploymentTopologyDTOBuilder;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.NormativeNetworkConstants;
 
@@ -33,27 +38,41 @@ import alien4cloud.tosca.normative.NormativeNetworkConstants;
  * ComputeMatchingElementsDependenciesModifier
  */
 @Component
-public class ComputeMatchingElementsDependenciesModifier implements ITopologyModifier {
+public class ComputeLocationGroupsModifier implements ITopologyModifier {
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
-        Optional<DeploymentMatchingConfiguration> configurationOptional = context
-                .getConfiguration(DeploymentMatchingConfiguration.class, this.getClass().getSimpleName());
+        // TODO(loicalbertin) do we need this?
+        // Map<String, Set<String>> policiesDeps = findPoliciesDependencies(topology);
 
-        if (!configurationOptional.isPresent()) { // we should not end-up here as location matching should be processed
-                                                  // first
-            context.log().error(new LocationPolicyTask());
-            return;
+        Map<String, Set<String>> nodesGroups = findNodesGroups(topology);
+
+        Optional<DeploymentMatchingConfiguration> matchingConfigurationOptional = context.getConfiguration(
+                DeploymentMatchingConfiguration.class, DeploymentTopologyDTOBuilder.class.getSimpleName());
+
+        DeploymentMatchingConfiguration configuration = matchingConfigurationOptional
+                .orElseGet(() -> newMatchingConfiguration(context));
+
+        Map<String, NodeGroup> groups = safe(configuration.getLocationGroups());
+        // Remove groups that do not exists anymore
+        groups.entrySet().removeIf(e -> !nodesGroups.containsKey(e.getValue().getMembers().iterator().next()));
+
+
+        for (Entry<String, Set<String>> entry : nodesGroups.entrySet()) {
+            String groupName = entry.getKey() + "_Group";
+            NodeGroup group = groups.computeIfAbsent(groupName, k -> new NodeGroup());
+            // Always reset name & members
+            group.setName(groupName);
+            group.setMembers(new LinkedHashSet<>());
+            // Set master node (generally the compute) as first member
+            group.getMembers().add(entry.getKey());
+            group.getMembers().addAll(entry.getValue());
         }
 
-        DeploymentMatchingConfiguration matchingConfiguration = configurationOptional.get();
-        Map<String, Set<String>> policiesDeps = findPoliciesDependencies(topology);
+        configuration.setLocationGroups(groups);
 
-        Map<String, Set<String>> nodesDeps =findAbstractNodesDependencies(topology);
+        context.saveConfiguration(configuration);
 
-        matchingConfiguration.setRelatedMatchedEntities(Stream.concat(policiesDeps.entrySet().stream(), nodesDeps.entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-
-        context.saveConfiguration(matchingConfiguration);
     }
 
     private Map<String, Set<String>> findPoliciesDependencies(Topology topology) {
@@ -65,20 +84,19 @@ public class ComputeMatchingElementsDependenciesModifier implements ITopologyMod
         return policyEntry.getValue().getTargets();
     }
 
-    private Map<String, Set<String>> findAbstractNodesDependencies(Topology topology) {
+    private Map<String, Set<String>> findNodesGroups(Topology topology) {
         Map<String, Set<String>> results = Maps.newHashMap();
-        Set<NodeTemplate> abstractNodes = safe(topology.getNodeTemplates()).values().stream().filter(n -> {
-            NodeType nodeType = ToscaContext.getOrFail(NodeType.class, n.getType());
-            return nodeType.isAbstract();
-        }).collect(Collectors.toSet());
-
-        abstractNodes.forEach(source -> {
-            abstractNodes.forEach(target -> {
-                if (source != target) {
-                    if (isHostedOn(topology, source, target) || isAttachToBlockStorage(topology, source, target)
-                            || isConnectsToNetwork(topology, source, target)) {
-                        results.computeIfAbsent(source.getName(), k -> Sets.newHashSet()).add(target.getName());
-                        results.computeIfAbsent(target.getName(), k -> Sets.newHashSet()).add(source.getName());
+        Collection<NodeTemplate> abstractNodes = safe(topology.getNodeTemplates()).values();
+        // At first consider each node
+        abstractNodes.forEach(n -> results.put(n.getName(), Sets.newHashSet()));
+        abstractNodes.forEach(node1 -> {
+            abstractNodes.forEach(node2 -> {
+                if (node1 != node2) {
+                    if (isHostedOn(topology, node1, node2) || isAttachToBlockStorage(topology, node1, node2)
+                            || isConnectsToNetwork(topology, node2, node1)) {
+                        results.computeIfAbsent(node2.getName(), k -> Sets.newHashSet()).add(node1.getName());
+                        // node1 is part of the node2's group remove it
+                        results.remove(node1.getName());
                     }
                 }
             });
@@ -118,5 +136,15 @@ public class ComputeMatchingElementsDependenciesModifier implements ITopologyMod
             return ToscaTypeUtils.isOfType(ToscaContext.getOrFail(RelationshipType.class, r.getType()),
                     NormativeRelationshipConstants.NETWORK) && r.getTarget().equals(target.getName());
         });
+    }
+
+    private DeploymentMatchingConfiguration newMatchingConfiguration(FlowExecutionContext context) {
+        ApplicationEnvironment environment = context.getEnvironmentContext()
+                .orElseThrow(() -> new IllegalArgumentException("Input modifier requires an environment context."))
+                .getEnvironment();
+        DeploymentMatchingConfiguration configuration = new DeploymentMatchingConfiguration(
+                environment.getTopologyVersion(), environment.getId());
+        configuration.setLocationGroups(new HashMap<>());
+        return configuration;
     }
 }

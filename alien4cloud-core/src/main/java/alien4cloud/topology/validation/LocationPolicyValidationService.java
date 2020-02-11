@@ -1,18 +1,18 @@
 package alien4cloud.topology.validation;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
 import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Lists;
+
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.apache.commons.lang3.StringUtils;
+import org.alien4cloud.tosca.model.templates.AbstractPolicy;
+import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
 
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
@@ -21,9 +21,9 @@ import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.topology.task.LocationPolicyTask;
+import alien4cloud.topology.task.OrchestratorsLocationsTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.UnavailableLocationTask;
-import alien4cloud.utils.AlienConstants;
 
 /**
  * Performs validation by checking location policies.
@@ -42,12 +42,35 @@ public class LocationPolicyValidationService {
         List<LocationPolicyTask> tasks = Lists.newArrayList();
         Location location = null;
         Orchestrator orchestrator = null;
+        String previousOrchestratorId = null;
+        for (NodeGroup nodeGroup : matchingConfiguration.getLocationGroups().values()) {
+            if (nodeGroup.getPolicies() == null ){
+                tasks.add(new LocationPolicyTask(nodeGroup.getName()));
+                continue;
+            }
 
-        boolean found = false;
-        for (String locationId : safe(matchingConfiguration.getLocationIds()).values()) {
-            found = true;
+            String locationId =null;
+            for (AbstractPolicy p: nodeGroup.getPolicies()) {
+                if (p instanceof LocationPlacementPolicy) {
+                    locationId = ((LocationPlacementPolicy) p).getLocationId();
+                }
+            }
+            if (locationId == null ){
+                tasks.add(new LocationPolicyTask(nodeGroup.getName()));
+                continue;
+            }
             location = locationService.getOrFail(locationId);
             orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
+
+
+            if (previousOrchestratorId!=null && !previousOrchestratorId.equals(location.getOrchestratorId())) {
+                OrchestratorsLocationsTask task  = new OrchestratorsLocationsTask(location.getName(), orchestrator.getName());
+                task.setCode(TaskCode.LOCATION_POLICY);
+                task.setGroupName(nodeGroup.getName());
+                tasks.add(task);
+                continue;
+            }
+            previousOrchestratorId = location.getOrchestratorId();
 
             try {
                 // if a location already exists, then check the rigths on it
@@ -65,9 +88,7 @@ public class LocationPolicyValidationService {
                 task.setCode(TaskCode.LOCATION_UNAUTHORIZED);
                 tasks.add(task);
             }
-        }
-        if (!found) {
-            tasks.add(new LocationPolicyTask());
+
         }
 
         return tasks;

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -20,7 +19,7 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 public class NodeMatchingConfigCleanupModifier extends AbstractMatchingConfigCleanupModifier<LocationResourceTemplate> {
 
     @Override
-    protected Map<String, ResourceMatching> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
+    protected Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedLocationResources();
     }
 

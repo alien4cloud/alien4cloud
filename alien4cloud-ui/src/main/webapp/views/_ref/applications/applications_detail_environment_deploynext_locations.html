@@ -12,27 +12,31 @@
 <empty-place-holder data="locationMatches"></empty-place-holder>
 <empty-place-holder data="orchestrators"></empty-place-holder>
 <div class="row grp-margin">
-  <div ng-repeat="(orchestratorId, orchestratorName) in orchestrators" class="col-xs-11 col-md-11">
-
-      <span>
-        <i>{{'ORCHESTRATORS.ORCHESTRATOR' | translate}}</i>: <b>{{orchestratorName}}</b>
-      </span>
-      <div class="row grp-margin">
-        <div ng-repeat="locationMatch in locationMatches"  >
-          <div class="col-xs-6 col-md-3"
-              ng-if="locationMatch.orchestrator.id==orchestratorId">
-            <span class="location-match"
-              ng-class="{'location-match-selected': locationMatch.selected && locationMatch.ready,
-                        'location-match-danger': locationMatch.selected && !locationMatch.ready,
-                        'clickable-media':  locationMatch.ready,
-                        'item-disabled':  !locationMatch.ready
+  <div class="col-xs-6 col-md-3">
+    <div ng-repeat="(locationGroupName, locationGroup) in locationGroups" >
+        <span class="location-group clickable-media"
+              ng-class="{'location-group-selected': isGroupSelected(locationGroupName),
+                        'location-group-ready': isGroupReady(locationGroup),
+                        'location-group-danger': isGroupDanger(locationGroup)
                         }"
-              ng-click="selectLocation(locationMatch)">
-              <b>{{locationMatch.location.name}}</b>
-            </span>
-          </div>
-        </div>
-
+              ng-click="groupClick(locationGroup)">
+          <i>Group</i>: <b>{{locationGroupName}}</b>
+        </span>
     </div>
   </div>
+  <div class="col-xs-6 col-md-9" ng-if="hasGroupSelected">
+    <span>
+      <i>{{'ORCHESTRATORS.ORCHESTRATOR' | translate}}</i>:
+      <select id="groupOrchestratorSelector" class="form-control form-control-inline" ng-model="selectedOrchestratorId" style="width:35%">
+        <option ng-repeat="(orchestratorId, orchestratorName) in orchestrators" value="{{orchestratorId}}">{{orchestratorName}}</option>
+      </select>
+    </span>
+    <span>
+      <i>Location</i>:
+      <select id="groupLocationSelector" class="form-control form-control-inline" ng-model="selectedLocationMatch" ng-change="selectLocation(selectedLocationMatch)"   style="width:35%">
+          <option ng-repeat="locationMatch in locationMatches" value="{{locationMatch.location.id}}" ng-if="locationMatch.orchestrator.id==selectedOrchestratorId">{{locationMatch.location.name}}</option>
+      </select>
+    </span>
+  </div>
 </div>
+

@@ -22,7 +22,6 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.Poli
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.PolicyMatchingConfigAutoSelectModifier;
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.MapUtils;
@@ -123,7 +122,7 @@ public class PolicyMatchingSubstitutionService {
                     .get(FlowExecutionContext.SELECTED_MATCH_NODE_LOCATION_TEMPLATE_BY_NODE_ID_MAP);
 
             // Update the substitution on the target if available substitution is always compatible
-            Map<String, ResourceMatching> validOnNewEnvSubstitutedNodes = safe(sourceConfiguration.getMatchedLocationResources()).entrySet().stream()
+            Map<String, String> validOnNewEnvSubstitutedNodes = safe(sourceConfiguration.getMatchedLocationResources()).entrySet().stream()
                     .filter(entry -> locResTemplateIdsPerNodeIds.containsKey(entry.getKey())
                             && locResTemplateIdsPerNodeIds.get(entry.getKey()).contains(entry.getValue()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

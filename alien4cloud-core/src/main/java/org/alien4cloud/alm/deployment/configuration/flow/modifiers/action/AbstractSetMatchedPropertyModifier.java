@@ -9,7 +9,6 @@ import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.NodePropsOverride;
-import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration.ResourceMatching;
 import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
@@ -57,13 +56,13 @@ public abstract class AbstractSetMatchedPropertyModifier<T extends AbstractInher
         }
 
         DeploymentMatchingConfiguration matchingConfiguration = configurationOptional.get();
-        Map<String, ResourceMatching> lastUserSubstitutions = getUserMatches(matchingConfiguration);
+        Map<String, String> lastUserSubstitutions = getUserMatches(matchingConfiguration);
         U template = getTemplates(topology).get(templateId);
 
         if (template == null) {
             throw new NotFoundException("Topology [" + topology.getId() + "] does not contains any " + getSubject() + " with id [" + templateId + "]");
         }
-        String substitutionId = lastUserSubstitutions.get(templateId).getResourceId();
+        String substitutionId = lastUserSubstitutions.get(templateId);
         if (substitutionId == null) {
             throw new NotFoundException("The " + getSubject() + " [" + templateId + "] from topology [" + topology.getId() + "] is not matched.");
         }
@@ -132,7 +131,7 @@ public abstract class AbstractSetMatchedPropertyModifier<T extends AbstractInher
         }
     }
 
-    abstract Map<String, ResourceMatching> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration);
+    abstract Map<String, String> getUserMatches(DeploymentMatchingConfiguration matchingConfiguration);
 
     abstract Map<String, V> getAvailableResourceTemplates(FlowExecutionContext context);
 

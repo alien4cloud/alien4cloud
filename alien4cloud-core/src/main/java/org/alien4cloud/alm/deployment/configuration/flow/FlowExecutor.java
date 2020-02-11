@@ -21,7 +21,7 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputA
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputValidationModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputsModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.PreconfiguredInputsModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.ComputeMatchingElementsDependenciesModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.ComputeLocationGroupsModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingCandidateModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingCompositeModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
@@ -121,7 +121,7 @@ public class FlowExecutor {
     private PreDeploymentTopologyValidator preDeploymentTopologyValidator;
 
     @Inject
-    private ComputeMatchingElementsDependenciesModifier computeMatchingElementsDependenciesModifier;
+    private ComputeLocationGroupsModifier computeLocationGroupsModifier;
 
     private List<ITopologyModifier> topologyModifiers;
 
@@ -140,6 +140,8 @@ public class FlowExecutor {
 
         // Backup unprocessed nodes
         topologyModifiers.add(backupNodesModifier);
+
+        topologyModifiers.add(computeLocationGroupsModifier);
 
         // Future: process pre-environment topology executors
         // Future: Process environment in-topology variables (different from inputs as configured by the topology editor)
@@ -166,7 +168,6 @@ public class FlowExecutor {
         // Process validation of constraints, and that no required inputs are missing
         topologyModifiers.add(inputValidationModifier);
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.POST_INJECT_INPUT));
-        topologyModifiers.add(computeMatchingElementsDependenciesModifier);
         topologyModifiers.add(new FlowPhaseModifiersExecutor(FlowPhases.PRE_POLICY_MATCH));
         topologyModifiers.add(new PolicyMatchingCompositeModifier(policyMatchingCandidateModifier, // Find candidate matches.
                 policyMatchingConfigCleanupModifier, // cleanup configuriton in case some matches are not valid anymore.
