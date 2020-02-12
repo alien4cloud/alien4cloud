@@ -31,9 +31,6 @@ paas_monitor:
   monitor_interval_ms: 1000
   # Number of threads to use to monitor Platform as a Service systems.
   threadpool_size: 5
-  # Duration to keep monitoring events stored in Alien4Cloud.
-  # Event lifetime unit : d (days), m (minutes), h (hours), ms (milliseconds) or w (weeks), milliseconds is used as default unit
-  events_lifetime: "1d"
 
 # Initial default components upload : from folder /alien4cloud-core/src/main/default-normative-types
 archive:
