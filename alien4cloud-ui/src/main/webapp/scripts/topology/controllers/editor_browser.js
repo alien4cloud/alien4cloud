@@ -85,7 +85,7 @@ define(function (require) {
     }
 
     function getAnnotations(errorsMap){
-      var parsingErrors = _.first(_.values(errorsMap));
+      var parsingErrors = _.head(_.values(errorsMap));
       if(_.undefined(parsingErrors)){
         return;
       }

@@ -109,7 +109,7 @@ define(function (require) {
 
         scope.somethingToDisplay = function(nodeId) {
           var nodeIds = _.union(_.keys(scope.outputAttributesValue), _.keys(scope.outputPropertiesValue), _.keys(scope.outputCapabilityPropertiesValue));
-          return _.include(nodeIds, nodeId);
+          return _.includes(nodeIds, nodeId);
         };
 
       }
