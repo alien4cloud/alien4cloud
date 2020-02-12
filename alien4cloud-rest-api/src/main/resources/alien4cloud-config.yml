@@ -56,14 +56,12 @@ components.search.boost:
 elasticSearch:
   clusterName: escluster
   local: false
-  client: true
-  transportClient: true
+  client: false
+  transportClient: false
   # a comma separated list of host:port couples
-  hosts: 127.0.0.1:9300
+  hosts: localhost
   resetData: false
   prefix_max_expansions: 10
-  shard_count: 1
-  replica_count: 0
 
 # Configuration of default admin ensurer, if true it creates a default admin user if no admin can be found in the system.
 alien_security:
