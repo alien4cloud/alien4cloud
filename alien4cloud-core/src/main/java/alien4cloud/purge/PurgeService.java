@@ -160,6 +160,8 @@ public class PurgeService {
         purge(context,id,PaaSDeploymentStatusMonitorEvent.class);
 
         purge(context,id, PaaSInstanceStateMonitorEvent.class);
+
+        purge(context,id,PaaSDeploymentLog.class);
     }
 
     private <T> void purge(PurgeContext context, String id, Class<T> clazz) {
@@ -192,7 +194,9 @@ public class PurgeService {
     private <T> ESGenericSearchDAO getDaoFor(Class<T> clazz) {
         if (AbstractMonitorEvent.class.isAssignableFrom(clazz)
                 || DeploymentTopology.class.isAssignableFrom(clazz)
-                || DeploymentUnprocessedTopology.class.isAssignableFrom(clazz) ) {
+                || DeploymentUnprocessedTopology.class.isAssignableFrom(clazz)
+                || PaaSDeploymentLog.class.isAssignableFrom(clazz)
+            ) {
             return monitorDao;
         } else {
             return commonDao;
