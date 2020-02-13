@@ -7,6 +7,7 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.exceptions.ImpossibleDeploymentUpdateException;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
+import alien4cloud.events.DeploymentUndeployedEvent;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -47,6 +49,8 @@ public class DeploymentService {
     private DeploymentContextService deploymentContextService;
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
+    @Inject
+    private ApplicationEventPublisher eventPublisher;
 
     /**
      * Get an array of all active deployments.
@@ -304,6 +308,8 @@ public class DeploymentService {
             DeploymentTopology deploymentTopology = alienMonitorDao.findById(DeploymentTopology.class, deployment.getId());
             deploymentTopology.setDeployed(false);
             alienMonitorDao.save(deploymentTopology);
+
+            eventPublisher.publishEvent(new DeploymentUndeployedEvent(this,deployment.getId()));
         } else {
             log.info("Deployment <" + deployment.getId() + "> is already marked as undeployed.");
         }

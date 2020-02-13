@@ -5,6 +5,7 @@ import alien4cloud.dao.ElasticSearchDAO;
 
 import alien4cloud.dao.MonitorESDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.events.DeploymentUndeployedEvent;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.deployment.DeploymentUnprocessedTopology;
@@ -22,6 +23,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -116,10 +118,12 @@ public class PurgeService {
         GetMultipleDataResult<Deployment> deployments = commonDao.search(Deployment.class,null,null,customFilter,null,0,threshold);
 
         if (deployments.getData().length >0) {
-            log.info("=> Begin of deployment purge");
+            if (log.isDebugEnabled()) {
+                log.debug("=> Begin of deployment purge");
+            }
 
             for (Deployment d : deployments.getData()) {
-                purge(context,d.getId());
+                fullPurge(context,d.getId());
             }
 
             // Flush pending deletes
@@ -130,18 +134,28 @@ public class PurgeService {
 
             bulkDelete(Deployment.class,ids);
 
-            log.info("=> End of deployments purge");
+            if (log.isDebugEnabled()) {
+                log.debug("=> End of deployments purge");
+            }
         }
     }
 
-    private void purge(PurgeContext context, String id) {
-        log.info("=> Purging Deployment {}",id);
+    private void fullPurge(PurgeContext context,String id) {
+        if (log.isDebugEnabled()) {
+            log.debug("=> Purging Deployment {}", id);
+        }
 
-        context.add(DeploymentTopology.class,id);
-        context.add(DeploymentUnprocessedTopology.class,id);
+        purge(context,id);
 
         purge(context,id,Task.class);
         purge(context,id,Execution.class);
+
+        purge(context,id,PaaSDeploymentLog.class);
+    }
+
+    private void purge(PurgeContext context, String id) {
+        context.add(DeploymentTopology.class,id);
+        context.add(DeploymentUnprocessedTopology.class,id);
 
         purge(context,id,TaskFailedEvent.class);
         purge(context,id,TaskSentEvent.class);
@@ -160,8 +174,6 @@ public class PurgeService {
         purge(context,id,PaaSDeploymentStatusMonitorEvent.class);
 
         purge(context,id, PaaSInstanceStateMonitorEvent.class);
-
-        purge(context,id,PaaSDeploymentLog.class);
     }
 
     private <T> void purge(PurgeContext context, String id, Class<T> clazz) {
@@ -210,12 +222,28 @@ public class PurgeService {
         String indexName = dao.getIndexForType(clazz);
         String typeName = MappingBuilder.indexTypeFromClass(clazz);
 
-        log.info("BULK DELETE ON {}/{} -> {} items",indexName,typeName,ids.size());
+        if (log.isDebugEnabled()) {
+            log.debug("BULK DELETE ON {}/{} -> {} items", indexName, typeName, ids.size());
+        }
 
         for (String id : ids) {
             bulkRequestBuilder.add(dao.getClient().prepareDelete(indexName,typeName,id));
         }
 
         bulkRequestBuilder.execute().actionGet();
+    }
+
+    @EventListener
+    private void onDeploymentUndeployed(DeploymentUndeployedEvent event) {
+        PurgeContext context = new PurgeContext(this::bulkDelete);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Cleaning Deployment {}", event.getDeploymentId());
+        }
+
+        purge(context,event.getDeploymentId());
+
+        // Flush pending deletes
+        context.flush();
     }
 }
