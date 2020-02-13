@@ -21,6 +21,7 @@ import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.apache.commons.collections4.MapUtils;
@@ -57,6 +58,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 public class DeploymentTopologyStepDefinitions {
@@ -111,8 +113,13 @@ public class DeploymentTopologyStepDefinitions {
 
     @When("^I Set a unique location policy to \"([^\"]*)\"/\"([^\"]*)\" for all nodes$")
     public void I_Set_a_unique_location_policy_to_for_all_nodes(String orchestratorName, String locationName) throws Throwable {
+        I_get_the_deployment_toology_for_the_current_application();
+        RestResponse<DeploymentTopologyDTO> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class);
+        DeploymentTopologyDTO deploymentTopologyDTO = restResponse.getData();
+        Map<String, NodeGroup> locationGroups = deploymentTopologyDTO.getTopology().getLocationGroups();
+
         I_Set_the_following_location_policies_for_groups(orchestratorName,
-                MapUtil.newHashMap(new String[] { "_A4C_ALL" }, new String[] { locationName }));
+                locationGroups.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> locationName)));
     }
 
     @When("^I get the deployment topology for the current application$")
@@ -492,7 +499,9 @@ public class DeploymentTopologyStepDefinitions {
 
 
     @Getter
+    @Setter
     @AllArgsConstructor
+    @NoArgsConstructor
     private static class LocationPolicySetting {
         String groupName;
         String orchestratorName;
