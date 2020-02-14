@@ -107,36 +107,40 @@ public class PurgeService {
     }
 
     private void run() {
-        PurgeContext context = new PurgeContext(this::bulkDelete);
+        try {
+            PurgeContext context = new PurgeContext(this::bulkDelete);
 
-        long date = Calendar.getInstance().getTime().getTime() - ttl * 1000;
+            long date = Calendar.getInstance().getTime().getTime() - ttl * 1000;
 
-        FilterBuilder customFilter = FilterBuilders.boolFilter()
-                .mustNot(FilterBuilders.missingFilter("endDate"))
-                .must(FilterBuilders.rangeFilter("endDate").lte(date));
+            FilterBuilder customFilter = FilterBuilders.boolFilter()
+                    .mustNot(FilterBuilders.missingFilter("endDate"))
+                    .must(FilterBuilders.rangeFilter("endDate").lte(date));
 
-        GetMultipleDataResult<Deployment> deployments = commonDao.search(Deployment.class,null,null,customFilter,null,0,threshold);
+            GetMultipleDataResult<Deployment> deployments = commonDao.search(Deployment.class, null, null, customFilter, null, 0, threshold);
 
-        if (deployments.getData().length >0) {
-            if (log.isDebugEnabled()) {
-                log.debug("=> Begin of deployment purge");
+            if (deployments.getData().length > 0) {
+                if (log.isDebugEnabled()) {
+                    log.debug("=> Begin of deployment purge");
+                }
+
+                for (Deployment d : deployments.getData()) {
+                    fullPurge(context, d.getId());
+                }
+
+                // Flush pending deletes
+                context.flush();
+
+                // Delete deployments
+                Collection<String> ids = Arrays.stream(deployments.getData()).map(Deployment::getId).collect(Collectors.toList());
+
+                bulkDelete(Deployment.class, ids);
+
+                if (log.isDebugEnabled()) {
+                    log.debug("=> End of deployments purge");
+                }
             }
-
-            for (Deployment d : deployments.getData()) {
-                fullPurge(context,d.getId());
-            }
-
-            // Flush pending deletes
-            context.flush();
-
-            // Delete deployments
-            Collection<String> ids = Arrays.stream(deployments.getData()).map(Deployment::getId).collect(Collectors.toList());
-
-            bulkDelete(Deployment.class,ids);
-
-            if (log.isDebugEnabled()) {
-                log.debug("=> End of deployments purge");
-            }
+        } catch(RuntimeException e) {
+            log.error("Exception during purge:",e);
         }
     }
 
