@@ -79,6 +79,7 @@ public class PurgeService {
 
     @PostConstruct
     private void init() {
+        log.info("Purge job will be executed with a period of {} seconds (delay between end of execution and start of next execution)", period);
         executorService.scheduleWithFixedDelay(this::run,period,period,TimeUnit.SECONDS);
     }
 
@@ -188,8 +189,8 @@ public class PurgeService {
     }
 
     private void fullPurge(PurgeContext context,String id) {
-        if (log.isDebugEnabled()) {
-            log.debug("=> Purging Deployment {}", id);
+        if (log.isTraceEnabled()) {
+            log.trace("=> Purging Deployment {}", id);
         }
 
         purge(context,id);
