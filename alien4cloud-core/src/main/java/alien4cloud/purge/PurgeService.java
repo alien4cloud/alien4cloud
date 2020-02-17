@@ -54,9 +54,9 @@ public class PurgeService {
     MonitorESDAO monitorDao;
 
     /**
-     * Time to wait between the end of an execution and the start of the next execution.
+     * In hours, time to wait between the end of an execution and the start of the next execution.
      */
-    @Value("${purge.period:86400}")
+    @Value("${purge.period:24}")
     private Integer period;
 
     /**
@@ -79,8 +79,9 @@ public class PurgeService {
 
     @PostConstruct
     private void init() {
-        log.info("Purge job will be executed with a period of {} seconds (delay between end of execution and start of next execution)", period);
-        executorService.scheduleWithFixedDelay(this::run,period,period,TimeUnit.SECONDS);
+        long periodInSeconds = (period * 60 * 60) + 1; //(+1 just to avoid 0 since delay can not == 0)
+        log.info("Purge job will be executed with a period of {} seconds (delay between end of execution and start of next execution)", periodInSeconds);
+        executorService.scheduleWithFixedDelay(this::run, periodInSeconds, periodInSeconds, TimeUnit.SECONDS);
     }
 
     @PreDestroy
