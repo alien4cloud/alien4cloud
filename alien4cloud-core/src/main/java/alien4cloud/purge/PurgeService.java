@@ -12,11 +12,14 @@ import alien4cloud.model.deployment.DeploymentUnprocessedTopology;
 
 import alien4cloud.model.runtime.Execution;
 import alien4cloud.model.runtime.Task;
+import alien4cloud.model.runtime.WorkflowStepInstance;
 import alien4cloud.paas.model.*;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
+import org.apache.lucene.util.NamedThreadFactory;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -30,10 +33,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
-import java.util.Arrays;
-import java.util.Calendar;
+import java.util.*;
 
-import java.util.Collection;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +45,7 @@ import java.util.stream.Collectors;
 @Component
 public class PurgeService {
 
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new NamedThreadFactory("a4c-purge-service"));
 
     @Inject
     ElasticSearchDAO commonDao;
@@ -52,15 +53,27 @@ public class PurgeService {
     @Inject
     MonitorESDAO monitorDao;
 
+    /**
+     * Time to wait between the end of an execution and the start of the next execution.
+     */
     @Value("${purge.period:86400}")
     private Integer period;
 
-    @Value("${purge.threshold:100}")
+    /**
+     * Maximum number of deployments to purge at each purge execution.
+     */
+    @Value("${purge.threshold:1000}")
     private Integer threshold;
 
-    @Value("${purge.ttl:1800}")
+    /**
+     * TTL in hours : the TTL since the endDate of the deployment (when endDate is defined).
+     */
+    @Value("${purge.ttl:240}")
     private Integer ttl;
 
+    /**
+     * The maximum number of IDs to delete a each bulk delete request.
+     */
     @Value("${purge.batch:1000}")
     private Integer batch;
 
@@ -84,6 +97,8 @@ public class PurgeService {
 
         private final MultiValuedMap<Class<?>,String> map = new HashSetValuedHashMap<>();
 
+        private Map<Class<?>, Integer> stats = Maps.newHashMap();
+
         protected PurgeContext(BiConsumer<Class<?>,Collection<String>> callback) {
             this.callback = callback;
         }
@@ -94,23 +109,47 @@ public class PurgeService {
             Collection<String> ids = map.get(clazz);
             if (ids.size() == batch) {
                 callback.accept(clazz,ids);
+                addStat(clazz, ids.size());
                 map.remove(clazz);
             }
         }
 
         public void flush() {
             for (Class<?> clazz : map.keySet()) {
-                callback.accept(clazz,map.get(clazz));
+                Collection<String> ids = map.get(clazz);
+                callback.accept(clazz, ids);
+                addStat(clazz, ids.size());
             }
             map.clear();
         }
+
+        public void addStat(Class<?> clazz, int nbOfItems) {
+            Integer count = stats.get(clazz);
+            if (count == null) {
+                stats.put(clazz, nbOfItems);
+            } else {
+                stats.put(clazz, count + nbOfItems);
+            }
+        }
+
+        public void logStats() {
+            stats.forEach((aClass, count) -> {
+                ESGenericSearchDAO dao = getDaoFor(aClass);
+                String indexName = dao.getIndexForType(aClass);
+                log.info("=> Purge has deleted {} entries in index {}", count, indexName);
+            });
+
+        }
+
     }
 
     private void run() {
         try {
             PurgeContext context = new PurgeContext(this::bulkDelete);
 
-            long date = Calendar.getInstance().getTime().getTime() - ttl * 1000;
+            long date = Calendar.getInstance().getTime().getTime() - (ttl * 60 * 60 * 1000);
+
+            log.info("=> Start of deployments purge : TTL is {} (expiration date for this run : {}), considering {} deployments at each run, bulk delete batch size is {}", ttl, new Date(date), threshold, batch);
 
             FilterBuilder customFilter = FilterBuilders.boolFilter()
                     .mustNot(FilterBuilders.missingFilter("endDate"))
@@ -118,10 +157,10 @@ public class PurgeService {
 
             GetMultipleDataResult<Deployment> deployments = commonDao.search(Deployment.class, null, null, customFilter, null, 0, threshold);
 
-            if (deployments.getData().length > 0) {
-                if (log.isDebugEnabled()) {
-                    log.debug("=> Begin of deployment purge");
-                }
+            if (log.isDebugEnabled()) {
+                log.debug("=> {} deployments candidates for purge", deployments.getData().length);
+            }
+            if (deployments.getData().length >0) {
 
                 for (Deployment d : deployments.getData()) {
                     fullPurge(context, d.getId());
@@ -133,12 +172,16 @@ public class PurgeService {
                 // Delete deployments
                 Collection<String> ids = Arrays.stream(deployments.getData()).map(Deployment::getId).collect(Collectors.toList());
 
-                bulkDelete(Deployment.class, ids);
+                bulkDelete(Deployment.class,ids);
+                context.addStat(Deployment.class, ids.size());
 
                 if (log.isDebugEnabled()) {
                     log.debug("=> End of deployments purge");
                 }
+                context.logStats();
+
             }
+
         } catch(RuntimeException e) {
             log.error("Exception during purge:",e);
         }
@@ -161,6 +204,8 @@ public class PurgeService {
         context.add(DeploymentTopology.class,id);
         context.add(DeploymentUnprocessedTopology.class,id);
 
+
+        purge(context, id, WorkflowStepInstance.class);
         purge(context,id,TaskFailedEvent.class);
         purge(context,id,TaskSentEvent.class);
         purge(context,id,TaskStartedEvent.class);
@@ -178,6 +223,13 @@ public class PurgeService {
         purge(context,id,PaaSDeploymentStatusMonitorEvent.class);
 
         purge(context,id, PaaSInstanceStateMonitorEvent.class);
+
+        // Index : DeploymentMonitorEvent
+        // ------------------------------
+        // PaaSWorkflowMonitorEvent
+        // PaaSInstancePersistentResourceMonitorEvent
+        // PaaSWorkflowStepMonitorEvent
+        // PaaSMessageMonitorEvent
     }
 
     private <T> void purge(PurgeContext context, String id, Class<T> clazz) {
