@@ -138,9 +138,9 @@ public class PurgeService {
             stats.forEach((aClass, count) -> {
                 ESGenericSearchDAO dao = getDaoFor(aClass);
                 String indexName = dao.getIndexForType(aClass);
-                log.info("=> Purge has deleted {} entries in index {}", count, indexName);
+                String typeName = MappingBuilder.indexTypeFromClass(aClass);
+                log.info("=> Purge has deleted {} entries in index {}/{}", count, indexName, typeName);
             });
-
         }
 
     }
