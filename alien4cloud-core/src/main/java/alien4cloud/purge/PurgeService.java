@@ -275,7 +275,7 @@ public class PurgeService {
 
     private <T> void bulkDelete(Class<T> clazz,Collection<String> ids) {
         ESGenericSearchDAO dao = getDaoFor(clazz);
-        BulkRequestBuilder bulkRequestBuilder = dao.getClient().prepareBulk().setRefresh(true);
+        BulkRequestBuilder bulkRequestBuilder = dao.getClient().prepareBulk().setRefresh(false);
 
         String indexName = dao.getIndexForType(clazz);
         String typeName = MappingBuilder.indexTypeFromClass(clazz);
