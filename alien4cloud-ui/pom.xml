@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>2.2.0-SNAPSHOT</version>
+    <version>2.2.0-SM11</version>
   </parent>
   <artifactId>alien4cloud-ui</artifactId>
   <packaging>war</packaging>
@@ -30,7 +30,7 @@
     <dependency>
       <groupId>alien4cloud</groupId>
       <artifactId>alien4cloud-wizard-ui</artifactId>
-      <version>${project.version}</version>
+      <version>2.2.0-SM10</version>
       <type>zip</type>
     </dependency>
     <dependency>
