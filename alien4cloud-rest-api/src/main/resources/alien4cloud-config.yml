@@ -16,7 +16,7 @@ directories:
 #  alien_init: ${user.home}/WKS/A4C/alien4cloud-premium-dist/target/alien4cloud-premium-dist/alien4cloud-premium/init
 
   # alien4cloud main directory (other directories are relative path to this one)
-  alien: ${user.home}/.alien
+  alien: ${user.home}/.alien22
   # directory in which alien4cloud stores Cloud Service Archives
   csar_repository: csar
   # directory in which alien4cloud stores uploaded artifacts (war etc.).
@@ -31,13 +31,19 @@ paas_monitor:
   monitor_interval_ms: 1000
   # Number of threads to use to monitor Platform as a Service systems.
   threadpool_size: 5
-  # Duration to keep monitoring events stored in Alien4Cloud.
-  # Event lifetime unit : d (days), m (minutes), h (hours), ms (milliseconds) or w (weeks), milliseconds is used as default unit
-  events_lifetime: "1d"
 
 # Initial default components upload : from folder /alien4cloud-core/src/main/default-normative-types
 archive:
   upload_all: false
+
+purge:
+  # Duration in seconds between purge run
+  period: 120
+  # Max deleted deployments per purge run
+  threshold: 50
+  # Inactive deployments data retention time in seconds
+  ttl: 86400
+  batch: 1000
 
 # configure the boost factors for tosca elements in the search, elements with the highest boost factor appears first in search results
 # the total boost factor for a component is the sum of the following boost factors.
