@@ -21,5 +21,6 @@
                 level="debug"/>
         <logger name="alien4cloud.tosca.container.ToscaTypeLoader" level="error"/>
         <logger name="org.alien4cloud.exception.rest.RestTechnicalExceptionHandler" level="debug"/>
+        <logger name="alien4cloud.purge.PurgeService" level="debug" />
     </Loggers>
 </Configuration>

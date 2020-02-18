@@ -8,14 +8,14 @@ transport:
 
 cluster:
   name: escluster
-#  routing:
-#    allocation:
-#      disk:
-#        threshold_enabled: false
-#        watermark:
-#          flood_stage: 0.99
-#          low: 0.96
-#          high: 0.99
+  routing:
+    allocation:
+      disk:
+        threshold_enabled: false
+        watermark:
+          flood_stage: 0.99
+          low: 0.96
+          high: 0.99
 http:
   enabled: true
 node:
