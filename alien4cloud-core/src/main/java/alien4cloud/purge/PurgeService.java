@@ -201,12 +201,11 @@ public class PurgeService {
         purge(context,id,Execution.class);
 
         purge(context,id,PaaSDeploymentLog.class);
+        purge(context,id,DeploymentUnprocessedTopology.class);
     }
 
     private void purge(PurgeContext context, String id) {
         context.add(DeploymentTopology.class,id);
-        context.add(DeploymentUnprocessedTopology.class,id);
-
 
         purge(context, id, WorkflowStepInstance.class);
         purge(context,id,TaskFailedEvent.class);
