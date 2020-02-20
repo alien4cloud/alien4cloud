@@ -35,6 +35,7 @@ public class UserServiceTest {
 
     @Test
     public void testEnsureAdminUserShouldNotCreateUser() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+        Mockito.reset(alienUserDao);
         enableEnsure();
         GetMultipleDataResult searchResult = new GetMultipleDataResult(null, null, 0, 1, 0, 1);
         Mockito.when(alienUserDao.find(Mockito.anyMap(), Mockito.eq(1))).thenReturn(searchResult);
@@ -45,6 +46,7 @@ public class UserServiceTest {
 
     @Test
     public void testEnsureAdminUserShouldCreateUser() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+        Mockito.reset(alienUserDao);
         enableEnsure();
         GetMultipleDataResult searchResult = new GetMultipleDataResult(null, null, 0, 0, 0, 0);
         Mockito.when(alienUserDao.find(Mockito.anyMap(), Mockito.eq(1))).thenReturn(searchResult);
