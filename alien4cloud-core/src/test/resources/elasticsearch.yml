@@ -7,7 +7,7 @@ path:
   data: target/elasticsearch/data
   work: target/elasticsearch/work
   logs: target/elasticsearch/logs
-  conf: /src/test/resources
+#  conf: /src/test/resources
 
 gateway:
   recover_after_nodes: 1
