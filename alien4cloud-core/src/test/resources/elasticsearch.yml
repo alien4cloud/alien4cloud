@@ -13,7 +13,7 @@ gateway:
   recover_after_nodes: 1
   expected_nodes: 1
 
-discovery.zen.ping.multicast.enabled: false
-discovery.zen.ping.unicast.enabled: true
+# discovery.zen.ping.multicast.enabled: false
+# discovery.zen.ping.unicast.enabled: true
 
-discovery.zen.ping.unicast.hosts: localhost
+# discovery.zen.ping.unicast.hosts: localhost
