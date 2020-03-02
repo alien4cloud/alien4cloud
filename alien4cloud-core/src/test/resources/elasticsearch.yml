@@ -4,9 +4,9 @@
 
 path:
   home: target/elasticsearch
-  data: target/elasticsearch/data
-  work: target/elasticsearch/work
-  logs: target/elasticsearch/logs
+#  data: target/elasticsearch/data
+#  work: target/elasticsearch/work
+#  logs: target/elasticsearch/logs
 #  conf: /src/test/resources
 
 gateway:
