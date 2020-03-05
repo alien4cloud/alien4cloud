@@ -9,13 +9,6 @@ import alien4cloud.paas.IConfigurablePaaSProvider;
  * Interface used to communicate with an orchestrator.
  */
 public interface IOrchestratorPlugin<T> extends IConfigurablePaaSProvider<T> {
-    /**
-     * Return a configurator instance for a given location type.
-     * 
-     * @param locationType The type of location for which to get a location configurator.
-     * @return The configurator plugin.
-     */
-    ILocationConfiguratorPlugin getConfigurator(String locationType);
 
     /**
      * Get archives provided by the plugin. They contains all the types that are used to configure the plugin or that the plugin can eventually support.

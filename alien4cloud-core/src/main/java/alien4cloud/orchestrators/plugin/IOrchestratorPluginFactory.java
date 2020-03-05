@@ -76,4 +76,12 @@ public interface IOrchestratorPluginFactory<T extends IOrchestratorPlugin<V>, V>
      * @param id
      */
     default void delete(String id) {}
+
+    /**
+     * Return a configurator instance for a given location type.
+     *
+     * @param locationType The type of location for which to get a location configurator.
+     * @return The configurator plugin.
+     */
+    ILocationConfiguratorPlugin getConfigurator(String locationType);
 }

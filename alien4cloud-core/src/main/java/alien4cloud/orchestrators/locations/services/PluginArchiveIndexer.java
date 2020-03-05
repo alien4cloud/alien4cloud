@@ -107,8 +107,8 @@ public class PluginArchiveIndexer {
      */
     private ArchiveToIndex getArchivesToIndex(Orchestrator orchestrator, Location location) {
         Set<CSARDependency> dependencies = Sets.newHashSet();
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
-        ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestratorService.getOrFail(location.getOrchestratorId()));
+        ILocationConfiguratorPlugin configuratorPlugin = orchestratorFactory.getConfigurator(location.getInfrastructureType());
         List<PluginArchive> allPluginArchives = configuratorPlugin.pluginArchives();
         Set<PluginArchive> archivesToIndex = Sets.newHashSet();
 
@@ -245,17 +245,8 @@ public class PluginArchiveIndexer {
     }
 
     private ILocationConfiguratorPlugin getConfiguratorPlugin(Location location) {
-        ILocationConfiguratorPlugin configuratorPlugin;
-        try {
-            IOrchestratorPlugin<Object> orchestratorInstance = orchestratorPluginService.getOrFail(location.getOrchestratorId());
-            configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
-        } catch (OrchestratorDisabledException e) {
-            IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestratorService.getOrFail(location.getOrchestratorId()));
-            IOrchestratorPlugin<Object> orchestratorInstance = orchestratorFactory.newInstance(null);
-            configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
-            orchestratorFactory.destroy(orchestratorInstance);
-        }
-        return configuratorPlugin;
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestratorService.getOrFail(location.getOrchestratorId()));
+        return orchestratorFactory.getConfigurator(location.getInfrastructureType());
     }
 
     /**

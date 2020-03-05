@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.stereotype.Component;
@@ -69,4 +70,8 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
         return "Mock Orchestrator";
     }
 
+    @Override
+    public ILocationConfiguratorPlugin getConfigurator(String locationType) {
+        return null;
+    }
 }

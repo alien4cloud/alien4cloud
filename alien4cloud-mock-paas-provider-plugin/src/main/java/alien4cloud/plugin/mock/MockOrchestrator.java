@@ -19,14 +19,6 @@ import com.google.common.collect.Lists;
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class MockOrchestrator extends MockPaaSProvider {
-    @Inject
-    private MockLocationConfigurerFactory mockLocationConfigurerFactory;
-
-    @Override
-    public ILocationConfiguratorPlugin getConfigurator(String locationType) {
-        return mockLocationConfigurerFactory.newInstance(locationType);
-    }
-
     @Override
     public List<PluginArchive> pluginArchives() {
         return Lists.newArrayList();

@@ -220,10 +220,9 @@ public class LocationService {
      * @return the List of {@link LocationResourceTemplate} generated from the location auto-configuration call, null is a valid answer.
      */
     private List<LocationResourceTemplate> autoConfigure(Orchestrator orchestrator, Location location) throws UnsupportedOperationException {
-        // get the orchestrator plugin instance
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
-        ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
-        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
+        // get the orchestrator plugin factory instance
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestratorService.getOrFail(location.getOrchestratorId()));
+        ILocationConfiguratorPlugin configuratorPlugin = orchestratorFactory.getConfigurator(location.getInfrastructureType());
 
         ILocationResourceAccessor accessor = locationResourceService.accessor(location.getId());
 

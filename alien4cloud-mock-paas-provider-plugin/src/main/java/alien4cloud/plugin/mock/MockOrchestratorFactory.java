@@ -4,7 +4,9 @@ import java.util.Arrays;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
+import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.constraints.GreaterOrEqualConstraint;
@@ -27,6 +29,9 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockOrchestrator, ProviderConfig> {
     public static final String OPENSTACK = "OpenStack";
     public static final String AWS = "Amazon";
+
+    @Inject
+    private MockLocationConfigurerFactory mockLocationConfigurerFactory;
 
     @Resource
     private BeanFactory beanFactory;
@@ -110,4 +115,8 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
         return "Mock Orchestrator";
     }
 
+    @Override
+    public ILocationConfiguratorPlugin getConfigurator(String locationType) {
+        return mockLocationConfigurerFactory.newInstance(locationType);
+    }
 }

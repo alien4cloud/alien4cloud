@@ -14,6 +14,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
@@ -142,9 +143,9 @@ public class LocationResourceService implements ILocationResourceService {
     @Override
     public LocationResources getLocationResourcesFromOrchestrator(Location location) {
         LocationResources locationResources = new LocationResources();
-        Orchestrator orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
-        IOrchestratorPlugin orchestratorInstance = orchestratorPluginService.getOrFail(orchestrator.getId());
-        ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestratorService.getOrFail(location.getOrchestratorId()));
+        ILocationConfiguratorPlugin configuratorPlugin = orchestratorFactory.getConfigurator(location.getInfrastructureType());
 
         fillLocationResourceTypes(configuratorPlugin.getResourcesTypes(), locationResources, location.getDependencies());
         fillPoliciesLocationResourceTypes(configuratorPlugin.getPoliciesTypes(), locationResources, location.getDependencies());
