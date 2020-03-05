@@ -153,17 +153,19 @@ public class ArtifactProcessorService {
         return ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY.equals(artifact.getArtifactRepository());
     }
 
+    public void processDeploymentArtifact(AbstractArtifact deploymentArtifact, String topologyId) {
+        if (isArtifactFromTopologyEditor(deploymentArtifact)) {
+            // Artifact which does not come from the archive, which comes from topology's edition
+            Path artifactPath = editorRepositoryService.resolveArtifact(topologyId, deploymentArtifact.getArtifactRef());
+            deploymentArtifact.setArtifactPath(artifactPath.toString());
+        } else {
+            this.processArtifact(deploymentArtifact);
+        }
+    }
+
     private void processDeploymentArtifacts(PaaSTopologyDeploymentContext deploymentContext) {
         if (deploymentContext.getDeploymentTopology().getNodeTemplates() != null) {
-            // Artifact which comes from the archive or from internal repository
-            getDeploymentArtifactStream(deploymentContext).filter(deploymentArtifact -> !isArtifactFromTopologyEditor(deploymentArtifact))
-                    .forEach(this::processArtifact);
-            // Artifact which does not come from the archive, which comes from topology's edition
-            getDeploymentArtifactStream(deploymentContext).filter(this::isArtifactFromTopologyEditor).forEach(deploymentArtifact -> {
-                Path artifactPath = editorRepositoryService.resolveArtifact(deploymentContext.getDeploymentTopology().getInitialTopologyId(),
-                        deploymentArtifact.getArtifactRef());
-                deploymentArtifact.setArtifactPath(artifactPath.toString());
-            });
+            getDeploymentArtifactStream(deploymentContext).forEach(deploymentArtifact -> this.processDeploymentArtifact(deploymentArtifact, deploymentContext.getDeploymentTopology().getInitialTopologyId()));
         }
     }
 
