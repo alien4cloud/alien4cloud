@@ -77,11 +77,11 @@ define(function (require) {
         var params ;
         var searchConfig = _.isFunction($scope.buildSearchConfig) ? $scope.buildSearchConfig() : null;
         if($scope.customSearchActive) {
-          url = _.get(searchConfig, 'url', '/rest/latest/applications/search');
+          url = _.get(searchConfig, 'url', 'rest/latest/applications/search');
           useParams = _.get(searchConfig, 'useParams', false);
           params = _.get(searchConfig, 'params', null);
         }else {
-          url = '/rest/latest/applications/search';
+          url = 'rest/latest/applications/search';
           useParams = false;
           params = null;
         }

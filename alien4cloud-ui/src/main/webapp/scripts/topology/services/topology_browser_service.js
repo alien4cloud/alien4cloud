@@ -12,10 +12,10 @@ define(function (require) {
         var selectedUrl;
         if(_.defined(node.artifactId)) {
           // temp file under edition
-          selectedUrl = '/rest/latest/editor/' + topology.id + '/file/' + node.artifactId;
+          selectedUrl = 'rest/latest/editor/' + topology.id + '/file/' + node.artifactId;
         } else {
           // commited file
-          selectedUrl = '/static/tosca/' + topology.archiveName + '/' + topology.archiveVersion + node.fullPath;
+          selectedUrl = 'static/tosca/' + topology.archiveName + '/' + topology.archiveVersion + node.fullPath;
         }
         _.isImage(selectedUrl).then(function(isImage) {
           if(isImage) {
