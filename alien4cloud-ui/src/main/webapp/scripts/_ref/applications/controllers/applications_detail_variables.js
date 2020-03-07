@@ -78,7 +78,7 @@ define(function (require) {
 
       var aceEditor;
       // aceEditor.getSession().setValue(result.data);
-      var variablesService = $alresource('/rest/applications/:applicationId/variables');
+      var variablesService = $alresource('rest/latest/applications/:applicationId/variables');
 
       function setAceEditorContent (content){
         $scope.editorContent = {old: content, new: content};
