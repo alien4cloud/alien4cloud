@@ -429,7 +429,7 @@ public final class AuthorizationUtil {
         httpSecurity.authorizeRequests().antMatchers("/rest/v1/audit/**").hasAuthority("ADMIN");
 
         // login
-        httpSecurity.formLogin().defaultSuccessUrl("rest/auth/status").failureUrl("rest/auth/authenticationfailed").loginProcessingUrl("/login")
+        httpSecurity.formLogin().defaultSuccessUrl("/rest/auth/status").failureUrl("/rest/auth/authenticationfailed").loginProcessingUrl("/login")
                 .usernameParameter("username").passwordParameter("password").permitAll();
         if (successLogoutHandler == null) {
             httpSecurity.logout().logoutSuccessUrl("/").deleteCookies("JSESSIONID");
