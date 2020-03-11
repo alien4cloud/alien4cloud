@@ -45,8 +45,12 @@ public final class AuthorizationUtil {
     private static IAlienGroupDao alienGroupDao;
     private static Alien4CloudAccessDeniedHandler accessDeniedHandler;
 
-    @Value("${server.url_path:/}")
     private static String urlPath;
+
+    @Value("${server.url_path:/}")
+    public void setUrlPath(String urlPath) {
+        AuthorizationUtil.urlPath = urlPath;
+    }
 
     @Autowired
     public void setAlienGroupDao(IAlienGroupDao alienGroupDao) {
