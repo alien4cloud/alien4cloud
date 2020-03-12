@@ -45,6 +45,10 @@ public final class AuthorizationUtil {
     private static IAlienGroupDao alienGroupDao;
     private static Alien4CloudAccessDeniedHandler accessDeniedHandler;
 
+    /**
+     * If your a4c is behind a proxy using a path (for example a nginx with a location /something that redirect to your a4c instance,
+     * you should set this parameter to /something in order to avoid 404 while login and logout.
+     */
     private static String urlPath;
 
     @Value("${server.url_path:/}")
