@@ -24,7 +24,7 @@ define(function (require) {
       };
 
       // Recover alien version and display github tag link if it's not snapshot (cached request)
-      $http.get('/version.json', {
+      $http.get('version.json', {
         cache: 'true'
       }).then(function(result) {
         $scope.version = {};
@@ -49,7 +49,7 @@ define(function (require) {
 
       authService.getStatus();
 
-      $http.get('/rest/latest/configuration/supportedLanguages').then(function(result) {
+      $http.get('rest/latest/configuration/supportedLanguages').then(function(result) {
         $scope.supportedLanguages = result.data.data;
       });
 

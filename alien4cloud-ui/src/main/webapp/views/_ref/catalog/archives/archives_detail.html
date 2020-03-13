@@ -7,7 +7,7 @@
         <div class="col-md-12">
           <h1 id="csar-name">{{csar.csar.name}}</h1>
           <div class="pull-right">
-            <a class="btn btn-primary btn-sm" href="/rest/latest/csars/{{csar.csar.id}}/download" download="{{csar.csar.id}}.zip">
+            <a class="btn btn-primary btn-sm" href="rest/latest/csars/{{csar.csar.id}}/download" download="{{csar.csar.id}}.zip">
               <i class="fa fa-download"></i>
             </a>
             <delete-confirm ng-if="!csar.substitutionTopologyId" id="delete-csar_{{csar.csar.id}}" func="remove(csar.csar.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">

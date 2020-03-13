@@ -16,9 +16,9 @@ define(function (require) {
     ['$scope', '$uibModal', 'varName', '$uibModalInstance', 'topologyVariableService', '$alresource', '$filter',
       function($scope,  $uibModal, varName, $uibModalInstance, topologyVariableService, $alresource, $filter) {
 
-        var appVariablesService = $alresource('/rest/applications/:applicationId/variables/:varName');
-        var envVariableService = $alresource('/rest/latest/applications/:applicationId/topologyVersion/:topologyVersion/environments/variables/:varName');
-        var envTypeVariableService = $alresource('/rest/latest/applications/:applicationId/topologyVersion/:topologyVersion/environmentTypes/variables/:varName');
+        var appVariablesService = $alresource('rest/applications/:applicationId/variables/:varName');
+        var envVariableService = $alresource('rest/latest/applications/:applicationId/topologyVersion/:topologyVersion/environments/variables/:varName');
+        var envTypeVariableService = $alresource('rest/latest/applications/:applicationId/topologyVersion/:topologyVersion/environmentTypes/variables/:varName');
         var aceEditor;
 
         $scope.editMode = false;

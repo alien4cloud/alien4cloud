@@ -75,7 +75,20 @@ public class MapParser<T> implements INodeParser<Map<String, T>> {
                     BeanWrapper valueWrapper = new BeanWrapperImpl(value);
                     valueWrapper.setPropertyValue(keyPath, key);
                 }
-                map.put(key, value);
+
+                if (map.containsKey(key)) {
+                    ParsingError err = new ParsingError(
+                            ErrorCode.DUPLICATED_ELEMENT_DECLARATION,
+                            "Key in the map must be unique.",
+                            node.getStartMark(),
+                            "",
+                            node.getEndMark(),
+                            key
+                        );
+                    context.getParsingErrors().add(err);
+                } else {
+                    map.put(key, value);
+                }
             }
         }
         return map;

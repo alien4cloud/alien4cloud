@@ -20,8 +20,6 @@ import alien4cloud.paas.model.*;
  */
 @Component("alien-monitor-es-dao")
 public class MonitorESDAO extends ESGenericSearchDAO {
-    @Value("${paas_monitor.events_lifetime}")
-    private String eventMonitoringTtl;
 
     /** Initialize the dao after being loaded by spring (Create the indexes). */
     @PostConstruct
@@ -43,8 +41,8 @@ public class MonitorESDAO extends ESGenericSearchDAO {
         };
         initIndices("deployedtopologies", null, DeploymentTopology.class);
         initIndices("deployedunprocessedtopologies", null, DeploymentUnprocessedTopology.class);
-        initIndices("deploymentmonitorevents", eventMonitoringTtl, classes);
-        initIndices(PaaSDeploymentLog.class.getSimpleName().toLowerCase(), eventMonitoringTtl, PaaSDeploymentLog.class);
+        initIndices("deploymentmonitorevents", null, classes);
+        initIndices(PaaSDeploymentLog.class.getSimpleName().toLowerCase(), null, PaaSDeploymentLog.class);
         initCompleted();
     }
 }

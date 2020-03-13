@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 public class ToscaPropertySerializerUtils {
 
-    private static Pattern ESCAPE_PATTERN = Pattern.compile(".*[,:\\[\\]\\{\\}-].*");
+    private static Pattern ESCAPE_PATTERN = Pattern.compile(".*[,:\\\\\\[\\]\\{\\}-].*");
     private static Pattern VALID_YAML_PATTERN = Pattern.compile("[a-zA-Z0-9]+");
     private static Pattern FLOAT_PATTERN = Pattern.compile("([0-9]+[.])?[0-9]+");
 
@@ -167,9 +167,9 @@ public class ToscaPropertySerializerUtils {
         if (scalar == null) {
             return null;
         } else if (ESCAPE_PATTERN.matcher(scalar).matches()) {
-            return "\"" + escapeDoubleQuote(scalar) + "\"";
+            return "\"" + escapeDoubleQuotedString(scalar) + "\"";
         } else if (scalar.startsWith(" ") || scalar.endsWith(" ")) {
-            return "\"" + escapeDoubleQuote(scalar) + "\"";
+            return "\"" + escapeDoubleQuotedString(scalar) + "\"";
         } else {
             return scalar;
         }

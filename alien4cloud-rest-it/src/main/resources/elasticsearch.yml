@@ -1,29 +1,9 @@
-
-
 path:
   home: target/elasticsearch
-  # data: target/elasticsearch/data
-  # work: target/elasticsearch/work
-  # logs: target/elasticsearch/logs
-
-transport:
-  type: mock-socket-network
-
-http:
-  enabled: true
-node:
-  name: alien
-network:
-  host: 0.0.0.0
-
-cluster:
-  name: escluster
 
 # gateway:
 #   recover_after_nodes: 1
 #   expected_nodes: 1
 
-# discovery.zen.ping.multicast.enabled: false
-# discovery.zen.ping.unicast.enabled: true
-
-# discovery.zen.ping.unicast.hosts: localhost
+cluster:
+  name: escluster

@@ -43,6 +43,9 @@ elasticSearch:
   client: false
   resetData: false
   prefix_max_expansions: 10
+  shard_count: 1
+  replica_count: 0
+  
 
 audit:
   ttl: 1d

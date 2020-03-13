@@ -68,7 +68,7 @@ define(function (require) {
         $state.go('catalog.archives.git');
       };
 
-      var createTopologyArchiveResource = $alresource('/rest/latest/catalog/topologies/template');
+      var createTopologyArchiveResource = $alresource('rest/latest/catalog/topologies/template');
       $scope.createTopologyArchive = function(topologyTemplate) {
         // create a new topologyTemplate from the given name, version and description.
         createTopologyArchiveResource.create([], angular.toJson(topologyTemplate), function(response) {

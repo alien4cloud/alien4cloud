@@ -191,7 +191,7 @@ public class ToscaArchiveParser {
     private ParsingResult<ArchiveRoot> parseFromRootDefinitions(Path csarPath) throws ParsingException {
         // load definitions from the archive root
         try {
-            List<Path> yamls = FileUtil.listFiles(csarPath, ".+\\.ya?ml");
+            List<Path> yamls = FileUtil.listFiles(csarPath, ".+\\.ya?ml", 1);
             if (yamls.size() == 1) {
                 return toscaParser.parseFile(yamls.get(0));
             }

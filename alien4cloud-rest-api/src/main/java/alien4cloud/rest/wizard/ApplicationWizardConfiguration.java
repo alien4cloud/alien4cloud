@@ -88,7 +88,7 @@ public class ApplicationWizardConfiguration {
                         allComponentFiltersSet.put(k, metaprops);
                     }
                     for (int i = 0; i < values.length; i++) {
-                        metaprops.add(values[i].toLowerCase());
+                        metaprops.add(values[i]);
                     }
                 });
             }

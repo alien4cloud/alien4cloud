@@ -10,6 +10,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -43,6 +44,17 @@ public final class AuthorizationUtil {
 
     private static IAlienGroupDao alienGroupDao;
     private static Alien4CloudAccessDeniedHandler accessDeniedHandler;
+
+    /**
+     * If your a4c is behind a proxy using a path (for example a nginx with a location /something that redirect to your a4c instance,
+     * you should set this parameter to /something in order to avoid 404 while login and logout.
+     */
+    private static String urlPath;
+
+    @Value("${server.url_path:/}")
+    public void setUrlPath(String urlPath) {
+        AuthorizationUtil.urlPath = urlPath;
+    }
 
     @Autowired
     public void setAlienGroupDao(IAlienGroupDao alienGroupDao) {
@@ -438,10 +450,11 @@ public final class AuthorizationUtil {
         httpSecurity.authorizeRequests().antMatchers("/rest/v1/audit/**").hasAuthority("ADMIN");
 
         // login
-        httpSecurity.formLogin().defaultSuccessUrl("/rest/auth/status").failureUrl("/rest/auth/authenticationfailed").loginProcessingUrl("/login")
+        String prefix = (urlPath.equals("/")) ? urlPath : urlPath + "/";
+        httpSecurity.formLogin().defaultSuccessUrl(prefix + "rest/auth/status").failureUrl(prefix + "rest/auth/authenticationfailed").loginProcessingUrl("/login")
                 .usernameParameter("username").passwordParameter("password").permitAll();
         if (successLogoutHandler == null) {
-            httpSecurity.logout().logoutSuccessUrl("/").deleteCookies("JSESSIONID");
+            httpSecurity.logout().logoutSuccessUrl(prefix).deleteCookies("JSESSIONID");
         } else {
             httpSecurity.getConfigurer(LogoutConfigurer.class).logoutSuccessHandler(successLogoutHandler);
         }
