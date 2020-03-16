@@ -20,7 +20,7 @@ Alien4Cloud is written in java for the backend and requires a JDK 8 or newer (no
 - make sure you have Maven installed (team is using 3.0.5)
 - install Ruby
 - install Python
-- install Node.js (team is using 6.14.4) to get npm command. Check here http://nodejs.org. Note that you need a recent version of npm (>= 5.5.x) in order to build a4c.
+- install Node.js (team is using 10.19.0) to get npm command. Check here http://nodejs.org. Note that you need a recent version of npm (>= 6.13.x) in order to build a4c.
 - install bower  
 ```sh
 $ sudo npm install -g bower
@@ -28,6 +28,10 @@ $ sudo npm install -g bower
 - install grunt  
 ```sh
 $ sudo npm -g install grunt-cli
+```
+- install build tools (Windows ONLY)  
+```sh
+$ npm install --global --production windows-build-tools
 ```
 - install compass  
 ```sh
