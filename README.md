@@ -35,7 +35,7 @@ $ npm install --global --production windows-build-tools
 ```
 - install compass  
 ```sh
-$ gem install compass
+$ gem install compass (gem.cmd install compass on windows)
 ```
 - and grunt-contrib-compass  
 ```sh
