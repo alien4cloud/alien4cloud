@@ -29,6 +29,8 @@ import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.index.query.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -195,7 +197,26 @@ public class PurgeService {
             log.trace("=> Purging Deployment {}", id);
         }
 
-        purge(context,id);
+        context.add(DeploymentTopology.class,id);
+
+        purge(context, id, WorkflowStepInstance.class);
+        purge(context,id,TaskFailedEvent.class);
+        purge(context,id,TaskSentEvent.class);
+        purge(context,id,TaskStartedEvent.class);
+        purge(context,id,TaskCancelledEvent.class);
+        purge(context,id,TaskSucceededEvent.class);
+
+        purge(context,id, WorkflowStepStartedEvent.class);
+        purge(context,id, WorkflowStepCompletedEvent.class);
+
+        purge(context,id, PaaSWorkflowSucceededEvent.class);
+        purge(context,id, PaaSWorkflowStartedEvent.class);
+        purge(context,id, PaaSWorkflowCancelledEvent.class);
+        purge(context,id, PaaSWorkflowFailedEvent.class);
+
+        purge(context,id,PaaSDeploymentStatusMonitorEvent.class);
+
+        purge(context,id, PaaSInstanceStateMonitorEvent.class);
 
         purge(context,id,Task.class);
         purge(context,id,Execution.class);
@@ -205,8 +226,6 @@ public class PurgeService {
     }
 
     private void purge(PurgeContext context, String id) {
-        context.add(DeploymentTopology.class,id);
-
         purge(context, id, WorkflowStepInstance.class);
         purge(context,id,TaskFailedEvent.class);
         purge(context,id,TaskSentEvent.class);
