@@ -105,6 +105,9 @@ public class ArchiveIndexer {
     @Value("${features.archive_indexer_lock_used_archive:#{true}}")
     private boolean lockUsedArchive;
 
+    @Value("${features.archive_indexer_accept_upgrade_release:#{false}}")
+    private boolean acceptReleased;
+
     /**
      * Check that a CSAR name/version does not already exists in the repository and eventually throw an AlreadyExistException.
      *
@@ -211,7 +214,10 @@ public class ArchiveIndexer {
         publisher.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
 
         // Throw an exception if we are trying to override a released (non SNAPSHOT) version.
-        checkNotReleased(currentIndexedArchive);
+        if (acceptReleased == false) {
+            checkNotReleased(currentIndexedArchive);
+        }
+
         // In the current version of alien4cloud we must prevent from overriding an archive that is used in a deployment as we still use catalog information at
         // runtime.
         if (lockUsedArchive) {
