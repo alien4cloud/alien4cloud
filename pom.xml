@@ -29,7 +29,7 @@
     <sonar.jacoco.itReportPath>${project.basedir}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
 
     <!-- Utilities -->
-    <lombok.version>1.16.18</lombok.version>
+    <lombok.version>1.18.12</lombok.version>
     <guava.version>19.0</guava.version>
     <commons.fileupload.version>1.2.2</commons.fileupload.version>
     <commons-io.version>1.3.2</commons-io.version>
