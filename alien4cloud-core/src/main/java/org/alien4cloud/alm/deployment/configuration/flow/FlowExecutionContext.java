@@ -4,12 +4,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
+import com.google.common.collect.Maps;
+
 import org.alien4cloud.alm.deployment.configuration.model.AbstractDeploymentConfig;
 import org.alien4cloud.alm.deployment.configuration.services.DeploymentConfigurationDao;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.annotation.ESObject;
-
-import com.google.common.collect.Maps;
 
 import alien4cloud.model.application.ApplicationEnvironment;
 import lombok.Getter;
@@ -24,6 +24,7 @@ public class FlowExecutionContext {
     /** A4C OOB keys of elements in the context cache. */
     public static final String LOCATION_MATCH_CACHE_KEY = "location_matches";
     public static final String DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY = "deployment_locations";
+    public static final String NODES_PER_LOCATIONS_CACHE_KEY = "nodes_per_locations";
     /** Location resource template candidates per node template key. */
     public static final String MATCHED_NODE_LOCATION_TEMPLATES_BY_NODE_ID_MAP = "matched_node_location_templates_by_node_id_map";
     public static final String MATCHED_NODE_LOCATION_TEMPLATES_BY_ID_MAP = "matched_node_location_templates_by_id_map";
@@ -39,6 +40,10 @@ public class FlowExecutionContext {
     public static final String MATCHING_REPLACED_POLICIES = "matching_replaced_policies";
     // the initial topology before modifiers transformations
     public static final String INITIAL_TOPOLOGY = "INITIAL_TOPOLOGY";
+
+    // If we are currently processing a modifier injected from a location this key contains location from which it is originated.
+    // Otherwise it is null
+    public static final String ORIGIN_LOCATION_FOR_MODIFIER = "origin_location_for_modifier";
 
     /** Injected dao for configuration retrieval management. */
     private final DeploymentConfigurationDao deploymentConfigurationDao;
@@ -65,7 +70,7 @@ public class FlowExecutionContext {
 
     /**
      * Shorthand getter to get the context log.
-     * 
+     *
      * @return The Flow execution log.
      */
     public FlowExecutionLog log() {
@@ -80,7 +85,7 @@ public class FlowExecutionContext {
      * The operation is also caching aware to avoid requesting multiple times the same object from elasticsearch.
      *
      * The configuration object is not annotated with {@link ESObject}, no request to elasticsearch will be made.
-     * 
+     *
      * @param cfgClass The class of the configuration object.
      * @param modifierName Name of the modifier that tries to access a deployment configuration object (related to the environment).
      * @param <T> The type of the configuration object.
@@ -109,7 +114,7 @@ public class FlowExecutionContext {
     /**
      * Counterparty method of the getConfiguration to actually update a configuration both in elasticsearch
      * (configuration object MUST be annotated with {@link ESObject} and the local configuration cache.
-     * 
+     *
      * @param configuration The configuration to update.
      */
     public void saveConfiguration(AbstractDeploymentConfig configuration) {

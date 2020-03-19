@@ -5,13 +5,16 @@ import static alien4cloud.utils.AlienUtils.safe;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
@@ -101,7 +104,7 @@ public class LocationMatchingModifier implements ITopologyModifier {
             for (Location location : safe(selectedLocations.values())) {
                 for (LocationModifierReference modifierReference : safe(location.getModifiers())) {
                     if (pluginManager.getPluginOrFail(modifierReference.getPluginId()).isEnabled()) {
-                        injectLocationTopologyModfier(context, location.getName(), modifierReference);
+                        injectLocationTopologyModfier(context, location, modifierReference);
                     } else {
                         log.info("The plugin " + modifierReference.getPluginId() + " is not activated. Ignoring "
                                 + modifierReference.getBeanName() + ".");
@@ -111,21 +114,25 @@ public class LocationMatchingModifier implements ITopologyModifier {
         }
     }
 
-    private void injectLocationTopologyModfier(FlowExecutionContext context, String locationName,
+    private void injectLocationTopologyModfier(FlowExecutionContext context,
+            Location location,
             LocationModifierReference modifierReference) {
         try {
             ITopologyModifier modifier = pluginModifierRegistry.getPluginBean(modifierReference.getPluginId(),
                     modifierReference.getBeanName());
+            String phaseName = modifierReference.getPhase() + "-" + location.getId();
             List<ITopologyModifier> phaseModifiers = (List<ITopologyModifier>) context.getExecutionCache()
-                    .get(modifierReference.getPhase());
+                    .get(phaseName);
             if (phaseModifiers == null) {
                 phaseModifiers = Lists.newArrayList();
-                context.getExecutionCache().put(modifierReference.getPhase(), phaseModifiers);
+                context.getExecutionCache().put(phaseName, phaseModifiers);
             }
-            phaseModifiers.add(modifier);
+            if (!phaseModifiers.contains(modifier)) {
+                phaseModifiers.add(modifier);
+            }
         } catch (MissingPluginException e) {
             context.log().error("Location {} defines modifier that refers to plugin bean {}, {} cannot be found.",
-                    locationName, modifierReference.getPluginId(), modifierReference.getBeanName());
+                    location.getName(), modifierReference.getPluginId(), modifierReference.getBeanName());
         }
     }
 
@@ -141,12 +148,12 @@ public class LocationMatchingModifier implements ITopologyModifier {
 
         // If some of the locations defined does not exist anymore then just reset the
         // deployment matching configuration
-        Map<String, String> locationIds = matchingConfiguration.getLocationIds();
-        if (MapUtils.isEmpty(locationIds)) {
+        Map<String, String> groupsToLocationIds = matchingConfiguration.getLocationIds();
+        if (MapUtils.isEmpty(groupsToLocationIds)) {
             return;
         }
 
-        Map<String, Location> locations = getLocations(locationIds); // returns null if at least one of the expected
+        Map<String, Location> locations = getLocations(groupsToLocationIds); // returns null if at least one of the expected
                                                                      // location is missing.
         if (locations == null) {
             // TODO Add an info log to explain that previous location does not exist anymore
@@ -177,7 +184,7 @@ public class LocationMatchingModifier implements ITopologyModifier {
             locationMatchMap.put(match.getLocation().getId(), match);
         }
 
-        for (String locationId : locationIds.values()) {
+        for (String locationId : groupsToLocationIds.values()) {
             if (!locationMatchMap.containsKey(locationId)) { // A matched location is not a valid choice anymore.
                 resetMatchingConfiguration(context);
                 // TODO info log the reason why the location is no more a valid match
@@ -188,6 +195,23 @@ public class LocationMatchingModifier implements ITopologyModifier {
         // update the TOSCA context with the new dependencies so that next step runs
         // with an up-to-date context
         ToscaContext.get().resetDependencies(topology.getDependencies());
+
+
+        // Now we know for each group on which location it should live
+        // lets build a map of locations to nodes
+        buildLocationsToNodesMap(context, matchingConfiguration, groupsToLocationIds);
+    }
+
+
+    private void buildLocationsToNodesMap(FlowExecutionContext context,  DeploymentMatchingConfiguration matchingConfiguration, Map<String,String> groupsToLocationIds) {
+        Map<String, Set<String>> locationsToNodes = Maps.newHashMap();
+        for (Entry<String, String> groupToLocEntry : groupsToLocationIds.entrySet()) {
+            Set<String> nodes = locationsToNodes.computeIfAbsent(groupToLocEntry.getValue(), k -> Sets.newHashSet());
+            nodes.addAll(matchingConfiguration.getLocationGroups().get(groupToLocEntry.getKey()).getMembers());
+        }
+
+        context.getExecutionCache().put(FlowExecutionContext.NODES_PER_LOCATIONS_CACHE_KEY, locationsToNodes);
+
     }
 
     private void resetMatchingConfiguration(FlowExecutionContext context) {

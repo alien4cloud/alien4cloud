@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.editor.operations.nodetemplate;
 
+import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.hibernate.validator.constraints.NotBlank;
 
 import lombok.Getter;
@@ -20,6 +21,8 @@ public class AddNodeOperation extends AbstractNodeOperation {
     private String requirementSkipAutoCompletion;
     /** Optional flag to skip auto-completion when adding node. */
     private boolean skipAutoCompletion = false;
+
+    private FlowExecutionContext context;
 
     @Override
     public String commitMessage() {

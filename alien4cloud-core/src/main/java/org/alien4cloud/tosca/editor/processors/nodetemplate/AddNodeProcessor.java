@@ -1,9 +1,15 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.Constants;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
@@ -14,8 +20,6 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.services.DanglingRequirementService;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
 
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.exception.CyclicReferenceException;
@@ -88,6 +92,14 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
 
         if (!operation.isSkipAutoCompletion()) {
             danglingRequirementService.addDanglingRequirements(topology, topologyContext, nodeTemplate, operation.getRequirementSkipAutoCompletion());
+        }
+
+        if (operation.getContext() != null) {
+            String locationId = (String) operation.getContext().getExecutionCache().get(FlowExecutionContext.ORIGIN_LOCATION_FOR_MODIFIER);
+            if (locationId != null) {
+                Map<String, Set<String>> nodesPerLocation = (Map<String, Set<String>>) operation.getContext().getExecutionCache().get(FlowExecutionContext.NODES_PER_LOCATIONS_CACHE_KEY);
+                nodesPerLocation.computeIfAbsent(locationId, k -> Sets.newHashSet()).add(operation.getNodeName());
+            }
         }
     }
 }

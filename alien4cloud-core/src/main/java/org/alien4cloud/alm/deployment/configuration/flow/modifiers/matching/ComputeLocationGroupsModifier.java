@@ -55,7 +55,9 @@ public class ComputeLocationGroupsModifier implements ITopologyModifier {
 
         Map<String, NodeGroup> groups = safe(configuration.getLocationGroups());
         // Remove groups that do not exists anymore
-        groups.entrySet().removeIf(e -> !nodesGroups.containsKey(e.getValue().getMembers().iterator().next()));
+        groups.entrySet().removeIf(e -> {
+            return !e.getValue().getMembers().stream().anyMatch(m -> nodesGroups.containsKey(m));
+        });
 
 
         for (Entry<String, Set<String>> entry : nodesGroups.entrySet()) {

@@ -6,14 +6,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.*;
+
+import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateCapabilityPropertyValueOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.DeleteRelationshipOperation;
-import org.alien4cloud.tosca.editor.processors.nodetemplate.*;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.AddNodeProcessor;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.DeleteNodeProcessor;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.ReplaceNodeProcessor;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.UpdateCapabilityPropertyValueProcessor;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.UpdateNodePropertyValueProcessor;
 import org.alien4cloud.tosca.editor.processors.relationshiptemplate.AddRelationshipProcessor;
 import org.alien4cloud.tosca.editor.processors.relationshiptemplate.DeleteRelationshipProcessor;
 import org.alien4cloud.tosca.model.Csar;
@@ -27,9 +39,6 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.utils.TopologyNavigationUtil;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.model.common.Tag;
@@ -69,6 +78,7 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
     /**
      * Add a node template in the topology.
      *
+     * @param context
      * @param csar
      * @param topology
      * @param desiredNodeName the name you would like for this node (but can be suffixed if this name is already used).
@@ -77,12 +87,13 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
      * @return the created node.
      */
     // TODO ALIEN-2589: unit test
-    protected NodeTemplate addNodeTemplate(Csar csar, Topology topology, String desiredNodeName, String nodeType, String nodeVersion) {
+    protected NodeTemplate addNodeTemplate(FlowExecutionContext context, Csar csar, Topology topology, String desiredNodeName, String nodeType, String nodeVersion) {
         AddNodeOperation addNodeOperation = new AddNodeOperation();
         String nodeName = TopologyCompositionService.ensureNodeNameIsUnique(topology.getNodeTemplates().keySet(), desiredNodeName, 0);
         addNodeOperation.setNodeName(nodeName);
         addNodeOperation.setIndexedNodeTypeId(nodeType + ":" + nodeVersion);
         addNodeOperation.setSkipAutoCompletion(true);
+        addNodeOperation.setContext(context);
         addNodeProcessor.process(csar, topology, addNodeOperation);
         return topology.getNodeTemplates().get(nodeName);
     }
@@ -294,15 +305,69 @@ public abstract class TopologyModifierSupport implements ITopologyModifier {
     }
 
     // remove the node and all nested nodes (recursively)
-    protected void removeNode(Topology topology, NodeTemplate nodeTemplate) {
+    protected void removeNode(FlowExecutionContext context, Topology topology, NodeTemplate nodeTemplate) {
         // keep track of the hosted nodes
         List<NodeTemplate> hostedNodes = TopologyNavigationUtil.getHostedNodes(topology, nodeTemplate.getName());
         Csar csar = new Csar(topology.getArchiveName(), topology.getArchiveVersion());
         this.removeRelationships(csar, topology, nodeTemplate);
         DeleteNodeOperation deleteNodeOperation = new DeleteNodeOperation();
         deleteNodeOperation.setNodeName(nodeTemplate.getName());
+        deleteNodeOperation.setContext(context);
         deleteNodeProcessor.process(csar, topology, deleteNodeOperation);
         // remove all hosted node also
-        safe(hostedNodes).forEach(hostedNodeTemplate -> removeNode(topology, hostedNodeTemplate));
+        safe(hostedNodes).forEach(hostedNodeTemplate -> removeNode(context, topology, hostedNodeTemplate));
+    }
+
+    // TODO(loicalbertin) explain
+    /**
+     *
+     * @param context
+     * @param topology
+     * @return
+     */
+    protected Set<NodeTemplate> getNodes(FlowExecutionContext context, Topology topology) {
+        String contextLocation = (String) context.getExecutionCache().get(FlowExecutionContext.ORIGIN_LOCATION_FOR_MODIFIER);
+        if (contextLocation != null) {
+            Map<String, Set<String>> nodesPerLocation = (Map<String, Set<String>>) context.getExecutionCache().get(FlowExecutionContext.NODES_PER_LOCATIONS_CACHE_KEY);
+            Set<String> nodesNames = nodesPerLocation.get(contextLocation);
+            return topology.getNodeTemplates().entrySet().stream().filter(e -> nodesNames.contains(e.getKey())).map(e->e.getValue()).collect(Collectors.toSet());
+        }
+
+        return Sets.newHashSet(topology.getNodeTemplates().values());
+    }
+
+    // TODO(loicalbertin) explain
+    /**
+     *
+     * @param context
+     * @param topology
+     * @param type
+     * @param manageInheritance
+     * @return
+     */
+    protected Set<NodeTemplate> getNodesOfType(FlowExecutionContext context, Topology topology, String type, boolean manageInheritance) {
+        return this.getNodesOfType(context, topology, type, manageInheritance, true);
+    }
+
+    // TODO(loicalbertin) explain
+    /**
+     *
+     * @param context
+     * @param topology
+     * @param type
+     * @param manageInheritance
+     * @param includeAbstractNodes
+     * @return
+     */
+    protected Set<NodeTemplate> getNodesOfType(FlowExecutionContext context, Topology topology, String type, boolean manageInheritance, boolean includeAbstractNodes) {
+        Set<NodeTemplate> nodes = TopologyNavigationUtil.getNodesOfType(topology, type, manageInheritance, includeAbstractNodes);
+
+        String contextLocation = (String) context.getExecutionCache().get(FlowExecutionContext.ORIGIN_LOCATION_FOR_MODIFIER);
+        if (contextLocation == null) {
+            return nodes;
+        }
+        Map<String, Set<String>> nodesPerLocation = (Map<String, Set<String>>) context.getExecutionCache().get(FlowExecutionContext.NODES_PER_LOCATIONS_CACHE_KEY);
+        Set<String> nodesNames = nodesPerLocation.get(contextLocation);
+        return nodes.stream().filter(t -> nodesNames.contains(t.getName())).collect(Collectors.toSet());
     }
 }
