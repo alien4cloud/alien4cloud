@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.catalog.index;
 
 import alien4cloud.common.MetaPropertiesService;
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.dao.FilterUtil;
@@ -38,6 +39,8 @@ import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
@@ -318,6 +321,8 @@ public class ArchiveIndexer {
             topology.getDependencies().add(selfDependency);
         }
 
+        postProcessArtifacts(archiveRoot);
+
         // init the workflows
         TopologyContext topologyContext = workflowBuilderService.buildCachedTopologyContext(new TopologyContext() {
             @Override
@@ -446,6 +451,21 @@ public class ArchiveIndexer {
             for (ArchiveRoot child : root.getLocalImports()) {
                 performIndexing(child, metapropsNames);
             }
+        }
+    }
+
+    private void postProcessArtifacts(ArchiveRoot root) {
+        Topology topology = root.getTopology();
+
+        String archiveName = root.getArchive().getName();
+        String archiveVersion = root .getArchive().getVersion();
+
+        for (NodeTemplate node : safe(topology.getNodeTemplates().values())) {
+            for (DeploymentArtifact artifact : safe (node.getArtifacts().values()))
+                if (artifact.getArtifactRepository()==null && artifact.getArchiveName().equals(archiveName) && artifact.getArchiveVersion().equals(archiveVersion)) {
+                    artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY);
+                }
+
         }
     }
 }
