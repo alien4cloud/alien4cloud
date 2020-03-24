@@ -11,6 +11,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ResourceLoader;
 
 import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 /**
  * The configuration to launch the full A4C context.
@@ -31,6 +32,16 @@ public class FullApplicationConfiguration {
         YamlPropertiesFactoryBean yaml = AlienYamlPropertiesFactoryBeanFactory.get(resourceLoader);
         propertySourcesPlaceholderConfigurer.setProperties(yaml.getObject());
         return propertySourcesPlaceholderConfigurer;
+    }
+
+    @Bean
+    public CommonsRequestLoggingFilter requestLoggingFilter() {
+        CommonsRequestLoggingFilter loggingFilter = new CommonsRequestLoggingFilter();
+        loggingFilter.setIncludeClientInfo(true);
+        loggingFilter.setIncludeQueryString(true);
+        loggingFilter.setIncludePayload(true);
+        loggingFilter.setMaxPayloadLength(64000);
+        return loggingFilter;
     }
 
 }
