@@ -19,7 +19,6 @@ import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -59,7 +58,6 @@ public class ComputeLocationGroupsModifier implements ITopologyModifier {
             return !e.getValue().getMembers().stream().anyMatch(m -> nodesGroups.containsKey(m));
         });
 
-
         for (Entry<String, Set<String>> entry : nodesGroups.entrySet()) {
             String groupName = entry.getKey() + "_Group";
             NodeGroup group = groups.computeIfAbsent(groupName, k -> new NodeGroup());
@@ -77,28 +75,38 @@ public class ComputeLocationGroupsModifier implements ITopologyModifier {
 
     }
 
-    private Map<String, Set<String>> findPoliciesDependencies(Topology topology) {
-        return safe(topology.getPolicies()).entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, this::getPolicyTarget));
-    }
+    // private Map<String, Set<String>> findPoliciesDependencies(Topology topology) {
+    //     return safe(topology.getPolicies()).entrySet().stream()
+    //             .collect(Collectors.toMap(Map.Entry::getKey, this::getPolicyTarget));
+    // }
 
-    private Set<String> getPolicyTarget(Map.Entry<String, PolicyTemplate> policyEntry) {
-        return policyEntry.getValue().getTargets();
-    }
+    // private Set<String> getPolicyTarget(Map.Entry<String, PolicyTemplate> policyEntry) {
+    //     return policyEntry.getValue().getTargets();
+    // }
 
     private Map<String, Set<String>> findNodesGroups(Topology topology) {
         Map<String, Set<String>> results = Maps.newHashMap();
-        Collection<NodeTemplate> abstractNodes = safe(topology.getNodeTemplates()).values();
+        Collection<NodeTemplate> allNodes = safe(topology.getNodeTemplates()).values();
         // At first consider each node
-        abstractNodes.forEach(n -> results.put(n.getName(), Sets.newHashSet()));
-        abstractNodes.forEach(node1 -> {
-            abstractNodes.forEach(node2 -> {
+        allNodes.forEach(n -> results.put(n.getName(), Sets.newHashSet()));
+
+        // Explore hosted-on hierarchy
+        allNodes.forEach(node -> {
+            NodeTemplate host = TopologyNavigationUtil.getDeepestHostTemplate(topology, node);
+            if (host != null) {
+                packNodesInGroup(results, host, node);
+            }
+        });
+
+        // Now filters allNodes to only not hosted
+        Collection<NodeTemplate> notHostedNodes = allNodes.stream().filter(n -> results.containsKey(n.getName())).collect(Collectors.toList());
+
+        notHostedNodes.forEach(node1 -> {
+            notHostedNodes.forEach(node2 -> {
                 if (node1 != node2) {
-                    if (isHostedOn(topology, node1, node2) || isAttachToBlockStorage(topology, node1, node2)
+                    if (isAttachToBlockStorage(topology, node1, node2)
                             || isConnectsToNetwork(topology, node2, node1)) {
-                        results.computeIfAbsent(node2.getName(), k -> Sets.newHashSet()).add(node1.getName());
-                        // node1 is part of the node2's group remove it
-                        results.remove(node1.getName());
+                        packNodesInGroup(results, node2, node1);
                     }
                 }
             });
@@ -106,16 +114,22 @@ public class ComputeLocationGroupsModifier implements ITopologyModifier {
         return results;
     }
 
-    private boolean isHostedOn(Topology topology, NodeTemplate source, NodeTemplate target) {
-        NodeTemplate host = TopologyNavigationUtil.getImmediateHostTemplate(topology, source);
-        if (host == null) {
-            return false;
-        }
-        if (host == target) {
-            return true;
-        }
-        return isHostedOn(topology, host, target);
+    private void packNodesInGroup(Map<String, Set<String>> results, NodeTemplate parentNode, NodeTemplate childNode) {
+        results.computeIfAbsent(parentNode.getName(), k -> Sets.newHashSet()).add(childNode.getName());
+        // childNode is part of the parentNode's group remove it
+        results.remove(childNode.getName());
     }
+
+    // private boolean isHostedOn(Topology topology, NodeTemplate source, NodeTemplate target) {
+    //     NodeTemplate host = TopologyNavigationUtil.getImmediateHostTemplate(topology, source);
+    //     if (host == null) {
+    //         return false;
+    //     }
+    //     if (host == target) {
+    //         return true;
+    //     }
+    //     return isHostedOn(topology, host, target);
+    // }
 
     private boolean isAttachToBlockStorage(Topology topology, NodeTemplate source, NodeTemplate target) {
         NodeType targetType = ToscaContext.getOrFail(NodeType.class, target.getType());
