@@ -31,7 +31,6 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.topology.TopologyServiceCore;
 
 /**
@@ -49,8 +48,6 @@ public class PolicyMatchingSubstitutionService {
     private TopologyServiceCore topologyServiceCore;
     @Inject
     private ApplicationService applicationService;
-    @Inject
-    private ILocationResourceService locationResourceService;
 
     /**
      * Execute the deployment flow with a modification of changing the substitution for one of the nodes.
@@ -70,7 +67,7 @@ public class PolicyMatchingSubstitutionService {
 
         // add a modifier that will actually perform the configuration of a substitution from user request (after cleanup and prior to node matching
         // auto-selection).
-        SetMatchedPolicyModifier setMatchedPolicyModifier = new SetMatchedPolicyModifier(nodeId, resourceTemplateId, locationResourceService);
+        SetMatchedPolicyModifier setMatchedPolicyModifier = new SetMatchedPolicyModifier(nodeId, resourceTemplateId);
         List<ITopologyModifier> modifierList = getModifierListWithSelectionAction(setMatchedPolicyModifier);
 
         flowExecutor.execute(topology, modifierList, executionContext);

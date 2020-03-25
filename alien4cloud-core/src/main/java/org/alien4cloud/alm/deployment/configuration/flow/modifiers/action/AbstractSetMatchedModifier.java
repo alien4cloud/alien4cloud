@@ -13,7 +13,6 @@ import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConf
 import org.alien4cloud.tosca.model.templates.Topology;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.topology.task.LocationPolicyTask;
 import lombok.Getter;
 
@@ -28,12 +27,9 @@ public abstract class AbstractSetMatchedModifier implements ITopologyModifier {
     @Getter
     private boolean executed = false;
 
-    private ILocationResourceService locationResourceService;
-
-    public AbstractSetMatchedModifier(String templateId, String resourceTemplateId, ILocationResourceService locationResourceService) {
+    public AbstractSetMatchedModifier(String templateId, String resourceTemplateId) {
         this.templateId = templateId;
         this.resourceTemplateId = resourceTemplateId;
-        this.locationResourceService = locationResourceService;
     }
 
     @Override

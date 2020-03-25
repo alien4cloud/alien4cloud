@@ -6,12 +6,10 @@ import java.util.Set;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 
-import alien4cloud.orchestrators.locations.services.ILocationResourceService;
-
 public class SetMatchedNodeModifier extends AbstractSetMatchedModifier {
 
-    public SetMatchedNodeModifier(String nodeId, String locationResourceTemplateId, ILocationResourceService locationResourceService) {
-        super(nodeId, locationResourceTemplateId, locationResourceService);
+    public SetMatchedNodeModifier(String nodeId, String locationResourceTemplateId) {
+        super(nodeId, locationResourceTemplateId);
     }
 
     @Override
