@@ -1,5 +1,7 @@
 package org.alien4cloud.alm.deployment.configuration.services;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -9,6 +11,7 @@ import javax.inject.Inject;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import org.alien4cloud.alm.deployment.configuration.events.OnDeploymentConfigCopyEvent;
 import org.alien4cloud.alm.deployment.configuration.events.OnMatchedLocationChangedEvent;
@@ -107,8 +110,32 @@ public class LocationMatchService {
             return; // Nothing to copy
         }
 
+        copyLocationMatchConfig(onDeploymentConfigCopyEvent.getTargetEnvironment(), sourceConfiguration);
+
         // Set the location policy to the target environment.
         setLocationPolicy(onDeploymentConfigCopyEvent.getTargetEnvironment(), sourceConfiguration.getOrchestratorId(),
                 sourceConfiguration.getLocationIds());
+    }
+
+    private void copyLocationMatchConfig(ApplicationEnvironment environment,
+            DeploymentMatchingConfiguration sourceConfiguration) {
+
+        DeploymentMatchingConfiguration configuration = deploymentConfigurationDao.findById(
+                DeploymentMatchingConfiguration.class,
+                AbstractDeploymentConfig.generateId(environment.getTopologyVersion(), environment.getId()));
+
+        if (configuration == null) {
+            configuration = new DeploymentMatchingConfiguration(environment.getTopologyVersion(), environment.getId());
+        }
+        configuration.setLocationGroups(Maps.newHashMap());
+
+        for (Entry<String, NodeGroup> entry: safe(sourceConfiguration.getLocationGroups()).entrySet()) {
+            NodeGroup group = new NodeGroup();
+            group.setName(entry.getValue().getName());
+            group.setMembers(Sets.newHashSet(entry.getValue().getMembers()));
+            configuration.getLocationGroups().put(entry.getKey(), group);
+        }
+
+        deploymentConfigurationDao.save(configuration);
     }
 }
