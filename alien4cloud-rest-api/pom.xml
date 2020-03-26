@@ -49,10 +49,6 @@
       <groupId>org.eclipse.jetty.orbit</groupId>
       <artifactId>javax.servlet.jsp</artifactId>
     </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
