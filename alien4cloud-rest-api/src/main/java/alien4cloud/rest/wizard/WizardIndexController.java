@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class WizardIndexController {
 
-    @RequestMapping(value = { "/wizard" }, method = RequestMethod.GET)
+    @RequestMapping(value = { "/wizard-index" }, method = RequestMethod.GET)
     public String index(Model model) {
 
         String base_href = "/toto";
