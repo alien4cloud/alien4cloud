@@ -109,15 +109,18 @@ public class Bootstrap {
         registration.addUrlMappings("/img/*");
         return registration;
     }
-    
-    @Bean
-    public CommonsRequestLoggingFilter requestLoggingFilter() {
-        CommonsRequestLoggingFilter loggingFilter = new CommonsRequestLoggingFilter();
-        loggingFilter.setIncludeClientInfo(true);
-        loggingFilter.setIncludeQueryString(true);
-        loggingFilter.setIncludePayload(true);
-        loggingFilter.setMaxPayloadLength(64000);
-        return loggingFilter;
-    }
+
+//    /**
+//     * Activate debug level on org.springframework.web.filter.CommonsRequestLoggingFilter to use this
+//     */
+//    @Bean
+//    public CommonsRequestLoggingFilter requestLoggingFilter() {
+//        CommonsRequestLoggingFilter loggingFilter = new CommonsRequestLoggingFilter();
+//        loggingFilter.setIncludeClientInfo(true);
+//        loggingFilter.setIncludeQueryString(true);
+//        loggingFilter.setIncludePayload(true);
+//        loggingFilter.setMaxPayloadLength(64000);
+//        return loggingFilter;
+//    }
 
 }
