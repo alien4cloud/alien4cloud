@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
@@ -115,6 +116,11 @@ public class PluginManager {
             Files.createDirectories(path);
             log.info("Plugin work directory created at <" + path.toAbsolutePath().toString() + ">");
         }
+    }
+
+    @PreDestroy
+    public void preDestroy() throws IOException {
+        log.info("Destroying PluginManager");
     }
 
     /**
