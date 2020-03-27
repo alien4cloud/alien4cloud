@@ -11,13 +11,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ResourceLoader;
 
 import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
-import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
-import org.springframework.jmx.export.naming.ObjectNamingStrategy;
-import org.springframework.jmx.support.RegistrationPolicy;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
-
-import javax.management.MBeanServer;
 
 /**
  * The configuration to launch the full A4C context.
@@ -40,16 +34,4 @@ public class FullApplicationConfiguration {
         return propertySourcesPlaceholderConfigurer;
     }
 
-    @Bean
-    public AnnotationMBeanExporter mbeanExporter(ObjectNamingStrategy namingStrategy) {
-        AnnotationMBeanExporter exporter = new AnnotationMBeanExporter();
-        exporter.setRegistrationPolicy(RegistrationPolicy.REPLACE_EXISTING);
-        exporter.setNamingStrategy(namingStrategy);
-//        String server = this.propertyResolver.getProperty("server", "mbeanServer");
-//        if (StringUtils.hasLength(server)) {
-//            exporter.setServer((MBeanServer)this.beanFactory.getBean(server, MBeanServer.class));
-//        }
-
-        return exporter;
-    }
 }
