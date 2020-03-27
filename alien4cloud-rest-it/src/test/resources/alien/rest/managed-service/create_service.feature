@@ -58,7 +58,8 @@ Feature: Create a service resource from an environment
   #TODO improve this scenario later, since now there is no real difference between services created from deployed / undeployed environment
   @reset
   Scenario: Creating a new service from a deployed environment should succeed
-    Given I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
+    Given I get the deployment topology for the current application
+    And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
     When I create a service with name "MyService", from the deployed application "ALIEN", environment "Environment"
     Then I should receive a RestResponse with no error
     Given I am authenticated with "ADMIN" role
@@ -89,7 +90,8 @@ Feature: Create a service resource from an environment
 
   @reset
   Scenario: Creating a new managed service when already created one on an environment should fail
-    Given I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
+    Given I get the deployment topology for the current application
+    And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
     Given I successfully create a service with name "MyService", from the application "ALIEN", environment "Environment"
     When I create a service with name "MyService_2", from the application "ALIEN", environment "Environment"
     Then I should receive a RestResponse with an error code 502

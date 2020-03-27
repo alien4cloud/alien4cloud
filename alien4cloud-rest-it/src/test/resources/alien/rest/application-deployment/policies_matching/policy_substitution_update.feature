@@ -20,7 +20,12 @@ Feature: Update substituted policy property
       | type         | org.alien4cloud.tosca.editor.operations.policies.AddPolicyOperation |
       | policyName   | MyPolicy                                                            |
       | policyTypeId | tosca.policies.Root:1.0.0-SNAPSHOT                                  |
+    And I execute the operation
+      | type       | org.alien4cloud.tosca.editor.operations.policies.UpdatePolicyTargetsOperation |
+      | policyName | MyPolicy                                                                      |
+      | targets    | Compute                                                                       |
     And I save the topology
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mock orchestrator"/"Thark location" for all nodes
 
   @reset

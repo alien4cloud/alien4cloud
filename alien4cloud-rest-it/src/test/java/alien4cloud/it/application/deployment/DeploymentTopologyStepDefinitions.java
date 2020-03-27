@@ -16,6 +16,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
@@ -31,10 +35,6 @@ import org.junit.Assert;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.deployment.DeploymentTopologyDTO;
 import alien4cloud.it.Context;
@@ -49,8 +49,6 @@ import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.utils.AlienConstants;
-import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
@@ -58,19 +56,21 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 public class DeploymentTopologyStepDefinitions {
 
     @When("^I Set the following location policies with orchestrator \"([^\"]*)\" for groups$")
-    public void I_Set_the_following_location_policies_for_groups(String orchestratorName, Map<String, String> locationPolicies) throws Throwable {
+    public void I_Set_the_following_location_policies_for_groups(String orchestratorName, DataTable locationPoliciesSettings) throws Throwable {
         SetLocationPoliciesRequest request = new SetLocationPoliciesRequest();
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         request.setOrchestratorId(orchestratorId);
         Map<String, String> formatedPolicies = Maps.newHashMap();
-        for (Entry<String, String> entry : locationPolicies.entrySet()) {
-            formatedPolicies.put(entry.getKey(), Context.getInstance().getLocationId(orchestratorId, entry.getValue()));
+        List<LocationPolicySetting> locationPolicies = convert(locationPoliciesSettings);
+        for (LocationPolicySetting policySettings : locationPolicies) {
+            String policyOrchId =Context.getInstance().getOrchestratorId(policySettings.getOrchestratorName());
+            formatedPolicies.put(policySettings.getGroupName() , Context.getInstance().getLocationId(policyOrchId, policySettings.getLocationName()));
         }
         request.setGroupsToLocations(formatedPolicies);
 
@@ -113,13 +113,11 @@ public class DeploymentTopologyStepDefinitions {
 
     @When("^I Set a unique location policy to \"([^\"]*)\"/\"([^\"]*)\" for all nodes$")
     public void I_Set_a_unique_location_policy_to_for_all_nodes(String orchestratorName, String locationName) throws Throwable {
-        I_get_the_deployment_toology_for_the_current_application();
         RestResponse<DeploymentTopologyDTO> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class);
         DeploymentTopologyDTO deploymentTopologyDTO = restResponse.getData();
         Map<String, NodeGroup> locationGroups = deploymentTopologyDTO.getTopology().getLocationGroups();
-
-        I_Set_the_following_location_policies_for_groups(orchestratorName,
-                locationGroups.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> locationName)));
+        DataTable locationPoliciesSettings =  DataTable.create(locationGroups.entrySet().stream().map(e -> Lists.newArrayList(e.getKey(), orchestratorName, locationName)).collect(Collectors.toList()));
+        I_Set_the_following_location_policies_for_groups(orchestratorName, locationPoliciesSettings);
     }
 
     @When("^I get the deployment topology for the current application$")

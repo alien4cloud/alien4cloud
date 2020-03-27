@@ -30,6 +30,7 @@ Feature: inputs properties settings only for get_secret function in deployment s
       | inputName      | version                                                                                               |
     And I save the topology
     And I add a role "APPLICATION_MANAGER" to user "frodon" on the resource type "APPLICATION" named "ALIEN"
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I am authenticated with user named "frodon"
 

@@ -71,6 +71,7 @@ Feature: Update operations on application version
     And I grant access to the resource type "LOCATION" named "Thark location" to the user "luffy"
     And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the user "luffy"
     And I am authenticated with user named "luffy"
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I set the following orchestrator properties
       | managementUrl | http://cloudifyurl:8099 |
@@ -123,6 +124,7 @@ Feature: Update operations on application version
       | managerEmail  | admin@alien.fr          |
 
     And I am authenticated with user named "luffy"
+    And I get the deployment topology for the current application
     And I deploy the application "watchmiddleearth" on the location "Mount doom orchestrator"/"Thark location"
     And I wait for 10 seconds before continuing the test
 

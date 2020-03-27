@@ -31,6 +31,7 @@ Feature: Node matching and substitution
     And I add a role "APPLICATION_MANAGER" to user "tom" on the application "ALIEN"
 #    And I create an application environment of type "DEVELOPMENT" with name "DEV-ALIEN" and description "" for the newly created application
 #    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes of the environment "DEV-ALIEN"
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
 
   @reset

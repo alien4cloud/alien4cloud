@@ -15,6 +15,7 @@ Feature: Check if a deployment topology is valid
     And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
     And I create a new application with name "input-artifact" and description "Demo input artifact" based on the template with name "input-artifact"
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
 
   @reset

@@ -30,6 +30,7 @@ Feature: Create application environment with copy inputs
 
     And I create an application topology version for application "MyWebApp" version "MyWebApp:0.1.0-SNAPSHOT" with qualifier "dev", description "topology for development environment", topology template id "null" and previous version id "MyWebApp:0.1.0-SNAPSHOT"
 
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I set the following orchestrator properties
       | managementUrl | http://cloudifyurl:8099 |

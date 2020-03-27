@@ -59,6 +59,7 @@ Feature: Update a service resource associated to an application environment on d
     And The SPEL expression "nodeInstance.attributeValues['tosca_id']" should return "null"
     #deploy the appli
     Given I am authenticated with user named "gandalf"
+    And I get the deployment topology for the current application
     And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
     And I wait for 10 seconds before continuing the test
     #check the service state and attributes
@@ -103,6 +104,7 @@ Feature: Update a service resource associated to an application environment on d
     And The SPEL expression "nodeInstance.attributeValues['tosca_id']" should return "null"
     #deploy the appli
     Given I am authenticated with user named "gandalf"
+    And I get the deployment topology for the current application
     And I deploy the application "BAD-APPLICATION" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
     And I wait for 10 seconds before continuing the test
     #check the service state and attributes
@@ -142,6 +144,7 @@ Feature: Update a service resource associated to an application environment on d
     And I successfully create a service with name "MyService", from the application "ALIEN", environment "Environment"
 #deploy the appli
     Given I am authenticated with user named "gandalf"
+    And I get the deployment topology for the current application
     And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
     And I wait for 10 seconds before continuing the test
 #check the service state and attributes

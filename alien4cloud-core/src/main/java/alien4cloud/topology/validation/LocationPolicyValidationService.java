@@ -1,5 +1,7 @@
 package alien4cloud.topology.validation;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -43,6 +45,12 @@ public class LocationPolicyValidationService {
         Location location = null;
         Orchestrator orchestrator = null;
         String previousOrchestratorId = null;
+        if (safe(matchingConfiguration.getLocationGroups()).isEmpty()) {
+            // If we went there it is probably because the matching configuration was reset by the LocationMatchingModifier
+            // otherwise we will have at least one group.
+            tasks.add(new LocationPolicyTask());
+            return tasks;
+        }
         for (NodeGroup nodeGroup : matchingConfiguration.getLocationGroups().values()) {
             if (nodeGroup.getPolicies() == null ){
                 tasks.add(new LocationPolicyTask(nodeGroup.getName()));

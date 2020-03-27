@@ -18,7 +18,8 @@ Feature: location policy validation in deployment setup
 
   @reset
   Scenario: Successfully setting a location policy should be considered valid
-    Given I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
+    Given I get the deployment topology for the current application
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I set the following orchestrator properties
       | managerEmail  | toto@titi.fr            |
       | managementUrl | http://cloudifyurl:8099 |
@@ -34,7 +35,8 @@ Feature: location policy validation in deployment setup
 
   @reset
   Scenario: Selected disabled location should be considered invalid
-    Given I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
+    Given I get the deployment topology for the current application
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I set the following orchestrator properties
       | managerEmail  | toto@titi.fr            |
       | managementUrl | http://cloudifyurl:8099 |
@@ -51,6 +53,7 @@ Feature: location policy validation in deployment setup
     And I add a role "APPLICATION_MANAGER" to user "frodon" on the resource type "APPLICATION" named "ALIEN"
     And I grant access to the resource type "LOCATION" named "Thark location" to the user "frodon"
     And I am authenticated with user named "frodon"
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I set the following orchestrator properties
       | managerEmail  | toto@titi.fr            |

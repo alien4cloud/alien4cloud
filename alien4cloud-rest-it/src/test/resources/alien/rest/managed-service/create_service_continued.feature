@@ -20,6 +20,7 @@ Feature: Create a service resource from an environment (advanced topologies)
   @reset
   Scenario: Creating a new managed service when topology is created from a template should succeed
     And I create an application with name "watchmiddleearth", archive name "watchmiddleearth", description "Use my great eye to find frodo and the ring." and topology template id "org.alien4cloud.nodes.test.SingleUbuntuCompute:1.4.0-SNAPSHOT"
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "orc"/"loc" for all nodes
     When I create a service with name "MyService", from the application "watchmiddleearth", environment "Environment"
     Then I should receive a RestResponse with no error
@@ -35,6 +36,7 @@ Feature: Create a service resource from an environment (advanced topologies)
       | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
       | elementId | tosca.nodes.Root                                                                  |
     And I successfully save the topology
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "orc"/"loc" for all nodes
     When I create a service with name "MyService", from the application "watchmiddleearth", environment "Environment"
     Then I should receive a RestResponse with no error

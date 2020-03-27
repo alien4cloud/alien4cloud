@@ -32,6 +32,7 @@ Feature: Delete a service used in a deployment
     And I create a new application with name "ALIEN" and description "desc" and node templates
       | Compute      | tosca.nodes.Compute:1.0.0-SNAPSHOT      |
       | BlockStorage | tosca.nodes.BlockStorage:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
 
     And I pre register orchestrator properties
