@@ -121,6 +121,7 @@ public class PluginManager {
     @PreDestroy
     public void preDestroy() throws IOException {
         log.info("Destroying PluginManager");
+        unloadAllPlugins();
     }
 
     /**
