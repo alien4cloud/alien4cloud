@@ -127,6 +127,7 @@ public class LocationMatchService {
         if (configuration == null) {
             configuration = new DeploymentMatchingConfiguration(environment.getTopologyVersion(), environment.getId());
         }
+        configuration.setVersionId(environment.getTopologyVersion());
         configuration.setLocationGroups(Maps.newHashMap());
 
         for (Entry<String, NodeGroup> entry: safe(sourceConfiguration.getLocationGroups()).entrySet()) {
