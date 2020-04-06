@@ -81,7 +81,7 @@
     reference: substitutionMapping
     type: sustitution_mapping_parser
   node_templates:
-    map: nodeTemplates
+    strict_map: nodeTemplates
     key: name
     type: node_template
   outputs:

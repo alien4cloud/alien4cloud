@@ -1,9 +1,11 @@
 package alien4cloud.tosca.parser.impl.base;
 
-import java.util.Map;
-
-import javax.annotation.Resource;
-
+import alien4cloud.tosca.parser.INodeParser;
+import alien4cloud.tosca.parser.ParserUtils;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import com.google.common.collect.Maps;
 import lombok.Setter;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -15,14 +17,12 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import com.google.common.collect.Maps;
-
-import alien4cloud.tosca.parser.*;
-import alien4cloud.tosca.parser.impl.ErrorCode;
+import javax.annotation.Resource;
+import java.util.Map;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class MapParser<T> implements INodeParser<Map<String, T>> {
+public class StrictMapParser<T> implements INodeParser<Map<String, T>>  {
     @Setter
     @Resource
     private ScalarParser scalarParser;
@@ -32,13 +32,13 @@ public class MapParser<T> implements INodeParser<Map<String, T>> {
     /** Optional value to inject the key into the value object. */
     private String keyPath;
 
-    public MapParser(INodeParser<T> valueParser, String toscaType) {
+    public StrictMapParser(INodeParser<T> valueParser, String toscaType) {
         this.valueParser = valueParser;
         this.toscaType = toscaType;
         this.keyPath = null;
     }
 
-    public MapParser(INodeParser<T> valueParser, String toscaType, String keyPath) {
+    public StrictMapParser(INodeParser<T> valueParser, String toscaType, String keyPath) {
         this.valueParser = valueParser;
         this.toscaType = toscaType;
         this.keyPath = keyPath;
@@ -76,8 +76,19 @@ public class MapParser<T> implements INodeParser<Map<String, T>> {
                     valueWrapper.setPropertyValue(keyPath, key);
                 }
 
-                map.put(key, value);
-
+                if (map.containsKey(key)) {
+                    ParsingError err = new ParsingError(
+                            ErrorCode.DUPLICATED_ELEMENT_DECLARATION,
+                            "Key in the map must be unique.",
+                            node.getStartMark(),
+                            "",
+                            node.getEndMark(),
+                            key
+                    );
+                    context.getParsingErrors().add(err);
+                } else {
+                    map.put(key, value);
+                }
             }
         }
         return map;

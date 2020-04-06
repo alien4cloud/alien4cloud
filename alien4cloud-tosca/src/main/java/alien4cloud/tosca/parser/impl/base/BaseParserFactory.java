@@ -125,6 +125,31 @@ public class BaseParserFactory {
     }
 
     /**
+     * Get a new instance of a StrictMapParser.
+     *
+     * @param valueParser The parser to use to parse map values.
+     * @param toscaType The expected type name to generate error messages.
+     * @param <T> The type of the map values.
+     * @return a new instance of the MapParser
+     */
+    public <T> StrictMapParser getStrictMapParser(INodeParser<T> valueParser, String toscaType) {
+        return (StrictMapParser) applicationContext.getBean("strictMapParser", valueParser, toscaType);
+    }
+
+    /**
+     * Get a new instance of a StrictMapParser.
+     *
+     * @param valueParser The parser to use to parse map values.
+     * @param toscaType The expected type name to generate error messages.
+     * @param keyPath Optional value to inject the key into the value object.
+     * @param <T> The type of the map values.
+     * @return a new instance of the MapParser
+     */
+    public <T> StrictMapParser getStrictMapParser(INodeParser<T> valueParser, String toscaType, String keyPath) {
+        return (StrictMapParser) applicationContext.getBean("strictMapParser", valueParser, toscaType, keyPath);
+    }
+
+    /**
      * Get a new instance of a SequenceToMapParser.
      *
      * @param valueParser The parser to use to parse map values.
