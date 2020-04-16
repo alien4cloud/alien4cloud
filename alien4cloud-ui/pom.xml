@@ -30,7 +30,7 @@
     <dependency>
       <groupId>alien4cloud</groupId>
       <artifactId>alien4cloud-wizard-ui</artifactId>
-      <version>${project.version}</version>
+      <version>3.0.0-M4</version>
       <type>zip</type>
     </dependency>
     <dependency>
