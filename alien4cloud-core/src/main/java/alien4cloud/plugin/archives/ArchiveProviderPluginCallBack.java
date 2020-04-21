@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.security.AuthorizationUtil;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.Csar;
@@ -76,17 +77,20 @@ public class ArchiveProviderPluginCallBack implements IPluginLoadingCallback {
     @Override
     @SneakyThrows(JsonProcessingException.class)
     public synchronized void onPluginClosed(ManagedPlugin managedPlugin) {
-        Map<String, IArchiveProviderPlugin> archiveProviderBeans = managedPlugin.getPluginContext().getBeansOfType(IArchiveProviderPlugin.class);
-        for (Map.Entry<String, IArchiveProviderPlugin> archiveProvider : safe(archiveProviderBeans).entrySet()) {
-            try {
-                Map<Csar, List<Usage>> usages = deleteArchives(safe(archiveProvider.getValue().getArchives()));
-                for (Map.Entry<Csar, List<Usage>> usage : safe(usages).entrySet()) {
-                    log.warn(
-                            "Fail to delete archive " + usage.getKey().getId() + " from plugin" + managedPlugin.getPlugin().getId() + "/"
-                                    + archiveProvider.getKey() + " as it is used. you should clean it up manually. " + JsonUtil.toString(usage.getValue()),
-                            usage.getValue());
+        if (AuthorizationUtil.getCurrentUser() != null) {
+            // Only delete archives when the unload is comming from a connected user
+            Map<String, IArchiveProviderPlugin> archiveProviderBeans = managedPlugin.getPluginContext().getBeansOfType(IArchiveProviderPlugin.class);
+            for (Map.Entry<String, IArchiveProviderPlugin> archiveProvider : safe(archiveProviderBeans).entrySet()) {
+                try {
+                    Map<Csar, List<Usage>> usages = deleteArchives(safe(archiveProvider.getValue().getArchives()));
+                    for (Map.Entry<Csar, List<Usage>> usage : safe(usages).entrySet()) {
+                        log.warn(
+                                "Fail to delete archive " + usage.getKey().getId() + " from plugin" + managedPlugin.getPlugin().getId() + "/"
+                                        + archiveProvider.getKey() + " as it is used. you should clean it up manually. " + JsonUtil.toString(usage.getValue()),
+                                usage.getValue());
+                    }
+                } catch (PluginArchiveException e) {
                 }
-            } catch (PluginArchiveException e) {
             }
         }
     }
