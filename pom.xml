@@ -545,14 +545,6 @@
 
   <repositories>
     <repository>
-      <id>repo.opensource.fastconnect.org</id>
-      <url>http://fastconnect.org/maven/content/repositories/opensource</url>
-    </repository>
-    <repository>
-      <id>repo.opensource.snapshot.fastconnect.org</id>
-      <url>http://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
-    </repository>
-    <repository>
       <id>projectlombok.org</id>
       <name>Lombok Repository</name>
       <url>http://projectlombok.org/mavenrepo</url>
@@ -566,6 +558,14 @@
       <id>jcenter-snapshots</id>
       <name>jcenter</name>
       <url>https://jcenter.bintray.com/</url>
+    </repository>
+    <repository>
+      <id>github-es</id>
+      <url>https://maven.pkg.github.com/alien4cloud/elasticsearch-mapping-parent</url>
+    </repository>
+    <repository>
+      <id>github</id>
+      <url>https://maven.pkg.github.com/alien4cloud/alien4cloud</url>
     </repository>
   </repositories>
 
@@ -582,12 +582,12 @@
 
   <distributionManagement>
     <repository>
-      <id>repo.opensource.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource</url>
+      <id>github</id>
+      <url>https://maven.pkg.github.com/alien4cloud/alien4cloud</url>
     </repository>
     <snapshotRepository>
-      <id>repo.opensource.snapshot.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
+      <id>github</id>
+      <url>https://maven.pkg.github.com/alien4cloud/alien4cloud</url>
     </snapshotRepository>
   </distributionManagement>
 
