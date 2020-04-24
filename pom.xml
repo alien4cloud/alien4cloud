@@ -588,7 +588,7 @@
     <snapshotRepository>
         <id>pdl-snapshots</id>
         <url>https://www.portaildulibre.fr/nexus/repository/opensource-snapshots</url>
-    </snapshotRepository
+    </snapshotRepository>
   </distributionManagement>
 
   <build>
