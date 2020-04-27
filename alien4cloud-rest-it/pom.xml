@@ -13,8 +13,10 @@
 
     <properties>
       <sonar.language>java</sonar.language>
+<!--
       <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
       <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+-->
       <jclouds.version>1.9.1</jclouds.version>
       <jetty.version>9.4.9.v20180320</jetty.version>
     </properties>
@@ -340,15 +342,17 @@
                         <!-- redo configuration from parent - use itReportPath -->
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.7.7.201606060606</version>
+                        <version>0.8.4</version>
                         <configuration>
                             <propertyName>jacocoargline</propertyName>
                             <includes>
                                 <include>alien4cloud.*</include>
                                 <include>org.alien4cloud.*</include>
                             </includes>
+<!--
                             <destFile>${sonar.jacoco.itReportPath}</destFile>
                             <dataFile>${sonar.jacoco.itReportPath}</dataFile>
+-->
                             <append>true</append>
                         </configuration>
                         <executions>
@@ -361,7 +365,7 @@
                             <execution>
                                 <id>post-test</id>
                                 <goals>
-                                    <goal>report</goal>
+                                    <goal>report-aggregate</goal>
                                 </goals>
                             </execution>
                         </executions>

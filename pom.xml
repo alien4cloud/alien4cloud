@@ -25,8 +25,11 @@
     <!-- Java coverage configuration -->
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+<!--
     <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
     <sonar.jacoco.itReportPath>${project.basedir}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
+-->
+    <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../alien4cloud-rest-it/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
     <!-- Utilities -->
     <lombok.version>1.18.12</lombok.version>
@@ -748,14 +751,16 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.7.7.201606060606</version>
+            <version>0.8.4</version>
             <configuration>
               <includes>
                 <include>alien4cloud.*</include>
                 <include>org.alien4cloud.*</include>
               </includes>
+<!--
               <destFile>${sonar.jacoco.reportPath}</destFile>
               <dataFile>${sonar.jacoco.reportPath}</dataFile>
+-->
               <append>true</append>
             </configuration>
             <executions>
