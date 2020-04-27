@@ -573,12 +573,12 @@
 
   <pluginRepositories>
     <pluginRepository>
-      <id>repo.opensource.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource</url>
+      <id>pdl-releases</id>
+      <url>https://www.portaildulibre.fr/nexus/repository/opensource-releases</url>
     </pluginRepository>
     <pluginRepository>
-      <id>repo.opensource.snapshot.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
+      <id>pdl-snapshots</id>
+      <url>https://www.portaildulibre.fr/nexus/repository/opensource-snapshots</url>
     </pluginRepository>
   </pluginRepositories>
 
