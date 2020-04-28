@@ -26,7 +26,7 @@ import alien4cloud.utils.MapUtil;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
 @DirtiesContext
-public class NodeTypeScoreServiceTest {
+public class NodeTypeScoreServiceTest extends AbstractDAOTest {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO dao;
 
