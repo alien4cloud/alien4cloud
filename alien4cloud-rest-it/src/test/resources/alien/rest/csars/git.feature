@@ -147,14 +147,14 @@ Feature: GIT repository usage
     When I import the GIT repository
     Then I should receive a RestResponse with an error code 680
 
-  @reset
-  Scenario: Import a CSAR from Gitlab
-    Given I add a GIT repository with url "https://fastconnect.org/gitlab/benoitph/alien-samples.git" usr "" pwd "" stored "false" and locations
-      | branchId | subPath |
-      | master   |         |
-    And I get the GIT repo with url "https://fastconnect.org/gitlab/benoitph/alien-samples.git"
-    When I import the GIT repository
-    Then I should receive a RestResponse with no error
+#  @reset
+#  Scenario: Import a CSAR from Gitlab
+#    Given I add a GIT repository with url "https://fastconnect.org/gitlab/benoitph/alien-samples.git" usr "" pwd "" stored "false" and locations
+#      | branchId | subPath |
+#      | master   |         |
+#    And I get the GIT repo with url "https://fastconnect.org/gitlab/benoitph/alien-samples.git"
+#    When I import the GIT repository
+#    Then I should receive a RestResponse with no error
 
   @reset
   Scenario: Add GIT repository and import it, then add an archive and reimport it
