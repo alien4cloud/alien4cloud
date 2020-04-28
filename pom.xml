@@ -752,11 +752,11 @@
             <artifactId>jacoco-maven-plugin</artifactId>
             <version>0.8.4</version>
             <configuration>
+<!--
               <includes>
                 <include>alien4cloud.*</include>
                 <include>org.alien4cloud.*</include>
               </includes>
-<!--
               <destFile>${sonar.jacoco.reportPath}</destFile>
               <dataFile>${sonar.jacoco.reportPath}</dataFile>
 -->

@@ -345,11 +345,11 @@
                         <version>0.8.4</version>
                         <configuration>
                             <propertyName>jacocoargline</propertyName>
+<!--
                             <includes>
                                 <include>alien4cloud.*</include>
                                 <include>org.alien4cloud.*</include>
                             </includes>
-<!--
                             <destFile>${sonar.jacoco.itReportPath}</destFile>
                             <dataFile>${sonar.jacoco.itReportPath}</dataFile>
 -->
