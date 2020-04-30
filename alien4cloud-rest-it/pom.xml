@@ -363,7 +363,8 @@
                                 </goals>
                             </execution>
                             <execution>
-                                <id>post-integration-test</id>
+                                <id>report-aggregate</id>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>report-aggregate</goal>
                                 </goals>
