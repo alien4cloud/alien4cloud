@@ -173,4 +173,112 @@
     </dependency>
 
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>fr.fastconnect</groupId>
+        <artifactId>plantuml-maven-plugin</artifactId>
+        <version>1.1.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>plant</goal>
+            </goals>
+            <phase>prepare-package</phase>
+            <configuration>
+              <plantFileName>overview.puml</plantFileName>
+              <annotation>org.elasticsearch.annotation.ESObject</annotation>
+              <scannedPackages>
+                <scannedPackage>alien4cloud.model</scannedPackage>
+              </scannedPackages>
+              <classes>
+                <classe>alien4cloud.plugin.Plugin</classe>
+                <classe>alien4cloud.security.model.User</classe>
+                <classe>alien4cloud.security.model.Group</classe>
+                <classe>alien4cloud.security.model.Role</classe>
+              </classes>
+              <declaredRelations>
+                <declaredRelation>Application "1" *-- "1..n" ApplicationEnvironment</declaredRelation>
+                <declaredRelation>Application "1" *-- "1..n" ApplicationVersion</declaredRelation>
+                <declaredRelation>Orchestrator "1" *-- "1..n" Location</declaredRelation>
+                <declaredRelation>Orchestrator "1" *-- "0..n" LocationResourceTemplate</declaredRelation>
+                <declaredRelation>Topology "1" *-- "2..n" Workflow</declaredRelation>
+                <declaredRelation>Orchestrator "1" *-- "0..n" Deployment</declaredRelation>
+                <declaredRelation>Deployment "1" *-- "1..n" Execution</declaredRelation>
+                <declaredRelation>Execution "1" *-- "1" Workflow</declaredRelation>
+                <declaredRelation>Execution "1" *-- "1..n" Task</declaredRelation>
+                <declaredRelation>Deployment "1" *-- "1..n" Location</declaredRelation>
+                <declaredRelation>Orchestrator "1" *-- "1" OrchestratorConfiguration</declaredRelation>
+                <declaredRelation>Topology "1" *-- "1..n" NodeTemplate</declaredRelation>
+                <declaredRelation>Topology "1" *-- "0,1" SubstitutionMapping</declaredRelation>
+                <declaredRelation>AbstractTopologyVersion "1" *-- "1" Topology</declaredRelation>
+                <declaredRelation>User "1" o-- "0..n" Group</declaredRelation>
+                <declaredRelation>Group "1" o-- "0..n" User</declaredRelation>
+                <declaredRelation>Group "1" o-- "0..n" Role</declaredRelation>
+                <declaredRelation>User "1" o-- "0..n" Role</declaredRelation>
+                <declaredRelation>LocationResourceTemplate "0,1" o-- "1" NodeTemplate</declaredRelation>
+              </declaredRelations>
+              <ignorePackages>true</ignorePackages>
+              <excludedClasses>
+                <excludedClasse>alien4cloud.paas.wf.validation.AbstractWorkflowError</excludedClasse>
+                <excludedClasse>alien4cloud.model.deployment.DeploymentSourceType</excludedClasse>
+                <excludedClasse>alien4cloud.utils.version.ComparableVersion</excludedClasse>
+                <excludedClasse>org.alien4cloud.tosca.model.templates.AbstractTemplate</excludedClasse>
+                <excludedClasse>org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate</excludedClasse>
+                <excludedClasse>org.alien4cloud.tosca.model.definitions.AbstractPropertyValue</excludedClasse>
+                <excludedClasse>org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType</excludedClasse>
+                <excludedClasse>org.alien4cloud.tosca.model.definitions.PropertyDefinition</excludedClasse>
+                <excludedClasse>alien4cloud.model.common.MetaPropConfiguration</excludedClasse>M
+              </excludedClasses>
+              <filteredFields>
+                <filteredField>org.alien4cloud.tosca.model.templates.Topology.inputs</filteredField>
+                <filteredField>org.alien4cloud.tosca.model.templates.Topology.nestedVersion</filteredField>
+                <filteredField>org.alien4cloud.tosca.model.templates.Topology.inputs</filteredField>
+                <filteredField>org.alien4cloud.tosca.model.definitions.Operation.portability</filteredField>
+                <filteredField>org.alien4cloud.tosca.model.definitions.Operation.implementationArtifact</filteredField>
+                <filteredField>org.alien4cloud.tosca.model.definitions.Operation.dependencies</filteredField>
+                <filteredField>org.alien4cloud.tosca.model.definitions.Operation.inputParameters</filteredField>
+                <filteredField>alien4cloud.model.application.Application.tags</filteredField>
+                <filteredField>alien4cloud.model.deployment.DeploymentTopology.locationGroups</filteredField>
+                <filteredField>alien4cloud.model.deployment.DeploymentTopology.locationDependencies</filteredField>
+                <filteredField>alien4cloud.model.deployment.DeploymentTopology.originalNodes</filteredField>
+                <filteredField>alien4cloud.model.deployment.DeploymentTopology.inputProperties</filteredField>
+                <filteredField>org.alien4cloud.tosca.model.templates.SubstitutionMapping.substitutionType
+                </filteredField>
+                <filteredField>
+                  alien4cloud.model.orchestrators.locations.LocationResourceTemplate.portabilityDefinitions
+                </filteredField>
+              </filteredFields>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tosca</id>
+            <goals>
+              <goal>plant</goal>
+            </goals>
+            <phase>prepare-package</phase>
+            <configuration>
+              <plantFileName>tosca.puml</plantFileName>
+              <annotation>org.elasticsearch.annotation.ESObject</annotation>
+              <scannedPackages>
+                <scannedPackage>org.alien4cloud.tosca.model</scannedPackage>
+              </scannedPackages>
+              <classes>
+              </classes>
+              <declaredRelations>
+              </declaredRelations>
+              <ignorePackages>true</ignorePackages>
+              <excludedClasses>
+              </excludedClasses>
+              <filteredFields>
+                <filteredField>alien4cloud.utils.version.ComparableVersion.items</filteredField>
+              </filteredFields>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
