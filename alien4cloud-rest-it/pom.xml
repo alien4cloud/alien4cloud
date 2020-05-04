@@ -55,12 +55,6 @@
 
         <dependency>
             <groupId>alien4cloud</groupId>
-            <artifactId>alien4cloud-mock-paas-provider-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>alien4cloud</groupId>
             <artifactId>alien4cloud-security</artifactId>
             <version>${project.version}</version>
         </dependency>
