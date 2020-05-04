@@ -394,16 +394,16 @@
                                 </goals>
                             </execution>
                             <execution>
+                                <id>pre-integration-test</id>
+                                <goals>
+                                    <goal>prepare-agent-integration</goal>
+                                </goals>
+                            </execution>
+                            <execution>
                                 <id>report-aggregate</id>
                                 <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>report-aggregate</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>report-integration</id>
-                                <goals>
-                                    <goal>report-integration</goal>
                                 </goals>
                             </execution>
                         </executions>
