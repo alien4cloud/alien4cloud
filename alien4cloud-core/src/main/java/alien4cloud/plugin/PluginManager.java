@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
@@ -94,12 +95,19 @@ public class PluginManager {
      * Unload all plugins from alien4cloud.
      */
     public void unloadAllPlugins() {
+        int failure = 0;
+
         log.info("Unloading plugins");
         GetMultipleDataResult<Plugin> results = alienDAO.find(Plugin.class, FilterUtil.fromKeyValueCouples("enabled", "true"), Integer.MAX_VALUE);
         for (Plugin plugin : results.getData()) {
-            unloadPlugin(plugin.getId(), false, false);
+            try {
+                unloadPlugin(plugin.getId(), false, false);
+            } catch (RuntimeException e) {
+                log.error("Unable to unload plugin <{}>, exception is:",plugin.getId(),e);
+                failure++;
+            }
         }
-        log.info("{} Plugins unloaded", results.getData().length);
+        log.info("Plugins unloaded total=<{}> failure=<{}>", results.getData().length,failure);
     }
 
     /**
@@ -115,6 +123,12 @@ public class PluginManager {
             Files.createDirectories(path);
             log.info("Plugin work directory created at <" + path.toAbsolutePath().toString() + ">");
         }
+    }
+
+    @PreDestroy
+    public void preDestroy() throws IOException {
+        log.info("Destroying PluginManager");
+        unloadAllPlugins();
     }
 
     /**

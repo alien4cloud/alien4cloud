@@ -25,8 +25,10 @@
     <!-- Java coverage configuration -->
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+<!--
     <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
     <sonar.jacoco.itReportPath>${project.basedir}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
+-->
 
     <!-- Utilities -->
     <lombok.version>1.18.12</lombok.version>
@@ -73,7 +75,7 @@
     <!-- Elastic Search mapper (reference the elastic search version actually). -->
     <!-- Elastic Search is in Elastic Search dependencies -->
     <elasticsearch.version>6.6.2</elasticsearch.version>
-    <es-mapping.version>6.6.3-SNAPSHOT</es-mapping.version>
+    <es-mapping.version>6.6.2-1</es-mapping.version>
     <!-- Groovy is required for ElasticSearch to run as server in order to process scripts -->
     <groovy.version>2.3.5</groovy.version>
 
@@ -546,14 +548,6 @@
 
   <repositories>
     <repository>
-      <id>repo.opensource.fastconnect.org</id>
-      <url>http://fastconnect.org/maven/content/repositories/opensource</url>
-    </repository>
-    <repository>
-      <id>repo.opensource.snapshot.fastconnect.org</id>
-      <url>http://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
-    </repository>
-    <repository>
       <id>projectlombok.org</id>
       <name>Lombok Repository</name>
       <url>http://projectlombok.org/mavenrepo</url>
@@ -568,27 +562,35 @@
       <name>jcenter</name>
       <url>https://jcenter.bintray.com/</url>
     </repository>
+    <repository>
+      <id>pdl-releases</id>
+      <url>https://www.portaildulibre.fr/nexus/repository/opensource-releases</url>
+    </repository>
+    <repository>
+      <id>pdl-snapshots</id>
+      <url>https://www.portaildulibre.fr/nexus/repository/opensource-snapshots</url>
+    </repository>
   </repositories>
 
   <pluginRepositories>
     <pluginRepository>
-      <id>repo.opensource.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource</url>
+      <id>pdl-releases</id>
+      <url>https://www.portaildulibre.fr/nexus/repository/opensource-releases</url>
     </pluginRepository>
     <pluginRepository>
-      <id>repo.opensource.snapshot.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
+      <id>pdl-snapshots</id>
+      <url>https://www.portaildulibre.fr/nexus/repository/opensource-snapshots</url>
     </pluginRepository>
   </pluginRepositories>
 
   <distributionManagement>
     <repository>
-      <id>repo.opensource.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource</url>
+        <id>pdl-releases</id>
+        <url>https://www.portaildulibre.fr/nexus/repository/opensource-releases</url>
     </repository>
     <snapshotRepository>
-      <id>repo.opensource.snapshot.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
+        <id>pdl-snapshots</id>
+        <url>https://www.portaildulibre.fr/nexus/repository/opensource-snapshots</url>
     </snapshotRepository>
   </distributionManagement>
 
@@ -677,7 +679,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
-          <version>2.5</version>
+          <version>3.6.0.1398</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -749,14 +751,16 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.7.7.201606060606</version>
+            <version>0.8.4</version>
             <configuration>
+<!--
               <includes>
                 <include>alien4cloud.*</include>
                 <include>org.alien4cloud.*</include>
               </includes>
               <destFile>${sonar.jacoco.reportPath}</destFile>
               <dataFile>${sonar.jacoco.reportPath}</dataFile>
+-->
               <append>true</append>
             </configuration>
             <executions>

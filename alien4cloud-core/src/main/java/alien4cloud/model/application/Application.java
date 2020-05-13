@@ -38,6 +38,7 @@ import static alien4cloud.dao.model.FetchContext.SUMMARY;
 public class Application implements ISecuredResource, IDeploymentSource, ITaggableResource, IMetaProperties, IDatableResource {
     @Id
     @FetchContext(contexts = { SUMMARY }, include = { true })
+    @StringField(indexType = IndexType.not_analyzed)
     private String id;
 
     @FetchContext(contexts = { SUMMARY }, include = { true })

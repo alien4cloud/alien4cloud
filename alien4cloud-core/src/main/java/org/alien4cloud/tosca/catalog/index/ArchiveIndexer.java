@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.catalog.index;
 
 import alien4cloud.common.MetaPropertiesService;
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.dao.FilterUtil;
@@ -38,6 +39,8 @@ import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
@@ -104,6 +107,9 @@ public class ArchiveIndexer {
 
     @Value("${features.archive_indexer_lock_used_archive:#{true}}")
     private boolean lockUsedArchive;
+
+    @Value("${features.archive_indexer_accept_upgrade_release:#{false}}")
+    private boolean acceptReleased;
 
     /**
      * Check that a CSAR name/version does not already exists in the repository and eventually throw an AlreadyExistException.
@@ -211,7 +217,10 @@ public class ArchiveIndexer {
         publisher.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
 
         // Throw an exception if we are trying to override a released (non SNAPSHOT) version.
-        checkNotReleased(currentIndexedArchive);
+        if (acceptReleased == false) {
+            checkNotReleased(currentIndexedArchive);
+        }
+
         // In the current version of alien4cloud we must prevent from overriding an archive that is used in a deployment as we still use catalog information at
         // runtime.
         if (lockUsedArchive) {
@@ -311,6 +320,8 @@ public class ArchiveIndexer {
                     .getArchive().getHash());
             topology.getDependencies().add(selfDependency);
         }
+
+        postProcessArtifacts(archiveRoot);
 
         // init the workflows
         TopologyContext topologyContext = workflowBuilderService.buildCachedTopologyContext(new TopologyContext() {
@@ -440,6 +451,21 @@ public class ArchiveIndexer {
             for (ArchiveRoot child : root.getLocalImports()) {
                 performIndexing(child, metapropsNames);
             }
+        }
+    }
+
+    private void postProcessArtifacts(ArchiveRoot root) {
+        Topology topology = root.getTopology();
+
+        String archiveName = root.getArchive().getName();
+        String archiveVersion = root .getArchive().getVersion();
+
+        for (NodeTemplate node : safe(topology.getNodeTemplates().values())) {
+            for (DeploymentArtifact artifact : safe (node.getArtifacts().values()))
+                if (artifact.getArtifactRepository()==null && artifact.getArchiveName().equals(archiveName) && artifact.getArchiveVersion().equals(archiveVersion)) {
+                    artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY);
+                }
+
         }
     }
 }

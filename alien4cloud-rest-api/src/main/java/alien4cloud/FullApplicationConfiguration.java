@@ -11,6 +11,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ResourceLoader;
 
 import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 /**
  * The configuration to launch the full A4C context.
