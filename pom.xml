@@ -50,7 +50,7 @@
     <io.jsonwebtoken.jjwt.version>0.9.1</io.jsonwebtoken.jjwt.version>
 
     <!-- JSON and YAML Parsing -->
-    <jackson.version>2.9.3</jackson.version>
+    <jackson.version>2.11.0</jackson.version>
     <!-- Yaml for properties -->
     <snakeyaml.version>1.18</snakeyaml.version>
 
