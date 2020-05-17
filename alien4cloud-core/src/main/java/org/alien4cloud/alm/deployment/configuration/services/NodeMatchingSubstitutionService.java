@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Maps;
+
 import org.alien4cloud.alm.deployment.configuration.events.OnDeploymentConfigCopyEvent;
 import org.alien4cloud.alm.deployment.configuration.flow.EnvironmentContext;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
@@ -26,8 +28,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Maps;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.exception.NotFoundException;
@@ -88,7 +88,7 @@ public class NodeMatchingSubstitutionService {
                         "Unexpected exception in deployment flow to update node substitution; unable to find the master node matching modifier to inject selection action modifier."));
 
         // inject the SetMatchedNodeModifier into the nodeMatchingModifiers, just after nodeMatchingConfigAutoSelectModifier
-        nodeMatchingModifier.addModifierAfter(matchedNodeModifier, nodeMatchingConfigAutoSelectModifier);
+        nodeMatchingModifier.addModifierBefore(matchedNodeModifier, nodeMatchingConfigAutoSelectModifier);
         return modifierList;
     }
 

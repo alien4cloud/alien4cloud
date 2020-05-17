@@ -34,6 +34,7 @@ Feature: Service matching and substitution
     And I add a role "APPLICATION_MANAGER" to group "hobbits" on the application "ALIEN"
     And I add a role "APPLICATION_MANAGER" to user "frodon" on the application "ALIEN"
     And I add a role "APPLICATION_MANAGER" to user "tom" on the application "ALIEN"
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     # Get the environment id
     And I POST "{}" to "/rest/v1/applications/ALIEN/environments/search"

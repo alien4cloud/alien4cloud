@@ -1,5 +1,6 @@
 package alien4cloud.deployment.matching.services.nodes;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,8 @@ import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationMatchingConfigurationService;
 import alien4cloud.orchestrators.locations.services.LocationSecurityService;
 import alien4cloud.security.AbstractSecurityEnabledResource;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Node matcher service will filter location resources for all substitutable nodes of the topology. It will return only location resources that can substitute a
@@ -89,7 +92,7 @@ public class NodeMatcherService {
             typesManagedByLocation.addAll(nodeType.getDerivedFrom());
         }
         INodeMatcherPlugin nodeMatcherPlugin = getNodeMatcherPlugin();
-        for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : nodesToMatch.entrySet()) {
+        for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : safe(nodesToMatch.entrySet())) {
             String nodeTemplateId = nodeTemplateEntry.getKey();
             NodeTemplate nodeTemplate = nodeTemplateEntry.getValue();
             if (typesManagedByLocation.contains(nodeTemplate.getType())) {
@@ -97,7 +100,12 @@ public class NodeMatcherService {
                 if (nodeTemplateType == null) {
                     throw new InvalidArgumentException("The given node types map must contain the type of the node template");
                 }
-                matchingResult.put(nodeTemplateId, nodeMatcherPlugin.matchNode(nodeTemplate, nodeTemplateType, locationResources, matchingConfigurations));
+                List<LocationResourceTemplate> matches = matchingResult.get(nodeTemplateId);
+                if (matches == null) {
+                    matches = new ArrayList<>();
+                }
+                matches.addAll(nodeMatcherPlugin.matchNode(nodeTemplate, nodeTemplateType, locationResources, matchingConfigurations));
+                matchingResult.put(nodeTemplateId, matches);
             }
         }
         return matchingResult;

@@ -12,7 +12,7 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 /**
  * This modifier cleanup the user matching configuration in case it is not valid anymore based on the choices available (that must be fetched from prior
  * NodeMatchingCandidateModifier execution).
- * 
+ *
  * It does not update topology or matching configurations, these operations are done in sub-sequent modifiers.
  */
 @Component

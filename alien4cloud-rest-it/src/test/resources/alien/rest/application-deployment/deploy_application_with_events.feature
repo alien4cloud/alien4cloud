@@ -28,6 +28,7 @@
 #  Scenario: Deploy an application and listen to events
 #    Given I create a new application with name "ALIEN" and description "" and node templates
 #      | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+#    And I get the deployment topology for the current application
 #    And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
 #    When I start listening to "instance-state" event
 #    And I start listening to "deployment-status" event
@@ -45,6 +46,7 @@
 
 #  Scenario: Deploy an application with blockstorage and listen to events
 #    Given I have an application "BLOCKSTORAGE-APPLICATION" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
+#    And I get the deployment topology for the current application
 #    And I deploy the application "BLOCKSTORAGE-APPLICATION" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
 #    When I start listening to "instance-state" event
 #    And I start listening to "persistent" event

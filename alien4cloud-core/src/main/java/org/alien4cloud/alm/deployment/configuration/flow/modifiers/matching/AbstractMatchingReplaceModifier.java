@@ -6,6 +6,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
@@ -16,9 +19,6 @@ import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.springframework.context.annotation.Lazy;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import alien4cloud.model.orchestrators.locations.AbstractLocationResourceTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;

@@ -40,6 +40,7 @@ Feature: Perform matching on policies
       | policyName | MyPolicy                                                                      |
       | targets    | Compute, Compute_1                                                            |
     And I save the topology
+    And I get the deployment topology for the current application
     When I Set a unique location policy to "Mock orchestrator"/"Mock aws location" for all nodes
     # Policy matching should have been done automatically, check that the matched node templates have zone defined
     Then The TopologyDTO SPEL expression "topology.nodeTemplates['Compute'].properties['zone'].value" should return "az_2"

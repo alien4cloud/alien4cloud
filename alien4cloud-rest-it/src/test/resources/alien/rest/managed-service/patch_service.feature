@@ -64,6 +64,7 @@ Feature: Update a service resource associated to an application environment on d
 
     #deploy the appli
     Given I am authenticated with user named "gandalf"
+    And I get the deployment topology for the current application
     And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
     And I wait for 10 seconds before continuing the test
     #check the service authorized locations

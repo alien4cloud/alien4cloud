@@ -4,9 +4,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Maps;
+
+import org.springframework.stereotype.Service;
 
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.exception.NotFoundException;
@@ -47,7 +47,7 @@ public class DeploymentTopologyService {
         for (Map.Entry<String, String> locationIdsEntry : locationIds.entrySet()) {
             locationMap.put(locationIdsEntry.getKey(), locations.get(locationIdsEntry.getValue()));
         }
-        if (locations.size() < locationIds.size()) {
+        if (locations.size() < locationIds.values().stream().distinct().count()) {
             throw new NotFoundException("Some locations could not be found " + locationIds);
         }
         return locationMap;

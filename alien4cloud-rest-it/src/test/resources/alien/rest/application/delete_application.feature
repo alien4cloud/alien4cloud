@@ -28,6 +28,7 @@ Feature: Delete application
       | managerEmail  | admin@alien.fr          |
     And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring." and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "orc"/"loc" for all nodes
     And I deploy it
     When I delete the application "watchmiddleearth"
@@ -51,6 +52,7 @@ Feature: Delete application
       | managerEmail  | admin@alien.fr          |
     And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring." and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "orc"/"loc" for all nodes
     And I execute the operation
       | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |

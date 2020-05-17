@@ -56,9 +56,9 @@ public abstract class AbstractMatchingConfigCleanupModifier<T extends AbstractLo
 
     protected abstract Map<String, List<T>> getAvailableMatches(FlowExecutionContext context);
 
-    private boolean contains(List<T> availableSubstitutionsForPolicy, String subtitutionId) {
+    private boolean contains(List<T> availableSubstitutionsForPolicy, String subtitution) {
         for (T availableSubstitutionForNode : availableSubstitutionsForPolicy) {
-            if (availableSubstitutionForNode.getId().equals(subtitutionId)) {
+            if (availableSubstitutionForNode.getId().equals(subtitution)) {
                 return true;
             }
         }

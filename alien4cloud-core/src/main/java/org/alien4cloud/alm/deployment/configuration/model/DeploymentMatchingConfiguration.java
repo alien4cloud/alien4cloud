@@ -4,16 +4,16 @@ import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Maps;
+
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.AbstractPolicy;
 import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.ObjectField;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.collect.Maps;
 
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.utils.jackson.ConditionalAttributes;
@@ -103,4 +103,5 @@ public class DeploymentMatchingConfiguration extends AbstractDeploymentConfig {
         /** Properties that are configured post-matching */
         private Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
     }
+
 }

@@ -1,6 +1,5 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
-import static alien4cloud.utils.AlienConstants.GROUP_ALL;
 import static alien4cloud.utils.AlienUtils.safe;
 import static org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext.DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY;
 
@@ -10,6 +9,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Lists;
+
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PluginModifierRegistry;
@@ -18,8 +19,6 @@ import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.PolicyType;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
 
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.PolicyLocationResourceTemplate;
@@ -41,8 +40,9 @@ public class PolicyMatchingReplaceModifier extends AbstractMatchingReplaceModifi
     @Override
 	@SuppressWarnings("unchecked")
     protected void init(Topology topology, FlowExecutionContext context) {
-		Location location = ((Map<String, Location>) context.getExecutionCache().get(DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY)).get(GROUP_ALL);
-		topology.getDependencies().addAll(location.getDependencies());
+        for (Location location: ((Map<String, Location>) context.getExecutionCache().get(DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY)).values()) {
+            topology.getDependencies().addAll(location.getDependencies());
+        }
         ToscaContext.get().resetDependencies(topology.getDependencies());
     }
 

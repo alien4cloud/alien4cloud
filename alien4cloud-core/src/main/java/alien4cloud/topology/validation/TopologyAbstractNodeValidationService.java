@@ -7,13 +7,12 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Maps;
+
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Maps;
-
-import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.task.SuggestionsTask;

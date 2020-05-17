@@ -2,11 +2,11 @@ package org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.tosca.model.templates.Topology;
-
-import com.google.common.collect.Lists;
 
 import lombok.Getter;
 
@@ -40,9 +40,21 @@ public abstract class AbstractComposedModifier implements ITopologyModifier {
                 + existingModifier.getClass().getSimpleName() + " modifier to inject selection action modifier.");
     }
 
+    public void addModifierBefore(ITopologyModifier toAddModifier, ITopologyModifier existingModifier) {
+        for (int i = 0; i < this.subModifiers.size(); i++) {
+            if (this.subModifiers.get(i) == existingModifier) {
+                this.subModifiers.add(i - 1, toAddModifier);
+                return;
+            }
+        }
+
+        throw new IllegalArgumentException("Unexpected exception in deployment flow to update node substitution; unable to find "
+                + existingModifier.getClass().getSimpleName() + " modifier to inject selection action modifier.");
+    }
+
     /**
      * Remove all modifiers appearing after the one provided
-     * 
+     *
      * @param lastModifierToKeep The last modifier to keep in the list. Everything else after it will be removed.
      */
     public void removeModifiersAfter(ITopologyModifier lastModifierToKeep) {

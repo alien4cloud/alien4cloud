@@ -5,10 +5,14 @@ import static alien4cloud.utils.AlienUtils.safe;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.model.Csar;
@@ -18,15 +22,13 @@ import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
 
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import org.alien4cloud.tosca.utils.TopologyUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -69,6 +71,15 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
         TopologyUtils.updateGroupMembers(topology, template, operation.getNodeName(), null);
         // update the workflows
         workflowBuilderService.removeNode(topology, csar, operation.getNodeName());
+
+        if (operation.getContext() != null) {
+            String locationId = (String) operation.getContext().getExecutionCache().get(FlowExecutionContext.ORIGIN_LOCATION_FOR_MODIFIER);
+            if (locationId != null) {
+                Map<String, Set<String>> nodesPerLocation = (Map<String, Set<String>>) operation.getContext().getExecutionCache().get(FlowExecutionContext.NODES_PER_LOCATIONS_CACHE_KEY);
+                nodesPerLocation.computeIfAbsent(locationId, k -> Sets.newHashSet()).remove(operation.getNodeName());
+            }
+        }
+
         log.debug("Removed node template [ {} ] from the topology [ {} ] .", operation.getNodeName(), topology.getId());
     }
 

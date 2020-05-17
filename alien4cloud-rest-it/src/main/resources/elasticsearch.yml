@@ -1,9 +1,9 @@
 path:
   home: target/elasticsearch
 
-gateway:
-  recover_after_nodes: 1
-  expected_nodes: 1
+# gateway:
+#   recover_after_nodes: 1
+#   expected_nodes: 1
 
 cluster:
   name: escluster

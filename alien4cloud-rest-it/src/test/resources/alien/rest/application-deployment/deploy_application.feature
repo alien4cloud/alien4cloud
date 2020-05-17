@@ -29,6 +29,7 @@ Feature: Deploy an application
   Scenario: Deploy an application with success
     Given I create a new application with name "ALIEN" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
@@ -38,6 +39,7 @@ Feature: Deploy an application
   Scenario: Deploy an application with failure
     Given I create a new application with name "BAD-APPLICATION" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
@@ -47,6 +49,7 @@ Feature: Deploy an application
   Scenario: Deploy an application with warning
     Given I create a new application with name "WARN-APPLICATION" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
@@ -83,6 +86,7 @@ Feature: Deploy an application
   Scenario: deleting an deployed application should fail
     Given I create a new application with name "ALIEN" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
     When I delete the application "ALIEN"
     Then I should receive a RestResponse with an error code 607
@@ -93,13 +97,16 @@ Feature: Deploy an application
   Scenario: Create two app with similar names and deploy them on the same orchestrator should fail for the second app
     Given I create a new application with name "App Test" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I deploy the application "App Test" on the location "Mount doom orchestrator"/"Thark location"
     When I create a new application with name "App_Test" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I deploy the application "App_Test" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
     Then I should receive a RestResponse with an error code 613
 #    When I create a new application with name "App(Test" and description "" and node templates
 #      | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+#    And I get the deployment topology for the current application
 #    And I deploy the application "App(Test" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
 #    Then I should receive a RestResponse with an error code 613
 
@@ -110,6 +117,7 @@ Feature: Deploy an application
     And I am authenticated with user named "sangoku"
     Given I create a new application with name "ALIEN" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     Then I should receive a RestResponse with an error code 102
     When I deploy it
@@ -125,6 +133,7 @@ Feature: Deploy an application
     And I am authenticated with user named "sangoku"
     Given I create a new application with name "ALIEN" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
@@ -138,6 +147,7 @@ Feature: Deploy an application
     And I am authenticated with user named "sangoku"
     Given I create a new application with name "ALIEN" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     Then I should receive a RestResponse with an error code 102
     When I deploy it
@@ -152,6 +162,7 @@ Feature: Deploy an application
     Then I grant access to the resource type "LOCATION" named "Thark location" to the application "ALIEN"
     And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the application "ALIEN"
     And I am authenticated with user named "sangoku"
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
@@ -166,6 +177,7 @@ Feature: Deploy an application
     And I grant access to the resource type "LOCATION" named "Thark location" to the environment "Environment" of the application "ALIEN"
     And I successfully grant access to the resource type "LOCATION_RESOURCE" named "Mount doom orchestrator/Thark location/Small_Ubuntu" to the environment "Environment" of the application "ALIEN"
     Then I am authenticated with user named "sangoku"
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error

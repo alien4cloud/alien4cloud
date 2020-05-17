@@ -306,6 +306,7 @@ Feature: Topology composition
       | nodeName      | myLAMP                                                                                         |
       | attributeName | port                                                                                           |
     And I save the topology
+    And I get the deployment topology for the current application
     Given I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
@@ -565,6 +566,7 @@ Feature: Topology composition
       | propertyName  | sys_type                                                                              |
       | propertyValue | linux                                                                                 |
     And I save the topology
+    And I get the deployment topology for the current application
     Given I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
@@ -798,6 +800,7 @@ Feature: Topology composition
       | propertyName  | sys_type                                                                              |
       | propertyValue | linux                                                                                 |
     And I save the topology
+    And I get the deployment topology for the current application
     Given I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error

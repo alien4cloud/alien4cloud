@@ -5,6 +5,8 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import com.google.common.collect.Lists;
+
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.CfyMultirelationshipErrorModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.EditorTopologyValidator;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhaseModifiersExecutor;
@@ -19,6 +21,7 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputA
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputValidationModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputsModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.PreconfiguredInputsModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.ComputeLocationGroupsModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingCandidateModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingCompositeModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.NodeMatchingConfigAutoSelectModifier;
@@ -32,8 +35,6 @@ import org.alien4cloud.alm.deployment.configuration.flow.modifiers.matching.Poli
 import org.alien4cloud.alm.deployment.configuration.services.DeploymentConfigurationDao;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
 
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -119,6 +120,9 @@ public class FlowExecutor {
     @Inject
     private PreDeploymentTopologyValidator preDeploymentTopologyValidator;
 
+    @Inject
+    private ComputeLocationGroupsModifier computeLocationGroupsModifier;
+
     private List<ITopologyModifier> topologyModifiers;
 
     @PostConstruct
@@ -136,6 +140,8 @@ public class FlowExecutor {
 
         // Backup unprocessed nodes
         topologyModifiers.add(backupNodesModifier);
+
+        topologyModifiers.add(computeLocationGroupsModifier);
 
         // Future: process pre-environment topology executors
         // Future: Process environment in-topology variables (different from inputs as configured by the topology editor)

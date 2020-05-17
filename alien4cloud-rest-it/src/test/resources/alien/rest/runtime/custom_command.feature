@@ -40,6 +40,7 @@ Feature: trigger custom commands
       | target                 | Compute                                                                               |
       | targetedCapabilityName | host                                                                                  |
     And I save the topology
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I deploy it
 

@@ -101,12 +101,20 @@ define(function (require) {
          * DEPLOYMENT PROPERTIES
          **/
         function refreshOrchestratorDeploymentPropertyDefinitions() {
-          return $alresource('rest/latest/orchestrators/:orchestratorId/deployment-property-definitions')
+          $alresource('rest/latest/orchestrators/:orchestratorId/deployment-property-definitions')
             .get({orchestratorId: $scope.deploymentTopologyDTO.topology.orchestratorId}, function (result) {
               if (result.data) {
                 $scope.orchestratorDeploymentPropertyDefinitions = result.data;
               }
             });
+          return $alresource('rest/latest/orchestrators/:orchestratorId')
+            .get({orchestratorId: $scope.deploymentTopologyDTO.topology.orchestratorId}, function (result) {
+              if (result.data) {
+                $scope.orchestrator = result.data;
+              }
+            });
+
+
         }
 
         $scope.updateDeploymentProperty = function (propertyDefinition, propertyName, propertyValue) {
@@ -143,12 +151,13 @@ define(function (require) {
         };
 
         // the topology deployment is updatable if:
-        // - the status is one of DEPLOYED , UPDATED,
-        // - the current selectedlocation is the same as the one of the deployed topology
+        // - the status is one of DEPLOYED , UPDATED
         $scope.isUpdatable = function () {
-          return _.includes(['DEPLOYED', 'UPDATED', 'UPDATE_FAILURE'], $scope.environment.status) &&
-            _.definedPath($scope.deploymentTopologyDTO, 'locationPolicies._A4C_ALL') &&
-            _.get($scope.deploymentTopologyDTO, 'locationPolicies._A4C_ALL') === _.get($scope.deployedTopology, 'topology.locationGroups._A4C_ALL.policies[0].locationId');
+          if (! _.includes(['DEPLOYED', 'UPDATED', 'UPDATE_FAILURE'], $scope.environment.status) ||
+              ! _.has($scope.deploymentTopologyDTO, 'locationPolicies')) {
+            return false;
+          }
+          return _.isEqual(_.keys($scope.deploymentTopologyDTO.locationPolicies).sort(), _.keys($scope.deployedTopology.topology.locationGroups).sort());
         };
 
         $scope.$watch('deploymentTopologyDTO.topology.orchestratorId', function (newValue) {
@@ -156,6 +165,16 @@ define(function (require) {
             return;
           }
           refreshOrchestratorDeploymentPropertyDefinitions();
+        });
+        $scope.$watch('selectedLocations', function (newValue) {
+          if (_.undefined(newValue)) {
+            return;
+          }
+          var locNames = [];
+          _.each(newValue, function(loc) {
+            locNames.push(loc.name);
+          });
+          $scope.locationsNames = locNames.join(', ');
         });
       }
     ]);

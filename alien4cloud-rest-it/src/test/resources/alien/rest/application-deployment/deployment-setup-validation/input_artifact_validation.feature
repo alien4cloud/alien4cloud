@@ -30,6 +30,7 @@ Feature: Input artifact validation in deployment setup
       | artifactName | war_file                                                                                    |
       | inputName    | war_file                                                                                    |
     And I save the topology
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
 
   @reset

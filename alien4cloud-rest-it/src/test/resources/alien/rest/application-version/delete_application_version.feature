@@ -48,6 +48,7 @@ Feature: Delete application version
     And I should receive a RestResponse with no error
     And I create an application version for application "ONEPIECE" with version "0.2.0-SNAPSHOT", description "null", topology template id "null" and previous version id "null"
     And I should receive a RestResponse with no error
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I should receive a RestResponse with no error
 #    And I deploy it
@@ -100,6 +101,7 @@ Feature: Delete application version
     And I should receive a RestResponse with no error
     And I create an application topology version for application "ONEPIECE" version "ONEPIECE:0.1.0-SNAPSHOT" with qualifier "DEV", description "topology for development environment", topology template id "null" and previous version id "null"
     And I should receive a RestResponse with no error
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I should receive a RestResponse with no error
 #    And I deploy it

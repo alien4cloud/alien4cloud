@@ -27,6 +27,7 @@ Feature: get deployments
       | managerEmail  | admin@alien.fr          |
     And I create a new application with name "The great eye" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator 2"/"Thark location" for all nodes
     And I deploy it
 

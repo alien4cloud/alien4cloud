@@ -15,6 +15,7 @@ Feature: orchestrator properties validation in deployment setup
     And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
     And I create a new application with name "ALIEN" and description "ALIEN_1" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
 
 

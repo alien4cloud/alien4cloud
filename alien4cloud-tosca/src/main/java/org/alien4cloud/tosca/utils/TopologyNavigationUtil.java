@@ -7,15 +7,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Sets;
+
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.PolicyTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.ScalingPolicy;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.normative.constants.NormativeRelationshipConstants;
 import org.apache.commons.collections4.CollectionUtils;
-
-import com.google.common.collect.Sets;
 
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.PropertyUtil;
@@ -30,7 +35,7 @@ public final class TopologyNavigationUtil {
 
     /**
      * Utility method to find the immediate host template of the current given template.
-     * 
+     *
      * @param template The template for wich to get the immediate host.
      * @return
      */
@@ -40,6 +45,18 @@ public final class TopologyNavigationUtil {
             return null;
         }
         return topology.getNodeTemplates().get(host.getTarget());
+    }
+
+    public static NodeTemplate getDeepestHostTemplate(Topology topology, NodeTemplate template) {
+        NodeTemplate host = TopologyNavigationUtil.getImmediateHostTemplate(topology, template);
+        if (host == null) {
+            return null;
+        }
+        NodeTemplate parentHost = TopologyNavigationUtil.getDeepestHostTemplate(topology, host);
+        if (parentHost == null) {
+            return host;
+        }
+        return parentHost;
     }
 
     public static int getDefaultInstanceCount(Topology topology, NodeTemplate template, int multiplicator) {
@@ -71,7 +88,7 @@ public final class TopologyNavigationUtil {
 
     /**
      * Get first outgoing relationships of a node that match the requested type.
-     * 
+     *
      * @param template The node template for which to get relationships.
      * @param type The expected type.
      * @return null if not found.

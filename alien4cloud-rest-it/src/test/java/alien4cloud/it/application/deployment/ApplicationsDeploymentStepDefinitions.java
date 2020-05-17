@@ -313,6 +313,7 @@ public class ApplicationsDeploymentStepDefinitions {
         for (String key : ApplicationStepDefinitions.CURRENT_APPLICATIONS.keySet()) {
             Application app = ApplicationStepDefinitions.CURRENT_APPLICATIONS.get(key);
             Context.getInstance().registerApplication(app);
+            deploymentTopoSteps.I_get_the_deployment_toology_for_the_current_application();
             deploymentTopoSteps.I_Set_a_unique_location_policy_to_for_all_nodes(orchestratorName, locationName);
             String appName = app.getName();
             Map<String, String> environments = Context.getInstance().getAllEnvironmentForApplication(appName);

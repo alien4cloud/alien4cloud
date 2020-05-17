@@ -427,6 +427,33 @@ img.icon_32 {
   color: #b94a48;
 }
 
+.location-group {
+  color: #2a6496;
+  display: block;
+  padding: 4px;
+  margin-bottom: 20px;
+  line-height: 1.428571429;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
+}
+
+.location-group-selected {
+  background-color: #d8e7f0;
+  border-color: #c6c8e9;
+}
+
+.location-group-ready {
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+}
+
+.location-group-danger {
+  background-color: #f2dede;
+  border-color: #ebccd1;
+  color: #b94a48;
+}
+
 .item-disabled {
     color: #999999;
     text-decoration: none;

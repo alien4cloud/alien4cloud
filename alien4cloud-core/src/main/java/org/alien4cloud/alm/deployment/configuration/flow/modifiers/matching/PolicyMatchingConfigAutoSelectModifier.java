@@ -19,16 +19,6 @@ import alien4cloud.topology.task.AbstractTask;
 public class PolicyMatchingConfigAutoSelectModifier extends AbstractMatchingConfigAutoSelectModifier<PolicyLocationResourceTemplate> {
 
     @Override
-    protected String getResourceTemplateByTemplateIdCacheKey() {
-        return FlowExecutionContext.SELECTED_MATCH_POLICY_LOCATION_TEMPLATE_BY_NODE_ID_MAP;
-    }
-
-    @Override
-    protected String getResourceTemplateByIdMapCacheKey() {
-        return FlowExecutionContext.MATCHED_POLICY_LOCATION_TEMPLATES_BY_ID_MAP;
-    }
-
-    @Override
     protected Map<String, String> getLastUserMatches(DeploymentMatchingConfiguration matchingConfiguration) {
         return matchingConfiguration.getMatchedPolicies();
     }

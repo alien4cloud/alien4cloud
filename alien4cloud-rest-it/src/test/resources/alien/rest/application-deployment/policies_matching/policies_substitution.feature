@@ -25,12 +25,17 @@ Feature: Policies substitution
       | type         | org.alien4cloud.tosca.editor.operations.policies.AddPolicyOperation |
       | policyName   | MyPolicy                                                            |
       | policyTypeId | tosca.policies.Placement:1.0.0-SNAPSHOT                             |
+    And I execute the operation
+      | type       | org.alien4cloud.tosca.editor.operations.policies.UpdatePolicyTargetsOperation |
+      | policyName | MyPolicy                                                                      |
+      | targets    | Compute                                                                       |
     And I save the topology
     And I add a role "APPLICATION_MANAGER" to group "hobbits" on the application "ALIEN"
     And I add a role "APPLICATION_MANAGER" to user "frodon" on the application "ALIEN"
     And I add a role "APPLICATION_MANAGER" to user "tom" on the application "ALIEN"
 #    And I create an application environment of type "DEVELOPMENT" with name "DEV-ALIEN" and description "" for the newly created application
 #    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes of the environment "DEV-ALIEN"
+    And I get the deployment topology for the current application
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
 
   @reset
