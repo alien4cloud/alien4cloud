@@ -69,7 +69,7 @@ define(function (require) {
           }
         });
 
-        $scope.doUndeploy = function() {
+        $scope.doUndeploy = function(force = false ) {
           secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
             var secretProviderInfoRequest = {};
             if (_.defined(secretProviderInfo)) {
@@ -79,7 +79,8 @@ define(function (require) {
             $scope.setState('INIT_DEPLOYMENT');
             applicationServices.deployment.undeploy({
               applicationId: $scope.application.id,
-              applicationEnvironmentId: $scope.environment.id
+              applicationEnvironmentId: $scope.environment.id,
+              force: force
             }, angular.toJson(secretProviderInfoRequest), function () {
               $scope.environment.status = 'UNDEPLOYMENT_IN_PROGRESS';
               $scope.setEnvironment($scope.environment);

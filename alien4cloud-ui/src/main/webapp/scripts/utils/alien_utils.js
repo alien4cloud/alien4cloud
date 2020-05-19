@@ -11,6 +11,7 @@ define(function () {
     'UNKNOWN': '#505050',
     'WARNING': '#DE9600',
     'FAILURE': '#C51919',
+    'UNDEPLOYMENT_FAILURE': '#C51919',
     'DEPLOYMENT_IN_PROGRESS': '#2C80D3',
     'UPDATE_IN_PROGRESS': '#2C80D3',
     'UNDEPLOYMENT_IN_PROGRESS': '#D0ADAD'
@@ -30,6 +31,7 @@ define(function () {
         case 'UPDATE_FAILURE':
           return 'fa-warning text-warning';
 
+        case 'UNDEPLOYMENT_FAILURE':
         case 'FAILURE':
           return 'fa-circle text-danger';
 
@@ -58,6 +60,7 @@ define(function () {
         case 'UPDATE_FAILURE':
           return 'text-warning';
 
+        case 'UNDEPLOYMENT_FAILURE':
         case 'FAILURE':
           return 'text-danger';
 

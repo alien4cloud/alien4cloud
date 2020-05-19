@@ -45,6 +45,10 @@ public enum DeploymentStatus {
      */
     UPDATE_FAILURE,
     /**
+     * Undeployment has failed
+     */
+    UNDEPLOYMENT_FAILURE,
+    /**
      * Paas Provider not reachable, error ...
      */
     UNKNOWN

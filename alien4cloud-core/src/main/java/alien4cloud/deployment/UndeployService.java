@@ -43,15 +43,15 @@ public class UndeployService {
      *
      * @param deploymentId deployment id to deploy
      */
-    public void undeploy(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, String deploymentId) {
+    public void undeploy(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, String deploymentId,boolean force) {
         Deployment deployment = deploymentService.getOrfail(deploymentId);
-        undeploy(secretProviderConfigurationAndCredentials, deployment);
+        undeploy(secretProviderConfigurationAndCredentials, deployment,force);
     }
 
-    public void undeployEnvironment(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, String environmentId) {
+    public void undeployEnvironment(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, String environmentId,boolean force) {
         Deployment deployment = deploymentService.getActiveDeployment(environmentId);
         if (deployment != null) {
-            undeploy(secretProviderConfigurationAndCredentials, deployment);
+            undeploy(secretProviderConfigurationAndCredentials, deployment,force);
         } else {
             log.warn("No deployment found for environment " + environmentId);
         }
@@ -64,10 +64,10 @@ public class UndeployService {
      */
     public void undeploy(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, DeploymentTopology deploymentTopology) {
         Deployment activeDeployment = deploymentService.getActiveDeploymentOrFail(deploymentTopology.getEnvironmentId());
-        undeploy(secretProviderConfigurationAndCredentials, activeDeployment);
+        undeploy(secretProviderConfigurationAndCredentials, activeDeployment,false);
     }
 
-    private void undeploy(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, final Deployment deployment) {
+    private void undeploy(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, final Deployment deployment,boolean force) {
         deploymentLockService.doWithDeploymentWriteLock(deployment.getOrchestratorDeploymentId(), () -> {
             log.info("Un-deploying deployment [{}] on orchestrator [{}]", deployment.getId(), deployment.getOrchestratorId());
             IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
@@ -92,7 +92,7 @@ public class UndeployService {
                 public void onFailure(Throwable throwable) {
                     log.warn("Fail while Undeploying deployment [{}] on orchestrator [{}]", deployment.getId(), deployment.getOrchestratorId());
                 }
-            });
+            },force);
             return null;
         });
     }

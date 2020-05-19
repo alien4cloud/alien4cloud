@@ -774,6 +774,7 @@
       "UPDATE_DEPLOYMENT" : "更新部署",
       "UPDATE_FAILURE" : "更新失败",
       "UPDATE_IN_PROGRESS" : "正在更新部署",
+      "UNDEPLOYMENT_FAILED": "Undeployment Failed",
       "WARNING" : "警告"
     },
     "TOASTER_STATUS" : {

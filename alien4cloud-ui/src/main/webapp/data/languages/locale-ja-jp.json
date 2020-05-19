@@ -67,6 +67,7 @@
     },
     "META_PROPERTIES" : "メタプロパティ",
     "NEW" : "新規アプリケーション",
+    "PURGE": "Purge",
     "RUNTIME" : {
       "WORKFLOW" : {
         "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully.",
@@ -774,6 +775,7 @@
       "UPDATE_DEPLOYMENT" : "Deployment update",
       "UPDATE_FAILURE" : "Update failed",
       "UPDATE_IN_PROGRESS" : "Updating deployment",
+      "UNDEPLOYMENT_FAILURE" : "Undeployment failed",
       "WARNING" : "Warning"
     },
     "TOASTER_STATUS" : {

@@ -67,6 +67,7 @@
     },
     "META_PROPERTIES" : "Méta-propriétés",
     "NEW" : "Nouvelle Application",
+    "PURGE" : "Purger",
     "RUNTIME" : {
       "WORKFLOW" : {
         "SUCCESS_TITLE" : "L'éxecution du workflow {{workflowId}} s'est terminée avec succès.",
@@ -776,6 +777,7 @@
       "UPDATE_DEPLOYMENT" : "Déploiement en cours de modification",
       "UPDATE_FAILURE" : "Echec de la mise à jour",
       "UPDATE_IN_PROGRESS" : "Déploiement en cours de modification",
+      "UNDEPLOYMENT_FAILURE": "Echec de la desinstallation",
       "WARNING" : "Alerte"
     },
     "TOASTER_STATUS" : {
