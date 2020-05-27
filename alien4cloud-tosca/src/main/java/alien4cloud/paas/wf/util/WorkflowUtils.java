@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -462,19 +463,26 @@ public class WorkflowUtils {
      * @param stepName Given step name
      * @return A set of preceding node names
      */
-    public static Set<String> findAllPrecedences(Collection<WorkflowStep> steps, String stepName) {
+    public static Set<String> findAllPrecedences(Map<String,WorkflowStep> steps,String stepName) {
         Set<String> result = new HashSet<>();
-        rFindAllPrecedences(result, steps, findStep(steps, stepName));
-        return result;
-    }
 
-    private static void rFindAllPrecedences(Set<String> result, Collection<WorkflowStep> steps, WorkflowStep step) {
-        if (step == null) {
-            return;
+        List<String> currSteps = Lists.newArrayList(stepName);
+        while (currSteps.size() > 0) {
+            List<String> nextSteps = Lists.newArrayList();
+
+            for (String sn : currSteps) {
+                if (steps.containsKey(sn) && !result.contains(sn)) {
+                    // Otherwise we already check this step
+                    result.add(sn);
+
+                    nextSteps.addAll(steps.get(sn).getPrecedingSteps());
+                }
+            }
+
+            currSteps = nextSteps;
         }
-        result.add(step.getName());
-        List<WorkflowStep> preSteps = findSteps(steps, step.getPrecedingSteps());
-        preSteps.forEach(pre -> rFindAllPrecedences(result, steps, pre));
+
+        return result;
     }
 
     /**

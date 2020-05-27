@@ -14,12 +14,17 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+
+
+import alien4cloud.aop.LogExecutionTime;
+
+
 import org.alien4cloud.tosca.model.workflow.Workflow;
 import org.alien4cloud.tosca.model.workflow.WorkflowStep;
 import org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity;
 import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkflows;
 import org.alien4cloud.tosca.model.workflow.declarative.NodeDeclarativeWorkflow;
-import org.alien4cloud.tosca.model.workflow.declarative.NodeOperationDeclarativeWorkflow;
+
 import org.springframework.stereotype.Component;
 
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
@@ -132,7 +137,7 @@ public class WorkflowSimplifyService {
                 // 2. For each preceding node, get all the precedences of this node
                 Map<String, Set<String>> precedencesMap = new HashMap<>();
                 step.getPrecedingSteps().forEach(preName -> {
-                    Set<String> precedences = WorkflowUtils.findAllPrecedences(steps, preName);
+                    Set<String> precedences = WorkflowUtils.findAllPrecedences(wf.getSteps(), preName);
                     precedencesMap.put(preName, precedences);
                 });
 
