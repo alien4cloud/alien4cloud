@@ -22,13 +22,22 @@ public class CsarDependencyLoader implements ICsarDependencyLoader {
 
     @Override
     public Set<CSARDependency> getDependencies(String name, String version) {
-        Csar csar = csarService.get(name, version);
+        ToscaContext.Context ctx = ToscaContext.get();
+        Csar csar = null;
+
+        if (ctx != null) {
+            csar = ctx.getArchive(name,version);
+        } else {
+            csar = csarService.get(name, version);
+        }
+
         if (csar == null) {
             throw new NotFoundException("Csar with name [" + name + "] and version [" + version + "] cannot be found");
         }
         if (csar.getDependencies() == null || csar.getDependencies().isEmpty()) {
             return Sets.newHashSet();
         }
+
         return Sets.newHashSet(csar.getDependencies());
     }
 
