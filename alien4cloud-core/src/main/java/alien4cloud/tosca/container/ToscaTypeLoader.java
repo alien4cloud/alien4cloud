@@ -21,6 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 public class ToscaTypeLoader {
     /** Map of type names per archives. */
     private Map<CSARDependency, Set<String>> dependenciesMap = Maps.newHashMap();
+
+    /** Map of Dependencies by name */
+    private Map<String,CSARDependency> dependenciesByName = Maps.newHashMap();
+
     /** Count the usage of a given type in the current context. */
     private Map<String, Integer> typeUsagesMap = Maps.newHashMap();
 
@@ -36,7 +40,7 @@ public class ToscaTypeLoader {
 
     /**
      * Try to unload the given type
-     * 
+     *
      * @param type name of the type
      */
     public void unloadType(String type) {
@@ -58,6 +62,7 @@ public class ToscaTypeLoader {
                             log.debug("Type usage [" + typeUsagesMap + "]");
                             log.debug("Dependencies usage [" + dependenciesMap + "]");
                         }
+                        dependenciesByName.remove(entry.getKey().getName());
                         dependencyIterator.remove();
                     }
                 }
@@ -73,28 +78,19 @@ public class ToscaTypeLoader {
         }
     }
 
-    private CSARDependency getDependencyWithName(String archiveName) {
-        Iterator<Map.Entry<CSARDependency, Set<String>>> dependencyIterator = dependenciesMap.entrySet().iterator();
-        while (dependencyIterator.hasNext()) {
-            Map.Entry<CSARDependency, Set<String>> entry = dependencyIterator.next();
-            if (entry.getKey().getName().equals(archiveName)) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
-
     /**
      * Add a dependency
-     * 
+     *
      * @param dependency
      * @param type
      * @return True if the dependecy has been upgraded into the topology. False if not.
      */
     private boolean addNewDependency(CSARDependency dependency, String type) {
-        CSARDependency currentDependency = getDependencyWithName(dependency.getName());
+        CSARDependency currentDependency = dependenciesByName.get(dependency.getName());
+
         // New dependency that never exists before
         if (currentDependency == null) {
+            dependenciesByName.put(dependency.getName(),dependency);
             dependenciesMap.put(dependency, Sets.newHashSet(type));
             return false;
         }
@@ -104,6 +100,7 @@ public class ToscaTypeLoader {
             Set<String> typesLoadedByConflictingArchive = dependenciesMap.remove(currentDependency);
             typesLoadedByConflictingArchive.add(type);
             dependenciesMap.put(dependency, typesLoadedByConflictingArchive);
+            dependenciesByName.put(dependency.getName(),dependency);
             log.warn("Version conflicting for archive [" + dependency.getName() + "] override current version [" + currentDependency.getVersion() + "] with ["
                     + dependency.getVersion() + "]");
             return true;
@@ -129,6 +126,7 @@ public class ToscaTypeLoader {
         if (log.isDebugEnabled()) {
             log.debug("Load type [" + type + "] from dependency [" + directDependency + "]");
         }
+
         Set<String> typesLoadedByDependency = dependenciesMap.get(directDependency);
         // Increment usage count
         Integer currentUsageCount = typeUsagesMap.get(type);
@@ -159,4 +157,5 @@ public class ToscaTypeLoader {
         }
         return upgraded;
     }
+
 }
