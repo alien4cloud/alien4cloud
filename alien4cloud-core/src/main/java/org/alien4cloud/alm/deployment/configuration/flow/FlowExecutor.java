@@ -5,7 +5,16 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.*;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.CfyMultirelationshipErrorModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.EditorTopologyValidator;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhaseModifiersExecutor;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.LocationMatchingModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingAbstractValidator;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingNodeSetupModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingPolicySetupModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PreDeploymentTopologyValidator;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.SubstitutionCompositionModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputArtifactsModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputValidationModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputsModifier;
@@ -110,9 +119,6 @@ public class FlowExecutor {
     @Inject
     private PreDeploymentTopologyValidator preDeploymentTopologyValidator;
 
-    @Inject
-    private WorkflowSimplifierModifier workflowSimplifierModifier;
-
     private List<ITopologyModifier> topologyModifiers;
 
     @PostConstruct
@@ -188,7 +194,6 @@ public class FlowExecutor {
         // Future: Load specific post-matching location specific modifiers (Security groups additions/ Auto-configuration, Pre-deployment policies handlers
         // etc..)
         // Check orchestrator properties configuration
-        topologyModifiers.add(workflowSimplifierModifier);
 
         // Perform full pre-deployment validation
         topologyModifiers.add(preDeploymentTopologyValidator);
