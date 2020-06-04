@@ -185,7 +185,7 @@
         "EMPTY_SECRET_PATH" : "The secret path can not be empty."
       },
       "INVALID_NAME" : "Nom invalide.",
-      "LOCATION_UNAUTHORIZED_MESSAGE" : "Vous n'avez plus l'authorisation de déployer sur la location précédament selectionnée pour cet environnement (location: <{{locationName}}>, orchestrateur: <{{orchestratorName}}>). \n Veuillez contacter votre administrateur.",
+      "LOCATION_UNAUTHORIZED_MESSAGE" : "Vous n'avez plus l'autorisation de déployer sur la location précédament selectionnée pour cet environnement (location: <{{locationName}}>, orchestrateur: <{{orchestratorName}}>). \n Veuillez contacter votre administrateur.",
       "NODE_INFO" : "Noeud sélectionné",
       "NO_OUTPUTS" : "Aucune propriété ou attribut en sortie",
       "ORCHESTRATOR_PROPERTIES" : "Propriétés de l'orchestrateur",
@@ -492,7 +492,7 @@
     "ATTENTION" : "Attention",
     "ATTRIBUTES" : "Attributs",
     "AUTHOR" : "Auteur",
-    "AUTHORIZED" : "Authorisé",
+    "AUTHORIZED" : "Autorisé",
     "CAPABILITIES" : "Capacités",
     "CONTENT" : "Contenu",
     "DATA" : "Données",
@@ -1122,7 +1122,7 @@
           "REVOKE" : "Révoquer certaines applications"
         },
         "AUTHORIZATIONS" : "Autorisations",
-        "FORCE_MESSAGE" : "Voulez-vous vraiment forcer cette action? Ceci donnera egalement des authorisations sur la location aux sujets non authorisés!",
+        "FORCE_MESSAGE" : "Voulez-vous vraiment forcer cette action? Ceci donnera egalement des autorisations sur la location aux sujets non autorisés!",
         "FORCE_TITLE" : "Forcer",
         "GROUPS" : {
           "ADD" : "Autoriser certains groupes",
