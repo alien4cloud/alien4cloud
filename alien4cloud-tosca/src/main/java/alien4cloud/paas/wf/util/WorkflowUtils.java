@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
+import alien4cloud.paas.wf.exception.InconsistentWorkflowException;
 import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
@@ -188,6 +190,44 @@ public class WorkflowUtils {
         if (from != null && to != null) {
             from.addFollowing(to.getName());
             to.addPreceding(from.getName());
+        }
+    }
+
+    public static void unlinkSteps(WorkflowStep from, WorkflowStep to) {
+        from.removeFollowing(to.getName());
+        to.removePreceding(from.getName());
+    }
+
+    public static void removeStep(Workflow wf, String stepId, boolean force) {
+        WorkflowStep step = wf.getSteps().remove(stepId);
+        if (step == null) {
+            throw new InconsistentWorkflowException(
+                    String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", stepId));
+        }
+        if (!force && step.getActivity() instanceof DelegateWorkflowActivity) {
+            throw new BadWorkflowOperationException("Native steps can not be removed from workflow");
+        }
+        if (step.getPrecedingSteps() != null) {
+            if (step.getOnSuccess() != null) {
+                // connect all preceding to all following
+                for (String precedingId : step.getPrecedingSteps()) {
+                    WorkflowStep preceding = wf.getSteps().get(precedingId);
+                    for (String followingId : step.getOnSuccess()) {
+                        WorkflowStep following = wf.getSteps().get(followingId);
+                        WorkflowUtils.linkSteps(preceding, following);
+                    }
+                }
+            }
+            for (Object precedingId : step.getPrecedingSteps().toArray()) {
+                WorkflowStep preceding = wf.getSteps().get(precedingId);
+                unlinkSteps(preceding, step);
+            }
+        }
+        if (step.getOnSuccess() != null) {
+            for (Object followingId : step.getOnSuccess().toArray()) {
+                WorkflowStep following = wf.getSteps().get(followingId);
+                unlinkSteps(step, following);
+            }
         }
     }
 
