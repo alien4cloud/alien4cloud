@@ -110,6 +110,9 @@ public class ToscaContext {
         private final Map<String, Csar> archivesMap = Maps.newHashMap();
         /** Cached types in the context. <ElementType, <ElementId, Element>> */
         private final Map<String, Map<String, AbstractToscaType>> toscaTypesCache = Maps.newHashMap();
+        /** Additional objects attached to the context */
+        @Getter
+        private final Map<String,Object> attachments = Maps.newHashMap();
 
         public Context(Set<CSARDependency> dependencies) {
             this.dependencies = dependencies;

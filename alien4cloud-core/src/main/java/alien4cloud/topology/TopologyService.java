@@ -68,6 +68,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class TopologyService {
+
+    private static final String CONTEXT_TYPE_LOADER="TOPOLOGY_SERVICE_TYPE_LOADER";
+
     @Resource
     private IToscaTypeSearchService toscaTypeSearchService;
     @Resource(name = "alien-es-dao")
@@ -84,9 +87,19 @@ public class TopologyService {
     private EditorTopologyRecoveryHelperService recoveryHelperService;
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology, boolean failOnTypeNotFound) {
-        // FIXME we should use ToscaContext here, and why not allowing the caller to pass ona Context?
+        ToscaTypeLoader loader = null;
 
-        ToscaTypeLoader loader = new ToscaTypeLoader(csarDependencyLoader);
+        // Check for a cached type loader
+        ToscaContext.Context ctx = ToscaContext.get();
+        if (ctx != null) {
+            loader =(ToscaTypeLoader) ctx.getAttachments().get(CONTEXT_TYPE_LOADER);
+            if (loader != null) {
+                return loader;
+            }
+        }
+
+        // Otherwise build a new one
+        loader = new ToscaTypeLoader(csarDependencyLoader);
 
         Map<String, NodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false, failOnTypeNotFound);
         Map<String, RelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology, failOnTypeNotFound);
@@ -467,4 +480,12 @@ public class TopologyService {
         recoveryHelperService.processRecoveryOperations(topology, recoveringOperations);
     }
 
+    public void prepareTypeLoaderCache(Topology topology) {
+        ToscaTypeLoader typeLoader = initializeTypeLoader(topology, true);
+
+        ToscaContext.Context ctx = ToscaContext.get();
+        if (ctx != null) {
+            ctx.getAttachments().put(CONTEXT_TYPE_LOADER,typeLoader);
+        }
+    }
 }
