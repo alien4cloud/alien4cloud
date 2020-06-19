@@ -111,6 +111,12 @@ define(function (require) {
 
         // update variables related to env status
         $scope.setEnvironment($scope.environment);
+
+        if (!$scope.isState('UNDEPLOYED')) {
+          // to avoid long processing blocking request on prepare next deployement
+          // when the environnement is not undeployed, let's directly go to the active deployment page
+          states.forward('applications.detail.environment', 'applications.detail.environment.deploycurrent');
+        }
       }
     ]);
 });
