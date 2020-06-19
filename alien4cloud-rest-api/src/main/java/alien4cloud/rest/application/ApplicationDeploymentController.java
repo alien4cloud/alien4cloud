@@ -1,10 +1,54 @@
 package alien4cloud.rest.application;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.validation.Valid;
+
+import alien4cloud.rest.application.model.MonitoredDeploymentDTO;
+import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
+import org.alien4cloud.git.GitLocationDao;
+import org.alien4cloud.git.LocalGitManager;
+import org.alien4cloud.git.model.GitLocation;
+import org.alien4cloud.secret.services.SecretProviderService;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
+import org.alien4cloud.tosca.utils.TopologyUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.deployment.*;
+import alien4cloud.deployment.DeployService;
+import alien4cloud.deployment.DeploymentRuntimeService;
+import alien4cloud.deployment.DeploymentRuntimeStateService;
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.deployment.DeploymentTopologyDTO;
+import alien4cloud.deployment.DeploymentTopologyDTOBuilder;
+import alien4cloud.deployment.UndeployService;
+import alien4cloud.deployment.WorkflowExecutionService;
 import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
 import alien4cloud.deployment.model.SecretProviderCredentials;
 import alien4cloud.exception.AlreadyExistException;
@@ -25,7 +69,6 @@ import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
 import alien4cloud.rest.application.model.DeployApplicationRequest;
 import alien4cloud.rest.application.model.EnvironmentStatusDTO;
-import alien4cloud.rest.application.model.MonitoredDeploymentDTO;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -37,39 +80,11 @@ import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.tosca.context.ToscaContextualAspect;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
-import org.alien4cloud.git.GitLocationDao;
-import org.alien4cloud.git.LocalGitManager;
-import org.alien4cloud.git.model.GitLocation;
-import org.alien4cloud.secret.services.SecretProviderService;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
-import org.alien4cloud.tosca.utils.TopologyUtils;
-import org.hibernate.validator.constraints.NotBlank;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -82,8 +97,6 @@ public class ApplicationDeploymentController {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private DeploymentService deploymentService;
-    @Resource
-    private DeploymentTopologyService deploymentTopologyService;
     @Inject
     private DeployService deployService;
     @Inject
@@ -248,23 +261,6 @@ public class ApplicationDeploymentController {
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
         return RestResponseBuilder.<Deployment> builder().data(deployment).build();
     }
-
-
-    @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/active-deployment-topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentTopology> getDeploymentTopology(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
-        Application application = applicationService.checkAndGetApplication(applicationId);
-        // get the topology from the version and the cloud from the environment
-        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.APPLICATION_USER);
-        Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
-        DeploymentTopology topology = null;
-        if (deployment != null) {
-            topology = deploymentTopologyService.getDeploymentTopology(deployment.getId());
-        }
-        return RestResponseBuilder.<DeploymentTopology> builder().data(topology).build();
-    }
-
 
     /**
      * Get the active deployment monitoring data.

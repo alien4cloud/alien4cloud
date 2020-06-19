@@ -1,5 +1,33 @@
 package alien4cloud.rest.deployment;
 
+import java.io.IOException;
+import java.util.Optional;
+
+import javax.inject.Inject;
+
+import org.alien4cloud.alm.deployment.configuration.services.InputArtifactService;
+import org.alien4cloud.alm.deployment.configuration.services.InputService;
+import org.alien4cloud.alm.deployment.configuration.services.LocationMatchService;
+import org.alien4cloud.alm.deployment.configuration.services.MatchedNodePropertiesConfigService;
+import org.alien4cloud.alm.deployment.configuration.services.MatchedPolicyPropertiesConfigService;
+import org.alien4cloud.alm.deployment.configuration.services.NodeMatchingSubstitutionService;
+import org.alien4cloud.alm.deployment.configuration.services.OrchestratorPropertiesService;
+import org.alien4cloud.alm.deployment.configuration.services.PolicyMatchingSubstitutionService;
+import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
+import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
@@ -24,20 +52,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
-import org.alien4cloud.alm.deployment.configuration.services.*;
-import org.alien4cloud.tosca.exceptions.ConstraintFunctionalException;
-import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Optional;
 
 @RestController
 @RequestMapping({ "/rest/applications/{appId}/environments/{environmentId}/deployment-topology",
