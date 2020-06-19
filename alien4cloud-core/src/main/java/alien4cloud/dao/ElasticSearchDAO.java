@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.runtime.Execution;
 import alien4cloud.model.runtime.Task;
 import alien4cloud.model.runtime.WorkflowStepInstance;
@@ -78,6 +79,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(ApplicationVersion.class);
         initIndice(ApplicationEnvironment.class);
         initIndice(Topology.class);
+        initIndice(DeploymentTopology.class);
         initIndice(Csar.class);
         initIndice(Repository.class);
         initIndice(ServiceResource.class);

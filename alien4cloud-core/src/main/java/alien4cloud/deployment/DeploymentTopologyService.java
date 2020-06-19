@@ -2,8 +2,10 @@ package alien4cloud.deployment;
 
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.dao.IGenericSearchDAO;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
@@ -23,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 public class DeploymentTopologyService {
     @Inject
     private LocationService locationService;
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDao;
 
     /**
      * Get location map from the deployment topology
@@ -52,4 +56,14 @@ public class DeploymentTopologyService {
         }
         return locationMap;
     }
+
+
+    public DeploymentTopology getDeploymentTopology(String deploymentId) {
+        DeploymentTopology topology = alienDao.findById(DeploymentTopology.class, deploymentId);
+        if (topology == null) {
+            throw new NotFoundException("DeploymentTopology for deployment [" + deploymentId + "] cannot be found");
+        }
+        return topology;
+    }
+
 }
