@@ -67,6 +67,14 @@ define(function (require) {
           deploycurrent.disabled = $scope.isState('UNDEPLOYED');
         }
 
+        function changeTabOnStatus() {
+          if (!$scope.isState('UNDEPLOYED')) {
+            // to avoid long processing blocking request on prepare next deployement
+            // when the environnement is not undeployed, let's directly go to the active deployment page
+            states.forward('applications.detail.environment', 'applications.detail.environment.deploycurrent');
+          }
+        }
+
         $scope.isState = function (stateName) {
           return $scope.environment.status === stateName;
         };
@@ -77,17 +85,20 @@ define(function (require) {
 
         $scope.setState = function(state){
           $scope.environment.status = state;
+          changeTabOnStatus();
           updateMenu();
         };
 
         $scope.setEnvironment = function (env) {
           $scope.environment = env;
+          changeTabOnStatus();
           updateMenu();
         };
 
         $scope.reloadEnvironment = function() {
           applicationEnvironmentsManager.reload($scope.environment.id, function(environment) {
             $scope.environment = environment;
+            changeTabOnStatus();
           });
         };
 
@@ -115,6 +126,7 @@ define(function (require) {
         if (!$scope.isState('UNDEPLOYED')) {
           // to avoid long processing blocking request on prepare next deployement
           // when the environnement is not undeployed, let's directly go to the active deployment page
+
           states.forward('applications.detail.environment', 'applications.detail.environment.deploycurrent');
         }
       }
