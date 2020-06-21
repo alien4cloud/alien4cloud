@@ -72,6 +72,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         if (query != null) {
             countRequestBuilder.setQuery(query);
         }
+        if (log.isDebugEnabled()) {
+            log.debug("Counting for <{}> using query: <{}>", clazz, query.toString());
+        }
         return countRequestBuilder.execute().actionGet().getHits().getTotalHits();
     }
 
@@ -127,6 +130,11 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         String[] indexName = getIndexForType(clazz);
         if (size > 10000) {
            size = 10000;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("doCustomFind for <{}> size:{}", clazz, size);
+        } else if (log.isTraceEnabled()) {
+            log.trace("doCustomFind for <{}> size:{} using query: <{}> and filter: <{}>", clazz, size, (query != null) ? query.toString() : "", (filter != null) ? filter.toString() : "");
         }
         //SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setTypes(getTypesFromClass(clazz)).setSize(size);
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setSize(size);
@@ -229,6 +237,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         if (maxElements > 10000) {
            maxElements = 10000;
         }
+        if (log.isDebugEnabled()) {
+            log.debug("Searching for <{}> from {} size {} using searchText: <{}> and filters <{}>", clazz.getSimpleName(), from, maxElements, searchText, filters);
+        }
         return searchQueryBuilderHelper.search(from, maxElements);
     }
 
@@ -243,6 +254,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             QueryBuilder customFilter, String fetchContext, int from, int maxElements) {
         if (maxElements > 10000) {
           maxElements = 10000;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Searching for {}<{}> from {} size {} using searchText: <{}> and filters <{}>", searchIndices, classes, from, maxElements, searchText, filters);
         }
         //SearchResponse searchResponse = queryHelper.buildQuery(searchText).types(classes).filters(filters, customFilter).prepareSearch(searchIndices)
         SearchResponse searchResponse = queryHelper.buildQuery(searchText).types(classes).filters(filters, customFilter)
@@ -271,6 +285,10 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @Override
     public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, QueryBuilder customFilter,
             String fetchContext, int from, int maxElements, String fieldSort, String fieldType, boolean sortOrder) {
+
+        if (log.isDebugEnabled()) {
+            log.debug("facetedSearch for <{}> from {} size {} using searchText: <{}> and filters <{}>", clazz, from, maxElements, searchText, filters);
+        }
         IESSearchQueryBuilderHelper<T> searchQueryBuilderHelper = getSearchBuilderHelper(clazz, searchText, filters, customFilter, fetchContext, fieldSort,
                 fieldType, sortOrder);
         if (maxElements > 10000) {
@@ -298,6 +316,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             Map<String, FilterValuesStrategy> filterStrategies, int maxElements) {
         if (maxElements > 10000) {
           maxElements = 10000;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Searching for <{}> size {} using searchText: <{}> and filters <{}>", clazz, maxElements, searchText, filters);
         }
         return buildSearchQuery(clazz, searchText).setFilters(filters, filterStrategies).prepareSearch().search(0, maxElements);
     }
@@ -428,6 +449,10 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
         String[] inc = includes.isEmpty() ? null : includes.toArray(new String[includes.size()]);
         String[] exc = excludes.isEmpty() ? null : excludes.toArray(new String[excludes.size()]);
+
+        if (log.isDebugEnabled()) {
+            log.debug("findByIdsWithContext for <{}> fetchContext {} ids: <{}>", clazz, fetchContext, ids);
+        }
 
         // TODO: correctly manage "from" and "size"
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(getIndexForType(clazz))
@@ -600,6 +625,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
          * @return The count response.
          */
         public long count() {
+            if (log.isTraceEnabled()) {
+                log.trace("EsQueryBuilderHelper.count for <{}> query: <{}>", indices, queryBuilder.toString());
+            }
             return super.count(indices, esTypes).getHits().getTotalHits();
         }
 
@@ -626,6 +654,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         }
 
         public GetMultipleDataResult<T> search(int from, int size) {
+            if (log.isTraceEnabled()) {
+                log.trace("EsQueryBuilderHelper.search for <{}> from {} size {} query: <{}>", indices, from, size, queryBuilder.toString());
+            }
             return toGetMultipleDataResult(clazz, super.execute(from, size), from);
         }
 
