@@ -7,21 +7,21 @@ define(function (require) {
 
   states.state('applications.detail.environment.history', {
     url: '/history',
-    template: '<ui-view/>',
+    templateUrl: 'views/_ref/applications/applications_detail_environment_history.html',
     controller: 'ApplicationEnvDeployHistoryCtrl',
     onEnter: ['breadcrumbsService','$translate', function(breadcrumbsService, $translate){
       breadcrumbsService.putConfig({
         state: 'applications.detail.environment.history',
         text: function () {
-          return $translate.instant('NAVAPPLICATIONS.MENU_HISTORY');
+          return $translate.instant('NAVAPPLICATIONS.MENU_HOME');
         }
       });
     }],
     menu: {
       id: 'applications.detail.environment.history',
       state: 'applications.detail.environment.history',
-      key: 'NAVAPPLICATIONS.MENU_HISTORY',
-      priority: 400,
+      key: 'NAVAPPLICATIONS.MENU_HOME',
+      priority: 100,
       icon: ''
     }
   });
@@ -33,6 +33,7 @@ define(function (require) {
 
           // this controller may load a small topo DTO (like wizard do)
           // deploy next seems to need sotmehing to be able to start
+          console.log("----- ApplicationEnvDeployHistoryCtrl -----");
         }
       ]
   );
