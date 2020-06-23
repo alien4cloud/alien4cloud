@@ -42,6 +42,17 @@
 
     <div class="row grp-margin">
       <div class="col-md-4">
+        <strong>ID</strong>
+      </div>
+      <div class="col-md-8" class="text-muted">
+        <span class="text-muted">
+        {{application.id}}
+        </span>
+        <span uib-tooltip="{{application.id}}" class="fa fa-clipboard btn-cb clickable"></span>
+      </div>
+    </div>
+    <div class="row grp-margin">
+      <div class="col-md-4">
         <strong>{{'CREATION_DATE' | translate }}</strong>
       </div>
       <div class="col-md-8">{{application.creationDate | date:'medium'}}</div>
