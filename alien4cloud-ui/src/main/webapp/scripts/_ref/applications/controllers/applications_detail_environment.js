@@ -9,8 +9,6 @@ define(function (require) {
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent');
   require('scripts/_ref/applications/controllers/applications_detail_environment_history');
-  //require('scripts/_ref/applications/controllers/applications_detail_environment_home');
-
   require('scripts/common/services/user_context_services');
 
   states.state('applications.detail.environment', {
@@ -65,7 +63,13 @@ define(function (require) {
         function updateMenu() {
           // update menu entry
           var deploycurrent = _.find($scope.menu, { 'state': 'applications.detail.environment.deploycurrent' });
-          deploycurrent.disabled = $scope.isState('UNDEPLOYED');
+          if ($scope.isState('UNDEPLOYED')) {
+            deploycurrent.disabled = $scope.isState('UNDEPLOYED');
+          } else {
+            // when the environnement is not undeployed, let's directly go to the active deployment page
+            states.forward('applications.detail.environment', 'applications.detail.environment.deploycurrent');
+          }
+
         }
 
         $scope.isState = function (stateName) {
