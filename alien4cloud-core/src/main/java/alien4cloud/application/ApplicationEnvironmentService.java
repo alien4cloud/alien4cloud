@@ -18,6 +18,7 @@ import org.alien4cloud.alm.events.AfterEnvironmentTopologyVersionChanged;
 import org.alien4cloud.alm.events.BeforeApplicationEnvironmentDeleted;
 import org.alien4cloud.tosca.model.Csar;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +56,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ApplicationEnvironmentService {
     private static final String DEFAULT_ENVIRONMENT_NAME = "Environment";
 
+    @Value("${environments.default_type}")
+    private EnvironmentType defaultEnvironmentType = EnvironmentType.DEVELOPMENT;
+
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
@@ -79,7 +83,7 @@ public class ApplicationEnvironmentService {
      * @return The id of the newly created environment.
      */
     public ApplicationEnvironment createApplicationEnvironment(String user, String applicationId, String topologyVersion) {
-        return createApplicationEnvironment(user, applicationId, DEFAULT_ENVIRONMENT_NAME, null, EnvironmentType.OTHER, topologyVersion);
+        return createApplicationEnvironment(user, applicationId, DEFAULT_ENVIRONMENT_NAME, null, defaultEnvironmentType, topologyVersion);
     }
 
     /**
@@ -395,4 +399,5 @@ public class ApplicationEnvironmentService {
                     + ") could not be deleted since it is exposed as a service.");
         }
     }
+
 }
