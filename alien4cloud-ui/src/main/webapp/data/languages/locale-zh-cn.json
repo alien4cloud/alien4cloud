@@ -1053,6 +1053,7 @@
     "MENU_USERS" : "用户"
   },
   "NAVAPPLICATIONS" : {
+    "MENU_HOME" : "Home",
     "MENU_DEPLOY_CURRENT" : "管理当前部署",
     "MENU_DEPLOY_CURRENT_INFO" : "信息",
     "MENU_DEPLOY_CURRENT_EXEC" : "Executions",

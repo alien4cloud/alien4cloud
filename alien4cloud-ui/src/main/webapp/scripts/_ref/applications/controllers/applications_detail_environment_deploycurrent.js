@@ -41,7 +41,7 @@ define(function (require) {
 
         function exitIfUndeployed(){
           if ($scope.environment.status === 'UNDEPLOYED') {
-            $state.go('applications.detail.environment.deploynext');
+            $state.go('applications.detail.environment.home');
             return true;
           }
         }

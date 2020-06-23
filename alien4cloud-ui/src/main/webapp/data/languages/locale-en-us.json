@@ -1056,6 +1056,7 @@
     "MENU_USERS" : "Users"
   },
   "NAVAPPLICATIONS" : {
+    "MENU_HOME" : "Home",
     "MENU_DEPLOY_CURRENT" : "Manage current deployment",
     "MENU_DEPLOY_CURRENT_INFO" : "Info",
     "MENU_DEPLOY_CURRENT_EXEC" : "Executions",

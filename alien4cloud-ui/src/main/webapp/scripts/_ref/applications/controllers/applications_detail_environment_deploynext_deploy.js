@@ -55,7 +55,6 @@ define(function (require) {
               // the deployed version is the current one
               $scope.environment.deployedVersion = $scope.environment.currentVersionName;
               $scope.setEnvironment($scope.environment);
-              $state.go('applications.detail.environment.deploycurrent');
             }, function () {
               $scope.reloadEnvironment();
             });
@@ -156,6 +155,15 @@ define(function (require) {
             return;
           }
           refreshOrchestratorDeploymentPropertyDefinitions();
+        });
+
+        $scope.$watch('environment.status', function (newValue) {
+          if (_.undefined(newValue)) {
+            return;
+          }
+          if (_.indexOf(['DEPLOYMENT_IN_PROGRESS', 'UNDEPLOYMENT_IN_PROGRESS', 'UPDATE_IN_PROGRESS'], newValue) !== -1) {
+            $state.go('applications.detail.environment.deploycurrent');
+          }
         });
       }
     ]);

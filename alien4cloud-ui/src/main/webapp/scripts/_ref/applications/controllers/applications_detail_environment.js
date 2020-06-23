@@ -9,6 +9,7 @@ define(function (require) {
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent');
   require('scripts/_ref/applications/controllers/applications_detail_environment_history');
+  require('scripts/_ref/applications/controllers/applications_detail_environment_home');
 
   require('scripts/common/services/user_context_services');
 
@@ -30,7 +31,7 @@ define(function (require) {
   });
 
   // TODO Manually forward to the state with visibility (users should go to summary)
-  states.forward('applications.detail.environment', 'applications.detail.environment.deploynext');
+  states.forward('applications.detail.environment', 'applications.detail.environment.home');
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentCtrl',
     ['$scope', '$state', 'userContextServices', 'application', 'environment', 'menu', 'applicationEnvironmentsManager', 'breadcrumbsService',
@@ -67,14 +68,6 @@ define(function (require) {
           deploycurrent.disabled = $scope.isState('UNDEPLOYED');
         }
 
-        function changeTabOnStatus() {
-          if (!$scope.isState('UNDEPLOYED')) {
-            // to avoid long processing blocking request on prepare next deployement
-            // when the environnement is not undeployed, let's directly go to the active deployment page
-            states.forward('applications.detail.environment', 'applications.detail.environment.deploycurrent');
-          }
-        }
-
         $scope.isState = function (stateName) {
           return $scope.environment.status === stateName;
         };
@@ -85,20 +78,17 @@ define(function (require) {
 
         $scope.setState = function(state){
           $scope.environment.status = state;
-          changeTabOnStatus();
           updateMenu();
         };
 
         $scope.setEnvironment = function (env) {
           $scope.environment = env;
-          changeTabOnStatus();
           updateMenu();
         };
 
         $scope.reloadEnvironment = function() {
           applicationEnvironmentsManager.reload($scope.environment.id, function(environment) {
-            $scope.environment = environment;
-            changeTabOnStatus();
+            $scope.setEnvironment(environment);
           });
         };
 
@@ -123,12 +113,6 @@ define(function (require) {
         // update variables related to env status
         $scope.setEnvironment($scope.environment);
 
-        if (!$scope.isState('UNDEPLOYED')) {
-          // to avoid long processing blocking request on prepare next deployement
-          // when the environnement is not undeployed, let's directly go to the active deployment page
-
-          states.forward('applications.detail.environment', 'applications.detail.environment.deploycurrent');
-        }
       }
     ]);
 });
