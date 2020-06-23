@@ -63,9 +63,9 @@ define(function (require) {
         function updateMenu() {
           // update menu entry
           var deploycurrent = _.find($scope.menu, { 'state': 'applications.detail.environment.deploycurrent' });
-          if ($scope.isState('UNDEPLOYED')) {
-            deploycurrent.disabled = $scope.isState('UNDEPLOYED');
-          } else {
+          deploycurrent.disabled = $scope.isState('UNDEPLOYED');
+          if (!$scope.isState('UNDEPLOYED')) {
+            // to avoid long processing blocking request on prepare next deployement
             // when the environnement is not undeployed, let's directly go to the active deployment page
             states.forward('applications.detail.environment', 'applications.detail.environment.deploycurrent');
           }
