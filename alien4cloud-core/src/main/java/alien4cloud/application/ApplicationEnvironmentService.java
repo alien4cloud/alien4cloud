@@ -56,8 +56,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ApplicationEnvironmentService {
     private static final String DEFAULT_ENVIRONMENT_NAME = "Environment";
 
-    @Value("${environments.default_type}")
-    private EnvironmentType defaultEnvironmentType = EnvironmentType.DEVELOPMENT;
+    @Value("${environments.default_type:DEVELOPMENT}")
+    private EnvironmentType defaultEnvironmentType;
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
