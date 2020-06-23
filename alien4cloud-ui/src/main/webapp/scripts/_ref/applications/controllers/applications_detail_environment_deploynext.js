@@ -29,7 +29,7 @@ define(function (require) {
       state: 'applications.detail.environment.deploynext',
       key: 'NAVAPPLICATIONS.MENU_DEPLOY_NEXT',
       icon: '',
-      priority: 100
+      priority: 200
     },
     resolve: {
       deploymentTopologyDTO: ['$stateParams', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'tasksProcessor',

@@ -34,8 +34,8 @@ define(function (require) {
   states.forward('applications.detail.environment', 'applications.detail.environment.home');
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentCtrl',
-    ['$scope', '$state', 'userContextServices', 'application', 'environment', 'menu', 'applicationEnvironmentsManager', 'breadcrumbsService',
-      function ($scope, $state, userContextServices, applicationResponse, environment, menu, applicationEnvironmentsManager, breadcrumbsService) {
+    ['$scope', '$state', 'userContextServices', 'application', 'environment', 'menu', 'applicationEnvironmentsManager', 'breadcrumbsService', '$timeout',
+      function ($scope, $state, userContextServices, applicationResponse, environment, menu, applicationEnvironmentsManager, breadcrumbsService,  $timeout) {
         $scope.application = applicationResponse.data;
         $scope.environment = environment;
         $scope.statusIconCss = alienUtils.getStatusIconCss;
@@ -103,6 +103,10 @@ define(function (require) {
           if (menuItem.disabled) {
             $event.preventDefault();
             $event.stopPropagation();
+          } else {
+            $timeout(function() {
+              $state.go(menuItem.state);
+            }, 100);
           }
         };
 

@@ -22,7 +22,8 @@ define(function (require) {
       id: 'applications.detail.environment.home',
       state: 'applications.detail.environment.home',
       key: 'NAVAPPLICATIONS.MENU_HOME',
-      priority: 1
+      icon: '',
+      priority: 100
     }
   });
 

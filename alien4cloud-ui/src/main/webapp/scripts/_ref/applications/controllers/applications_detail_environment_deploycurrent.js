@@ -28,7 +28,7 @@ define(function (require) {
       state: 'applications.detail.environment.deploycurrent',
       key: 'NAVAPPLICATIONS.MENU_DEPLOY_CURRENT',
       icon: '',
-      priority: 200
+      priority: 300
     }
   });
 
