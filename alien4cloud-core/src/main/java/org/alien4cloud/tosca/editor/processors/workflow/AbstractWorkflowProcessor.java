@@ -2,6 +2,8 @@ package org.alien4cloud.tosca.editor.processors.workflow;
 
 import javax.inject.Inject;
 
+import alien4cloud.paas.wf.TopologyContext;
+import com.google.common.collect.Sets;
 import org.alien4cloud.tosca.editor.operations.workflow.AbstractWorkflowOperation;
 import org.alien4cloud.tosca.editor.operations.workflow.ReinitializeWorkflowOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -25,7 +27,9 @@ public abstract class AbstractWorkflowProcessor<T extends AbstractWorkflowOperat
         Workflow workflow = workflowBuilderService.getWorkflow(operation.getWorkflowName(), topology);
         processWorkflowOperation(csar, topology, operation, workflow);
         if (!operation.getClass().getSimpleName().toString().equals(ReinitializeWorkflowOperation.class.getSimpleName().toString())) {
+            TopologyContext tc = workflowBuilderService.buildTopologyContext(topology,csar);
             workflow.setHasCustomModifications(true);
+            workflowBuilderService.postProcessTopologyWorkflows(tc, Sets.newHashSet(operation.getWorkflowName()));
         }
     }
 
