@@ -521,4 +521,8 @@ public class WorkflowsBuilderService {
 
         return workflow;
     }
+
+    public void refreshUnprocessedWorkflow(Topology topology,String workflowName) {
+        topology.getUnprocessedWorkflows().put(workflowName,WorkflowUtils.cloneWorkflow(topology.getWorkflow(workflowName)));
+    }
 }

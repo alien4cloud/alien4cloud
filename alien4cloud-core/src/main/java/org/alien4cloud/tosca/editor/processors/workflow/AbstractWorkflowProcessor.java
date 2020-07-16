@@ -29,7 +29,10 @@ public abstract class AbstractWorkflowProcessor<T extends AbstractWorkflowOperat
         if (!operation.getClass().getSimpleName().toString().equals(ReinitializeWorkflowOperation.class.getSimpleName().toString())) {
             TopologyContext tc = workflowBuilderService.buildTopologyContext(topology,csar);
             workflow.setHasCustomModifications(true);
-            workflowBuilderService.postProcessTopologyWorkflows(tc, Sets.newHashSet(operation.getWorkflowName()));
+
+            if (workflow.isStandard()) {
+                workflowBuilderService.refreshUnprocessedWorkflow(topology, workflow.getName());
+            }
         }
     }
 
