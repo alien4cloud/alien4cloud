@@ -5,8 +5,8 @@ define(function (require) {
   var alienUtils = require('scripts/utils/alien_utils');
   var _ = require('lodash');
   
-  modules.get('a4c-topology-editor').factory('topoEditWf', ['$uibModal', '$interval', '$filter', 'listToMapService',
-    function ($uibModal, $interval, $filter, listToMapService) {
+  modules.get('a4c-topology-editor').factory('topoEditWf', ['$uibModal', '$interval', '$filter', 'listToMapService', 'propertiesServices',
+    function ($uibModal, $interval, $filter, listToMapService,propertiesServices) {
       var wfNamePattern = '^\\w+$';
       var TopologyEditorMixin = function (scope) {
         
@@ -63,6 +63,9 @@ define(function (require) {
             // this is need in case of failure while renaming
             this.workflowName = workflowName;
             this.refreshGraph(true, true);
+
+            this.scope.workflowInputs = this.scope.topology.topology.workflows[workflowName].inputs
+            this.scope.workflowInputsValues = {}
           }
         },
         setEditorMode: function (mode) {
@@ -792,6 +795,23 @@ define(function (require) {
             });
           }
           return result;
+        },
+        updateWorkflowInputValue: function(definition,value,id){
+                var scope = this.scope;
+
+                var checkPropertyRequest = {
+                    'definitionId': id,
+                    'propertyDefinition': definition,
+                    'value': value,
+                    'dependencies': scope.topology.topology.dependencies
+                };
+
+              return propertiesServices.validConstraints({}, angular.toJson(checkPropertyRequest), function(successResult) {
+                        if (_.undefined(successResult.error)) {
+                                // No errors
+                                scope.workflowInputsValues[id]=value;
+                        }
+                    }).$promise;
         }
       };
       

@@ -9,7 +9,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import alien4cloud.rest.application.model.MonitoredDeploymentDTO;
+import alien4cloud.rest.application.model.*;
 import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
 import org.alien4cloud.git.GitLocationDao;
 import org.alien4cloud.git.LocalGitManager;
@@ -66,9 +66,6 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
-import alien4cloud.rest.application.model.DeployApplicationRequest;
-import alien4cloud.rest.application.model.EnvironmentStatusDTO;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -617,16 +614,19 @@ public class ApplicationDeploymentController {
             @ApiParam(value = "Application id.", required = true) @Valid @NotBlank @PathVariable String applicationId,
             @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String applicationEnvironmentId,
             @ApiParam(value = "Workflow name.", required = true) @Valid @NotBlank @PathVariable String workflowName,
-            @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody(required = false) SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
+            @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody(required = false) LaunchWorkflowRequest request) {
 
         final DeferredResult<RestResponse<String>> result = new DeferredResult<>(15L * 60L * 1000L);
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
 
-        // TODO merge with incoming params
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params;
+
+        if (request.getInputs() != null) {
+            params = request.getInputs();
+        } else params = Maps.newHashMap();
 
         try {
-            workflowExecutionService.launchWorkflow(secretProviderConfigurationAndCredentials, environment.getId(), workflowName, params,
+            workflowExecutionService.launchWorkflow(request, environment.getId(), workflowName, params,
                     new IPaaSCallback<String>() {
                         @Override
                         public void onSuccess(String data) {

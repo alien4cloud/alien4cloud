@@ -80,7 +80,7 @@ public class WorkflowPostProcessor {
      * For activity, other than the first, we create 1 step per activity.
      */
     private void splitMultipleActivitiesSteps(TopologyContext topologyContext) {
-        if (!ToscaParser.ALIEN_DSL_200.equals(topologyContext.getDSLVersion()) || MapUtils.isEmpty(topologyContext.getTopology().getWorkflows())) {
+        if ((!ToscaParser.ALIEN_DSL_200.equals(topologyContext.getDSLVersion()) && !ToscaParser.ALIEN_DSL_300.equals(topologyContext.getDSLVersion())) || MapUtils.isEmpty(topologyContext.getTopology().getWorkflows())) {
             return;
         }
 

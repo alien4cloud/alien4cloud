@@ -26,8 +26,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentWorkflowCtrl',
-    ['$scope', 'topoEditDisplay', 'topoEditWf', 'applicationServices', 'workflowExecutionServices', 'breadcrumbsService', '$translate', '$state', 'secretDisplayModal', 'toaster',
-      function ($scope, topoEditDisplay, topoEditWf, applicationServices, workflowExecutionServices, breadcrumbsService, $translate, $state, secretDisplayModal, toaster) {
+    ['$scope', 'topoEditDisplay', 'topoEditWf', 'topoEditProperties', 'applicationServices', 'workflowExecutionServices', 'breadcrumbsService', '$translate', '$state', 'secretDisplayModal', 'toaster',
+      function ($scope, topoEditDisplay, topoEditWf, topoEditProperties, applicationServices, workflowExecutionServices, breadcrumbsService, $translate, $state, secretDisplayModal, toaster) {
 
         breadcrumbsService.putConfig({
           state : 'applications.detail.environment.deploycurrent.workflow',
@@ -45,6 +45,9 @@ define(function (require) {
         };
         topoEditDisplay($scope, '#workflow-graph');
         topoEditWf($scope);
+
+        topoEditProperties($scope);
+
         // set wf in 'runtime' mode ie. don't fill nodes when selected but regarding step states
         $scope.workflows.setEditorMode('runtime');
         $scope.isWaitingForMonitoringRefresh = false;
@@ -138,11 +141,13 @@ define(function (require) {
 
         $scope.launchWorkflow = function () {
           secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
-            var secretProviderInfoRequest = {};
+            var request = {};
             if (_.defined(secretProviderInfo)) {
-              secretProviderInfoRequest.secretProviderConfiguration = $scope.secretProviderConfigurations[0];
-              secretProviderInfoRequest.credentials = secretProviderInfo.credentials;
+              request.secretProviderConfiguration = $scope.secretProviderConfigurations[0];
+              request.credentials = secretProviderInfo.credentials;
             }
+
+            request.inputs = $scope.workflowInputsValues;
 
             $scope.isLaunchingWorkflow = true;
             $scope.currentWorkflowExecutionId = null;
@@ -150,7 +155,7 @@ define(function (require) {
               applicationId: $scope.application.id,
               applicationEnvironmentId: $scope.environment.id,
               workflowName: $scope.currentWorkflowName
-            }, angular.toJson(secretProviderInfoRequest), function success(response) {
+            }, angular.toJson(request), function success(response) {
               var resultHtml = [];
               var title = '';
               if (_.defined(response.error)) {
