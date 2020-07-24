@@ -5,10 +5,7 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.deployment.ExecutionService;
 import alien4cloud.deployment.TaskService;
 import alien4cloud.deployment.WorkflowStepInstanceService;
-import alien4cloud.model.runtime.Execution;
-import alien4cloud.model.runtime.Task;
-import alien4cloud.model.runtime.TaskStatus;
-import alien4cloud.model.runtime.WorkflowStepInstance;
+import alien4cloud.model.runtime.*;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import com.google.common.collect.Lists;
@@ -26,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -155,4 +153,10 @@ public class WorkflowExecutionController {
         return RestResponseBuilder.<WorkflowExecutionDTO> builder().data(result).build();
     }
 
+
+    public void saveExecutionInputs(String executionId, ExecutionInputs executionInputs) {
+        executionInputs.setId(executionId);
+        executionInputs.setTimestamp(new Date());
+        alienDAO.save(executionInputs);
+    }
 }
