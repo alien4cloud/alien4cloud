@@ -85,6 +85,48 @@ public class CloudServiceArchiveController {
     private Path tempDirPath;
 
     @ApiOperation(value = "Upload a csar zip file.")
+    @RequestMapping(value = "/check",method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
+    public RestResponse<CsarUploadResult> checkCSAR(@RequestParam(required = false) String workspace,@RequestParam("file") MultipartFile csar)  throws IOException{
+        Path csarPath = null;
+
+        try {
+            log.info("Checking casr file with name [" + csar.getOriginalFilename() + "]");
+
+            csarPath = Files.createTempFile(tempDirPath, null, '.' + CsarFileRepository.CSAR_EXTENSION);
+
+            // save the archive in the temp directory
+            FileUploadUtil.safeTransferTo(csarPath, csar);
+
+            // load, parse the archive definitions and save on disk
+            ParsingResult<Csar> result = csarUploadService.check(csarPath, CSARSource.UPLOAD, workspace);
+            RestError error = null;
+            if (result.hasError(ParsingErrorLevel.ERROR)) {
+                error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();
+            }
+            return RestResponseBuilder.<CsarUploadResult> builder().error(error).data(CsarUploadUtil.toUploadResult(result)).build();
+        } catch (ParsingException e) {
+            log.error("Error happened while parsing csar file <" + e.getFileName() + ">", e);
+            String fileName = e.getFileName() == null ? csar.getOriginalFilename() : e.getFileName();
+
+            CsarUploadResult uploadResult = new CsarUploadResult();
+            uploadResult.getErrors().put(fileName, e.getParsingErrors());
+            return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build()).data(uploadResult)
+                    .build();
+        } finally {
+            if (csarPath != null) {
+                // Clean up
+                try {
+                    FileUtil.delete(csarPath);
+                } catch (IOException e) {
+                    log.error("Can't delete csar file",e);
+                }
+            }
+        }
+    }
+
+    @ApiOperation(value = "Upload a csar zip file.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
