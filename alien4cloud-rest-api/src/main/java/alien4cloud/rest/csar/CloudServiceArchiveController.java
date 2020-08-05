@@ -84,7 +84,7 @@ public class CloudServiceArchiveController {
 
     private Path tempDirPath;
 
-    @ApiOperation(value = "Upload a csar zip file.")
+    @ApiOperation(value = "Check validity of a csar zip file.")
     @RequestMapping(value = "/check",method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
