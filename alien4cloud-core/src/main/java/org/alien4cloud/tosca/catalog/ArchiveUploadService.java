@@ -38,6 +38,24 @@ public class ArchiveUploadService {
     private SuggestionService suggestionService;
 
     /**
+     * Check validity of a TOSCA archive.
+     *
+     * @param path The archive path.
+     * @param csarSource The source of the upload.
+     * @return The Csar object from the parsing.
+     * @throws ParsingException
+     */
+    @ToscaContextual
+    public ParsingResult<Csar> check(Path path, CSARSource csarSource, String workspace) throws ParsingException {
+        // parse the archive.
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseWithExistingContext(path, workspace);
+
+        final ArchiveRoot archiveRoot = parsingResult.getResult();
+
+        return ArchiveParserUtil.toSimpleResult(parsingResult);
+    }
+
+    /**
      * Upload a TOSCA archive and index its components.
      * 
      * @param path The archive path.

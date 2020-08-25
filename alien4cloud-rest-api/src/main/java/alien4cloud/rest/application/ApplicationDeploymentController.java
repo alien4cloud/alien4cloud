@@ -3,6 +3,7 @@ package alien4cloud.rest.application;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -210,7 +211,7 @@ public class ApplicationDeploymentController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> undeploy(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
-        return doUndeploy(applicationId, applicationEnvironmentId, new SecretProviderConfigurationAndCredentials());
+        return doUndeploy(applicationId, applicationEnvironmentId, new SecretProviderConfigurationAndCredentials(),false);
     }
 
     /**
@@ -225,18 +226,18 @@ public class ApplicationDeploymentController {
     @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/deployment", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit(bodyHiddenFields = { "credentials" })
-    public RestResponse<Void> undeploy(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
+    public RestResponse<Void> undeploy(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId, @RequestParam Optional<Boolean> force,
             @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
-        return doUndeploy(applicationId, applicationEnvironmentId, secretProviderConfigurationAndCredentials);
+        return doUndeploy(applicationId, applicationEnvironmentId, secretProviderConfigurationAndCredentials,force.orElse(false));
     }
 
     private RestResponse<Void> doUndeploy(String applicationId, String applicationEnvironmentId,
-            SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
+            SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials,boolean force) {
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
         Application application = applicationService.checkAndGetApplication(applicationId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
         try {
-            undeployService.undeployEnvironment(secretProviderConfigurationAndCredentials, applicationEnvironmentId);
+            undeployService.undeployEnvironment(secretProviderConfigurationAndCredentials, applicationEnvironmentId,force);
         } catch (OrchestratorDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }

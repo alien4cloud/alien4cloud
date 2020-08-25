@@ -72,6 +72,18 @@
       <artifactId>spring-boot-starter-aop</artifactId>
     </dependency>
 
+    <!-- thymeleaf & nekohtml are used to parse webpack generated .html as a view template -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.sourceforge.nekohtml</groupId>
+      <artifactId>nekohtml</artifactId>
+      <version>1.9.15</version>
+    </dependency>
+
+
     <dependency>
       <groupId>com.codahale.metrics</groupId>
       <artifactId>metrics-core</artifactId>

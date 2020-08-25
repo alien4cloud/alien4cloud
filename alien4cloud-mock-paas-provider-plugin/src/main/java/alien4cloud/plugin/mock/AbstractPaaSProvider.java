@@ -144,7 +144,7 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
     }
 
     @Override
-    public void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
+    public void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback,boolean force) {
         String deploymentId = deploymentContext.getDeploymentPaaSId();
         try {
             providerLock.writeLock().lock();

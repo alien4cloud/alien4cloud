@@ -276,7 +276,7 @@ public class DeploymentController {
         if (deployment != null) {
             try {
                 // Undeploy the topology linked to this deployment
-                undeployService.undeploy(null, deploymentId);
+                undeployService.undeploy(null, deploymentId,false);
             } catch (OrchestratorDisabledException e) {
                 return RestResponseBuilder.<Void> builder().data(null).error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
                         .build();

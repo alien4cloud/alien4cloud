@@ -13,10 +13,12 @@ import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.Capability;
@@ -26,12 +28,14 @@ import org.alien4cloud.tosca.model.templates.Requirement;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.PolicyType;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -117,27 +121,27 @@ public class TemplateBuilder {
     public static PolicyTemplate buildPolicyTemplate(PolicyType policyType) {
         policyType = CloneUtil.clone(policyType);
         PolicyTemplate policyTemplate = new PolicyTemplate();
-        fillAbstractTemplate(policyTemplate, policyType, null, false);
+        fillAbstractTemplate(policyTemplate, policyType, null, false, false);
         return policyTemplate;
     }
 
     public static PolicyTemplate buildPolicyTemplate(PolicyType policyType, PolicyTemplate templateToMerge, boolean adaptToType) {
         policyType = CloneUtil.clone(policyType);
         PolicyTemplate policyTemplate = new PolicyTemplate();
-        fillAbstractTemplate(policyTemplate, policyType, templateToMerge, !adaptToType);
+        fillAbstractTemplate(policyTemplate, policyType, templateToMerge, !adaptToType, false);
         return policyTemplate;
     }
 
     private static void fillAbstractTemplate(AbstractTemplate template, AbstractInheritableToscaType type, AbstractTemplate templateToMerge,
-            boolean mergeUndefinedProps) {
+            boolean mergeUndefinedProps, boolean useDT) {
         template.setType(type.getElementId());
         template.setProperties(Maps.newLinkedHashMap());
-        fillProperties(template.getProperties(), type.getProperties(), templateToMerge != null ? templateToMerge.getProperties() : null, !mergeUndefinedProps);
+        fillProperties(template.getProperties(), type.getProperties(), templateToMerge != null ? templateToMerge.getProperties() : null, !mergeUndefinedProps, useDT);
     }
 
     private static void fillAbstractInstantiableTemplate(AbstractInstantiableTemplate template, AbstractInstantiableToscaType type,
             AbstractInstantiableTemplate templateToMerge, boolean mergeUndefinedProps) {
-        fillAbstractTemplate(template, type, templateToMerge, mergeUndefinedProps);
+        fillAbstractTemplate(template, type, templateToMerge, mergeUndefinedProps, true);
         template.setArtifacts(Maps.newLinkedHashMap());
         fillDeploymentArtifactsMap(template.getArtifacts(), type.getArtifacts(), templateToMerge != null ? templateToMerge.getArtifacts() : null);
         // For now we just copy attributes as is.
@@ -233,6 +237,11 @@ public class TemplateBuilder {
 
     public static void fillProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertiesDefinitions,
             Map<String, AbstractPropertyValue> originalProperties, boolean adaptToType) {
+       fillProperties(properties, propertiesDefinitions, originalProperties, adaptToType, false);
+    }
+
+    public static void fillProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertiesDefinitions,
+            Map<String, AbstractPropertyValue> originalProperties, boolean adaptToType, boolean useDT) {
         if (propertiesDefinitions == null || properties == null) {
             return;
         }
@@ -240,6 +249,21 @@ public class TemplateBuilder {
             AbstractPropertyValue originalValue = MapUtils.getObject(originalProperties, entry.getKey());
             if (originalValue == null) {
                 AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(entry.getValue());
+                if ((pv == null) && useDT) {
+                   DataType dt = ToscaContext.get (DataType.class, entry.getValue().getType());
+                   if (dt != null) {
+                      Map<String, Object> props = new HashMap<String,Object>();
+                      safe(dt.getProperties()).forEach ((name, prop) -> {
+                         AbstractPropertyValue defaultPV = prop.getDefault();
+                         if ((defaultPV != null) && (defaultPV instanceof ScalarPropertyValue)) {
+                            props.put (name, ((ScalarPropertyValue) defaultPV).getValue());
+                         }
+                      });
+                      if (props.size() > 0) {
+                         pv = new ComplexPropertyValue(props);
+                      }
+                   }
+                }
                 properties.put(entry.getKey(), pv);
             } else if (originalValue instanceof FunctionPropertyValue || originalValue instanceof ConcatPropertyValue) {
                 properties.put(entry.getKey(), originalValue);

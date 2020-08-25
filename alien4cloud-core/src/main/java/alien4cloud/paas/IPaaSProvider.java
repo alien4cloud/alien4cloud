@@ -45,8 +45,9 @@ public interface IPaaSProvider {
      * Undeploy a given topology.
      *
      * @param deploymentContext the context of the un-deployment
+     * @param force force undeployment in case of errors
      */
-    void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback);
+    void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback,boolean force);
 
     /**
      * Scale up/down a node

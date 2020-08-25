@@ -1,12 +1,12 @@
 <div class="row">
     <!-- UNDEPLOY BUTTON -->
-    <a style="margin:20px;"
+    <a style="margin:20px 0px 20px 20px;"
             class="btn btn-danger"
             ng-if="environment.environmentType !== 'PRODUCTION'"
             ng-class="{'disabled' : isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])}"
             ng-click="doUndeploy()">{{'APPLICATIONS.UNDEPLOY' | translate}}
     </a>
-    <a style="margin:20px;"
+    <a style="margin:20px 0px 20px 20px;"
             class="btn btn-danger"
             ng-if="environment.environmentType === 'PRODUCTION'"
             ng-class="{'disabled' : isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])}"
@@ -16,6 +16,23 @@
             confirm-class="popover"
             confirm-handler="doUndeploy()"
             ng-click="$event.stopPropagation();">{{'APPLICATIONS.UNDEPLOY' | translate}}
+    </a>
+    <a
+            class="btn btn-danger"
+            ng-if="environment.environmentType !== 'PRODUCTION' && isAnyState(['UNDEPLOYMENT_FAILURE'])"
+            ng-class="{'disabled' : isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])}"
+            ng-click="doUndeploy(true)">{{'APPLICATIONS.PURGE' | translate}}
+    </a>
+    <a
+            class="btn btn-danger"
+            ng-if="environment.environmentType === 'PRODUCTION' && isAnyState(['UNDEPLOYMENT_FAILURE'])"
+            ng-class="{'disabled' : isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])}"
+            confirm="{{ 'APPLICATIONS.UNDEPLOY_CONFIRM' | translate }}"
+            confirm-title="{{ 'COMMON.ATTENTION' | translate }}"
+            confirm-placement="right"
+            confirm-class="popover"
+            confirm-handler="doUndeploy(true)"
+            ng-click="$event.stopPropagation();">{{'APPLICATIONS.PURGE' | translate}}
     </a>
     <div class="col-md-12">
       <div class="content-head" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">

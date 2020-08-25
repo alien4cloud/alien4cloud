@@ -775,6 +775,7 @@
       "UPDATE_DEPLOYMENT" : "更新部署",
       "UPDATE_FAILURE" : "更新失败",
       "UPDATE_IN_PROGRESS" : "正在更新部署",
+      "UNDEPLOYMENT_FAILED": "Undeployment Failed",
       "WARNING" : "警告"
     },
     "TOASTER_STATUS" : {
@@ -1053,6 +1054,7 @@
     "MENU_USERS" : "用户"
   },
   "NAVAPPLICATIONS" : {
+    "MENU_HOME" : "Home",
     "MENU_DEPLOY_CURRENT" : "管理当前部署",
     "MENU_DEPLOY_CURRENT_INFO" : "信息",
     "MENU_DEPLOY_CURRENT_EXEC" : "Executions",

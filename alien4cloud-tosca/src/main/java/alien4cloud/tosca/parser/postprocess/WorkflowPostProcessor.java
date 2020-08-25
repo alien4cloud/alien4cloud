@@ -147,6 +147,7 @@ public class WorkflowPostProcessor {
         normalizeWorkflowNames(topologyContext.getTopology().getWorkflows());
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             wf.setStandard(WorkflowUtils.isStandardWorkflow(wf));
+            wf.setHasCustomModifications(true);
             if (wf.getSteps() != null) {
                 for (WorkflowStep step : wf.getSteps().values()) {
                     if (step.getOnSuccess() != null) {
