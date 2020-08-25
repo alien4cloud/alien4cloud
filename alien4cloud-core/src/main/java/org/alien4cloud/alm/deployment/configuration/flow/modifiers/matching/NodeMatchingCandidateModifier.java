@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -14,15 +15,14 @@ import com.google.common.collect.Maps;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.deployment.matching.services.nodes.NodeMatcherService;
-import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.topology.task.LocationPolicyTask;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.CollectionUtils;
@@ -37,6 +37,9 @@ import alien4cloud.utils.CollectionUtils;
 public class NodeMatchingCandidateModifier extends AbstractMatchingCandidateModifier<LocationResourceTemplate> {
     @Inject
     private NodeMatcherService nodeMatcherService;
+
+    @Inject
+    private LocationService locationService;
 
     @Override
     protected String getResourceTemplateByTemplateIdCacheKey() {
@@ -69,15 +72,13 @@ public class NodeMatchingCandidateModifier extends AbstractMatchingCandidateModi
         if (matchingConfiguration.getMatchedNodesConfiguration() == null) {
             matchingConfiguration.setMatchedNodesConfiguration(Maps.newHashMap());
         }
+        Map<String, Set<String>> nodesPerLocation = (Map<String, Set<String>>) context.getExecutionCache().get(FlowExecutionContext.NODES_PER_LOCATIONS_CACHE_KEY);
 
-        Map<String, Location> locationMap = (Map<String, Location>) context.getExecutionCache()
-                .get(FlowExecutionContext.DEPLOYMENT_LOCATIONS_MAP_CACHE_KEY);
         // TODO can we avoid update if the matching configuration is strickly younger
         // than the context last conf update ?
         // Fetch available substitutions on the selected locations.
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = computeAvailableSubstitutions(topology,
-                matchingConfiguration.getLocationGroups(), locationMap,
-                context.getEnvironmentContext().get().getEnvironment().getId());
+                nodesPerLocation, context.getEnvironmentContext().get().getEnvironment().getId());
 
         context.getExecutionCache().put(FlowExecutionContext.MATCHED_NODE_LOCATION_TEMPLATES_BY_NODE_ID_MAP,
                 availableSubstitutions);
@@ -85,21 +86,21 @@ public class NodeMatchingCandidateModifier extends AbstractMatchingCandidateModi
     }
 
     private Map<String, List<LocationResourceTemplate>> computeAvailableSubstitutions(Topology topology,
-            Map<String, NodeGroup> locationGroups, Map<String, Location> locationByIds, String environmentId) {
+    Map<String, Set<String>> nodesPerLocation, String environmentId) {
         // Fetch all node types for templates in the topology
         Map<String, NodeType> nodeTypes = getNodeTypes(topology);
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = Maps.newHashMap();
 
         // Based on our model nodes may come from various locations actually.
-        for (final Map.Entry<String, NodeGroup> locationGroupEntry : locationGroups.entrySet()) {
-            String groupName = locationGroupEntry.getKey();
-            final NodeGroup locationNodeGroup = locationGroupEntry.getValue();
-            if (locationNodeGroup.getPolicies() != null) {
-                Map<String, NodeTemplate> nodesToMatch =
-                    topology.getNodeTemplates().entrySet().stream().filter(e->locationNodeGroup.getMembers().contains(e.getKey())).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-                nodeMatcherService.match(nodeTypes, nodesToMatch, locationByIds.get(groupName), environmentId)
-                        .forEach((k, v) -> availableSubstitutions.merge(k, v, CollectionUtils::merge));
-            }
+        for (final Entry<String, Set<String>> nodesPerLocationEntry : nodesPerLocation.entrySet()) {
+            Map<String, NodeTemplate> nodesToMatch = topology.getNodeTemplates().entrySet().stream()
+                    .filter(e -> nodesPerLocationEntry.getValue().contains(e.getKey()))
+                    .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
+            nodeMatcherService
+                    .match(nodeTypes, nodesToMatch, locationService.getOrFail(nodesPerLocationEntry.getKey()),
+                            environmentId)
+                    .forEach((k, v) -> availableSubstitutions.merge(k, v, CollectionUtils::merge));
         }
         return availableSubstitutions;
     }

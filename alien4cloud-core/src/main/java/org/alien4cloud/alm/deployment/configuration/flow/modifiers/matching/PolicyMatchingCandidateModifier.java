@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -15,9 +16,6 @@ import com.google.common.collect.Maps;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
-import org.alien4cloud.tosca.model.templates.AbstractPolicy;
-import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
-import org.alien4cloud.tosca.model.templates.NodeGroup;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.PolicyType;
@@ -84,31 +82,27 @@ public class PolicyMatchingCandidateModifier extends AbstractMatchingCandidateMo
         // TODO avoid update if the matching configuration is strickly younger than the context last conf update ?
         // Fetch available substitutions on the selected locations.
         Map<String, List<PolicyLocationResourceTemplate>> availableSubstitutions = computeAvailableMatches(topology, context,
-                matchingConfiguration.getLocationGroups(), locationMap, context.getEnvironmentContext().get().getEnvironment().getId());
+                locationMap, context.getEnvironmentContext().get().getEnvironment().getId());
 
         context.getExecutionCache().put(FlowExecutionContext.MATCHED_POLICY_LOCATION_TEMPLATES_BY_NODE_ID_MAP, availableSubstitutions);
 
         super.process(topology, context);
     }
 
-    private String getLocationForNode(FlowExecutionContext context, Map<String, NodeGroup> locationGroups, String nodeName) {
-        for (NodeGroup group : locationGroups.values()) {
-            if (group.getMembers().contains(nodeName)) {
-                if (safe(group.getPolicies()).size() > 0 ) {
-                    AbstractPolicy ap = group.getPolicies().iterator().next();
-                    if (ap instanceof LocationPlacementPolicy) {
-                        return ((LocationPlacementPolicy) ap).getLocationId();
-                    }
-                }
-            }
+    private String getLocationForNode(FlowExecutionContext context, Map<String, Set<String>> nodesPerLocation,
+            String nodeName) {
+        Optional<String> locationOpt = nodesPerLocation.entrySet().parallelStream()
+                .filter(e -> e.getValue().contains(nodeName)).map(e -> e.getKey()).findFirst();
+        if (locationOpt.isPresent()) {
+            String errMessage = "Node <" + nodeName + "> doesn't have a associated placement policy";
+            context.log().error(errMessage, TaskCode.LOCATION_POLICY);
+            throw new RuntimeException(errMessage);
         }
-        String errMessage = "Node <"+nodeName+"> doesn't have a associated placement policy";
-        context.log().error(errMessage, TaskCode.LOCATION_POLICY);
-        throw new RuntimeException(errMessage);
+        return locationOpt.get();
     }
 
     private Map<String, List<PolicyLocationResourceTemplate>> computeAvailableMatches(Topology topology, FlowExecutionContext context,
-            Map<String, NodeGroup> locationGroups, Map<String, Location> locationByIds, String environmentId) {
+            Map<String, Location> locationByIds, String environmentId) {
         Map<String, List<PolicyLocationResourceTemplate>> availableSubstitutions = Maps.newHashMap();
         // Fetch all policy types for templates in the topology
         Map<String, PolicyType> policyTypes = getPolicyTypes(topology);
@@ -116,10 +110,13 @@ public class PolicyMatchingCandidateModifier extends AbstractMatchingCandidateMo
         // Build a policies templates names by group location id map
         Map<String, Collection<String>> policiesByLocation = Maps.newHashMap();
 
+        Map<String, Set<String>> nodesPerLocation = (Map<String, Set<String>>) context.getExecutionCache()
+        .get(FlowExecutionContext.NODES_PER_LOCATIONS_CACHE_KEY);
+
         safe(topology.getPolicies()).values().forEach( p -> {
             String locationId = null;
             for (String nodeName : safe(p.getTargets())) {
-                String nodeLocation = getLocationForNode(context, locationGroups, nodeName);
+                String nodeLocation = getLocationForNode(context, nodesPerLocation, nodeName);
                 if (locationId == null) {
                     locationId = nodeLocation;
                 } else if (!locationId.equals(nodeLocation)) {
