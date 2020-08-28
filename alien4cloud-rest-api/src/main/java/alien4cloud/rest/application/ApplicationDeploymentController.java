@@ -277,13 +277,12 @@ public class ApplicationDeploymentController {
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.APPLICATION_USER);
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
-        ApplicationTopologyVersion topologyVersion = applicationVersionService
-                .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
-        Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
+
+        DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
 
         MonitoredDeploymentDTO monitoredDeploymentDTO = new MonitoredDeploymentDTO();
         monitoredDeploymentDTO.setDeployment(deployment);
-        Map<String, Integer> stepInstanceCount = toscaContextualAspect.execInToscaContext(() -> TopologyUtils.estimateWorkflowStepInstanceCount(topology), true, topology);
+        Map<String, Integer> stepInstanceCount = toscaContextualAspect.execInToscaContext(() -> TopologyUtils.estimateWorkflowStepInstanceCount(deploymentTopology), true, deploymentTopology);
         monitoredDeploymentDTO.setWorkflowExpectedStepInstanceCount(stepInstanceCount);
 
         return RestResponseBuilder.<MonitoredDeploymentDTO> builder().data(monitoredDeploymentDTO).build();

@@ -476,7 +476,7 @@ public class TopologyUtils {
     /**
      * For the given topology, <u>estimate</u> the number of workflow step instances regarding the scaling settings.
      * <p/>
-     * This should only be used for monitoring considerations since it will return an exact count.
+     * This should only be used for monitoring considerations since it will not return an exact count.
      *
      * @param topology
      * @return a map where key is the workflow name and the value the estimated count.
