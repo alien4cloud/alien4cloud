@@ -37,10 +37,10 @@ define(function (require) {
             var simpleGraph = this.createGraph();
             planLayout.simplify(graph, simpleGraph, 'end');
             // add hosts back
-            var clusters = graph.nodes().filter(function(v) { return !!graph.children(v).length; });
-            _.each(clusters, function(clusterKey) {
-              simpleGraph.setNode(clusterKey, graph.node(clusterKey));
-            });
+            //var clusters = graph.nodes().filter(function(v) { return !!graph.children(v).length; });
+            //_.each(clusters, function(clusterKey) {
+            //  simpleGraph.setNode(clusterKey, graph.node(clusterKey));
+            //});
             // dagre layout
             dagre.layout(simpleGraph, {debugTiming: false});
             // unwrap simplified nodes
