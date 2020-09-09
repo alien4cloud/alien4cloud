@@ -1,28 +1,22 @@
 package alien4cloud.rest.wizard;
 
-import alien4cloud.security.spring.ldap.LdapCondition;
-import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.*;
-import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Component
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "wizard", ignoreInvalidFields = true, ignoreUnknownFields = true)
+@Slf4j
 public class ApplicationWizardConfiguration {
 
     private Set<String> applicationOverviewMetapropertiesSet;
@@ -62,9 +56,9 @@ public class ApplicationWizardConfiguration {
     @Getter
     private Map<String, Map<String, String>> componentFilterByMetapropertyValues;
 
-
     @PostConstruct
     void init() {
+
         if (componentFilterByMetapropertyValues == null || componentFilterByMetapropertyValues.size() == 0) {
             // by default, we'll display all nodes, with no filter
             componentFilterByMetapropertyValues = Maps.newHashMap();
