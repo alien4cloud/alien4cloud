@@ -405,6 +405,7 @@ public class RepositoryManager {
             checkoutCommand.setName(fullBranchReference);
             if (isBranch(repository, branch) && !branchExistsLocally(repository, fullBranchReference)) {
                 checkoutCommand.setCreateBranch(true);
+                checkoutCommand.setStartPoint("origin/" + branch);
             }
             checkoutCommand.call();
         } catch (GitAPIException e) {
