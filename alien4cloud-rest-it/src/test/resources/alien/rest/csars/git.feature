@@ -130,6 +130,37 @@ Feature: GIT repository usage
      And I should have a component with id "org.alien4cloud.nodes.Apache:2.0.0-SNAPSHOT"
 
   @reset
+  Scenario: Add GIT repository with 2 branches and import it
+   Given I add a GIT repository with url "https://github.com/alien4cloud/tosca-normative-types.git" usr "" pwd "" stored "false" and locations
+        | branchId | subPath |
+        | 1.2.0    |         |
+        | 1.4.0    |         |
+     And I get the GIT repo with url "https://github.com/alien4cloud/tosca-normative-types.git"
+     And I import the GIT repository
+     And I can find 2 CSAR
+     And I should have a CSAR with id "tosca-normative-types:1.0.0-ALIEN12"
+     And I should have a CSAR with id "tosca-normative-types:1.0.0-ALIEN14"
+     And I add a GIT repository with url "https://github.com/alien4cloud/samples.git" usr "" pwd "" stored "false" and locations
+        | branchId    | subPath |
+        | 1.4.0-RC1   | apache  |
+        | maintenance/1.4.x   | apache  |
+   Given I get the GIT repo with url "https://github.com/alien4cloud/samples.git"
+    When I try to get a component with id "org.alien4cloud.nodes.Apache:1.4.0-SNAPSHOT"
+    Then I should receive a RestResponse with no error
+     And I should not have any component
+    When I import the GIT repository
+    Then I should receive a RestResponse with no error
+     And I can find 4 CSAR
+     And I should have a CSAR with id "apache-type:1.4.0-SNAPSHOT"
+     And I should have a CSAR with id "apache-type:2.0.0-SNAPSHOT"
+    When I try to get a component with id "org.alien4cloud.nodes.Apache:1.4.0-SNAPSHOT"
+    Then I should receive a RestResponse with no error
+     And I should have a component with id "org.alien4cloud.nodes.Apache:1.4.0-SNAPSHOT"
+    When I try to get a component with id "org.alien4cloud.nodes.Apache:2.0.0-SNAPSHOT"
+    Then I should receive a RestResponse with no error
+     And I should have a component with id "org.alien4cloud.nodes.Apache:2.0.0-SNAPSHOT"
+
+  @reset
   Scenario: Import a csargit with a wrong url
    Given I add a GIT repository with url "https://github.com/a" usr "" pwd "" stored "false" and locations
         | branchId | subPath |
