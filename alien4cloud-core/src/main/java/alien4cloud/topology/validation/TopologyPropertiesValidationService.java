@@ -7,9 +7,12 @@ import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.PropertyUtil;
+import alien4cloud.utils.services.ConstraintPropertyService;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
@@ -213,36 +216,51 @@ public class TopologyPropertiesValidationService {
             PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
             String propertyErrorKey = prefix == null ? propertyEntry.getKey() : prefix + "." + propertyEntry.getKey();
             AbstractPropertyValue value = propertyEntry.getValue();
-            if (propertyDef != null && propertyDef.isRequired()) {
-                if (value == null) {
-                    addRequiredPropertyError(task, propertyErrorKey);
-                } else if (value instanceof ScalarPropertyValue) {
-                    String propertyValue = ((ScalarPropertyValue) value).getValue();
-                    if (StringUtils.isBlank(propertyValue)) {
-                        addRequiredPropertyError(task, propertyErrorKey);
-                    }
-                } else if (value instanceof ComplexPropertyValue) {
+            if (propertyDef != null) {
+
+                if (value instanceof ComplexPropertyValue) {
                     Map<String, Object> mapValue = ((ComplexPropertyValue) value).getValue();
-                    if (MapUtils.isEmpty(mapValue)) {
+
+                    try {
+                        ConstraintPropertyService.checkPropertyConstraint(propertyEntry.getKey(), mapValue, propertyDef, key -> {
+                            addRequiredPropertyError(task, prefix == null ? key : prefix + "." + key);
+                        });
+                    } catch(ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
+                        // Value probably not matching the definition (shoud not happen in this context)
+                        // Nothing to do here, we re just checking for required properties
+                    }
+                }
+
+                if (propertyDef.isRequired()) {
+                    if (value == null) {
+                        addRequiredPropertyError(task, propertyErrorKey);
+                    } else if (value instanceof ScalarPropertyValue) {
+                        String propertyValue = ((ScalarPropertyValue) value).getValue();
+                        if (StringUtils.isBlank(propertyValue)) {
+                            addRequiredPropertyError(task, propertyErrorKey);
+                        }
+                    } else if (value instanceof ComplexPropertyValue) {
+                        Map<String, Object> mapValue = ((ComplexPropertyValue) value).getValue();
+                        if (MapUtils.isEmpty(mapValue)) {
+                            addRequiredPropertyError(task, propertyErrorKey);
+                        }
+                    } else if (value instanceof ListPropertyValue) {
+                        List<Object> listValue = ((ListPropertyValue) value).getValue();
+                        if (listValue.isEmpty()) {
+                            addRequiredPropertyError(task, propertyErrorKey);
+                        }
+                    } else if (FunctionEvaluator.containGetSecretFunction(value)) {
+                        // this is a get_secret function, we should not validate the get_secret here
+                        continue;
+                    } else if (skipInputProperties) {
+                        // this is a get_input funtion.
+                        // get_input Will be validated later on
+                        continue;
+                    } else {
                         addRequiredPropertyError(task, propertyErrorKey);
                     }
-                } else if (value instanceof ListPropertyValue) {
-                    List<Object> listValue = ((ListPropertyValue) value).getValue();
-                    if (listValue.isEmpty()) {
-                        addRequiredPropertyError(task, propertyErrorKey);
-                    }
-                } else if (FunctionEvaluator.containGetSecretFunction(value)) {
-                    // this is a get_secret function, we should not validate the get_secret here
-                     continue;
-                } else if (skipInputProperties) {
-                    // this is a get_input funtion.
-                    // get_input Will be validated later on
-                    continue;
-                } else {
-                    addRequiredPropertyError(task, propertyErrorKey);
                 }
             }
         }
     }
-
 }
