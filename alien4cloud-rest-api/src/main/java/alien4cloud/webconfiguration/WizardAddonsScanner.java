@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
@@ -64,6 +65,8 @@ public class WizardAddonsScanner {
                     log.error("Not able to parse wizard_addon.json, addon will be ignored", parseException);
                 }
             }
+        } catch(FileNotFoundException fnfe) {
+            log.info("No wizard addons found");
         } catch(IOException ioe) {
             log.error("Exception while exploring wizard_addons folder in classpath", ioe);
         }
