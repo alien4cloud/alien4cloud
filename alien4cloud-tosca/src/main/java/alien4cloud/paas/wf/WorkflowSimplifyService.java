@@ -109,7 +109,7 @@ public class WorkflowSimplifyService {
         // 2. Remove unnecessary steps
         //doWithNode(tc, (subGraph, workflow) -> removeUnnecessarySteps(tc, workflow, subGraph), whiteList);
 
-        if (ToscaParser.ALIEN_DSL_200.equals(tc.getDSLVersion())) {
+        if (ToscaParser.ALIEN_DSL_200.equals(tc.getDSLVersion()) || ToscaParser.ALIEN_DSL_300.equals(tc.getDSLVersion())) {
             reentrantSimplifyWorklow(tc, whiteList);
         }
     }

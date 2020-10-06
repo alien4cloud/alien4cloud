@@ -13,7 +13,9 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class ListPropertyValue extends PropertyValue<List<Object>> {
 
+    protected List<Object> value;
+
     public ListPropertyValue(List<Object> value) {
-        super(value);
+        this.value = value;
     }
 }

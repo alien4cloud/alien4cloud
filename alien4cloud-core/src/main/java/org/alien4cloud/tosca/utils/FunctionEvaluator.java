@@ -6,7 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
+import alien4cloud.utils.CloneUtil;
+import alien4cloud.utils.ComplexPropertyVisitor;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
@@ -46,6 +49,11 @@ public class FunctionEvaluator {
             // There is nothing to be evaluated.
             return null;
         }
+
+        if (evaluatedProperty instanceof ComplexPropertyValue) {
+            return complexResolve(evaluatorContext,template,properties,(ComplexPropertyValue) evaluatedProperty);
+        }
+
         if (evaluatedProperty instanceof PropertyValue) {
             // This is a value already so just return it.
             return evaluatedProperty;
@@ -72,6 +80,61 @@ public class FunctionEvaluator {
         }
         throw new IllegalArgumentException("AbstractPropertyValue must be one of null, a secret, PropertyValue, FunctionPropertyValue or ConcatPropertyValue");
     }
+
+        /**
+         * Try to resolve the actual complex property value
+         *
+         * @param evaluatorContext The evaluation context, Topology and Inputs.
+         * @param template The template that owns the given properties (node template properties or relationship properties) or the Capability/Requirement that ows
+         *            the properties (node template).
+         * @param properties The properties of the entity for which to resolve a specific property.
+         * @param evaluatedProperty The property to resolve (should be one of the properties element but this won't be checked here).
+         * @return The evaluated value for the property.
+         */
+        private static AbstractPropertyValue complexResolve(
+            FunctionEvaluatorContext evaluatorContext,
+            AbstractInstantiableTemplate template,
+            Map<String, AbstractPropertyValue> properties,
+            ComplexPropertyValue evaluatedProperty) {
+
+            ComplexPropertyValue result = (ComplexPropertyValue) CloneUtil.clone(evaluatedProperty);
+            ComplexPropertyVisitor visitor = new ComplexPropertyVisitor(result);
+
+            visitor.visit(complexEvaluator(evaluatorContext,template,properties));
+
+            return result;
+        }
+
+        private static UnaryOperator<Object> complexEvaluator(
+                FunctionEvaluatorContext evaluatorContext,
+                AbstractInstantiableTemplate template,
+                Map<String, AbstractPropertyValue> properties
+            ) {
+            return evaluatedProperty -> {
+                AbstractPropertyValue value = null;
+
+                if (evaluatedProperty instanceof FunctionPropertyValue) {
+                    FunctionPropertyValue evaluatedFunction = (FunctionPropertyValue) evaluatedProperty;
+                    switch (evaluatedFunction.getFunction()) {
+                        case ToscaFunctionConstants.GET_INPUT:
+                            value = evaluatorContext.getInputs().get(evaluatedFunction.getParameters().get(0));
+                            break;
+                        default:
+                            throw new IllegalArgumentException("GET_PROPERTY, GET_ATTRIBUTE or GET_OPERATION_OUTPUT cannot be defined on a property.");
+                    }
+                } else if (evaluatedProperty instanceof ConcatPropertyValue) {
+                    value = concat(evaluatorContext, template, properties, (ConcatPropertyValue) evaluatedProperty);
+                } else {
+                    return evaluatedProperty;
+                }
+
+                if (value instanceof ScalarPropertyValue) {
+                    return ((ScalarPropertyValue) value).getValue();
+                } else {
+                    throw new IllegalArgumentException("GET_INPUT in complex property can only be done on scalar types.");
+                }
+            };
+        }
 
     /**
      * Process a get_property function against the topology.

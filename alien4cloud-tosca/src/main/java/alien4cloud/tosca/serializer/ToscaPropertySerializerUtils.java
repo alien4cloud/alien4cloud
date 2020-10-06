@@ -79,6 +79,10 @@ public class ToscaPropertySerializerUtils {
             return formatListValue(indentLevel, (List<Object>) value);
         } else if (value instanceof PropertyValue) {
             return formatPropertyValue(indentLevel, (PropertyValue) value);
+        } else if (value instanceof FunctionPropertyValue) {
+            return formatFunctionPropertyValue(indentLevel, ((FunctionPropertyValue) value));
+        } else if (value instanceof ConcatPropertyValue) {
+            return formatConcatPropertyValue(indentLevel, ((ConcatPropertyValue) value));
         } else {
             throw new NotSupportedException("Do not support other types than string map and list");
         }
