@@ -63,21 +63,6 @@ public class InputArtifactService {
         }
     }
 
-    public void updateInputArtifact(ApplicationEnvironment environment, Topology topology, String inputArtifactId, InputStream artifactStream, String filename)
-            throws IOException {
-        checkInputArtifactExist(inputArtifactId, topology);
-        DeploymentInputs deploymentInputs = getDeploymentInputs(environment.getTopologyVersion(), environment.getId());
-        // FIXME ensure that deployment inputs are up-to date
-        DeploymentArtifact artifact = getDeploymentArtifact(inputArtifactId, deploymentInputs);
-        String artifactFileId = artifactRepository.storeFile(artifactStream);
-        artifact.setArtifactName(filename);
-        artifact.setArtifactRef(artifactFileId);
-        artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
-        artifact.setRepositoryName(null);
-        artifact.setRepositoryURL(null);
-        deploymentConfigurationDao.save(deploymentInputs);
-    }
-
     public void updateInputArtifact(ApplicationEnvironment environment, Topology topology, String inputArtifactId, DeploymentArtifact updatedArtifact) {
         checkInputArtifactExist(inputArtifactId, topology);
         DeploymentInputs deploymentInputs = getDeploymentInputs(environment.getTopologyVersion(), environment.getId());

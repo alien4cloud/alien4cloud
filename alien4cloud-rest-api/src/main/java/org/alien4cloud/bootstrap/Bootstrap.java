@@ -64,7 +64,6 @@ public class Bootstrap {
         System.setProperty("security.basic.enabled", "false");
         System.setProperty("management.contextPath", "/rest/admin");
         System.setProperty("spring.config.name", AlienYamlPropertiesFactoryBeanFactory.ALIEN_CONFIGURATION);
-        System.setProperty("spring.http.multipart.enabled","false");
     }
 
     @Bean(name = { "alienconfig", "elasticsearchConfig" })
@@ -82,32 +81,24 @@ public class Bootstrap {
         return configurer;
     }
 
-    /***Bean
+    @Bean
     public MultipartConfigElement multipartConfigElement(@Value("${upload.max_archive_size}") long maxUploadSize) {
         MultipartConfigFactory factory = new MultipartConfigFactory();
         factory.setMaxRequestSize(maxUploadSize);
         factory.setMaxFileSize(maxUploadSize);
         return factory.createMultipartConfig();
-    }*/
+    }
 
-    /***Bean
+    @Bean
     public StandardServletMultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
-    }*/
+    }
 
-    /*****Bean
+    @Bean
     public ServletRegistrationBean dispatcherRegistration(DispatcherServlet dispatcherServlet, MultipartConfigElement multipartConfig) {
         ServletRegistrationBean registration = new ServletRegistrationBean(dispatcherServlet);
         registration.addUrlMappings("/*");
         registration.setMultipartConfig(multipartConfig);
-        registration.setAsyncSupported(true);
-        return registration;
-    }*******/
-
-    @Bean
-    public ServletRegistrationBean dispatcherRegistration(DispatcherServlet dispatcherServlet) {
-        ServletRegistrationBean registration = new ServletRegistrationBean(dispatcherServlet);
-        registration.addUrlMappings("/*");
         registration.setAsyncSupported(true);
         return registration;
     }

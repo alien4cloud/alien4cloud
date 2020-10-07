@@ -30,8 +30,4 @@ public final class FileUploadUtil {
             Files.copy(fileStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
         }
     }
-
-    public static void safeTransferTo (Path targetPath, InputStream stream) throws IOException {
-       Files.copy(stream, targetPath, StandardCopyOption.REPLACE_EXISTING);
-    }
 }
