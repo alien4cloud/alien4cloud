@@ -1,11 +1,14 @@
 package alien4cloud.rest.application;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import alien4cloud.dao.ESGenericSearchDAO;
@@ -27,7 +30,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -52,6 +54,11 @@ import alien4cloud.utils.VersionUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
@@ -233,14 +240,38 @@ public class ApplicationController {
     @RequestMapping(value = "/{applicationId:.+}/image", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
-    public RestResponse<String> updateImage(@PathVariable String applicationId, @RequestParam("file") MultipartFile image) {
+    public RestResponse<String> updateImage(HttpServletRequest request) {
+        String imageId = null;
+        String fileName = "<image>";
+
+        String[] pathInfo = request.getPathInfo().split("/"); // should be /rest/(latest|v1)/applications/{applicationId}/image 
+        String applicationId = pathInfo.length > 4 ? pathInfo[pathInfo.length - 2] : null;
+
         Application application = applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
-        String imageId;
+
         try {
-            imageId = imageDAO.writeImage(image.getBytes());
-        } catch (IOException e) {
+            ServletFileUpload upload = new ServletFileUpload();
+            FileItemIterator iter = upload.getItemIterator(request);
+            if (iter.hasNext()) {
+               FileItemStream item = iter.next();
+               InputStream stream = item.openStream();
+               if (!item.isFormField()) {
+                  ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                  int nRead;
+                  byte[] datapart = new byte[10240];
+                  while ((nRead = stream.read(datapart)) != -1) {
+                      buffer.write(datapart, 0, nRead);
+                  }
+                  buffer.flush();
+                  byte[] data = buffer.toByteArray();
+                  imageId = imageDAO.writeImage(data);
+                  fileName = item.getName();
+               }
+               stream.close();
+            }
+        } catch (IOException | FileUploadException e) {
             throw new ImageUploadException(
-                    "Unable to read image from file upload [" + image.getOriginalFilename() + "] to update application [" + applicationId + "]", e);
+                    "Unable to read image from file upload [" + fileName + "] to update application [" + applicationId + "]", e);
         }
         application.setImageId(imageId);
         alienDAO.save(application);

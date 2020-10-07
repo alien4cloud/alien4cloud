@@ -24,6 +24,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.MappingBuilder;
@@ -37,9 +41,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.InputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,26 +70,34 @@ public class PluginController {
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> upload(
-            @ApiParam(value = "Zip file that contains the plugin.", required = true) @RequestParam("file") MultipartFile pluginArchive) {
+    public RestResponse<Void> upload (HttpServletRequest request) {
         Path pluginPath = null;
         try {
-            // save the plugin archive in the temp directory
-            pluginPath = Files.createTempFile(tempDirPath, null, ".zip");
-            FileUploadUtil.safeTransferTo(pluginPath, pluginArchive);
-            // upload the plugin archive
-            Plugin plugin = pluginManager.uploadPlugin(pluginPath);
-            // if the plugin is configurable, then try reuse if existing a previous version
-            // TODO as we do not manage many version of a same plugin, is this still relevant ?
-            if (plugin.isConfigurable()) {
-                tryReusePreviousVersionConf(plugin);
-            }
+             ServletFileUpload upload = new ServletFileUpload();
+             FileItemIterator iter = upload.getItemIterator(request);
+             if (iter.hasNext()) {
+                FileItemStream item = iter.next();
+                InputStream stream = item.openStream();
+                if (!item.isFormField()) {
+                   // save the plugin archive in the temp directory
+                   pluginPath = Files.createTempFile(tempDirPath, null, ".zip");
+                   FileUploadUtil.safeTransferTo(pluginPath, stream);
+                   // upload the plugin archive
+                   Plugin plugin = pluginManager.uploadPlugin(pluginPath);
+                   // if the plugin is configurable, then try reuse if existing a previous version
+                   // TODO as we do not manage many version of a same plugin, is this still relevant ?
+                   if (plugin.isConfigurable()) {
+                       tryReusePreviousVersionConf(plugin);
+                   }
+                }
+                stream.close();
+             }
         } catch (MissingPlugingDescriptorFileException e) {
             log.error("Your plugin don't have the META-INF/plugin.yml file.", e);
             return RestResponseBuilder.<Void> builder().error(
                     new RestError(RestErrorCode.MISSING_PLUGIN_DESCRIPTOR_FILE_EXCEPTION.getCode(), "Your plugin don't have the META-INF/plugin.yml file."))
                     .build();
-        } catch (IOException e) {
+        } catch (IOException | FileUploadException e) {
             log.error("Unexpected IO error on plugin upload.", e);
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.INDEXING_SERVICE_ERROR.getCode(),
                     "A technical issue occurred during the plugin upload <" + e.getMessage() + ">.")).build();
