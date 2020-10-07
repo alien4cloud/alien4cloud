@@ -58,7 +58,10 @@ public class ToscaPropertyFormDescriptorGenerator {
         } else {
             DataType dataType = csarRepositorySearchService.getElementInDependencies(DataType.class, propertyDefinition.getType(), dependencies);
             if (dataType == null) {
-                throw new InvalidArgumentException("Data type <" + propertyDefinition.getType() + "> do not exist in dependencies " + dependencies);
+                dataType = csarRepositorySearchService.getElementInDependencies(PrimitiveDataType.class, propertyDefinition.getType(), dependencies);
+                if (dataType == null) {
+                    throw new InvalidArgumentException("Data type <" + propertyDefinition.getType() + "> do not exist in dependencies " + dependencies);
+                }
             }
             if (processedDataTypes.add(dataType.getElementId())) {
                 dataTypeDescriptors = generateDescriptorForDataType(processedDataTypes, dataType, dependencies);

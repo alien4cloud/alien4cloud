@@ -74,6 +74,10 @@ public final class ConstraintPropertyService {
         String typeName = propertyDefinition.getType();
         if (!ToscaTypes.isPrimitive(typeName)) {
             dataType = ToscaContext.get(DataType.class, typeName);
+            if (dataType == null) {
+                dataType = ToscaContext.get(PrimitiveDataType.class,typeName);
+            }
+
             if (dataType instanceof PrimitiveDataType) {
                 // the type is derived from a primitive type
                 isTypeDerivedFromPrimitive = true;
