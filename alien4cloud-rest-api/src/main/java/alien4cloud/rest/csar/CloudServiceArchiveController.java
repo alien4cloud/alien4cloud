@@ -1,5 +1,6 @@
 package alien4cloud.rest.csar;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
@@ -20,6 +22,11 @@ import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
@@ -130,19 +137,31 @@ public class CloudServiceArchiveController {
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
-    public RestResponse<CsarUploadResult> uploadCSAR(@RequestParam(required = false) String workspace, @RequestParam("file") MultipartFile csar)
+    public RestResponse<CsarUploadResult> uploadCSAR(HttpServletRequest request)
             throws IOException {
         Path csarPath = null;
+        String fileName = "<csar>";
         try {
-            if (workspace == null) {
-                workspace = AlienConstants.GLOBAL_WORKSPACE_ID;
+            String workspace = AlienConstants.GLOBAL_WORKSPACE_ID;
+            ServletFileUpload upload = new ServletFileUpload();
+            FileItemIterator iter = upload.getItemIterator(request);
+            while (iter.hasNext()) {
+               FileItemStream item = iter.next();
+               InputStream stream = item.openStream();
+               if (item.isFormField() && item.getFieldName().equals("workspace")) {
+                  workspace = Streams.asString(stream);
+                  archiveIndexerAuthorizationFilter.preCheckAuthorization(workspace);
+                  log.info("Serving file upload with workspace [" + workspace + "]");
+               } else {
+                  log.info("Serving file upload with name [" + item.getName() + "]");
+                  fileName = item.getName();
+                  csarPath = Files.createTempFile(tempDirPath, null, '.' + CsarFileRepository.CSAR_EXTENSION);
+                  // save the archive in the temp directory
+                  FileUploadUtil.safeTransferTo(csarPath, stream);
+               }
+               stream.close();
             }
-            // Perform check that the user has one of ARCHITECT, COMPONENT_MANAGER or ADMIN role
-            archiveIndexerAuthorizationFilter.preCheckAuthorization(workspace);
-            log.info("Serving file upload with name [" + csar.getOriginalFilename() + "]");
-            csarPath = Files.createTempFile(tempDirPath, null, '.' + CsarFileRepository.CSAR_EXTENSION);
-            // save the archive in the temp directory
-            FileUploadUtil.safeTransferTo(csarPath, csar);
+
             // load, parse the archive definitions and save on disk
             ParsingResult<Csar> result = csarUploadService.upload(csarPath, CSARSource.UPLOAD, workspace);
             RestError error = null;
@@ -150,17 +169,21 @@ public class CloudServiceArchiveController {
                 error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();
             }
             return RestResponseBuilder.<CsarUploadResult> builder().error(error).data(CsarUploadUtil.toUploadResult(result)).build();
+        } catch (IOException | FileUploadException e) {
+            log.error("Error happened while uploading CSAR", e);
+            CsarUploadResult uploadResult = new CsarUploadResult();
+            uploadResult.getErrors().put(fileName, Lists.newArrayList(UploadExceptionUtil.parsingErrorFromException(e)));
+            return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build()).data(uploadResult)
+                    .build();
         } catch (ParsingException e) {
-            log.error("Error happened while parsing csar file <" + e.getFileName() + ">", e);
-            String fileName = e.getFileName() == null ? csar.getOriginalFilename() : e.getFileName();
-
+            log.error("Error happened while parsing csar file <" + fileName + ">", e);
             CsarUploadResult uploadResult = new CsarUploadResult();
             uploadResult.getErrors().put(fileName, e.getParsingErrors());
             return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build()).data(uploadResult)
                     .build();
         } catch (AlreadyExistException | CSARUsedInActiveDeployment | ToscaTypeAlreadyDefinedInOtherCSAR e) {
             CsarUploadResult uploadResult = new CsarUploadResult();
-            uploadResult.getErrors().put(csar.getOriginalFilename(), Lists.newArrayList(UploadExceptionUtil.parsingErrorFromException(e)));
+            uploadResult.getErrors().put(fileName, Lists.newArrayList(UploadExceptionUtil.parsingErrorFromException(e)));
             return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).build())
                     .data(uploadResult).build();
         } finally {
