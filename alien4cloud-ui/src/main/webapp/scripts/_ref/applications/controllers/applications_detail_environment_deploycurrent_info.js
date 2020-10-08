@@ -21,8 +21,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentInfoCtrl',
-  ['$scope', 'applicationServices', 'workflowExecutionServices', 'application', '$state','breadcrumbsService', '$translate',
-  function($scope, applicationServices, workflowExecutionServices, applicationResult, $state, breadcrumbsService, $translate) {
+  ['$scope', 'applicationServices', 'workflowExecutionServices', 'application', '$state','breadcrumbsService', '$translate', '$timeout',
+  function($scope, applicationServices, workflowExecutionServices, applicationResult, $state, breadcrumbsService, $translate, $timeout) {
 
     breadcrumbsService.putConfig({
       state : 'applications.detail.environment.deploycurrent.info',
@@ -56,7 +56,14 @@ define(function (require) {
     });
 
     $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
-      $scope.refreshWorkflowMonitoring();
+      // this refresh is scheduled by a4cRuntimeEventReceived events : sometimes, the last event received
+      // trigger a call to the refreshWorkflowMonitoring() BUT this one doesn't return yet a execution.status === 'SUCCEEDED'
+      // so the progress bar still in blue (pending mode) even if the wf is actually terminated.
+      // That's why we introduce this timeout here.
+      // TODO: get wf monitoring using websocket rather than this dirty long polling !
+      $timeout(function() {
+        $scope.refreshWorkflowMonitoring();
+      }, 200);
     });
 
     $scope.refreshWorkflowMonitoring = function () {
@@ -82,6 +89,7 @@ define(function (require) {
           $scope.wfProgressData = {'workflowName': workflowName, 'progress': progress, 'status': result.data.execution.status, 'current': result.data.lastKnownExecutingTask};
         }
       }, function(error) {
+        console.log("Error while monitoring Wf");
         $scope.isWaitingForMonitoringRefresh = false;
       });
     };

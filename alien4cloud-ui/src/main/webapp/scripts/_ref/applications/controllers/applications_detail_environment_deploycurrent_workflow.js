@@ -26,9 +26,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentWorkflowCtrl',
-    ['$scope', 'topoEditDisplay', 'topoEditWf', 'topoEditProperties', 'applicationServices', 'workflowExecutionServices', 'breadcrumbsService', '$translate', '$state', 'secretDisplayModal', 'toaster',
-      function ($scope, topoEditDisplay, topoEditWf, topoEditProperties, applicationServices, workflowExecutionServices, breadcrumbsService, $translate, $state, secretDisplayModal, toaster) {
-
+    ['$scope', 'topoEditDisplay', 'topoEditWf', 'applicationServices', 'workflowExecutionServices', 'breadcrumbsService', '$translate', '$state', 'secretDisplayModal', 'toaster', '$timeout',
+      function ($scope, topoEditDisplay, topoEditWf, applicationServices, workflowExecutionServices, breadcrumbsService, $translate, $state, secretDisplayModal, toaster, $timeout) {
         breadcrumbsService.putConfig({
           state : 'applications.detail.environment.deploycurrent.workflow',
           text: function(){
@@ -68,7 +67,9 @@ define(function (require) {
         });
 
         $scope.$on('a4cRuntimeEventReceived', function(angularEvent, event) {
+          $timeout(function() {
             $scope.refreshWorkflowMonitoring();
+          }, 200);
         });
 
         applicationServices.getSecretProviderConfigurationsForCurrentDeployment.get({

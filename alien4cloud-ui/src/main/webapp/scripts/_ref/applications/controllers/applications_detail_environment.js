@@ -69,7 +69,12 @@ define(function (require) {
             // when the environnement is not undeployed, let's directly go to the active deployment page
             states.forward('applications.detail.environment', 'applications.detail.environment.deploycurrent');
           }
-
+          var deploynext = _.find($scope.menu, { 'state': 'applications.detail.environment.deploynext' });
+          if (_.indexOf(['DEPLOYMENT_IN_PROGRESS', 'UNDEPLOYMENT_IN_PROGRESS', 'UPDATE_IN_PROGRESS'], $scope.environment.status) !== -1) {
+            deploynext.disabled = true;
+          } else {
+            deploynext.disabled = false;
+          }
         }
 
         $scope.isState = function (stateName) {

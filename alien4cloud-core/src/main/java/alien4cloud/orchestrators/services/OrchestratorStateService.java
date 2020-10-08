@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -19,6 +21,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -67,6 +70,9 @@ public class OrchestratorStateService {
 
     @Inject
     private ApplicationEventPublisher publisher;
+
+    // Lock per Orchestrator ID
+    private final Map<String, ReentrantLock> mapLock = Maps.newConcurrentMap();
 
     /**
      * Unload all orchestrators from JVM memory, it's typically to refresh/reload code
@@ -157,13 +163,21 @@ public class OrchestratorStateService {
      *
      * @param orchestrator The orchestrator to enable.
      */
-    public synchronized void enable(Orchestrator orchestrator) throws PluginConfigurationException {
-        if (orchestrator.getState().equals(OrchestratorState.DISABLED)) {
-            load(orchestrator);
+    public void enable(Orchestrator orchestrator) throws PluginConfigurationException {
+        Lock lock = lockFor(orchestrator);
 
-        } else {
-            log.debug("Request to enable ignored: orchestrator {} (id: {}) is already enabled", orchestrator.getName(), orchestrator.getId());
-            throw new AlreadyExistException("Orchestrator {} is already instanciated.");
+        try {
+            lock.lock();
+
+            if (orchestrator.getState().equals(OrchestratorState.DISABLED)) {
+                load(orchestrator);
+
+            } else {
+                log.debug("Request to enable ignored: orchestrator {} (id: {}) is already enabled", orchestrator.getName(), orchestrator.getId());
+                throw new AlreadyExistException("Orchestrator {} is already instanciated.");
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -267,34 +281,42 @@ public class OrchestratorStateService {
      * @param orchestrator The orchestrator to disable.
      * @param force If true the orchestrator is disabled even if some deployments are currently running.
      */
-    public synchronized List<Usage> disable(Orchestrator orchestrator, boolean force) {
-        if (!force) {
-            // If there is at least one active deployment.
-            GetMultipleDataResult<Deployment> result = alienDAO.buildQuery(Deployment.class)
-                    .setFilters(MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
-                            new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
-                    .prepareSearch().setFieldSort("_timestamp", "long", true).search(0, 1);
+    public List<Usage> disable(Orchestrator orchestrator, boolean force) {
+        Lock lock = lockFor(orchestrator);
 
-            // TODO place a lock to avoid deployments during the disabling of the orchestrator.
-            if (result.getData().length > 0) {
-                List<Usage> usages = generateDeploymentUsages(result.getData());
-                return usages;
-            }
-        }
-        publisher.publishEvent(new BeforeOrchestratorDisabled(this, orchestrator));
         try {
-            // unregister the orchestrator.
-            IOrchestratorPlugin orchestratorInstance = orchestratorPluginService.unregister(orchestrator.getId());
-            if (orchestratorInstance != null) {
-                IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
-                orchestratorFactory.destroy(orchestratorInstance);
+            lock.lock();
+
+            if (!force) {
+                // If there is at least one active deployment.
+                GetMultipleDataResult<Deployment> result = alienDAO.buildQuery(Deployment.class)
+                        .setFilters(MapUtil.newHashMap(new String[]{"orchestratorId", "endDate"},
+                                new String[][]{new String[]{orchestrator.getId()}, new String[]{null}}))
+                        .prepareSearch().setFieldSort("_timestamp", "long", true).search(0, 1);
+
+                // TODO place a lock to avoid deployments during the disabling of the orchestrator.
+                if (result.getData().length > 0) {
+                    List<Usage> usages = generateDeploymentUsages(result.getData());
+                    return usages;
+                }
             }
-        } catch (Exception e) {
-            log.info("Unable to destroy orchestrator, it may not be created yet", e);
+            publisher.publishEvent(new BeforeOrchestratorDisabled(this, orchestrator));
+            try {
+                // unregister the orchestrator.
+                IOrchestratorPlugin orchestratorInstance = orchestratorPluginService.unregister(orchestrator.getId());
+                if (orchestratorInstance != null) {
+                    IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
+                    orchestratorFactory.destroy(orchestratorInstance);
+                }
+            } catch (Exception e) {
+                log.info("Unable to destroy orchestrator, it may not be created yet", e);
+            } finally {
+                // Mark the orchestrator as disabled
+                orchestrator.setState(OrchestratorState.DISABLED);
+                alienDAO.save(orchestrator);
+            }
         } finally {
-            // Mark the orchestrator as disabled
-            orchestrator.setState(OrchestratorState.DISABLED);
-            alienDAO.save(orchestrator);
+            lock.unlock();
         }
 
         return null;
@@ -307,4 +329,9 @@ public class OrchestratorStateService {
         }
         return usages;
     }
+
+    private Lock lockFor(Orchestrator orchestrator) {
+        return mapLock.computeIfAbsent(orchestrator.getId(), k -> new ReentrantLock());
+    }
+
 }

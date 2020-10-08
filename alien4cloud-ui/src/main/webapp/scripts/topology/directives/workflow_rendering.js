@@ -136,7 +136,7 @@ define(function (require) {
                 for (var i = 0; i < hosts.length; i++) {
                   var host = hosts[i];
                   hostsMap[hosts[i]] = host;
-                  g.setNode(host, {label: host, clusterLabelPos: 'top'});
+                  //g.setNode(host, {label: host, clusterLabelPos: 'top'});
                 }
               }
 
@@ -157,9 +157,9 @@ define(function (require) {
                   hasSteps = true;
                   var step = steps[stepName];
                   appendStepNode(g, stepName, step, step.hostId);
-                  if (step.hostId) {
-                    g.setParent(stepName, step.hostId);
-                  }
+                  //if (step.hostId) {
+                    //g.setParent(stepName, step.hostId);
+                  //}
                   if (!step.precedingSteps || step.precedingSteps.length === 0) {
                     appendEdge(g, 'start', stepName);
                   }

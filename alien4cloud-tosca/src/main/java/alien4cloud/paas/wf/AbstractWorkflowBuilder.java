@@ -287,6 +287,9 @@ public abstract class AbstractWorkflowBuilder {
                 if (oldName.equals(step.getTarget())) {
                     step.setTarget(newName);
                 }
+                if (step instanceof NodeWorkflowStep && oldName.equals((((NodeWorkflowStep)step).getHostId()))) {
+                    ((NodeWorkflowStep)step).setHostId(newName);
+                }
             }
         }
     }
