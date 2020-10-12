@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 
 import alien4cloud.utils.CloneUtil;
-import alien4cloud.utils.ComplexPropertyVisitor;
+import alien4cloud.utils.ComplexPropertyUtil;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
@@ -98,20 +98,23 @@ public class FunctionEvaluator {
             ComplexPropertyValue evaluatedProperty) {
 
             ComplexPropertyValue result = (ComplexPropertyValue) CloneUtil.clone(evaluatedProperty);
-            ComplexPropertyVisitor visitor = new ComplexPropertyVisitor(result);
 
-            visitor.visit(complexEvaluator(evaluatorContext,template,properties));
+            ComplexPropertyUtil.transform(result,complexTransformation(evaluatorContext,template,properties));
 
             return result;
         }
 
-        private static UnaryOperator<Object> complexEvaluator(
+        private static UnaryOperator<Object> complexTransformation(
                 FunctionEvaluatorContext evaluatorContext,
                 AbstractInstantiableTemplate template,
                 Map<String, AbstractPropertyValue> properties
             ) {
             return evaluatedProperty -> {
                 AbstractPropertyValue value = null;
+
+                if ((evaluatedProperty instanceof Map) || (evaluatedProperty instanceof List)) {
+                    return evaluatedProperty;
+                }
 
                 if (evaluatedProperty instanceof FunctionPropertyValue) {
                     FunctionPropertyValue evaluatedFunction = (FunctionPropertyValue) evaluatedProperty;
@@ -128,7 +131,9 @@ public class FunctionEvaluator {
                     return evaluatedProperty;
                 }
 
-                if (value instanceof ScalarPropertyValue) {
+                if (value == null) {
+                    return "";
+                } else if (value instanceof ScalarPropertyValue) {
                     return ((ScalarPropertyValue) value).getValue();
                 } else {
                     throw new IllegalArgumentException("GET_INPUT in complex property can only be done on scalar types.");
