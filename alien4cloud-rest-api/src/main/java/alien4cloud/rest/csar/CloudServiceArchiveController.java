@@ -40,7 +40,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.collect.Lists;
 
@@ -95,17 +94,28 @@ public class CloudServiceArchiveController {
     @RequestMapping(value = "/check",method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
-    public RestResponse<CsarUploadResult> checkCSAR(@RequestParam(required = false) String workspace,@RequestParam("file") MultipartFile csar)  throws IOException{
+    public RestResponse<CsarUploadResult> checkCSAR(HttpServletRequest request) throws IOException{
         Path csarPath = null;
+        String fileName = "<csar>";
 
         try {
-            log.info("Checking casr file with name [" + csar.getOriginalFilename() + "]");
-
-            csarPath = Files.createTempFile(tempDirPath, null, '.' + CsarFileRepository.CSAR_EXTENSION);
-
-            // save the archive in the temp directory
-            FileUploadUtil.safeTransferTo(csarPath, csar);
-
+            String workspace = AlienConstants.GLOBAL_WORKSPACE_ID;
+            ServletFileUpload upload = new ServletFileUpload();
+            FileItemIterator iter = upload.getItemIterator(request);
+            while (iter.hasNext()) {
+               FileItemStream item = iter.next();
+               InputStream stream = item.openStream();
+               if (item.isFormField() && item.getFieldName().equals("workspace")) {
+                  workspace = Streams.asString(stream);
+               } else {
+                  log.info("Checking csar file with name [" + item.getName() + "]");
+                  fileName = item.getName();
+                  csarPath = Files.createTempFile(tempDirPath, null, '.' + CsarFileRepository.CSAR_EXTENSION);
+                  // save the archive in the temp directory
+                  FileUploadUtil.safeTransferTo(csarPath, stream);
+               }
+               stream.close();
+            }
             // load, parse the archive definitions and save on disk
             ParsingResult<Csar> result = csarUploadService.check(csarPath, CSARSource.UPLOAD, workspace);
             RestError error = null;
@@ -113,9 +123,16 @@ public class CloudServiceArchiveController {
                 error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();
             }
             return RestResponseBuilder.<CsarUploadResult> builder().error(error).data(CsarUploadUtil.toUploadResult(result)).build();
+
+        } catch (FileUploadException e) {
+            log.error("Error happened while uploading CSAR", e);
+            CsarUploadResult uploadResult = new CsarUploadResult();
+            uploadResult.getErrors().put(fileName, Lists.newArrayList(UploadExceptionUtil.parsingErrorFromException(e)));
+            return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build()).data(uploadResult)
+                    .build();
+
         } catch (ParsingException e) {
-            log.error("Error happened while parsing csar file <" + e.getFileName() + ">", e);
-            String fileName = e.getFileName() == null ? csar.getOriginalFilename() : e.getFileName();
+            log.error("Error happened while parsing csar file <" + fileName + ">", e);
 
             CsarUploadResult uploadResult = new CsarUploadResult();
             uploadResult.getErrors().put(fileName, e.getParsingErrors());

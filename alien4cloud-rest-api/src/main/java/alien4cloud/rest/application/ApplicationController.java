@@ -240,13 +240,9 @@ public class ApplicationController {
     @RequestMapping(value = "/{applicationId:.+}/image", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
-    public RestResponse<String> updateImage(HttpServletRequest request) {
+    public RestResponse<String> updateImage(@PathVariable String applicationId, HttpServletRequest request) {
         String imageId = null;
         String fileName = "<image>";
-
-        String[] pathInfo = request.getPathInfo().split("/"); // should be /rest/(latest|v1)/applications/{applicationId}/image 
-        String applicationId = pathInfo.length > 4 ? pathInfo[pathInfo.length - 2] : null;
-
         Application application = applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
 
         try {

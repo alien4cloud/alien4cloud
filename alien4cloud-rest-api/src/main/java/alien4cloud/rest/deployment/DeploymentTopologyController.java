@@ -136,21 +136,8 @@ public class DeploymentTopologyController {
     @ApiOperation(value = "Upload input artifact.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/inputArtifacts/{inputArtifactId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentTopologyDTO> uploadDeploymentInputArtifact (HttpServletRequest request) {
-        String[] pathInfo = request.getPathInfo().split("/");
-        String appId = null;
-        String environmentId = null;
-        final String inputArtifactId;
-
-        /* should be /rest/(latest|v1)/applications/{appId}/environments/{environmentId}/deployment-topology/inputArtifacts/{inputArtifactId}/upload */
-        if (pathInfo.length > 9) {
-           appId = pathInfo[pathInfo.length - 7];
-           environmentId = pathInfo[pathInfo.length - 5];
-           inputArtifactId = pathInfo[pathInfo.length - 2];
-        } else {
-           inputArtifactId = null;
-        }
-
+    public RestResponse<DeploymentTopologyDTO> uploadDeploymentInputArtifact (@PathVariable String appId, @PathVariable String environmentId, 
+                                                                              @PathVariable String inputArtifactId, HttpServletRequest request) {
         DeploymentTopologyDTO dto = null;
         try {
             ServletFileUpload upload = new ServletFileUpload();
