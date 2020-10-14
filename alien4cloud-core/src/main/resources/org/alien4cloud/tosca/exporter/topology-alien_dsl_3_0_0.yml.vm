@@ -277,6 +277,9 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
         ${inputEntry.key}:
           type: ${inputEntry.value.type}
           required: $inputEntry.value.required
+#if($inputEntry.value.description)
+          description: ${utils.renderDescription($inputEntry.value.description, "            ")}
+#end## if description defined
 #if($inputEntry.value.entrySchema)
           entry_schema:
             type: ${inputEntry.value.entrySchema.type}
@@ -290,9 +293,6 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
           - ${utils.renderConstraint($constraint)}
 #end## constraint iteration
 #end## if constraints not empty
-#if($inputEntry.value.description)
-      description: ${utils.renderDescription($inputEntry.value.description, "        ")}
-#end## if description defined          
 #end
 #end
 #if($utils.mapIsNotEmpty(${wfEntry.value.steps}))

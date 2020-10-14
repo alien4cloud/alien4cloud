@@ -69,16 +69,18 @@ define(function (require) {
             this.scope.workflowInputs = this.scope.topology.topology.workflows[workflowName].inputs
             this.scope.workflowInputsValues = {}
 
-            applicationServices.lastWorkflowInputs({
-              applicationId: this.scope.application.id,
-              applicationEnvironmentId: this.scope.environment.id,
-              workflowName: this.workflowName
-                }, undefined, function(success) {
-                    console.log(success.data);
-                    _.each(success.data, function (inputValue, inputId) {
-                        instance.scope.workflowInputsValues[inputId] = inputValue.value;
-                    });
+            if (this.isRuntimeMode()) {
+              applicationServices.lastWorkflowInputs({
+                applicationId: this.scope.application.id,
+                applicationEnvironmentId: this.scope.environment.id,
+                workflowName: this.workflowName
+              }, undefined, function(success) {
+                console.log(success.data);
+                _.each(success.data, function (inputValue, inputId) {
+                  instance.scope.workflowInputsValues[inputId] = inputValue.value;
                 });
+              });
+            }
           }
         },
         setEditorMode: function (mode) {
@@ -810,6 +812,9 @@ define(function (require) {
           return result;
         },
         updateWorkflowInputValue: function(definition,value,id){
+          if (!value) {
+            return;
+          }
                 var scope = this.scope;
 
                 var checkPropertyRequest = {
