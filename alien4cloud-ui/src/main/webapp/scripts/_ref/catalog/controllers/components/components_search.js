@@ -21,7 +21,7 @@ define(function (require) {
         facetIdConverter: {
           toFilter: function (termId, facetId) {
             if (termId === 'abstract') {
-              return facetId !== 'F';
+              return facetId !== 'false';
             } else {
               return facetId;
             }
@@ -35,7 +35,7 @@ define(function (require) {
               }, []);
             } else {
               if (termId === 'abstract') {
-                if (facetId === 'F' || facetId === false) { // jshint ignore:line
+                if (facetId === 'false' || facetId === false) { // jshint ignore:line
                   return $translate.instant('FALSE');
                 } else {
                   return $translate.instant('TRUE');
