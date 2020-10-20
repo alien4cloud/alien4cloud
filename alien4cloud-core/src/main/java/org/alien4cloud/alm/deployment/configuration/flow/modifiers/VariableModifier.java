@@ -1,5 +1,9 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
 
+import alien4cloud.topology.task.LogTask;
+import alien4cloud.topology.task.PropertiesTask;
+import alien4cloud.topology.task.TaskCode;
+import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.var.*;
 import com.google.common.collect.Lists;
@@ -28,16 +32,19 @@ public class VariableModifier implements ITopologyModifier {
 
         private final Topology topology;
 
+        private final FlowExecutionContext flowExecutionContext;
+
         private final Map<String,PropertyDefinition> additionalInputs = Maps.newHashMap();
 
-        private VariableModifierContext(Topology topology) {
+        private VariableModifierContext(Topology topology,FlowExecutionContext flowExecutionContext) {
             this.topology = topology;
+            this.flowExecutionContext = flowExecutionContext;
         }
     }
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
-        VariableModifierContext modifierContext = new VariableModifierContext(topology);
+        VariableModifierContext modifierContext = new VariableModifierContext(topology,context);
 
         for (NodeTemplate node : safe(topology.getNodeTemplates()).values()) {
             NodeType type = ToscaContext.get(NodeType.class, node.getType());
@@ -167,7 +174,12 @@ public class VariableModifier implements ITopologyModifier {
         func.setFunction("get_input");
         func.setParameters(Lists.newArrayList(value));
 
-        if (safe(context.topology.getInputs()).containsKey(value)) {
+        PropertyDefinition definition = safe(context.topology.getInputs()).get(value);
+        if (definition != null) {
+            if (!ToscaTypes.isPrimitive(definition.getType())) {
+                context.flowExecutionContext.log().error(String.format("Cannot map variable with complex input '%s'",value));
+                return null;
+            }
             return func;
         }
 
@@ -175,7 +187,7 @@ public class VariableModifier implements ITopologyModifier {
             return func;
         }
 
-        PropertyDefinition definition = new PropertyDefinition();
+        definition = new PropertyDefinition();
         definition.setType(ToscaTypes.STRING);
         definition.setDescription("created by variable modifier");
         context.additionalInputs.put(value,definition);
