@@ -191,6 +191,7 @@
       "PARSING_ERROR" : "拓扑不是合法的。",
       "PRECONFIGURED_PROPERTIES_INPUTS" : "预配置输入属性",
       "PROPERTIES_INPUTS" : "输入属性",
+      "WORKFLOW_INPUTS" : "Workflow Inputs",
       "PROPERTIES_OUTPUTS" : "输出属性",
       "RECOVERY" : {
         "CHOICE_ASK" : "您想对这个拓扑做什么呢？",

@@ -192,6 +192,7 @@
       "PARSING_ERROR" : "Topology is not valid",
       "PRECONFIGURED_PROPERTIES_INPUTS" : "Preconfigured input properties",
       "PROPERTIES_INPUTS" : "プロパティの入力",
+      "WORKFLOW_INPUTS" : "Workflow Inputs",
       "PROPERTIES_OUTPUTS" : "プロパティ出力",
       "RECOVERY" : {
         "CHOICE_ASK" : "What would you like to do with the topology ?",

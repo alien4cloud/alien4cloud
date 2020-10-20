@@ -125,5 +125,29 @@
                 <i class="fa" ng-class="{'fa-play': !isLaunchingWorkflow, 'fa-spinner fa-spin': isLaunchingWorkflow}"></i> {{'APPLICATIONS.WF.launch' | translate}}
             </button>
         </div>
+        <div class="col-md-12 grp-margin">
+            <div class="content-head">
+                <i class="fa fa-sign-in"></i> {{'APPLICATIONS.TOPOLOGY.WORKFLOW_INPUTS' | translate}}
+            </div>
+            <div class="content-body">
+                <empty-place-holder data="workflowInputs"></empty-place-holder>
+                <table class="table table-condensed" id="wfInputsTable"  ng-if="_.isNotEmpty(workflowInputs)">
+                    <tr ng-repeat="(inputId, inputDefinition) in workflowInputs">
+                        <td>
+                            <property-display
+                                    definition="inputDefinition"
+                                    property-type="topology.dataTypes[inputDefinition.type]"
+                                    property-value="workflowInputsValues[inputId]"
+                                    on-save="workflows.updateWorkflowInputValue(propertyDefinition, propertyValue, inputId)"
+                                    dependencies="topology.topology.dependencies"
+                                    property-name="inputId"
+                                    editable="true"
+                                    condensed="true">
+                            </property-display>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
