@@ -103,6 +103,9 @@
 
 - workflow: org.alien4cloud.tosca.model.workflow.Workflow
   description: description
+  inputs:
+    map: inputs
+    type: property_definition
   steps:
     map: steps
     key: name

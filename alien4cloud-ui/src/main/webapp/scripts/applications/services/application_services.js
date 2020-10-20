@@ -60,6 +60,12 @@ define(function (require) {
         }
       });
 
+      var applicationWorkflowLastInputsResource = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/workflows/:workflowName/last_inputs', {}, {
+        'get': {
+          method: 'GET'
+        }
+      });
+
       var deploymentProperty = $resource('rest/latest/orchestrators/:orchestratorId/deployment-prop-check', {}, {
         'check': {
           method: 'POST'
@@ -190,7 +196,8 @@ define(function (require) {
         'updateDeploymentSetup': applicationDeploymentSetupDAO.update,
         'create': applicationCreate.create,
         'search': applicationSearch.search,
-        'launchWorkflow' : applicationWorkflowResource.launch
+        'launchWorkflow' : applicationWorkflowResource.launch,
+        'lastWorkflowInputs' : applicationWorkflowLastInputsResource.get
       };
     }
   ]);

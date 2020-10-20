@@ -192,6 +192,7 @@
       "PARSING_ERROR" : "La topologie n'est pas valide",
       "PRECONFIGURED_PROPERTIES_INPUTS" : "Propriétés d'entrée préconfigurées",
       "PROPERTIES_INPUTS" : "Propriétés d'entrée",
+      "WORKFLOW_INPUTS" : "Entrées du workflow",
       "PROPERTIES_OUTPUTS" : "Propriétés de sortie",
       "RECOVERY" : {
         "CHOICE_ASK" : "Que souhaitez vous faire de la topologie ?",
@@ -203,7 +204,7 @@
         "ERRORS_TITLE" : "Des erreurs empêche la réconcilliation de la topologie",
         "RECOVER" : {
           "DESCRIPTION" : "Essayer de réparer la topologie en applicquant les opérations ci dessous. Notez que la topologie sera sauvegardée.",
-          "TITLE" : "Réparation de topology"
+          "TITLE" : "Réparation de topologie"
         },
         "RESET" : {
           "DESCRIPTION" : "Tout supprimer de la topologie, la laissant vide.",
