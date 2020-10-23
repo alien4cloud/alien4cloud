@@ -2,6 +2,7 @@ package alien4cloud.audit.rest;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -51,6 +52,14 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
             return Pattern.compile("/rest/(latest|[v|V]\\d+)/.+");
         }
     };
+
+    private ThreadLocal<Map<String,String[]>> parameters = new ThreadLocal<Map<String,String[]>>();
+
+    public void addParameter (String name, String[] values) {
+       if (parameters.get() != null) {
+          parameters.get().put(name, values);
+       }
+    }
 
     private static final String A4C_UI_HEADER = "A4C-Agent";
 
@@ -129,7 +138,10 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         auditTrace.setUserAgent(request.getHeader(HttpHeaders.USER_AGENT));
         auditTrace.setAlien4CloudUI(!Strings.isNullOrEmpty(request.getHeader(A4C_UI_HEADER)));
         auditTrace.setMethod(request.getMethod());
-        auditTrace.setRequestParameters(request.getParameterMap());
+        Map<String,String[]> allParameters = new HashMap<String,String[]>();
+        allParameters.putAll(request.getParameterMap());
+        allParameters.putAll(parameters.get());
+        auditTrace.setRequestParameters(allParameters);
         auditTrace.setSourceIp(request.getRemoteAddr());
         // request body
         if (requestContainsJson) {
@@ -195,6 +207,7 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
             request = new MultiReadHttpServletRequest(request);
         }
         try {
+            parameters.set (new HashMap<String,String[]>());
             filterChain.doFilter(request, response);
         } finally {
             AuditTrace auditTrace = null;

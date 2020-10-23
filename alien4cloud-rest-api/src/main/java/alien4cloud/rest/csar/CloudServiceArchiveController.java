@@ -38,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.common.collect.Lists;
 
 import alien4cloud.audit.annotation.Audit;
+import alien4cloud.audit.rest.AuditLogFilter;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -81,6 +82,8 @@ public class CloudServiceArchiveController {
     private IArchiveIndexerAuthorizationFilter archiveIndexerAuthorizationFilter;
     @Resource
     private ICsarRepositry archiveRepositry;
+    @Resource
+    private AuditLogFilter logFilter;
 
     private Path tempDirPath;
 
@@ -140,11 +143,13 @@ public class CloudServiceArchiveController {
             // Perform check that the user has one of ARCHITECT, COMPONENT_MANAGER or ADMIN role
             archiveIndexerAuthorizationFilter.preCheckAuthorization(workspace);
             log.info("Serving file upload with name [" + csar.getOriginalFilename() + "]");
+            logFilter.addParameter ("file", new String[]{csar.getOriginalFilename()});
             csarPath = Files.createTempFile(tempDirPath, null, '.' + CsarFileRepository.CSAR_EXTENSION);
             // save the archive in the temp directory
             FileUploadUtil.safeTransferTo(csarPath, csar);
             // load, parse the archive definitions and save on disk
             ParsingResult<Csar> result = csarUploadService.upload(csarPath, CSARSource.UPLOAD, workspace);
+            logFilter.addParameter ("csar", new String[]{result.getResult().getId()});
             RestError error = null;
             if (result.hasError(ParsingErrorLevel.ERROR)) {
                 error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();
