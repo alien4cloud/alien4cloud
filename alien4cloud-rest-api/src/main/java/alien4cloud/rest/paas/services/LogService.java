@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 @Service
@@ -45,10 +46,14 @@ public class LogService {
         if (searchRequest.getFromDate() != null || searchRequest.getToDate() != null) {
             dateRangeBuilder = QueryBuilders.rangeQuery("timestamp");
             if (searchRequest.getFromDate() != null) {
-                dateRangeBuilder.from(searchRequest.getFromDate());
+                GregorianCalendar cal = new GregorianCalendar();
+                cal.setTime(searchRequest.getFromDate());
+                dateRangeBuilder.from(cal.getTimeInMillis());
             }
             if (searchRequest.getToDate() != null) {
-                dateRangeBuilder.to(searchRequest.getToDate());
+                GregorianCalendar cal = new GregorianCalendar();
+                cal.setTime(searchRequest.getToDate());
+                dateRangeBuilder.to(cal.getTimeInMillis());
             }
         }
 
