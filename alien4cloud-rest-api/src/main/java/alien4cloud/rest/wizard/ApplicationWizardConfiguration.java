@@ -20,6 +20,7 @@ import java.util.Set;
 public class ApplicationWizardConfiguration {
 
     private Set<String> applicationOverviewMetapropertiesSet;
+    private Set<String> topologyOverviewMetapropertiesSet;
     private Set<String> componentOverviewMetapropertiesSet;
 
     // key: categorie, value: { key: metaproperty name, values : accepted values)
@@ -33,6 +34,13 @@ public class ApplicationWizardConfiguration {
     @Setter
     @Getter
     private String[] applicationOverviewMetaproperties;
+
+    /**
+     * The list of metaproperty names that should be returned for topologies. No filter if empty.
+     */
+    @Setter
+    @Getter
+    private String[] topologyOverviewMetaproperties;
 
     /**
      * The list of metaproperty names that should be returned for components. No filter if empty.
@@ -96,6 +104,12 @@ public class ApplicationWizardConfiguration {
             applicationOverviewMetapropertiesSet = Sets.newHashSet();
         }
 
+        if (topologyOverviewMetaproperties != null) {
+            topologyOverviewMetapropertiesSet = Sets.newHashSet(topologyOverviewMetaproperties);
+        } else {
+            topologyOverviewMetapropertiesSet = Sets.newHashSet();
+        }
+
         if (componentOverviewMetaproperties != null) {
             componentOverviewMetapropertiesSet = Sets.newHashSet(componentOverviewMetaproperties);
         } else {
@@ -106,6 +120,10 @@ public class ApplicationWizardConfiguration {
 
     public Set<String> getApplicationOverviewMetapropertiesSet() {
         return applicationOverviewMetapropertiesSet;
+    }
+
+    public Set<String> getTopologyOverviewMetapropertiesSet() {
+        return topologyOverviewMetapropertiesSet;
     }
 
     public Set<String> getComponentOverviewMetapropertiesSet() {

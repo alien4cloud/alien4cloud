@@ -180,6 +180,7 @@ public class ApplicationWizardController {
         TopologyOverview overview = new TopologyOverview();
         overview.setComponentCategories(applicationWizardConfiguration.getComponentCategories());
         Topology topology = topologyServiceCore.getOrFail(topologyId);
+        overview.setNamedMetaProperties(getNamedMetaProperties(topology.getMetaProperties(), applicationWizardConfiguration.getTopologyOverviewMetapropertiesSet()));
         overview.setDescription(topology.getDescription());
         TopologyDTO topologyDTO = topologyDTOBuilder.initTopologyDTO(topology, new TopologyDTO());
         overview.setTopologyDTO(topologyDTO);
