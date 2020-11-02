@@ -39,6 +39,7 @@ public class VariableTokenizer {
         DASH,
         LBRACE,
         RBRACE,
+        UNDERSCORE,
         OTHER,
         END;
 
@@ -52,6 +53,7 @@ public class VariableTokenizer {
                     case '#': return DASH;
                     case '{': return LBRACE;
                     case '}': return RBRACE;
+                    case '_': return UNDERSCORE;
                     default:
                         return OTHER;
                 }
@@ -77,7 +79,7 @@ public class VariableTokenizer {
             v                                                                |
         +---+---+               +-------+           +-------+           +----+---+
         |       |   DASH  1     |       | LBRACE 3  |       |  ALPHA  4 |        +------+
-        | Start +--------------->   1   +---------->+  2    +---------->+   3    |      | ALPHA or DIGIT 5
+        | Start +--------------->   1   +---------->+  2    +---------->+   3    |      | ALPHA,DIGIT or UNDERSCORE 5
         |       <---------------+       |           |       |           |        +<-----+
         +-+---+-+    ALPHA  2   +-------+           +--+----+           +----+---+
           ^   |      DIGIT                             |                     |
@@ -92,12 +94,12 @@ public class VariableTokenizer {
 
      */
     private static final int matrix[][] = {
-                    /*  ALPHA   DIGIT   DASH    LBRACE  RBRACE  OTHER   END*/
-            /* S */ {    0,     0,      1,      0,      0,      0,      8},
-            /* 1 */ {    2,     2,      2,      3,      2,      2,      8},
-            /* 2 */ {    4,     6,      6,      6,      6,      6,      6},
-            /* 3 */ {    5,     5,      6,      6,      7,      6,      6},
-            /* E */ {    6,     6,      6,      6,      6,      6,      6}
+                    /*  ALPHA   DIGIT   DASH    LBRACE  RBRACE  UNDERSCORE  OTHER   END*/
+            /* S */ {    0,     0,      1,      0,      0,      0,          0,      8},
+            /* 1 */ {    2,     2,      2,      3,      2,      2,          2,      8},
+            /* 2 */ {    4,     6,      6,      6,      6,      6,          6,      6},
+            /* 3 */ {    5,     5,      6,      6,      7,      5,          6,      6},
+            /* E */ {    6,     6,      6,      6,      6,      6,          6,      6}
     };
 
     private static void append(char c, VariableTokenizer lexer) {

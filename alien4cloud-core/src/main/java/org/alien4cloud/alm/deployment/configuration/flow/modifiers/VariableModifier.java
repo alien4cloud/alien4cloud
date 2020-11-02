@@ -198,6 +198,7 @@ public class VariableModifier implements ITopologyModifier {
         definition = new PropertyDefinition();
         definition.setType(ToscaTypes.STRING);
         definition.setDescription("created by variable modifier");
+        definition.setRequired(false);
         context.additionalInputs.put(value,definition);
 
         return func;

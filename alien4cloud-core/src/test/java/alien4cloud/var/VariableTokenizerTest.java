@@ -36,6 +36,11 @@ public class VariableTokenizerTest {
         List<AbstractToken> tokens = VariableTokenizer.tokenize("#{héllö}");
     }
 
+    @Test(expected = TokenizerException.class)
+    public void token_except5() throws TokenizerException {
+        List<AbstractToken> tokens = VariableTokenizer.tokenize("#{_error}");
+    }
+
     @Test
     public void token0() throws TokenizerException {
         List<AbstractToken> tokens = VariableTokenizer.tokenize("#{hello}#{world}");
@@ -63,5 +68,13 @@ public class VariableTokenizerTest {
         assertThat(tokens.get(2).getValue(),equalTo("<>"));
         assertThat(tokens.get(3).getValue(),equalTo("world"));
         assertThat(tokens.get(4).getValue(),equalTo("<"));
+    }
+
+    @Test
+    public void token2() throws TokenizerException {
+        List<AbstractToken> tokens = VariableTokenizer.tokenize("#{he_ll_o}");
+        assertThat(tokens,hasSize(1));
+        assertThat(tokens.get(0),instanceOf(VariableToken.class));
+        assertThat(tokens.get(0).getValue(),equalTo("he_ll_o"));
     }
 }
