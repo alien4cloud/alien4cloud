@@ -17,6 +17,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -27,6 +28,9 @@ import static alien4cloud.utils.AlienUtils.safe;
 @Component
 @Slf4j
 public class VariableModifier implements ITopologyModifier {
+
+    @Value("${features.auto_inputs:#{true}}")
+    private boolean enabled;
 
     private static class VariableModifierContext {
 
@@ -44,6 +48,10 @@ public class VariableModifier implements ITopologyModifier {
 
     @Override
     public void process(Topology topology, FlowExecutionContext context) {
+        if (!enabled) {
+            return;
+        }
+
         VariableModifierContext modifierContext = new VariableModifierContext(topology,context);
 
         for (NodeTemplate node : safe(topology.getNodeTemplates()).values()) {
