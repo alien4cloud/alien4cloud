@@ -25,6 +25,7 @@ public class Execution {
 
     /** Unique id of the execution, provided by the orchestrator. */
     @Id
+    @StringField(indexType = IndexType.not_analyzed)
     private String id;
 
     @TermFilter

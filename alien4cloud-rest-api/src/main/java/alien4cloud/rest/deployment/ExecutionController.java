@@ -74,6 +74,24 @@ public class ExecutionController {
         return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
     }
 
+    /**
+     * Search for one execution from its id
+     *
+     * @return A rest response that contains the execution if found.
+     */
+    @ApiOperation(value = "Search for an execution from its id", notes = "Returns the execution if found.")
+    @RequestMapping(value ="/{id}", method = RequestMethod.GET)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<Execution> search(@ApiParam(value = "Execution id.") @PathVariable String id) {
+        Execution execution = alienDAO.findById(Execution.class, id);
+        if (execution != null) {
+           return RestResponseBuilder.<Execution> builder().data(execution).build();
+        } else {
+           return RestResponseBuilder.<Execution> builder().data(null)
+                    .error(new RestError(RestErrorCode.NOT_FOUND_ERROR.getCode(), "Execution with id <" + id + "> was not found.")).build();
+        }
+    }
+
     @ApiOperation(value = "Cancel an execution", notes = "Cancel a running execution.")
     @RequestMapping(value = "/cancel", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
