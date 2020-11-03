@@ -1,9 +1,5 @@
 package org.alien4cloud.alm.deployment.configuration.flow.modifiers;
 
-import alien4cloud.topology.task.LogTask;
-import alien4cloud.topology.task.PropertiesTask;
-import alien4cloud.topology.task.TaskCode;
-import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.var.*;
 import com.google.common.collect.Lists;
@@ -12,10 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.flow.ITopologyModifier;
 import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.*;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -66,17 +63,42 @@ public class VariableModifier implements ITopologyModifier {
     private void processNode(NodeTemplate node,NodeType type,VariableModifierContext context) {
         Map<String,PropertyDefinition> mapDef = safe(type.getProperties());
 
+        // Process properties
         for (Map.Entry<String, AbstractPropertyValue> entry : safe(node.getProperties()).entrySet()) {
-            PropertyDefinition definition = mapDef.get(entry.getKey());
-            if (definition != null) {
-                if (entry.getValue() instanceof ScalarPropertyValue) {
-                    log.info("Processing {}.{}", node.getName(), entry.getKey());
-                    entry.setValue((AbstractPropertyValue) processScalar((ScalarPropertyValue) entry.getValue(),definition,String.format("%s.%s",node.getName(),entry.getKey()),context));
-                } else if (entry.getValue() instanceof ComplexPropertyValue) {
-                    log.info("Processing {}.{}[]", node.getName(), entry.getKey());
-                    processComplex((ComplexPropertyValue) entry.getValue(),definition,String.format("%s.%s",node.getName(),entry.getKey()),context);
-                }
+            String path = String.format("%s.%s",node.getName(),entry.getKey());
+            processProperty(entry,type,path,context);
+        }
+
+        // Process Capabilities
+        for (Map.Entry<String, Capability> capabilityEntry : safe(node.getCapabilities()).entrySet()) {
+            CapabilityType capabilityType = ToscaContext.get(CapabilityType.class,capabilityEntry.getValue().getType());
+
+            for (Map.Entry<String,AbstractPropertyValue> entry : safe(capabilityEntry.getValue().getProperties()).entrySet()) {
+                String path = String.format("%s.%s.%s",node.getName(),capabilityEntry.getKey(),entry.getKey());
+                processProperty(entry, capabilityType, path, context);
             }
+        }
+
+        // Process Relationships
+        for (Map.Entry<String, RelationshipTemplate> relationshipTemplateEntry : safe(node.getRelationships()).entrySet()) {
+            RelationshipType relationshipType = ToscaContext.get(RelationshipType.class,relationshipTemplateEntry.getValue().getType());
+
+            for (Map.Entry<String,AbstractPropertyValue> entry : safe(relationshipTemplateEntry.getValue().getProperties()).entrySet()) {
+                String path = String.format("%s.%s.%s",node.getName(),relationshipTemplateEntry.getKey(),entry.getKey());
+                processProperty(entry,relationshipType,path,context);
+            }
+        }
+    }
+
+    private void processProperty(Map.Entry<String,AbstractPropertyValue> entry, AbstractInheritableToscaType type, String path, VariableModifierContext context) {
+        PropertyDefinition definition = safe(type.getProperties()).get(entry.getKey());
+
+        if (entry.getValue() instanceof ScalarPropertyValue) {
+            log.info("Processing {}", path);
+            entry.setValue((AbstractPropertyValue) processScalar((ScalarPropertyValue) entry.getValue(),definition,path,context));
+        } else if (entry.getValue() instanceof ComplexPropertyValue) {
+            log.info("Processing {}[]", path);
+            processComplex((ComplexPropertyValue) entry.getValue(),definition,path,context);
         }
     }
 
