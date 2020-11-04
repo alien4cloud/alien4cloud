@@ -26,6 +26,7 @@ import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 
 import alien4cloud.utils.MapUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Utility class to perform function evaluation on a topology template.
@@ -65,8 +66,11 @@ public class FunctionEvaluator {
             FunctionPropertyValue evaluatedFunction = (FunctionPropertyValue) evaluatedProperty;
             switch (evaluatedFunction.getFunction()) {
             case ToscaFunctionConstants.GET_INPUT:
-                String inputName = evaluatedFunction.getParameters().get(0);
-                return evaluatorContext.getInputs().get(inputName);
+                if (evaluatedFunction.getParameters().size() > 1) {
+                    return  resolveGetInput(evaluatorContext, evaluatedFunction.getParameters().toArray(new String[0]));
+                } else {
+                    return resolveGetInput(evaluatorContext, evaluatedFunction.getParameters().get(0));
+                }
             case ToscaFunctionConstants.GET_PROPERTY:
                 // Perform the get property evaluation.
                 return getProperty(evaluatorContext, template, properties, evaluatedFunction);
@@ -79,6 +83,52 @@ public class FunctionEvaluator {
             return concat(evaluatorContext, template, properties, (ConcatPropertyValue) evaluatedProperty);
         }
         throw new IllegalArgumentException("AbstractPropertyValue must be one of null, a secret, PropertyValue, FunctionPropertyValue or ConcatPropertyValue");
+    }
+
+    private static AbstractPropertyValue resolveGetInput(FunctionEvaluatorContext evaluatorContext,String path) {
+        String parts[] = path.split("\\.");
+        return resolveGetInput(evaluatorContext,parts);
+    }
+
+    private static AbstractPropertyValue resolveGetInput(FunctionEvaluatorContext evaluatorContext,String[] parts) {
+        String path = String.join(".",parts);
+
+        AbstractPropertyValue propertyValue = evaluatorContext.getInputs().get(parts[0]);
+        if (parts.length == 1) {
+            return propertyValue;
+        }
+
+        if (propertyValue instanceof ComplexPropertyValue) {
+            Object value = ((ComplexPropertyValue) propertyValue).getValue();
+            for (int i = 1 ; i < parts.length ; i++) {
+                if (value == null) {
+                    throw new IllegalArgumentException(String.format("Invalid get_input path '%s' in complex input",path));
+                }
+
+                if (value instanceof Map) {
+                    value = ((Map) value).get(parts[i]);
+                } else if (value instanceof List) {
+                    try {
+                        int index = Integer.valueOf(parts[i]);
+                        value = ((List) value).get(index);
+                    } catch(NumberFormatException | IndexOutOfBoundsException e) {
+                        throw new IllegalArgumentException(String.format("Invalid get_input path '%s' in complex input",path));
+                    }
+                } else {
+                    throw new IllegalArgumentException(String.format("Invalid get_input path '%s' in complex input",path));
+                }
+            }
+
+            if (value == null) {
+                return null;
+            } else if (value instanceof String) {
+                return new ScalarPropertyValue((String) value);
+            } else {
+                throw new IllegalArgumentException(String.format("Invalid get_input path '%s' in complex input",path));
+            }
+        } else {
+            throw new IllegalArgumentException(String.format("get_input with path '%s' only works with complex inputs",path));
+        }
     }
 
         /**
