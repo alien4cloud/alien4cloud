@@ -184,4 +184,18 @@ public class AuditLogStepsDefinitions {
         Map<String, Object> bodyMap = JsonUtil.toMap(auditTraces.get(0).getRequestBody());
         Assert.assertEquals(true, ((String) bodyMap.get(secretFieldName)).contains("**********"));
     }
+
+    @And("^I should have a latest audit trace with request parameters defined below:$")
+    public void iShouldHaveAuditTracesInAlienWithRequestParameters(DataTable table) throws Throwable {
+        List<AuditTrace> auditTraces = searchAuditLogs("", 0, 1, null, false);
+        Map<String,String[]> params = auditTraces.get(0).getRequestParameters();
+        for (List<String> row : table.raw()) {
+            String paramName = row.get(0);
+            String paramValue = row.get(1);
+            Assert.assertNotNull(params.get(paramName));
+            Assert.assertEquals(params.get(paramName)[0], paramValue);
+        }
+    }
+
+
 }
