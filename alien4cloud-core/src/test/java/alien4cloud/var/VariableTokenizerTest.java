@@ -41,6 +41,21 @@ public class VariableTokenizerTest {
         List<AbstractToken> tokens = VariableTokenizer.tokenize("#{_error}");
     }
 
+    @Test(expected = TokenizerException.class)
+    public void token_except6() throws TokenizerException {
+        List<AbstractToken> tokens = VariableTokenizer.tokenize("#{aa{");
+    }
+
+    @Test(expected = TokenizerException.class)
+    public void token_except7() throws TokenizerException {
+        List<AbstractToken> tokens = VariableTokenizer.tokenize("#{aa.}");
+    }
+
+    @Test(expected = TokenizerException.class)
+    public void token_except8() throws TokenizerException {
+        List<AbstractToken> tokens = VariableTokenizer.tokenize("#{0.a}");
+    }
+
     @Test
     public void token0() throws TokenizerException {
         List<AbstractToken> tokens = VariableTokenizer.tokenize("#{hello}#{world}");
@@ -76,5 +91,21 @@ public class VariableTokenizerTest {
         assertThat(tokens,hasSize(1));
         assertThat(tokens.get(0),instanceOf(VariableToken.class));
         assertThat(tokens.get(0).getValue(),equalTo("he_ll_o"));
+    }
+
+    @Test
+    public void token3() throws TokenizerException {
+        List<AbstractToken> tokens = VariableTokenizer.tokenize("#{input.field1.field2}");
+        assertThat(tokens,hasSize(1));
+        assertThat(tokens.get(0),instanceOf(VariableToken.class));
+        assertThat(tokens.get(0).getValue(),equalTo("input.field1.field2"));
+    }
+
+    @Test
+    public void token4() throws TokenizerException {
+        List<AbstractToken> tokens = VariableTokenizer.tokenize("#{input.4.field_2}");
+        assertThat(tokens,hasSize(1));
+        assertThat(tokens.get(0),instanceOf(VariableToken.class));
+        assertThat(tokens.get(0).getValue(),equalTo("input.4.field_2"));
     }
 }

@@ -40,6 +40,7 @@ public class VariableTokenizer {
         LBRACE,
         RBRACE,
         UNDERSCORE,
+        DOT,
         OTHER,
         END;
 
@@ -53,6 +54,7 @@ public class VariableTokenizer {
                     case '#': return DASH;
                     case '{': return LBRACE;
                     case '}': return RBRACE;
+                    case '.': return DOT;
                     case '_': return UNDERSCORE;
                     default:
                         return OTHER;
@@ -62,44 +64,70 @@ public class VariableTokenizer {
     };
 
     private static final Transition transitions[] = {
-            /* 0 */ new Transition(0, VariableTokenizer::append),
-            /* 1 */ new Transition(1, VariableTokenizer::append),
-            /* 2 */ new Transition(0, VariableTokenizer::append),
-            /* 3 */ new Transition(2, VariableTokenizer::vbgn),
-            /* 4 */ new Transition(3, VariableTokenizer::append),
-            /* 5 */ new Transition(3, VariableTokenizer::append),
-            /* 6 */ new Transition(4, VariableTokenizer::error),
-            /* 7 */ new Transition(0, VariableTokenizer::vend),
-            /* 8 */ new Transition( 5,VariableTokenizer::eos)
+            /*  0 */ new Transition(0, VariableTokenizer::append),
+            /*  1 */ new Transition(1, VariableTokenizer::append),
+            /*  2 */ new Transition(0, VariableTokenizer::append),
+            /*  3 */ new Transition(2, VariableTokenizer::vbgn),
+            /*  4 */ new Transition(3, VariableTokenizer::append),
+            /*  5 */ new Transition(3, VariableTokenizer::append),
+            /*  6 */ new Transition(0, VariableTokenizer::vend),
+            /*  7 */ new Transition( 4,VariableTokenizer::append),
+            /*  8 */ new Transition(5,VariableTokenizer::append),
+            /*  9 */ new Transition( 0,VariableTokenizer::vend),
+            /* 10 */ new Transition( 5,VariableTokenizer::eos),
+            /* 11 */ new Transition( 7,VariableTokenizer::error)
     };
-
     /*
-            +----------------------------------------------------------------+
-            |                            RBRACE 7                            |
-            v                                                                |
-        +---+---+               +-------+           +-------+           +----+---+
-        |       |   DASH  1     |       | LBRACE 3  |       |  ALPHA  4 |        +------+
-        | Start +--------------->   1   +---------->+  2    +---------->+   3    |      | ALPHA,DIGIT or UNDERSCORE 5
-        |       <---------------+       |           |       |           |        +<-----+
-        +-+---+-+    ALPHA  2   +-------+           +--+----+           +----+---+
-          ^   |      DIGIT                             |                     |
-          | 0 |      DASH                              |  6                  | 6
-          +---+      RBRACE                            |    +---------+      |
-                     OTHER                             |    |         |      |
-          ALPHA                                        +--->+ ERROR   +<-----+
-          DIGIT                                             |         |
-          LBRACE                                            +---------+
-          RBRACE
-          OTHER
-
+                                         0:
+                                      +----------+
+                                      |          |
+                                      |          |
+                                +-----|----------v----+                         9: }
+                                |                     <-------------------------------------------------------------+
+    +--------------------------->        START(0)     |    10: :end:                                                |
+    |                           |                     -----------+                                                  |
+    |                           +-----^----------|----+          |                                                  |
+    |                                 |          |             +-v----+                                             |
+    |                            2:   |          | 1: #        |      |                                  +----------|----------+
+    |                                 |          |             | END  |              11:                 |                     <-----+
+    |                                 |          |             | (7)  |        +--------------------------         5           |     | 8: :alpha: :digit: _
+    |                           +-----|----------v----+        +-^----+        |                         |                     ------+
+    |                           |                     |          |             |                         +-----|----------^----+
+    |                           |         1           |          |             |                               |          |
+    |                           |                     -----------+             |                               |          |
+    |                           +---------------------+  10: :end:             |                               |          |
+    |                                      |                        +----------v----------+                    |          |
+    |                                      | 3: {                   |                     |               7: . |          | 8: :alpha: :digit: _
+    | 6: }                                 |                        |         E(6)        |                    |          |
+    |                                      |                        |                     |                    |          |
+    |                           +----------v----------+             +-----^----^-----^----+                    |          |
+    |                           |                     |                   |    |     |                         |          |
+    |                           |         2           |                   |    |     |                   +-----v----------|----+
+    |                           |                     --------------------+    |     |                   |                     |
+    |                           +----------|----------+       11:              |     +--------------------         4           |
+    |                                      |                                   |         11:             |                     |
+    |                                      | 4: :alpha:                        |                         +----------^----------+
+    |                                      |                                   |                                    |
+    |                                      |                                   |                                    |
+    |                           +----------v----------+        11:             |                                    |
+    |                           |                     |------------------------+                                    |
+    +----------------------------         3           |                                                             |
+                                |                     |-------------------------------------------------------------+
+                                +-----|----------^----+                           7: .
+                                      |          |
+                                      |          |
+                                      +----------+
+                                  5: :alpha: :digit: _
      */
     private static final int matrix[][] = {
-                    /*  ALPHA   DIGIT   DASH    LBRACE  RBRACE  UNDERSCORE  OTHER   END*/
-            /* S */ {    0,     0,      1,      0,      0,      0,          0,      8},
-            /* 1 */ {    2,     2,      2,      3,      2,      2,          2,      8},
-            /* 2 */ {    4,     6,      6,      6,      6,      6,          6,      6},
-            /* 3 */ {    5,     5,      6,      6,      7,      5,          6,      6},
-            /* E */ {    6,     6,      6,      6,      6,      6,          6,      6}
+                    /*  ALPHA   DIGIT   DASH    LBRACE  RBRACE  UNDERSCORE  DOT     OTHER   END*/
+            /* S */ {    0,     0,      1,      0,      0,      0,          0,      0,      10},
+            /* 1 */ {    2,     2,      2,      3,      2,      2,          2,      2,      10},
+            /* 2 */ {    4,     11,     11,     11,     11,     11,         11,    11,      11},
+            /* 3 */ {    5,     5,      11,     11,     6,      5,          7,     11,      11},
+            /* 4 */ {    8,     8,      11,     11,     11,     8,          11,    11,      11},
+            /* 5 */ {    8,     8,      11,     11,     9,      8,          7,     11,      11},
+            /* E */ {    11,    11,     11,     11,     11,     11,         11,    11,      11}
     };
 
     private static void append(char c, VariableTokenizer lexer) {
