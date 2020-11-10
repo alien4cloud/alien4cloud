@@ -15,3 +15,11 @@ Feature: Searching for users
       When I search in users for " " from 0 with result size of 10
     Then I should receive a RestResponse with no error
       And there should be 10 users in the response
+
+  @reset
+  Scenario: search for one user
+    Given There is a "TEST" user in the system
+      When I search in users for "TEST" from 0 with result size of 10
+    Then I should receive a RestResponse with no error
+      And The response should contain a user "TEST"
+      And there should be 1 users in the response

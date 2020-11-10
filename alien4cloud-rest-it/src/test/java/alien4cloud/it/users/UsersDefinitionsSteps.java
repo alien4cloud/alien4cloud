@@ -87,4 +87,18 @@ public class UsersDefinitionsSteps {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/users/" + username));
     }
 
+    @Then("^The response should contain a user \"([^\"]*)\"$")
+    public void The_response_should_contain_a_user(String username) throws Throwable {
+        RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), FacetedSearchResult.class);
+        GetMultipleDataResult searchResp = restResponse.getData();
+        assertNotNull(searchResp);
+        boolean found = false;
+        for (Object json : searchResp.getData()) {
+           User user = JsonUtil.readObject(JsonUtil.toString(json), User.class);
+           found = user.getUsername().equals(username);
+           if (found) break;
+        }
+        assertTrue(found);
+    }
+
 }
