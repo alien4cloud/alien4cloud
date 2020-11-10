@@ -3,9 +3,9 @@ package alien4cloud.var;
 import lombok.ToString;
 
 @ToString(callSuper = true)
-public class VariableToken extends InputToken {
+public class ReferenceToken extends InputToken {
 
-    public VariableToken(String value){
+    public ReferenceToken(String value){
         super(value);
     }
 }

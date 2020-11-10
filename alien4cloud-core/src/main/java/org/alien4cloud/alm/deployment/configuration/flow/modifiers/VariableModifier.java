@@ -172,8 +172,8 @@ public class VariableModifier implements ITopologyModifier {
             }
 
             if (tokens.size() == 1) {
-                if (tokens.get(0) instanceof VariableToken) {
-                    return getInput(tokens.get(0).getValue(),context);
+                if (tokens.get(0) instanceof InputToken) {
+                    return getInput(tokens.get(0),context);
                 }
                 return value;
             }
@@ -187,8 +187,8 @@ public class VariableModifier implements ITopologyModifier {
 
                 if (t instanceof ScalarToken) {
                     concat.getParameters().add(new ScalarPropertyValue(t.getValue()));
-                } else if (t instanceof VariableToken) {
-                    concat.getParameters().add(getInput(t.getValue(),context));
+                } else if (t instanceof InputToken){
+                    concat.getParameters().add(getInput(t,context));
                 }
             }
             return concat;
@@ -197,12 +197,18 @@ public class VariableModifier implements ITopologyModifier {
         }
     }
 
-    public FunctionPropertyValue getInput(String value,VariableModifierContext context) {
+    public FunctionPropertyValue getInput(AbstractToken token,VariableModifierContext context) {
         Map<String,PropertyDefinition> topologyInputs = context.topology.getInputs();
+
+        String value = token.getValue();
 
         FunctionPropertyValue func = new FunctionPropertyValue();
         func.setFunction("get_input");
         func.setParameters(Lists.newArrayList(value));
+
+        if (token instanceof ReferenceToken) {
+            return func;
+        }
 
         PropertyDefinition definition = safe(context.topology.getInputs()).get(value);
         if (definition != null) {

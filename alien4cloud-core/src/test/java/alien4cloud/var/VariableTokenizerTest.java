@@ -97,7 +97,7 @@ public class VariableTokenizerTest {
     public void token3() throws TokenizerException {
         List<AbstractToken> tokens = VariableTokenizer.tokenize("#{input.field1.field2}");
         assertThat(tokens,hasSize(1));
-        assertThat(tokens.get(0),instanceOf(VariableToken.class));
+        assertThat(tokens.get(0),instanceOf(ReferenceToken.class));
         assertThat(tokens.get(0).getValue(),equalTo("input.field1.field2"));
     }
 
@@ -105,7 +105,7 @@ public class VariableTokenizerTest {
     public void token4() throws TokenizerException {
         List<AbstractToken> tokens = VariableTokenizer.tokenize("#{input.4.field_2}");
         assertThat(tokens,hasSize(1));
-        assertThat(tokens.get(0),instanceOf(VariableToken.class));
+        assertThat(tokens.get(0),instanceOf(ReferenceToken.class));
         assertThat(tokens.get(0).getValue(),equalTo("input.4.field_2"));
     }
 }

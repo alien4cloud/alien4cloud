@@ -70,10 +70,10 @@ public class VariableTokenizer {
             /*  3 */ new Transition(2, VariableTokenizer::vbgn),
             /*  4 */ new Transition(3, VariableTokenizer::append),
             /*  5 */ new Transition(3, VariableTokenizer::append),
-            /*  6 */ new Transition(0, VariableTokenizer::vend),
+            /*  6 */ new Transition(0, VariableTokenizer::vend1),
             /*  7 */ new Transition( 4,VariableTokenizer::append),
             /*  8 */ new Transition(5,VariableTokenizer::append),
-            /*  9 */ new Transition( 0,VariableTokenizer::vend),
+            /*  9 */ new Transition( 0,VariableTokenizer::vend2),
             /* 10 */ new Transition( 5,VariableTokenizer::eos),
             /* 11 */ new Transition( 7,VariableTokenizer::error)
     };
@@ -142,8 +142,13 @@ public class VariableTokenizer {
         lexer.buffer = new StringBuffer();
     }
 
-    private static void vend(char c, VariableTokenizer lexer) {
+    private static void vend1(char c, VariableTokenizer lexer) {
         lexer.tokens.add(new VariableToken(lexer.buffer.toString()));
+        lexer.buffer = new StringBuffer();
+    }
+
+    private static void vend2(char c, VariableTokenizer lexer) {
+        lexer.tokens.add(new ReferenceToken(lexer.buffer.toString()));
         lexer.buffer = new StringBuffer();
     }
 
