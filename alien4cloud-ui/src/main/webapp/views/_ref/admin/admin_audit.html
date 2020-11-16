@@ -21,6 +21,16 @@
                 </button>
               </span>
             </div>
+            <div class="input-group">
+              <date-time-form class="col-sm-12 search-row margin-top-05"  field-name="AUDIT.FROM_DATE"
+                              on-date-time-set="onChangeFromDate(newDate)"
+                              ng-model="fromDate"
+                              date-format="YYYY-MM-DD HH:mm:ss"></date-time-form>
+              <date-time-form class="col-sm-12 search-row margin-top-05" field-name="AUDIT.TO_DATE"
+                              on-date-time-set="onChangeToDate(newDate)"
+                              ng-model="toDate"
+                              date-format="YYYY-MM-DD HH:mm:ss"></date-time-form>
+            </div>
           </form>
         </div>
         <!-- Displaying facets -->
@@ -55,7 +65,6 @@
 
             </td>
           </tr>
-
           <tr>
             <th ng-repeat="column in columns" show-filter="true" ng-show="column.visible" class="text-center sortable" ng-class="{
                       'sort-asc': auditTableParam.isSortBy(column.field, 'asc'),

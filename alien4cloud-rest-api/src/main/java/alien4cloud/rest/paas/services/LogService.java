@@ -2,6 +2,7 @@ package alien4cloud.rest.paas.services;
 
 import alien4cloud.dao.IESSearchQueryBuilderHelper;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.QueryUtils;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.deployment.Deployment;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LogService {
@@ -42,20 +44,7 @@ public class LogService {
     }
 
     private IESSearchQueryBuilderHelper<PaaSDeploymentLog> buildQuery(SearchLogRequest searchRequest) {
-        RangeQueryBuilder dateRangeBuilder = null;
-        if (searchRequest.getFromDate() != null || searchRequest.getToDate() != null) {
-            dateRangeBuilder = QueryBuilders.rangeQuery("timestamp");
-            if (searchRequest.getFromDate() != null) {
-                GregorianCalendar cal = new GregorianCalendar();
-                cal.setTime(searchRequest.getFromDate());
-                dateRangeBuilder.from(cal.getTimeInMillis());
-            }
-            if (searchRequest.getToDate() != null) {
-                GregorianCalendar cal = new GregorianCalendar();
-                cal.setTime(searchRequest.getToDate());
-                dateRangeBuilder.to(cal.getTimeInMillis());
-            }
-        }
+        RangeQueryBuilder dateRangeBuilder = QueryUtils.buildTimestampRangeQuery(searchRequest.getFromDate(),searchRequest.getToDate());
 
         String sortBy = "timestamp";
         boolean ascending = false;

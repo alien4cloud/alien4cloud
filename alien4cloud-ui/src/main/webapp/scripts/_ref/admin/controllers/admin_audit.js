@@ -93,6 +93,8 @@ define(function (require) {
       var searchRequestObject = {
         'query': '',
         'filters': undefined,
+        'fromDate': undefined,
+        'toDate': undefined,
         'from': 0,
         'size': DEFAULT_AUDIT_PAGE_SIZE
       };
@@ -176,6 +178,16 @@ define(function (require) {
         // reload traces table
         $scope.auditTableParam.reload();
 
+      }
+
+      $scope.onChangeFromDate = function(newDate) {
+        searchRequestObject.fromDate = newDate;
+        doSearch();
+      }
+
+      $scope.onChangeToDate = function(newDate) {
+        searchRequestObject.toDate = newDate;
+        doSearch();
       }
 
       //////////////////////////////////

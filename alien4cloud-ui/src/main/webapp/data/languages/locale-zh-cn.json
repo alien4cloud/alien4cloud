@@ -439,7 +439,9 @@
       "LABEL" : "审计设置",
       "RESET" : "重设"
     },
-    "LOG" : "操作的审计"
+    "FROM_DATE" : "From",
+    "LOG" : "操作的审计",
+    "TO_DATE" : "To"
   },
   "BOUNDS" : "界限",
   "CANCEL" : "取消",

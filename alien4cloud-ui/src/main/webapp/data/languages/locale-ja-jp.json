@@ -440,7 +440,9 @@
       "LABEL" : "Audit Configuration",
       "RESET" : "Reset"
     },
-    "LOG" : "Operations Audit"
+    "FROM_DATE" : "From",
+    "LOG" : "Operations Audit",
+    "TO_DATE" : "To"
   },
   "BOUNDS" : "Bounds",
   "CANCEL" : "キャンセル",

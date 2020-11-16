@@ -442,7 +442,9 @@
       "LABEL" : "Configuration d'Audit",
       "RESET" : "Réinitialiser"
     },
-    "LOG" : "Audit des opérations"
+    "FROM_DATE" : "De",
+    "LOG" : "Audit des opérations",
+    "TO_DATE" : "A"
   },
   "BOUNDS" : "Bornes",
   "CANCEL" : "Annuler",
