@@ -206,7 +206,7 @@ public class PluginManager {
     public void uploadInitPlugins(List<Path> uploadedPluginsPath) throws IOException {
         for (Path uploadedPluginPath : uploadedPluginsPath) {
             // load the plugin descriptor
-            FileSystem fs = FileSystems.newFileSystem(uploadedPluginPath, null);
+            FileSystem fs = FileSystems.newFileSystem(uploadedPluginPath, (ClassLoader)null);
             PluginDescriptor descriptor;
             try {
                 try {
@@ -282,7 +282,7 @@ public class PluginManager {
      */
     public Plugin uploadPlugin(Path uploadedPluginPath) throws PluginLoadingException, IOException, MissingPlugingDescriptorFileException {
         // load the plugin descriptor
-        FileSystem fs = FileSystems.newFileSystem(uploadedPluginPath, null);
+        FileSystem fs = FileSystems.newFileSystem(uploadedPluginPath, (ClassLoader)null);
         PluginDescriptor descriptor;
         try {
             try {
