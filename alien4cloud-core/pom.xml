@@ -108,7 +108,7 @@
     </dependency>
     <dependency>
       <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb</artifactId>
+      <artifactId>jaxb-impl</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.el</groupId>

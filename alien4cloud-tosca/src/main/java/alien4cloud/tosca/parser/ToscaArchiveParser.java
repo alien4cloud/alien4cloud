@@ -75,7 +75,7 @@ public class ToscaArchiveParser {
      */
     @ToscaContextual(requiresNew = true)
     public ParsingResult<ArchiveRoot> parse(Path archiveFile, boolean allowYamlFile) throws ParsingException {
-        try (FileSystem csarFS = FileSystems.newFileSystem(archiveFile, null)) {
+        try (FileSystem csarFS = FileSystems.newFileSystem(archiveFile, (ClassLoader)null)) {
             if (Files.exists(csarFS.getPath(TOSCA_META_FILE_LOCATION))) {
                 return parseFromToscaMeta(csarFS);
             }
@@ -117,7 +117,7 @@ public class ToscaArchiveParser {
 
     @ToscaContextual(requiresNew = true)
     public ParsingResult<CsarDependenciesBean> parseImports(Path archiveFile) throws ParsingException {
-        try (FileSystem csarFS = FileSystems.newFileSystem(archiveFile, null)) {
+        try (FileSystem csarFS = FileSystems.newFileSystem(archiveFile, (ClassLoader)null)) {
             if (Files.exists(csarFS.getPath(TOSCA_META_FILE_LOCATION))) {
                 YamlSimpleParser<ToscaMeta> parser = new YamlSimpleParser<ToscaMeta>(toscaMetaMapping.getParser());
                 ParsingResult<ToscaMeta> parsingResult = parser.parseFile(csarFS.getPath(TOSCA_META_FILE_LOCATION));
