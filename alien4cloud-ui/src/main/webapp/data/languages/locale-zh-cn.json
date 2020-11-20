@@ -151,7 +151,7 @@
       "DEPENDENCIES" : {
         "CHANGE_VERSION" : {
           "CONFIRM" : "您想要确认对于依赖的版本更改吗？这个操作会影响在拓扑内的一些节点和关系。",
-          "TITLE" : "版本更改"
+          "TITLE" : "版本更改 {{name}}"
         },
         "CONFLICTS" : {
           "MESSAGE_FROM" : "来自 ",
@@ -534,7 +534,8 @@
     "END_DATE": "End Date",
     "DURATION": "Duration",
     "STATUS": "Status",
-    "INCLUDE_IN_FILTERS" : "Include in filters"
+    "INCLUDE_IN_FILTERS" : "Include in filters",
+    "DISPLAY_MORE":  "More ..."
   },
   "ENTITY" : {
     "EXECUTION" : {

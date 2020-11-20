@@ -32,6 +32,7 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_dependencies');
 
   require('scripts/topology/controllers/search_relationship');
+  require('scripts/topology/controllers/search_dependencies_versions');
 
   require('scripts/topology/services/topology_editor_events_services');
 
