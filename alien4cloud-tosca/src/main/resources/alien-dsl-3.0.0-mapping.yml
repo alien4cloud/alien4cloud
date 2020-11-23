@@ -1,4 +1,4 @@
-# Mapping definition for alien 4 cloud specific dsl 2.0.0
+# Mapping definition for alien 4 cloud specific dsl 3.0.0
 
 # declare custom parsers for complex types that requires specific parser.
 - scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
@@ -277,6 +277,8 @@
 
 - complex_property_value: alien4cloud.tosca.parser.impl.advanced.ComplexPropertyValueParser
 
+- complex_property_subvalue: alien4cloud.tosca.parser.impl.advanced.ComplexPropertySubValueParser
+
 - tosca_concat: org.alien4cloud.tosca.model.definitions.ConcatPropertyValue
   __0:
     key: function_concat
@@ -292,6 +294,12 @@
     get_attribute: get_attribute
     concat: tosca_concat
   default: abstract_property_value
+
+- complex_node_template_property: __discriminator
+  keys:
+    get_input: tosca_function
+    concat: tosca_concat
+  default: complex_property_subvalue
 
 - input: __discriminator
   keys:

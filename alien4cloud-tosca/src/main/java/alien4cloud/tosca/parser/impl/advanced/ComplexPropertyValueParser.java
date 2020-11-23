@@ -13,13 +13,16 @@ import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 
+import java.util.Map;
+
 @Component
 public class ComplexPropertyValueParser implements INodeParser<AbstractPropertyValue> {
 
     @Override
     public AbstractPropertyValue parse(Node node, ParsingContextExecution context) {
         if (node instanceof MappingNode) {
-            return new ComplexPropertyValue(ParserUtils.parseMap((MappingNode) node));
+            Map<String,Object> map = ParserUtils.parseComplexMap((MappingNode) node,context);
+            return new ComplexPropertyValue(map);
         } else if (node instanceof SequenceNode) {
             return new ListPropertyValue(ParserUtils.parseSequence((SequenceNode) node));
         } else {

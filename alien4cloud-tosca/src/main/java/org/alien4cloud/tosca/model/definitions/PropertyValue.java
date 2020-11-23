@@ -9,10 +9,14 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode
 @ToString
 public abstract class PropertyValue<T> extends AbstractPropertyValue {
-    protected T value;
+
+    public PropertyValue() {
+    }
+
+    public abstract T getValue();
+
+    public abstract void setValue(T t);
 }

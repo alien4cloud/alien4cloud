@@ -63,7 +63,9 @@ public class PropertyValueChecker {
             String parameters = function.getParameters().get(0);
             // check get_input only
             if (function.getFunction().equals("get_input")) {
-                if (inputs == null || !inputs.keySet().contains(parameters)) {
+                String[] parts = parameters.split("\\.");
+
+                if (inputs == null || !inputs.keySet().contains(parts[0])) {
                     ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOPOLOGY_INPUT, templateName,
                             propertyValueNode.getStartMark(), parameters, propertyValueNode.getEndMark(), propertyName));
                 }
