@@ -6,10 +6,16 @@ import java.util.List;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -21,9 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.component.repository.IFileRepository;
+import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -94,18 +100,32 @@ public class EditorController {
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId:.+}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<TopologyDTO> upload(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId,
-            @RequestParam("path") String path, @RequestParam(value = "file") MultipartFile file) throws IOException {
-        if (lastOperationId != null && "null".equals(lastOperationId)) {
-            lastOperationId = null;
-        }
+    public RestResponse<TopologyDTO> upload(@PathVariable String topologyId, HttpServletRequest request) throws FileUploadException,IOException {
+        String lastOperationId = null,
+        path = null;
 
-        try (InputStream artifactStream = file.getInputStream()) {
-            UpdateFileOperation updateFileOperation = new UpdateFileOperation(path, artifactStream);
-            updateFileOperation.setPreviousOperationId(lastOperationId);
-            TopologyDTO topologyDTO = editorService.execute(topologyId, updateFileOperation);
-            return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
+        ServletFileUpload upload = new ServletFileUpload();
+        FileItemIterator iter = upload.getItemIterator(request);
+        while (iter.hasNext()) {
+           FileItemStream item = iter.next();
+           InputStream stream = item.openStream();
+           if (item.isFormField() && item.getFieldName().equals("lastOperationId")) {
+              lastOperationId = Streams.asString(stream);
+              if (lastOperationId != null && "null".equals(lastOperationId)) {
+                 lastOperationId = null;
+              }
+           } else if (item.isFormField() && item.getFieldName().equals("path")) {
+              path = Streams.asString(stream);
+           } else if (!item.isFormField()) {
+              UpdateFileOperation updateFileOperation = new UpdateFileOperation(path, stream);
+              updateFileOperation.setPreviousOperationId(lastOperationId);
+              TopologyDTO topologyDTO = editorService.execute(topologyId, updateFileOperation);
+              stream.close();
+              return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
+           }
+           stream.close();
         }
+        throw new InvalidArgumentException("Invalid request");
     }
 
     /**
@@ -190,9 +210,16 @@ public class EditorController {
     @ApiOperation(value = "Override the topology archive with the one provided as a parameter.", notes = "This operation will fail if the topology is under edition (meaning a context with some operations exists). The topology will be fully overriden with the new archive content (if valid) and a local commit will be dispatched.")
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId:.+}/override", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> updateTopologyArchive(@PathVariable String topologyId, @RequestParam(value = "file") MultipartFile file) throws IOException {
-        try (InputStream inputStream = file.getInputStream()) {
-            editorService.override(topologyId, inputStream);
+    public RestResponse<Void> updateTopologyArchive(@PathVariable String topologyId, HttpServletRequest request) throws FileUploadException,IOException {
+        ServletFileUpload upload = new ServletFileUpload();
+        FileItemIterator iter = upload.getItemIterator(request);
+        while (iter.hasNext()) {
+           FileItemStream item = iter.next();
+           InputStream stream = item.openStream();
+           if (!item.isFormField()) {
+              editorService.override(topologyId, stream);
+           }
+           stream.close();
         }
         return RestResponseBuilder.<Void> builder().build();
     }
