@@ -177,6 +177,7 @@ public class CloudServiceArchiveController {
                    } else {
                        fileName = item.getName();
                        log.info("Serving file upload with name [" + fileName + "]");
+                       logFilter.addParameter("workspace", new String[]{workspace});
                        logFilter.addParameter("file", new String[]{fileName});
                        csarPath = Files.createTempFile(tempDirPath, null, '.' + CsarFileRepository.CSAR_EXTENSION);
                        // save the archive in the temp directory
