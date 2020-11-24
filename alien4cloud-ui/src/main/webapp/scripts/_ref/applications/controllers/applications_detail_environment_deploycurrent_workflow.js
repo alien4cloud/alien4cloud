@@ -140,6 +140,10 @@ define(function (require) {
           });
         };
 
+        $scope.cantLaunchWorkflow = function () {
+          return $scope.currentWorkflowName === 'install' || $scope.currentWorkflowName === 'uninstall' || $scope.isLaunchingWorkflow;
+        }
+
         $scope.launchWorkflow = function () {
           secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
             var request = {};
