@@ -635,7 +635,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.14.1</version>
         <configuration>
-          <argLine>${argLine}</argLine>
+          <argLine>--add-opens java.base/jdk.internal.reflect=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
 
@@ -644,7 +644,7 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>2.16</version>
         <configuration>
-          <argLine>${argLine}</argLine>
+          <argLine>--add-opens java.base/jdk.internal.reflect=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
 
