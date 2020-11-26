@@ -24,18 +24,12 @@ import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Requirement;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
-import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.PolicyType;
+import org.alien4cloud.tosca.model.types.*;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -300,7 +294,7 @@ public class TemplateBuilder {
 
         Map<String,Object> props = Maps.newHashMap();
 
-        doBuildDefailtFromType(props,type);
+        doBuildDefaultFromType(props,type);
 
         if (props.size() >0) {
             result = new ComplexPropertyValue(props);
@@ -308,7 +302,7 @@ public class TemplateBuilder {
         return result;
     }
 
-    private static void doBuildDefailtFromType(Map<String,Object> map,DataType type) {
+    private static void doBuildDefaultFromType(Map<String,Object> map, DataType type) {
         for (Map.Entry<String,PropertyDefinition> entry : safe(type.getProperties()).entrySet()) {
             PropertyDefinition definition = entry.getValue();
 
@@ -318,11 +312,14 @@ public class TemplateBuilder {
                 }
             } else if (!ToscaTypes.isPrimitive(definition.getType())) {
                 DataType subType = ToscaContext.get(DataType.class,definition.getType());
+                if (subType == null) {
+                    subType = ToscaContext.get(PrimitiveDataType.class,definition.getType());
+                }
                 if (subType.isDeriveFromSimpleType() && definition.getDefault() instanceof ScalarPropertyValue) {
                     map.put(entry.getKey(),((ScalarPropertyValue) definition.getDefault()).getValue());
                 } else {
                     Map<String,Object> subValue = Maps.newHashMap();
-                    doBuildDefailtFromType(subValue,subType);
+                    doBuildDefaultFromType(subValue,subType);
                     if (subValue.size() > 0) {
                         map.put(entry.getKey(), subValue);
                     }
