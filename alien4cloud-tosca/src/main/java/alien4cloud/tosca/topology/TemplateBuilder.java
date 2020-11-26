@@ -179,8 +179,20 @@ public class TemplateBuilder {
             Map<String, AbstractPropertyValue> capaProperties = null;
             CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capa.getType());
             if (capabilityType != null && capabilityType.getProperties() != null) {
+                capaProperties = Maps.newHashMap();
+
                 // Inject all default values from the type.
-                capaProperties = PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(capabilityType.getProperties());
+                for (Map.Entry<String,PropertyDefinition> entry : capabilityType.getProperties().entrySet()) {
+                         AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(entry.getValue());
+                         if (pv == null) {
+                             DataType dt = ToscaContext.get (DataType.class, entry.getValue().getType());
+                             if (dt != null) {
+                                 pv = buildDefaultFromType(dt);
+                             }
+                         }
+                         capaProperties.put(entry.getKey(),pv);
+                }
+
                 // Override them with values as defined in the actual Capability Definition of the node type.
                 if (capa.getProperties() != null) {
                     capaProperties.putAll(capa.getProperties());
