@@ -1,5 +1,6 @@
 package alien4cloud.tosca.topology;
 
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.CloneUtil;
@@ -30,7 +31,6 @@ import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.PolicyType;
-import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
@@ -252,7 +252,16 @@ public class TemplateBuilder {
                 if ((pv == null) && useDT) {
                    DataType dt = ToscaContext.get (DataType.class, entry.getValue().getType());
                    if (dt != null) {
-                       pv = buildDefaultFromType(dt);
+                      Map<String, Object> props = new HashMap<String,Object>();
+                      safe(dt.getProperties()).forEach ((name, prop) -> {
+                         AbstractPropertyValue defaultPV = prop.getDefault();
+                         if ((defaultPV != null) && (defaultPV instanceof ScalarPropertyValue)) {
+                            props.put (name, ((ScalarPropertyValue) defaultPV).getValue());
+                         }
+                      });
+                      if (props.size() > 0) {
+                         pv = new ComplexPropertyValue(props);
+                      }
                    }
                 }
                 properties.put(entry.getKey(), pv);
@@ -278,42 +287,6 @@ public class TemplateBuilder {
             for (Map.Entry<String, AbstractPropertyValue> originalProperty : safe(originalProperties).entrySet()) {
                 if (!properties.containsKey(originalProperty.getKey())) {
                     properties.put(originalProperty.getKey(), originalProperty.getValue());
-                }
-            }
-        }
-    }
-
-    public static AbstractPropertyValue buildDefaultFromType(DataType type) {
-        AbstractPropertyValue result = null;
-
-        Map<String,Object> props = Maps.newHashMap();
-
-        doBuildDefailtFromType(props,type);
-
-        if (props.size() >0) {
-            result = new ComplexPropertyValue(props);
-        }
-        return result;
-    }
-
-    private static void doBuildDefailtFromType(Map<String,Object> map,DataType type) {
-        for (Map.Entry<String,PropertyDefinition> entry : safe(type.getProperties()).entrySet()) {
-            PropertyDefinition definition = entry.getValue();
-
-            if (ToscaTypes.isSimple(definition.getType())) {
-                if (definition.getDefault() instanceof ScalarPropertyValue) {
-                    map.put(entry.getKey(),((ScalarPropertyValue) definition.getDefault()).getValue());
-                }
-            } else if (!ToscaTypes.isPrimitive(definition.getType())) {
-                DataType subType = ToscaContext.get(DataType.class,definition.getType());
-                if (subType.isDeriveFromSimpleType() && definition.getDefault() instanceof ScalarPropertyValue) {
-                    map.put(entry.getKey(),((ScalarPropertyValue) definition.getDefault()).getValue());
-                } else {
-                    Map<String,Object> subValue = Maps.newHashMap();
-                    doBuildDefailtFromType(subValue,subType);
-                    if (subValue.size() > 0) {
-                        map.put(entry.getKey(), subValue);
-                    }
                 }
             }
         }
