@@ -132,7 +132,7 @@
             <version>5.0.0.Alpha2</version>
             <classifier>ALIEN4CLOUD</classifier>
 -->
-            <version>4.1.32.Final</version>
+            <version>4.1.42.Final</version>
         </dependency>
         <dependency>
             <groupId>org.apache.sshd</groupId>
