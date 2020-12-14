@@ -5,16 +5,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.CfyMultirelationshipErrorModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.EditorTopologyValidator;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhaseModifiersExecutor;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.FlowPhases;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.LocationMatchingModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingAbstractValidator;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingNodeSetupModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PostMatchingPolicySetupModifier;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.PreDeploymentTopologyValidator;
-import org.alien4cloud.alm.deployment.configuration.flow.modifiers.SubstitutionCompositionModifier;
+import org.alien4cloud.alm.deployment.configuration.flow.modifiers.*;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputArtifactsModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputValidationModifier;
 import org.alien4cloud.alm.deployment.configuration.flow.modifiers.inputs.InputsModifier;
@@ -64,6 +55,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class FlowExecutor {
+
+    @Inject
+    private VariableModifier variableModifier;
 
     @Inject
     private BackupNodesModifier backupNodesModifier;
@@ -136,6 +130,9 @@ public class FlowExecutor {
 
         // Backup unprocessed nodes
         topologyModifiers.add(backupNodesModifier);
+
+        // Inject input from variables
+        topologyModifiers.add(variableModifier);
 
         // Future: process pre-environment topology executors
         // Future: Process environment in-topology variables (different from inputs as configured by the topology editor)
@@ -213,6 +210,13 @@ public class FlowExecutor {
         FlowExecutionContext executionContext = new FlowExecutionContext(deploymentConfigurationDao, topology,
                 new EnvironmentContext(application, environment));
         execute(topologyModifiers, executionContext);
+        return executionContext;
+    }
+
+    @ToscaContextual
+    public FlowExecutionContext executePreDeploymentFlow(Topology topology,Application application,ApplicationEnvironment environment) {
+        FlowExecutionContext executionContext = new FlowExecutionContext(deploymentConfigurationDao, topology, new EnvironmentContext(application,environment));
+        execute(Lists.newArrayList(variableModifier),executionContext);
         return executionContext;
     }
 

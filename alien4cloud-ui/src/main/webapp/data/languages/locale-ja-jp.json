@@ -152,7 +152,7 @@
       "DEPENDENCIES" : {
         "CHANGE_VERSION" : {
           "CONFIRM" : "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology.",
-          "TITLE" : "Change version"
+          "TITLE" : "Change version for {{name}}"
         },
         "CONFLICTS" : {
           "MESSAGE_FROM" : "from ",
@@ -535,7 +535,8 @@
     "END_DATE": "End Date",
     "DURATION": "Duration",
     "STATUS": "Status",
-    "INCLUDE_IN_FILTERS" : "Include in filters"
+    "INCLUDE_IN_FILTERS" : "Include in filters",
+    "DISPLAY_MORE":  "More ..."
   },
   "ENTITY" : {
     "EXECUTION" : {

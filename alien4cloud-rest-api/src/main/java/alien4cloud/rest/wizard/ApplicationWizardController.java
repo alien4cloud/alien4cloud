@@ -262,13 +262,15 @@ public class ApplicationWizardController {
 
     private List<MetaProperty> getNamedMetaProperties(Map<String, String> metaProperties, Set<String> metaPropertiesFilter) {
         List<MetaProperty> namedMetaProperties = Lists.newArrayList();
-        metaProperties.forEach((id, value) -> {
-            MetaPropConfiguration configuration = dao.findById(MetaPropConfiguration.class, id);
-            // filter returned meta properties for applications
-            if (metaPropertiesFilter == null || metaPropertiesFilter.isEmpty() || metaPropertiesFilter.contains(configuration.getName())) {
-                namedMetaProperties.add(new MetaProperty(configuration, value));
-            }
-        });
+        if (metaProperties != null) {
+            metaProperties.forEach((id, value) -> {
+                MetaPropConfiguration configuration = dao.findById(MetaPropConfiguration.class, id);
+                // filter returned meta properties for applications
+                if (metaPropertiesFilter == null || metaPropertiesFilter.isEmpty() || metaPropertiesFilter.contains(configuration.getName())) {
+                    namedMetaProperties.add(new MetaProperty(configuration, value));
+                }
+            });
+        }
         return namedMetaProperties;
     }
 

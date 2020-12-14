@@ -77,10 +77,13 @@ public class DeploymentTopologyDTOBuilder implements IDeploymentTopologyBuilder 
     @ToscaContextual
     public DeploymentTopologyDTO prepareDeployment(Topology topology, Application application, ApplicationEnvironment environment,
             ApplicationTopologyVersion topologyVersion, IDeploymentConfigAction deploymentConfigAction) {
-        // Execute the update
-        deploymentConfigAction.execute(application, environment, topologyVersion, topology);
+        FlowExecutionContext executionContext = flowExecutor.executePreDeploymentFlow(topology,application,environment);
 
-        FlowExecutionContext executionContext = flowExecutor.executeDeploymentFlow(topology, application, environment);
+        // Execute the update
+        deploymentConfigAction.execute(application, environment, topologyVersion, executionContext.getTopology());
+
+        executionContext = flowExecutor.executeDeploymentFlow(topology, application, environment);
+
         return build(executionContext);
     }
 

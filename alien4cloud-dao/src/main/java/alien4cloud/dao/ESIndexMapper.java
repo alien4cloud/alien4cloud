@@ -269,24 +269,6 @@ public abstract class ESIndexMapper {
         }
     }
 
-    /**
-     * Add the ttl field for each type in the map.
-     *
-     * @param typesMap The type map.
-     */
-    public static void addTTL(Map<String, Object> typesMap, String ttl) {
-        if (ttl == null) {
-            // if no ttl value is provided then just return.
-            return;
-        }
-        for (Object typeMappingObject : typesMap.values()) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> typeMappingMap = (Map<String, Object>) typeMappingObject;
-            Map<String, Object> ttlMapping = MapUtil.getMap(new String[] { "enabled", "default" }, new String[] { "true", ttl });
-            typeMappingMap.put("_ttl", ttlMapping);
-        }
-    }
-
     private void cleanIndex (String index, String ts, String ttl) {
        log.debug ("Cleaning index " + index + "(" + ts + ") ttl=" + ttl);
        BulkByScrollResponse response = new DeleteByQueryRequestBuilder(esClient.getClient(), DeleteByQueryAction.INSTANCE)

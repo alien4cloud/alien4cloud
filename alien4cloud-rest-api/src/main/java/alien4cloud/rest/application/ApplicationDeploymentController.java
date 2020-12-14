@@ -22,6 +22,7 @@ import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.joda.time.DateTime;
@@ -638,6 +639,11 @@ public class ApplicationDeploymentController {
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
 
         Map<String, Object> params = request.getInputs() != null ? request.getInputs() : Maps.newHashMap();
+
+        if (workflowName.equals(NormativeWorkflowNameConstants.INSTALL) || workflowName.equals(NormativeWorkflowNameConstants.UNINSTALL)) {
+            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.BAD_WORKFLOW_OPERATION.getCode(), String.format("workflow %s cannot be launched",workflowName))).build());
+            return result;
+        }
 
         try {
             final ExecutionInputs executionInputs = buildExecutionInputs(workflowName,environment,params);

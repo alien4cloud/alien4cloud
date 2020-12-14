@@ -1,9 +1,11 @@
 package alien4cloud.rest.deployment;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.alien4cloud.alm.deployment.configuration.services.InputArtifactService;
 import org.alien4cloud.alm.deployment.configuration.services.InputService;
@@ -18,6 +20,10 @@ import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +32,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -131,15 +136,30 @@ public class DeploymentTopologyController {
     @ApiOperation(value = "Upload input artifact.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/inputArtifacts/{inputArtifactId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentTopologyDTO> uploadDeploymentInputArtifact(@PathVariable String appId, @PathVariable String environmentId,
-            @PathVariable String inputArtifactId, final @RequestParam("file") MultipartFile artifactFile) {
-        DeploymentTopologyDTO dto = execute(appId, environmentId, (application, environment, topologyVersion, topology) -> {
-            try {
-                inputArtifactService.updateInputArtifact(environment, topology, inputArtifactId, artifactFile);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage(), e);
+    public RestResponse<DeploymentTopologyDTO> uploadDeploymentInputArtifact (@PathVariable String appId, @PathVariable String environmentId, 
+                                                                              @PathVariable String inputArtifactId, HttpServletRequest request) {
+        DeploymentTopologyDTO dto = null;
+        try {
+            ServletFileUpload upload = new ServletFileUpload();
+            FileItemIterator iter = upload.getItemIterator(request);
+            if (iter.hasNext()) {
+               FileItemStream item = iter.next();
+               InputStream stream = item.openStream();
+               if (!item.isFormField()) {
+                  String fileName = item.getName();
+                  dto = execute(appId, environmentId, (application, environment, topologyVersion, topology) -> {
+                     try {
+                        inputArtifactService.updateInputArtifact(environment, topology, inputArtifactId, stream, fileName);
+                     } catch (IOException e) {
+                        throw new RuntimeException(e.getMessage(), e);
+                     }
+                  });
+               }
+               stream.close();
             }
-        });
+        } catch (IOException | FileUploadException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }        
 
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(dto).build();
     }

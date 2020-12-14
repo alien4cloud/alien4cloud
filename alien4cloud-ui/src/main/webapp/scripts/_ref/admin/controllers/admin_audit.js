@@ -194,11 +194,16 @@ define(function (require) {
       // Search methods
       //////////////////////////////////
       var doSearch = function() {
+        // Reset paging
+        searchRequestObject.from = 0
+        $scope.auditTableParam.page(1)
+
         // prepare filters
         var allFacetFilters = [];
         allFacetFilters.push.apply(allFacetFilters, $scope.facetFilters);
         updateSearch($scope.searchedKeyword, allFacetFilters);
       };
+
 
       $scope.doSearch = doSearch;
 

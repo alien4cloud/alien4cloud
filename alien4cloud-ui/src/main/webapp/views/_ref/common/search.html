@@ -12,7 +12,7 @@
             <i class="fa fa-times remove_filter_query" ng-click="resetQuery()"></i>
           </span>
           <span class="label label-default info" style="margin-right: 5px;"
-            ng-repeat="(filterTerm, filterValues) in queryManager.filters"
+            ng-repeat="(filterTerm, filterValues) in queryManager.filters" ng-if="displayFilter(filterTerm)"
             >
             <span class="filter_query" ng-click="editFilter(filterTerm)">{{filterTerm}}={{filterValues}}</span>
             <i class="fa fa-times remove_filter_query" ng-click="removeFilter(filterTerm)"></i>

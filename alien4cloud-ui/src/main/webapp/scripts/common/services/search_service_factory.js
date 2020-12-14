@@ -71,6 +71,9 @@ define(function (require) {
         isOverflowed: function() {
           return this.backendTotalItems && this.backendTotalItems > this.totalItems && this.currentPage === this.maxPageNumbers;
         },
+        shouldPaginate: function() {
+          return this.totalItems > this.maxSearchSize;
+        },
         maxSearchSize: maxSearchSize,
         maxPageNumbers: maxPageNumbers,
         totalItems: 0,

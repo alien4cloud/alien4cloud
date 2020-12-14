@@ -25,7 +25,7 @@
               <div class="col-md-5">
                 <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button"
                    ng-click="launchWorkflow()"
-                   ng-disabled="isLaunchingWorkflow" >
+                   ng-disabled="cantLaunchWorkflow()" >
                   <i class="fa" ng-class="{'fa-play': !isLaunchingWorkflow, 'fa-spinner fa-spin': isLaunchingWorkflow}"></i> {{'APPLICATIONS.WF.launch' | translate}}
                 </button>
               </div>
@@ -108,4 +108,3 @@
       </div>
     </div>
   </div>
-  
