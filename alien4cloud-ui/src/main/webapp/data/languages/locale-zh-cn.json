@@ -789,6 +789,7 @@
   },
   "DETAILS" : "详情",
   "EDITOR" : {
+    "AUTO_VALIDATION" : "Auto-Validate:",
     "ARTIFACTS" : {
       "REPOS" : {
         "A4C_CSAR" : "CSAR",
