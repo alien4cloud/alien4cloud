@@ -44,9 +44,11 @@
     </button>
   </div>
 
-  {{'EDITOR.AUTO_VALIDATION' | translate}}
-  <div class="switch vertical-center" ng-click="toggleValidation()">
-    <div class="switch-slider" ng-class="{'disabled' : !autoValidation , 'enabled': autoValidation}"></div>
+  <div class="btn-group" role="group" ng-if="autoValidationEnabled">
+    {{'EDITOR.AUTO_VALIDATION' | translate}}
+    <div class="switch vertical-center" ng-click="toggleValidation()">
+      <div class="switch-slider" ng-class="{'disabled' : !autoValidation , 'enabled': autoValidation}"></div>
+    </div>
   </div>
 
   <div class="btn-group btn-default btn-xs" role="group" ng-if="!editedTopologyIsValid">

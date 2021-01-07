@@ -26,10 +26,11 @@ define(function (require) {
   // manage websockets for topology editor
   // require('scripts/topology/services/topology_editor_events_services');
   require('scripts/common/directives/parsing_errors');
+  require('scripts/common/services/feature_service');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
-    ['$scope', '$state', '$stateParams', '$alresource', '$uibModal', '$translate', 'toaster', 'hotkeys', 'menu', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topologyRecoveryServices', 'editorPreferencesService',
-    function($scope, $state, $stateParams, $alresource, $uibModal, $translate, toaster, hotkeys, menu,  topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topologyRecoveryServices,editorPreferencesService) {
+    ['$scope', '$state', '$stateParams', '$alresource', '$uibModal', '$translate', 'toaster', 'hotkeys', 'menu', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topologyRecoveryServices', 'editorPreferencesService','featureService',
+    function($scope, $state, $stateParams, $alresource, $uibModal, $translate, toaster, hotkeys, menu,  topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topologyRecoveryServices,editorPreferencesService,featureService) {
       // This controller acts as a specific layout for the topology edition.
       $scope.menu = menu;
       $scope.topologyId = $stateParams.archiveId;
@@ -37,6 +38,10 @@ define(function (require) {
       $scope.getShortName = toscaService.simpleName;
       // this allow to avoid file edition in the ui-ace.
       $scope.released = false;
+
+      featureService.autoValidation().then(function(data){
+        $scope.autoValidationEnabled=data;
+      }) ;
 
       $scope.autoValidation = editorPreferencesService.autoValidation;
 
