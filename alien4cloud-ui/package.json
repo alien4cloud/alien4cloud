@@ -48,6 +48,7 @@
     "requirejs": "~2.1.19",
     "rjs-build-analysis": "~0.0.3",
     "time-grunt": "~0.2.1",
+    "tmp": ">=0.0.26",
     "uglify-es": "3.0.27"
   },
   "engines": {
