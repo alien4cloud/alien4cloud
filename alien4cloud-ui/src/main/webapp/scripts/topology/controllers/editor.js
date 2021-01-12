@@ -106,6 +106,10 @@ define(function (require) {
           initial: initial,
           selectedNodeTemplateName: selectedNodeTemplateName
         });
+
+        if ($scope.autoValidation && !initial) {
+            $scope.validateTopology();
+        }
       };
 
       $scope.getLastOperationId = function(nullAsString) {
