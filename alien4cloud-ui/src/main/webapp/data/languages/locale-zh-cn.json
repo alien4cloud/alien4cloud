@@ -779,7 +779,8 @@
       "UPDATE_FAILURE" : "更新失败",
       "UPDATE_IN_PROGRESS" : "正在更新部署",
       "UNDEPLOYMENT_FAILED": "Undeployment Failed",
-      "WARNING" : "警告"
+      "WARNING" : "警告",
+      "PURGE_FAILURE" : "Purge failed"
     },
     "TOASTER_STATUS" : {
       "DEPLOYED" : "应用程序<{{appName}}>的环境<{{envName}}>已被部署。",

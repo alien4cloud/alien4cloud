@@ -51,5 +51,9 @@ public enum DeploymentStatus {
     /**
      * Paas Provider not reachable, error ...
      */
-    UNKNOWN
+    UNKNOWN,
+    /**
+     * A purge has failed
+     */
+    PURGE_FAILURE,
 }
