@@ -53,7 +53,7 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
-    public void purge(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback,boolean force) {
+    public void purge(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
 
     }
 

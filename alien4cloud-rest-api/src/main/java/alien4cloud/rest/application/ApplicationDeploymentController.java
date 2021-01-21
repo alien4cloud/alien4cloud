@@ -202,6 +202,28 @@ public class ApplicationDeploymentController {
     }
 
     /**
+     * Trigger purge of the application for a given environment on the current configured PaaS.
+     *
+     * @param applicationId The id of the application to purge.
+     * @return An empty rest response.
+     */
+    @ApiOperation(value = "Purge the application on the configured PaaS.", notes = "The logged-in user must have the [ APPLICATION_MANAGER ] role for this application. Application environment role required [ DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/purge", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<Void> purge(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,@ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
+        try {
+            // TODO: Call purge
+            //undeployService.undeployEnvironment(secretProviderConfigurationAndCredentials, applicationEnvironmentId,force);
+        } catch (OrchestratorDisabledException e) {
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+        }
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
      * Trigger un-deployment of the application for a given environment on the current configured PaaS.
      *
      * @param applicationId The id of the application to undeploy.

@@ -53,9 +53,8 @@ public interface IPaaSProvider {
      * Purge a deployment
      *
      * @param deploymentContext the context of the un-deployment
-     * @param force force the purge in case of errors
      */
-    void purge(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback,boolean force);
+    void purge(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback);
 
     /**
      * Scale up/down a node

@@ -69,6 +69,32 @@ define(function (require) {
           }
         });
 
+        $scope.doPurge = function() {
+            console.log("PURGE REQUEST");
+
+            secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
+                var secretProviderInfoRequest = {};
+                if (_.defined(secretProviderInfo)) {
+                    secretProviderInfoRequest.secretProviderConfiguration = secretProviderInfo;
+                    secretProviderInfoRequest.credentials = secretProviderInfo.credentials;
+                }
+                applicationServices.purge({
+                    applicationId: $scope.application.id,
+                    applicationEnvironmentId: $scope.environment.id,
+                }, angular.toJson(secretProviderInfoRequest), function () {
+                    console.log("PURGE DONE");
+                }, function () {
+                $scope.reloadEnvironment();
+            });
+          });
+/*            applicationServices.purge({
+                applicationId: $scope.application.id,
+                applicationEnvironmentId: $scope.environment.id
+            },{},function(successResult) {
+                console.log(successResult);
+            });*/
+        };
+
         $scope.doUndeploy = function(force = false ) {
           secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
             var secretProviderInfoRequest = {};

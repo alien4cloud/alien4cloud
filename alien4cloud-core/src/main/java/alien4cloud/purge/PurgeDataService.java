@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class PurgeService {
+public class PurgeDataService {
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new NamedThreadFactory("a4c-purge-service"));
 
