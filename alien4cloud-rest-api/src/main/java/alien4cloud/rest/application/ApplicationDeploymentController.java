@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import alien4cloud.deployment.*;
 import alien4cloud.model.runtime.ExecutionInputs;
 import alien4cloud.rest.application.model.*;
 import alien4cloud.utils.services.PropertyService;
@@ -45,14 +46,6 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.deployment.DeployService;
-import alien4cloud.deployment.DeploymentRuntimeService;
-import alien4cloud.deployment.DeploymentRuntimeStateService;
-import alien4cloud.deployment.DeploymentService;
-import alien4cloud.deployment.DeploymentTopologyDTO;
-import alien4cloud.deployment.DeploymentTopologyDTOBuilder;
-import alien4cloud.deployment.UndeployService;
-import alien4cloud.deployment.WorkflowExecutionService;
 import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
 import alien4cloud.deployment.model.SecretProviderCredentials;
 import alien4cloud.exception.AlreadyExistException;
@@ -102,6 +95,8 @@ public class ApplicationDeploymentController {
     private DeployService deployService;
     @Inject
     private UndeployService undeployService;
+    @Inject
+    private PurgeService purgeService;
     @Inject
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
@@ -215,8 +210,7 @@ public class ApplicationDeploymentController {
         Application application = applicationService.checkAndGetApplication(applicationId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
         try {
-            // TODO: Call purge
-            //undeployService.undeployEnvironment(secretProviderConfigurationAndCredentials, applicationEnvironmentId,force);
+            purgeService.purgeEnvironment(secretProviderConfigurationAndCredentials, applicationEnvironmentId);
         } catch (OrchestratorDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
