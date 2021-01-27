@@ -78,6 +78,7 @@ define(function (require) {
                     secretProviderInfoRequest.secretProviderConfiguration = secretProviderInfo;
                     secretProviderInfoRequest.credentials = secretProviderInfo.credentials;
                 }
+                $scope.setState('UNDEPLOYMENT_IN_PROGRESS');
                 applicationServices.purge({
                     applicationId: $scope.application.id,
                     applicationEnvironmentId: $scope.environment.id,
@@ -102,7 +103,7 @@ define(function (require) {
               secretProviderInfoRequest.secretProviderConfiguration = secretProviderInfo;
               secretProviderInfoRequest.credentials = secretProviderInfo.credentials;
             }
-            $scope.setState('INIT_DEPLOYMENT');
+            $scope.setState('UNDEPLOYMENT_IN_PROGRESS');
             applicationServices.deployment.undeploy({
               applicationId: $scope.application.id,
               applicationEnvironmentId: $scope.environment.id,
