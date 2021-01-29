@@ -43,31 +43,6 @@ public class WorkflowSimplifyService {
     @Resource
     private WorkflowsBuilderService workflowsBuilderService;
 
-    private interface DoWithNodeCallBack {
-        void doWithNode(SubGraph subGraph, Workflow workflow);
-    }
-
-    @Getter
-    private static class ComputeNodesWeightsGraphConsumer extends SimpleGraphConsumer {
-
-        private Map<String, Integer> allNodeWeights = new HashMap<>();
-
-        @Override
-        public boolean onNewPath(List<WorkflowStep> path) {
-            WorkflowStep currentNode = path.get(path.size() - 1);
-            int parentWeight;
-            if (path.size() > 1) {
-                parentWeight = allNodeWeights.get(path.get(path.size() - 2).getName());
-            } else {
-                parentWeight = 0;
-            }
-            Integer currentWeight = allNodeWeights.computeIfAbsent(currentNode.getName(), k -> 0);
-            Integer newComputedWeight = Math.max(parentWeight + 1, currentWeight);
-            allNodeWeights.put(currentNode.getName(), newComputedWeight);
-            return true;
-        }
-    }
-
     @Getter
     private static class LastPathGraphConsumer extends SimpleGraphConsumer {
 
@@ -100,14 +75,8 @@ public class WorkflowSimplifyService {
         // 1. Flatten the workflow
         doWithNode(tc, (traversal, workflow) -> flattenWorkflow(tc, traversal), WeightCaculatorTraversal::builder, whiteList);
 
-        // 1. Flatten the workflow
-        //doWithNode(tc, (subGraph, workflow) -> flattenWorkflow(tc, subGraph), whiteList);
-
         // 2. Remove unnecessary steps
         doWithNode(tc, (traversal, workflow) -> removeUnnecessarySteps(tc, workflow, traversal), LastPathTraversal::builder,whiteList);
-
-        // 2. Remove unnecessary steps
-        //doWithNode(tc, (subGraph, workflow) -> removeUnnecessarySteps(tc, workflow, subGraph), whiteList);
 
         if (ToscaParser.ALIEN_DSL_200.equals(tc.getDSLVersion()) || ToscaParser.ALIEN_DSL_300.equals(tc.getDSLVersion())) {
             reentrantSimplifyWorklow(tc, whiteList);
@@ -122,13 +91,13 @@ public class WorkflowSimplifyService {
      */
     public void reentrantSimplifyWorklow(TopologyContext tc, Set<String> whiteList) {
         // 3. Remove the orphan nodes
-        doWithNode(tc, ((subGraph, workflow) -> {
+        doWithNode(tc,(traversal, workflow) -> {
             DefaultDeclarativeWorkflows dwf = workflowsBuilderService.getDeclarativeWorkflows(tc.getDSLVersion());
             removeOrphanSetStateSteps(dwf, workflow);
-        }), whiteList);
+        }, NoopTraversal::builder, whiteList);
 
         // 4. Remove useless edges
-        doWithNode(tc, ((subGraph, workflow) -> removeUselessEdges(workflow)), whiteList);
+        doWithNode(tc, (traversal, workflow) -> removeUselessEdges(workflow),NoopTraversal::builder,whiteList);
     }
 
     protected void removeUselessEdges(Workflow wf) {
@@ -231,8 +200,6 @@ public class WorkflowSimplifyService {
     }
 
     private void removeUnnecessarySteps(TopologyContext topologyContext, Workflow workflow, LastPathTraversal traversal) {
-        traversal.browse();
-
         if (traversal.getNodes().isEmpty()) {
             // This is really strange as we have a node template without any workflow step
             return;
@@ -240,12 +207,6 @@ public class WorkflowSimplifyService {
 
         Set<String> allStepIds = traversal.getNodes().keySet();
         List<WorkflowStep> sortedByWeightsSteps = traversal.getPath();
-       /*StringBuffer sb = new StringBuffer();
-        for (WorkflowStep s : sortedByWeightsSteps) {
-            sb.append("::");
-            sb.append(s.getName());
-        }
-        log.info("NEW Remove Steps: {}",sb.toString());*/
 
         List<Integer> nonEmptyIndexes = new ArrayList<>();
         LinkedHashSet<Integer> emptyIndexes = new LinkedHashSet<>();
@@ -344,15 +305,6 @@ public class WorkflowSimplifyService {
         }
         Set<String> allStepIds = consumer.getAllNodes().keySet();
         List<WorkflowStep> sortedByWeightsSteps = consumer.getLastPath();
-
-        /*
-        StringBuffer sb = new StringBuffer();
-        for (WorkflowStep s : sortedByWeightsSteps) {
-            sb.append("::");
-            sb.append(s.getName());
-        }
-        log.info("OLD Remove Steps: {}",sb.toString());
-        */
         
         List<Integer> nonEmptyIndexes = new ArrayList<>();
         LinkedHashSet<Integer> emptyIndexes = new LinkedHashSet<>();
@@ -441,17 +393,6 @@ public class WorkflowSimplifyService {
         }
     }
 
-    private void doWithNode(TopologyContext tc, DoWithNodeCallBack callback, Set<String> whiteList) {
-        // Attention: workflows with custom modifications are not processed
-        AlienUtils.safe(tc.getTopology().getWorkflows()).values().stream()
-                  .filter(wf -> !wf.isHasCustomModifications() && whiteList.contains(wf.getName()))
-                  .forEach(wf -> AlienUtils.safe(tc.getTopology().getNodeTemplates()).keySet().forEach(nodeId -> {
-                      SubGraphFilter stepFilter = new NodeSubGraphFilter(wf, nodeId, tc.getTopology());
-                      SubGraph subGraph = new SubGraph(wf, stepFilter);
-                      callback.doWithNode(subGraph, wf);
-                  }));
-    }
-
     private <T extends GraphTraversal> void doWithNode(TopologyContext tc, BiConsumer<T,Workflow> consumer, BiFunction<Workflow,SubGraphFilter,T> builder, Set<String> whiteList) {
         // Attention: workflows with custom modifications are not processed
         AlienUtils.safe(tc.getTopology().getWorkflows()).values().stream()
@@ -459,13 +400,12 @@ public class WorkflowSimplifyService {
                 .forEach(wf -> AlienUtils.safe(tc.getTopology().getNodeTemplates()).keySet().forEach(nodeId -> {
                     SubGraphFilter stepFilter = new NodeSubGraphFilter(wf, nodeId, tc.getTopology());
                     T traversal = builder.apply(wf,stepFilter);
+                    traversal.browse();
                     consumer.accept(traversal,wf);
                 }));
     }
 
     private void flattenWorkflow(TopologyContext topologyContext, WeightCaculatorTraversal traversal) {
-        traversal.browse();
-
         Map<String, WorkflowStep> allNodes = traversal.getNodes();
 
         if (allNodes.isEmpty()) {
@@ -489,29 +429,5 @@ public class WorkflowSimplifyService {
             sortedByWeightsSteps.get(i + 1).addPreceding(sortedByWeightsSteps.get(i).getName());
         }
 
-    }
-
-    private void flattenWorkflow(TopologyContext topologyContext, SubGraph subGraph) {
-        ComputeNodesWeightsGraphConsumer consumer = new ComputeNodesWeightsGraphConsumer();
-        log.info("======================================== FLATTEN {} ===================================",subGraph.getWorkflow().getName());
-        subGraph.browse(consumer);
-        if (consumer.getAllNodes().isEmpty()) {
-            // This is really strange as we have a node template without any workflow step
-            return;
-        }
-        Map<String, WorkflowStep> allNodes = consumer.getAllNodes();
-        LinkedList<WorkflowStep> sortedByWeightsSteps = new LinkedList<>(allNodes.values());
-        sortedByWeightsSteps.sort(new WorkflowStepWeightComparator(consumer.getAllNodeWeights(), topologyContext.getTopology()));
-        Set<String> allSubGraphNodeIds = allNodes.keySet();
-        sortedByWeightsSteps.forEach(workflowStep -> {
-            // Remove all old links between the steps in the graph
-            workflowStep.removeAllPrecedings(allSubGraphNodeIds);
-            workflowStep.removeAllFollowings(allSubGraphNodeIds);
-        });
-        // Create a sequence with sorted sub graph steps
-        for (int i = 0; i < sortedByWeightsSteps.size() - 1; i++) {
-            sortedByWeightsSteps.get(i).addFollowing(sortedByWeightsSteps.get(i + 1).getName());
-            sortedByWeightsSteps.get(i + 1).addPreceding(sortedByWeightsSteps.get(i).getName());
-        }
     }
 }
