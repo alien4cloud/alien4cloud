@@ -53,6 +53,11 @@ public class VariableModifier implements ITopologyModifier {
 
         for (NodeTemplate node : safe(topology.getNodeTemplates()).values()) {
             NodeType type = ToscaContext.get(NodeType.class, node.getType());
+
+            if (type == null) {
+                log.warn("Cannot find type {} - skipping variable substitution for node {}",node.getType(),node.getName());
+                continue;
+            }
             processNode(node,type,modifierContext);
         }
         mergeInputs(modifierContext);
@@ -99,6 +104,9 @@ public class VariableModifier implements ITopologyModifier {
         } else if (entry.getValue() instanceof ComplexPropertyValue) {
             log.info("Processing {}[]", path);
             processComplex((ComplexPropertyValue) entry.getValue(),definition,path,context);
+        } else if (entry.getValue() instanceof ListPropertyValue) {
+            log.info("Processing {}[]", path);
+            processListComplex(((ListPropertyValue) entry.getValue()).getValue(),definition,path,context);
         }
     }
 
@@ -115,24 +123,33 @@ public class VariableModifier implements ITopologyModifier {
     }
 
     private void processComplex(ComplexPropertyValue value,PropertyDefinition definition,String path,VariableModifierContext context) {
-        processComplex(safe(value.getValue()),definition, path, context);
+        if (definition.getType().equals(ToscaTypes.MAP)) {
+            processMapComplex(safe(value.getValue()),definition.getEntrySchema(),path, context);
+        } else {
+            processComplex(safe(value.getValue()), definition, path, context);
+        }
     }
 
     private void processComplex(Map<String,Object> map,PropertyDefinition definition,String path,VariableModifierContext context) {
-        DataType dataType= ToscaContext.get(DataType.class, definition.getType());
+        DataType dataType = ToscaContext.get(DataType.class, definition.getType());
 
-        Map<String,PropertyDefinition> definitions = safe(dataType.getProperties());
+        if (dataType == null) {
+            log.warn("Cannot find datatype {} , skipping variable substitution done in {}",definition.getType(),path);
+            return;
+        }
 
-        for (Map.Entry<String,Object> entry : map.entrySet()) {
-            String newPath = String.format("%s.%s",path,entry.getKey());
+        Map<String, PropertyDefinition> definitions = safe(dataType.getProperties());
+
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String newPath = String.format("%s.%s", path, entry.getKey());
             PropertyDefinition subDefinition = definitions.get(entry.getKey());
-            if (subDefinition!=null) {
+            if (subDefinition != null) {
                 if ((entry.getValue() instanceof String) && subDefinition.getType().equals(ToscaTypes.STRING)) {
-                    entry.setValue(doComplexReplacements((String) entry.getValue(),newPath,context));
+                    entry.setValue(doComplexReplacements((String) entry.getValue(), newPath, context));
                 } else if ((entry.getValue() instanceof Map) && subDefinition.getType().equals(ToscaTypes.MAP)) {
                     processMapComplex((Map) entry.getValue(), subDefinition.getEntrySchema(), newPath, context);
-                } else if ((entry.getValue() instanceof Map) && (!ToscaTypes.isPrimitive(subDefinition.getType())) ) {
-                    processComplex((Map) entry.getValue(),subDefinition,newPath,context);
+                } else if ((entry.getValue() instanceof Map) && (!ToscaTypes.isPrimitive(subDefinition.getType()))) {
+                    processComplex((Map) entry.getValue(), subDefinition, newPath, context);
                 } else if ((entry.getValue() instanceof List) && subDefinition.getType().equals(ToscaTypes.LIST)) {
                     processListComplex((List) entry.getValue(), subDefinition.getEntrySchema(), newPath, context);
                 }
