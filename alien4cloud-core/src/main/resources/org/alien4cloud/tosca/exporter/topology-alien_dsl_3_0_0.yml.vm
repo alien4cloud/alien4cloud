@@ -314,10 +314,16 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
 #end## if taskEntry.value.activity
 #if($utils.collectionIsNotEmpty(${taskEntry.value.onSuccess}))
           on_success:
-#foreach($following in ${taskEntry.value.onSuccess})
-            - ${following}
-#end## foreach taskEntry.value.followingSteps
-#end## if taskEntry.value.followingSteps not empty
+#foreach($stepName in ${taskEntry.value.onSuccess})
+            - ${stepName}
+#end## foreach taskEntry.value.onSuccess
+#end## if taskEntry.value.onSuccess not empty
+#if($utils.collectionIsNotEmpty(${taskEntry.value.onFailure}))
+          on_failure:
+#foreach($stepName in ${taskEntry.value.onSuccess})
+            - ${stepName}
+#end## foreach taskEntry.value.onFailure
+#end## if taskEntry.value.onFailure not empty
 #end## foreach wfEntry.value.steps
 #end## if map wfEntry.value.steps not empty
 #end## if($generateWorkflow || ${wfEntry.value.hasCustomModifications})
