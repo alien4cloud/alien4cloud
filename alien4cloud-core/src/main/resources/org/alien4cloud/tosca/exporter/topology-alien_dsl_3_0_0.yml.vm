@@ -320,7 +320,7 @@ ${utils.formatArtifact($artifactEntry.value, 5)}
 #end## if taskEntry.value.onSuccess not empty
 #if($utils.collectionIsNotEmpty(${taskEntry.value.onFailure}))
           on_failure:
-#foreach($stepName in ${taskEntry.value.onSuccess})
+#foreach($stepName in ${taskEntry.value.onFailure})
             - ${stepName}
 #end## foreach taskEntry.value.onFailure
 #end## if taskEntry.value.onFailure not empty
