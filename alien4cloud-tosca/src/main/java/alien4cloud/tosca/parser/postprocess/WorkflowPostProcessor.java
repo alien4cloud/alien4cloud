@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.wf.TopologyContext;
@@ -150,21 +151,8 @@ public class WorkflowPostProcessor {
             wf.setHasCustomModifications(true);
             if (wf.getSteps() != null) {
                 for (WorkflowStep step : wf.getSteps().values()) {
-                    if (step.getOnSuccess() != null) {
-                        Iterator<String> followingIds = step.getOnSuccess().iterator();
-                        while (followingIds.hasNext()) {
-                            String followingId = followingIds.next();
-                            WorkflowStep followingStep = wf.getSteps().get(followingId);
-                            if (followingStep == null) {
-                                followingIds.remove();
-                                ParsingContextExecution.getParsingErrors()
-                                        .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNWON_WORKFLOW_STEP, null, getSafeNodeStartMark(node),
-                                                null, getSafeNodeEndMark(node), followingId));
-                            } else {
-                                followingStep.addPreceding(step.getName());
-                            }
-                        }
-                    }
+                    doForEachLinkOrRemove(node,wf,step,step.getOnSuccess(),followingStep -> followingStep.addPreceding(step.getName()));
+                    doForEachLinkOrRemove(node,wf,step,step.getOnFailure(),null);
                 }
             }
             try {
@@ -177,6 +165,27 @@ public class WorkflowPostProcessor {
             int errorCount = workflowBuilderService.validateWorkflow(topologyContext, wf);
             if (errorCount > 0) {
                 processWorkflowErrors(wf, wf.getErrors(), node);
+            }
+        }
+    }
+
+    private void doForEachLinkOrRemove(Node node,Workflow wf,WorkflowStep step,Set<String> links, Consumer<WorkflowStep> callback) {
+        if (links != null) {
+            Iterator<String> followingIds = links.iterator();
+            while (followingIds.hasNext()) {
+                String followingId = followingIds.next();
+                WorkflowStep followingStep = wf.getSteps().get(followingId);
+
+                if (followingStep == null) {
+                    followingIds.remove();
+                    ParsingContextExecution.getParsingErrors()
+                            .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNWON_WORKFLOW_STEP, null, getSafeNodeStartMark(node),
+                                    null, getSafeNodeEndMark(node), followingId));
+                } else {
+                    if (callback != null) {
+                        callback.accept(followingStep);
+                    }
+                }
             }
         }
     }

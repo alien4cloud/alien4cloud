@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -41,6 +42,21 @@ public final class AlienUtils {
      */
     public static <T> Collection<T> safe(Collection<T> collection) {
         return org.apache.commons.collections4.CollectionUtils.emptyIfNull(collection);
+    }
+
+    /**
+     * Utility method to iterate over a set that can be null<br>
+     * for(T element : safe(set)) {}
+     * <br>
+     * <br>
+     * ATTENTION: Use this method for readonly operation only
+     *
+     * @param set The list that may be null.
+     * @param <T> The type of map keys
+     * @return The map or an empty map.
+     */
+    public static <T> Set<T> safe(Set<T> set) {
+        return org.apache.commons.collections4.SetUtils.emptyIfNull(set);
     }
 
     /**

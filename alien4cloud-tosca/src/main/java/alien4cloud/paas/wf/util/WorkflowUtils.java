@@ -198,6 +198,12 @@ public class WorkflowUtils {
         to.removePreceding(from.getName());
     }
 
+    public static void linkStepsWithOnFailure(WorkflowStep from, WorkflowStep to) {
+        if (from != null && to != null) {
+            from.addOnFailure(to.getName());
+        }
+    }
+
     public static void removeStep(Workflow wf, String stepId, boolean force) {
         WorkflowStep step = wf.getSteps().remove(stepId);
         if (step == null) {
@@ -276,6 +282,11 @@ public class WorkflowUtils {
             }
             if (step.getPrecedingSteps() == null || step.getPrecedingSteps().isEmpty()) {
                 stringBuilder.append("\n  start -> \"").append(step.getName()).append("\";");
+            }
+            if (step.getOnFailure() !=null) {
+                for (String following : step.getOnFailure()) {
+                    stringBuilder.append("\n  \"").append(step.getName()).append("\" -> \"").append(following).append("\" [color=red];");
+                }
             }
         }
         stringBuilder.append("\n  start [shape=doublecircle];\n");

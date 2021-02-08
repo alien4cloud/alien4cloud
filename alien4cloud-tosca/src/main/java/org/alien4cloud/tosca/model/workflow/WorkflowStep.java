@@ -35,7 +35,7 @@ public abstract class WorkflowStep {
     /** The steps to trigger (in parallel if multiple) if the workflow step has been executed correctly. */
     private Set<String> onSuccess = new HashSet<>();
     /** The steps to trigger (in parallel if multiple) if the workflow step has failed. */
-    private Set<String> onFailure;
+    private Set<String> onFailure = new HashSet<>();
 
     /*
      * ________________________________________________________________________________________________
@@ -101,4 +101,5 @@ public abstract class WorkflowStep {
         this.onSuccess.removeAll(followings);
     }
 
+    public void addOnFailure(String name) {this.onFailure.add(name);}
 }
