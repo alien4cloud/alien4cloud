@@ -201,6 +201,7 @@ public class WorkflowUtils {
     public static void linkStepsWithOnFailure(WorkflowStep from, WorkflowStep to) {
         if (from != null && to != null) {
             from.addOnFailure(to.getName());
+            to.addPrecedingFail(from.getName());
         }
     }
 

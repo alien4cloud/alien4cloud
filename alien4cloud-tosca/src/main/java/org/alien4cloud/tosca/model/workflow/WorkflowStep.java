@@ -42,10 +42,12 @@ public abstract class WorkflowStep {
      * Everything underneath is non tosca, it does exist to facilitate implementation in Alien4Cloud
      * ________________________________________________________________________________________________
      */
-    /** The id / name of the step in the workflow **/
+    /** The id / name of the step in the workflow */
     private String name;
-    /** The steps that precedes immediately this step in the workflow sequence **/
+    /** The steps that precedes immediately this step in the workflow sequence */
     private Set<String> precedingSteps = new HashSet<>();
+    /** The steps that precedes immediately this step with the onFailure link in the wf sequence */
+    private Set<String> precedingFailSteps = new HashSet<>();
 
     @JsonIgnore
     public AbstractWorkflowActivity getActivity() {
@@ -71,6 +73,10 @@ public abstract class WorkflowStep {
 
     public void addPreceding(String name) {
         this.precedingSteps.add(name);
+    }
+
+    public void addPrecedingFail(String name) {
+        this.precedingFailSteps.add(name);
     }
 
     public void addAllPrecedings(Set<String> precedings) {

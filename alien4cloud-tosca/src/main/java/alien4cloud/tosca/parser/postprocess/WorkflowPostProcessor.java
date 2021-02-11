@@ -152,7 +152,7 @@ public class WorkflowPostProcessor {
             if (wf.getSteps() != null) {
                 for (WorkflowStep step : wf.getSteps().values()) {
                     doForEachLinkOrRemove(node,wf,step,step.getOnSuccess(),followingStep -> followingStep.addPreceding(step.getName()));
-                    doForEachLinkOrRemove(node,wf,step,step.getOnFailure(),null);
+                    doForEachLinkOrRemove(node,wf,step,step.getOnFailure(),followingStep -> followingStep.addPrecedingFail(step.getName()) );
                 }
             }
             try {
