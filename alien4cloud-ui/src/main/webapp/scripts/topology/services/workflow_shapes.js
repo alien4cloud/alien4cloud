@@ -243,10 +243,14 @@ define(function (require) {
             }
           }
           addMarker('arrow-standard', 'black', false);
+          addMarker('arrow-failure', '#fa0', false);
+          addMarker('arrow-failure-pinned', '#fa0', true);
           addMarker('arrow-standard-pinned', 'black', true);
           addMarker('arrow-error', '#f66', false);
           addMarker('arrow-error-pinned', '#f66', true);
           addMarker('arrow-preview', 'blue', false);
+          addMarker('arrow-standard-preview-pinned','black',false);
+          addMarker('arrow-failure-preview-pinned','#fa0',false);
         },
 
         getStepStatus: function(nodeId) {

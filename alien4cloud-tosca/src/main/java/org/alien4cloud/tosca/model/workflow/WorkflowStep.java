@@ -91,6 +91,8 @@ public abstract class WorkflowStep {
         return this.precedingSteps.remove(name);
     }
 
+    public boolean removePrecedingFailure(String name) { return this.precedingFailSteps.remove(name); }
+
     public void addFollowing(String name) {
         this.onSuccess.add(name);
     }
@@ -101,6 +103,10 @@ public abstract class WorkflowStep {
 
     public boolean removeFollowing(String name) {
         return this.onSuccess.remove(name);
+    }
+
+    public boolean removeFollowingFailure(String name) {
+        return this.onFailure.remove(name);
     }
 
     public void removeAllFollowings(Set<String> followings) {

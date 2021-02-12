@@ -36,28 +36,43 @@ public abstract class AbstractWorkflowBuilder {
         WorkflowStep fromStep = wf.getSteps().get(from);
         if (fromStep == null) {
             throw new InconsistentWorkflowException(
-                    String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", from));
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", from));
         }
         WorkflowStep toStep = wf.getSteps().get(to);
         if (toStep == null) {
             throw new InconsistentWorkflowException(
-                    String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", to));
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", to));
         }
         fromStep.removeFollowing(to);
         toStep.removePreceding(from);
     }
 
+    public void removeFailureEdge(Workflow wf, String from, String to) {
+        WorkflowStep fromStep = wf.getSteps().get(from);
+        if (fromStep == null) {
+            throw new InconsistentWorkflowException(
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", from));
+        }
+        WorkflowStep toStep = wf.getSteps().get(to);
+        if (toStep == null) {
+            throw new InconsistentWorkflowException(
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", to));
+        }
+        fromStep.removeFollowingFailure(to);
+        toStep.removePrecedingFailure(from);
+    }
+    
     void connectStepFrom(Workflow wf, String stepId, String[] stepNames) {
         WorkflowStep to = wf.getSteps().get(stepId);
         if (to == null) {
             throw new InconsistentWorkflowException(
-                    String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", stepId));
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", stepId));
         }
         for (String preceding : stepNames) {
             WorkflowStep precedingStep = wf.getSteps().get(preceding);
             if (precedingStep == null) {
                 throw new InconsistentWorkflowException(
-                        String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", preceding));
+                        String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", preceding));
             }
             WorkflowUtils.linkSteps(precedingStep, to);
         }
@@ -67,11 +82,23 @@ public abstract class AbstractWorkflowBuilder {
         WorkflowStep from = wf.getSteps().get(stepId);
         if (from == null) {
             throw new InconsistentWorkflowException(
-                    String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", stepId));
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", stepId));
         }
         for (String following : stepNames) {
             WorkflowStep followingStep = wf.getSteps().get(following);
             WorkflowUtils.linkSteps(from, followingStep);
+        }
+    }
+
+    void failStepTo(Workflow wf, String stepId, String[] stepNames) {
+        WorkflowStep from = wf.getSteps().get(stepId);
+        if (from == null) {
+            throw new InconsistentWorkflowException(
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", stepId));
+        }
+        for (String following : stepNames) {
+            WorkflowStep followingStep = wf.getSteps().get(following);
+            WorkflowUtils.linkStepsWithOnFailure(from, followingStep);
         }
     }
 

@@ -257,6 +257,18 @@ public class WorkflowsBuilderService {
         return wf;
     }
 
+    public Workflow removeFailureEdge(Topology topology, Csar csar, String workflowName, String from, String to) {
+        TopologyContext topologyContext = buildTopologyContext(topology, csar);
+        Workflow wf = topology.getWorkflows().get(workflowName);
+        if (wf == null) {
+            throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
+        }
+        AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
+        builder.removeFailureEdge(wf, from, to);
+        workflowValidator.validate(topologyContext, wf);
+        return wf;
+    }
+
     public Workflow connectStepFrom(Topology topology, Csar csar, String workflowName, String stepId, String[] stepNames) {
         TopologyContext topologyContext = buildTopologyContext(topology, csar);
         Workflow wf = topology.getWorkflows().get(workflowName);
@@ -277,6 +289,18 @@ public class WorkflowsBuilderService {
         }
         AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
         builder.connectStepTo(wf, stepId, stepNames);
+        workflowValidator.validate(topologyContext, wf);
+        return wf;
+    }
+
+    public Workflow failStepTo(Topology topology, Csar csar, String workflowName, String stepId, String[] stepNames) {
+        TopologyContext topologyContext = buildTopologyContext(topology, csar);
+        Workflow wf = topology.getWorkflows().get(workflowName);
+        if (wf == null) {
+            throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
+        }
+        AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
+        builder.failStepTo(wf, stepId, stepNames);
         workflowValidator.validate(topologyContext, wf);
         return wf;
     }

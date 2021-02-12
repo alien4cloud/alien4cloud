@@ -18,7 +18,7 @@ public class RemoveEdgeProcessor extends AbstractWorkflowProcessor<RemoveEdgeOpe
 
     @Override
     protected void processWorkflowOperation(Csar csar, Topology topology, RemoveEdgeOperation operation, Workflow workflow) {
-        log.debug("removing edge from [ {} ] to [ {} ] from the workflow [ {} ] from topology [ {} ]", operation.getFromStepId(), operation.getToStepId(),
+        log.debug("removing onSuccess edge from [ {} ] to [ {} ] from the workflow [ {} ] from topology [ {} ]", operation.getFromStepId(), operation.getToStepId(),
                 workflow.getName(), topology.getId());
         workflowBuilderService.removeEdge(topology, csar, workflow.getName(), operation.getFromStepId(), operation.getToStepId());
     }

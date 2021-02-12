@@ -376,11 +376,12 @@
       "appendOperationActivity" : "追加操作调用",
       "appendStateActivity" : "追加状态改变",
       "changeViewMode" : "简单视图",
-      "connectFromSelection" : "从选中的连接",
-      "connectToSelection" : "连接到选中的",
+      "connectToSelection" : "Success to selection",
+      "currentSelection" : "Success selection",
       "currentSelection" : "当前选中的",
       "delegateWorkflow" : "工作流",
       "disconnect" : "断开连接的",
+      "disconnectFail" : "Disconnect on failure",
       "disconnectFrom" : "从断开",
       "disconnectTo" : "断开到",
       "errors" : {
@@ -389,6 +390,8 @@
         "UnknownNodeError" : "被步骤 '{{stepId}}' 引用的节点 '{{nodeId}}' 不存在。",
         "WorkflowHasCycleError" : "工作流包含一个回路。"
       },
+      "failFromSelection" : "Fail from selection",
+      "failToSelection" : "Fail to selection",
       "hasErrors" : "错误(s)",
       "host" : "主机",
       "inline" : "内联的",

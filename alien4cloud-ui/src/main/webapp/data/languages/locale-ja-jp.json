@@ -378,10 +378,11 @@
       "appendStateActivity" : "Append state change",
       "changeViewMode" : "Simplified view",
       "connectFromSelection" : "Connect from selection",
-      "connectToSelection" : "Connect to selection",
-      "currentSelection" : "Current selection",
+      "connectToSelection" : "Success to selection",
+      "currentSelection" : "Success selection",
       "delegateWorkflow" : "Workflow",
       "disconnect" : "Disconnect",
+      "disconnectFail" : "Disconnect on failure",
       "disconnectFrom" : "Disconnect from",
       "disconnectTo" : "Disconnect to",
       "errors" : {
@@ -390,6 +391,8 @@
         "UnknownNodeError" : "The node '{{nodeId}}' referenced by the step '{{stepId}}' doesn't exists",
         "WorkflowHasCycleError" : "Workflow contains one cycle"
       },
+      "failFromSelection" : "Fail from selection",
+      "failToSelection" : "Fail to selection",
       "hasErrors" : "error(s)",
       "host" : "Host",
       "inline" : "TRANSLATION_IS_REQUIRED",

@@ -112,6 +112,27 @@ define(function (require) {
               g.setEdge(from, to, style);
             }
 
+            function appendFailureEdge(g, from, to) {
+              var style = {
+                lineInterpolate: 'basis',
+                arrowhead: 'vee',
+                style: 'stroke: #fa0; stroke-width: 1.5px;',
+                pinnedStyle: 'stroke: #fa0; stroke-width: 5px;',
+                marker: 'arrow-failure'
+              };
+              if (errorRenderingData.cycles[from] && _.contains(errorRenderingData.cycles[from], to)) {
+                // the edge is in a cycle, make it red
+                style = {
+                  lineInterpolate: 'basis',
+                  arrowhead: 'vee',
+                  style: 'stroke: #f66; stroke-width: 1.5px;',
+                  pinnedStyle: 'stroke: black; stroke-width: 5px;',
+                  marker: 'arrow-error'
+                };
+              }
+              g.setEdge(from, to, style);
+            }
+
             function refresh() {
               // remove remaining popups
               d3.selectAll('.d3-tip').remove();
@@ -160,14 +181,19 @@ define(function (require) {
                   //if (step.hostId) {
                     //g.setParent(stepName, step.hostId);
                   //}
-                  if (!step.precedingSteps || step.precedingSteps.length === 0) {
+                  if ((!step.precedingSteps || step.precedingSteps.length === 0)
+                   && (!step.precedingFailSteps || step.precedingFailSteps.length === 0)){
                     appendEdge(g, 'start', stepName);
                   }
-                  if (!step.onSuccess || step.onSuccess.length === 0) {
+                  if ((!step.onSuccess || step.onSuccess.length === 0)
+                      && (!step.onFailure || step.onFailure.length === 0)) {
                     appendEdge(g, stepName, 'end');
                   } else {
                     for (var j = 0; j < step.onSuccess.length; j++) {
                       appendEdge(g, stepName, step.onSuccess[j]);
+                    }
+                    for (var j = 0; j < step.onFailure.length; j++) {
+                      appendFailureEdge(g, stepName, step.onFailure[j]);
                     }
                   }
                 }
@@ -243,6 +269,35 @@ define(function (require) {
               });
             }
 
+            // preview events registering
+            function setPreviewFailEdge(g, from, to) {
+              g.setEdge(from, to, {
+                lineInterpolate: 'basis',
+                style: 'stroke: #fa0; stroke-width: 3px; stroke-dasharray: 5, 5;',
+                marker: 'arrow-failure'
+              });
+            }
+
+            function setPreviewNormalEdge(g, from, to) {
+              g.setEdge(from, to, {
+                lineInterpolate: 'basis',
+                arrowhead: 'vee',
+                style: 'stroke: black; stroke-width: 1.5px;',
+                pinnedStyle: 'stroke: black; stroke-width: 1.5px;',
+                marker: 'arrow-standard-preview'
+              });
+            }
+
+            function setPreviewFailNormalEdge(g, from, to) {
+              g.setEdge(from, to, {
+                lineInterpolate: 'basis',
+                arrowhead: 'vee',
+                style: 'stroke: #fa0; stroke-width: 1.5px;',
+                pinnedStyle: 'stroke: #fa0; stroke-width: 1.5px;',
+                marker: 'arrow-failure-preview'
+              });
+            }
+
             function setPreviewNode(g) {
               g.setNode('a4cPreviewNewStep', {
                 style: 'stroke: blue',
@@ -252,15 +307,33 @@ define(function (require) {
                 height: 45
               });
             }
-
             scope.$on('WfRemoveEdgePreview', function (event, from, to) {
               console.debug('WfRemoveEdgePreview event received : ' + event + ', from:' + from + ', to:' + to);
               g.removeEdge(from, to);
-              if (steps[from].onSuccess.length === 1) {
-                setPreviewEdge(g, from, 'end');
+              if (steps[from].onFailure.includes(to)) {
+                setPreviewFailNormalEdge(g, from , to);
+              } else {
+                  if (steps[from].onSuccess.length === 1 && steps[from].onFailure.length === 0) {
+                    setPreviewEdge(g, from, 'end');
+                  }
+                  if (steps[to].precedingSteps.length === 1 && steps[to].precedingFailSteps.length === 0) {
+                    setPreviewEdge(g, 'start', to);
+                  }
               }
-              if (steps[to].precedingSteps.length === 1) {
-                setPreviewEdge(g, 'start', to);
+              render(true);
+            });
+            scope.$on('WfRemoveFailureEdgePreview', function (event, from, to) {
+              console.debug('WfRemoveEdgePreview event received : ' + event + ', from:' + from + ', to:' + to);
+              g.removeEdge(from, to);
+              if (steps[from].onSuccess.includes(to)) {
+                setPreviewNormalEdge(g,from,to);
+              } else {
+                  if (steps[from].onFailure.length === 1 && steps[from].onSuccess.length === 0 ) {
+                    setPreviewEdge(g, from, 'end');
+                  }
+                  if (steps[to].precedingFailSteps.length === 1 && steps[to].precedingSteps.length === 0) {
+                    setPreviewEdge(g, 'start', to);
+                  }
               }
               render(true);
             });
@@ -275,6 +348,17 @@ define(function (require) {
                 for (var j = 0; j < to.length; j++) {
                   g.removeEdge('start', to[j]);
                   setPreviewEdge(g, from[i], to[j]);
+                }
+              }
+              render(true);
+            });
+            scope.$on('WfFailPreview', function (event, from, to) {
+              console.debug('WfFailPreview event received : ' + event + ', from:' + from + ', to:' + to);
+              for (var i = 0; i < from.length; i++) {
+                g.removeEdge(from[i], 'end');
+                for (var j = 0; j < to.length; j++) {
+                  g.removeEdge('start', to[j]);
+                  setPreviewFailEdge(g, from[i], to[j]);
                 }
               }
               render(true);
