@@ -25,8 +25,8 @@ define(function (require) {
               // add all edges from the unprocessed node (not connected to end).
               var edges = graph.outEdges(nodeKey);
               _.each(edges, function(edge) {
-                var edgeData = graph.edge(edge.v, edge.w);
-                simpleGraph.setEdge(edge.v, edge.w, edgeData);
+                var edgeData = graph.edge(edge.v, edge.w, edge.name);
+                simpleGraph.setEdge(edge.v, edge.w, edgeData, edge.name );
               });
             }
           });
@@ -93,12 +93,12 @@ define(function (require) {
             // add edges to graph
             var edges = graph.outEdges(nodeKey);
             _.each(edges, function(edge) {
-              var edgeData = graph.edge(edge.v, edge.w);
+              var edgeData = graph.edge(edge.v, edge.w, edge.name);
               var mergeId = graph.node(edge.w).mergeId;
               if(_.undefined(mergeId)) {
                 mergeId = edge.w;
               }
-              simpleGraph.setEdge(edge.v, mergeId, edgeData);
+              simpleGraph.setEdge(edge.v, mergeId, edgeData, edge.name);
             });
           }
           var predecessors = graph.predecessors(nodeKey);
@@ -154,30 +154,58 @@ define(function (require) {
         unwrapEdges: function(wrappedGraph, initialGraph) {
           var unwrappedEdges = [];
           _.each(initialGraph.edges(), function(edgeDef) {
-            var edge = wrappedGraph.edge(edgeDef.v, edgeDef.w);
+            var edge = wrappedGraph.edge(edgeDef.v, edgeDef.w, edgeDef.name);
             if(_.undefined(edge)) {
-              var initialEdge = initialGraph.edge(edgeDef.v, edgeDef.w);
+              var initialEdge = initialGraph.edge(edgeDef.v, edgeDef.w, edgeDef.name);
               initialEdge.source = wrappedGraph.node(edgeDef.v);
               initialEdge.target = wrappedGraph.node(edgeDef.w);
-              wrappedGraph.setEdge(edgeDef.v, edgeDef.w, initialEdge);
-              unwrappedEdges.push(initialEdge);
+              wrappedGraph.setEdge(edgeDef.v, edgeDef.w, initialEdge, edgeDef.name);
+              //unwrappedEdges.push(initialEdge);
+              unwrappedEdges.push(edgeDef);
             }
           });
-          _.each(unwrappedEdges, function(edge) {
-            // compute inflexion point by getting the minX of the source successors
-            var outEdges = wrappedGraph.outEdges(edge.source.id);
+
+          _.each(unwrappedEdges, function(edgeDef) {
+            var outEdges = wrappedGraph.outEdges(edgeDef.v);
+            var edge = wrappedGraph.edge(edgeDef.v, edgeDef.w, edgeDef.name);
             var minX = edge.target.x;
+            var idx = 0;
+            var delta = 0;
+            var points;
+
             _.each(outEdges, function(outEdgeDef) {
               var targetNode = wrappedGraph.node(outEdgeDef.w);
               minX = Math.min(minX, targetNode.x - edge.target.width/2);
             });
 
-            var points = [
-              {x: edge.source.x + edge.source.width/2, y: edge.source.y},
-              {x: minX - 15, y: edge.source.y},
-              {x: minX - 5, y: edge.target.y},
-              {x: edge.target.x - edge.target.width/2, y: edge.target.y}
-            ];
+            var siblings = wrappedGraph.outEdges(edgeDef.v,edgeDef.w);
+            for (; idx < siblings.length ; idx++) {
+                                if (siblings[idx].name == edgeDef.name) break;
+            }
+
+            if (siblings.length == 2) {
+                var sy = edge.source.y - edge.source.height /2 + idx * edge.source.height;
+                var ty = edge.target.y - edge.target.height /2 + idx * edge.target.height;
+
+                points = [
+                  {x: edge.source.x + edge.source.width/2 - 5, y: sy },
+                  {x: minX - 10, y: (sy + ty)/2 + (idx*2 -1) * 10},
+                  {x: edge.target.x - edge.target.width/2 + 5, y: ty }
+                ];
+            } else {
+
+                if (siblings.length > 1) {
+                    delta = idx * 20 - siblings.length * 10 + 10;
+                }
+
+                points = [
+                  {x: edge.source.x + edge.source.width/2, y: edge.source.y + delta / 2},
+                  {x: minX - 15, y: edge.source.y + delta / 2},
+                  {x: minX - 10, y: (edge.target.y + edge.source.y)/2+delta},
+                  {x: minX - 5, y: edge.target.y + delta /2 },
+                  {x: edge.target.x - edge.target.width/2, y: edge.target.y + delta / 2}
+                ];
+            }
             edge.points = points;
           });
         }

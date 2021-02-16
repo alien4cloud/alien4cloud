@@ -167,23 +167,12 @@
             </div>
               <div>
                 <a class="btn btn-default btn-md"
-                  ng-if="workflows.hasConnectEdge()"
-                  ng-mouseover="workflows.removeEdgePreview(wfPinnedEdge.from, wfPinnedEdge.to)"
+                  ng-mouseover="workflows.removeEdgePreview(wfPinnedEdge.from, wfPinnedEdge.to, wfPinnedEdge.name)"
                   ng-mouseleave="workflows.resetPreview()"
                   confirm="{{'CONFIRM_MESSAGE' | translate}}"
                   confirm-title="{{'CONFIRM' | translate }}"
-                  confirm-handler="workflows.removeEdge(wfPinnedEdge.from, wfPinnedEdge.to)"
+                  confirm-handler="workflows.removeEdge(wfPinnedEdge.from, wfPinnedEdge.to, wfPinnedEdge.name)"
                   confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnect' | translate}}</a>
-              </div>
-              <div>
-                <a class="btn btn-default btn-md"
-                  ng-if="workflows.hasFailureEdge()"
-                  ng-mouseover="workflows.removeFailureEdgePreview(wfPinnedEdge.from, wfPinnedEdge.to)"
-                  ng-mouseleave="workflows.resetPreview()"
-                  confirm="{{'CONFIRM_MESSAGE' | translate}}"
-                  confirm-title="{{'CONFIRM' | translate }}"
-                  confirm-handler="workflows.removeFailureEdge(wfPinnedEdge.from, wfPinnedEdge.to)"
-                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectFail' | translate}}</a>
               </div>
           </div>
           <!-- The pinned step to be edited -->

@@ -113,15 +113,11 @@ define(function (require) {
           }
           this.scope.$digest();
         },
-        togglePinEdge: function (from, to) {
-          if (this.scope.wfPinnedEdge) {
-            if (this.scope.wfPinnedEdge.from === from && this.scope.wfPinnedEdge.to === to) {
-              this.scope.wfPinnedEdge = undefined;
-            } else {
-              this.scope.wfPinnedEdge = {'from': from, 'to': to};
-            }
+        togglePinEdge: function (from, to,name) {
+          if (this.scope.wfPinnedEdge && this.scope.wfPinnedEdge.from === from && this.scope.wfPinnedEdge.to === to && this.scope.wfPinnedEdge.name === name) {
+            this.scope.wfPinnedEdge = undefined;
           } else {
-            this.scope.wfPinnedEdge = {'from': from, 'to': to};
+            this.scope.wfPinnedEdge = {'from': from, 'to': to, 'name': name };
           }
           this.scope.$digest();
           this.refreshGraph();
@@ -136,26 +132,6 @@ define(function (require) {
           } else {
             return false;
           }
-        },
-        hasConnectEdge: function() {
-            var wf = this.scope.topology.topology.workflows[this.scope.currentWorkflowName];
-            if (this.scope.wfPinnedEdge) {
-                var fs = wf.steps[this.scope.wfPinnedEdge.from];
-                if (fs && fs.onSuccess.includes(this.scope.wfPinnedEdge.to)) {
-                    return true;
-                }
-            }
-            return false;
-        },
-        hasFailureEdge: function() {
-            var wf = this.scope.topology.topology.workflows[this.scope.currentWorkflowName];
-            if (this.scope.wfPinnedEdge) {
-                var fs = wf.steps[this.scope.wfPinnedEdge.from];
-                if (fs && fs.onFailure.includes(this.scope.wfPinnedEdge.to)) {
-                    return true;
-                }
-            }
-            return false;
         },
         // include or exclude this step from the selection
         toggleStepSelection: function (stepId) {
@@ -423,39 +399,17 @@ define(function (require) {
             }
           );
         },
-        removeEdge: function (from, to) {
+        removeEdge: function (from, to, name) {
           var scope = this.scope;
           var instance = this;
+          var operation = 'org.alien4cloud.tosca.editor.operations.workflow.RemoveEdgeOperation';
+
+          if (name === 'failure') {
+            operation = 'org.alien4cloud.tosca.editor.operations.workflow.RemoveFailureEdgeOperation';
+          }
+
           this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.workflow.RemoveEdgeOperation',
-              fromStepId: from,
-              toStepId: to,
-              workflowName: scope.currentWorkflowName
-            },
-            function (successResult) {
-              if (!successResult.error) {
-                if (scope.pinnedWorkflowStep) {
-                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
-                }
-                if (instance.isEdgePinned(from, to)) {
-                  scope.wfPinnedEdge = undefined;
-                }
-                instance.refreshGraph(true, true);
-                console.debug('operation succeded');
-              } else {
-                console.debug(successResult.error);
-              }
-            },
-            function (errorResult) {
-              console.debug(errorResult);
-            }
-          );
-        },
-       removeFailureEdge: function (from, to) {
-          var scope = this.scope;
-          var instance = this;
-          this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.workflow.RemoveFailureEdgeOperation',
+              type: operation,
               fromStepId: from,
               toStepId: to,
               workflowName: scope.currentWorkflowName
@@ -754,8 +708,8 @@ define(function (require) {
         removeStepPreview: function (stepId) {
           this.scope.$broadcast('WfRemoveStepPreview', stepId);
         },
-        removeEdgePreview: function (from, to) {
-          this.scope.$broadcast('WfRemoveEdgePreview', from, to);
+        removeEdgePreview: function (from, to, name) {
+          this.scope.$broadcast('WfRemoveEdgePreview', from, to, name);
         },
         removeFailureEdgePreview: function (from, to) {
           this.scope.$broadcast('WfRemoveFailureEdgePreview', from, to);

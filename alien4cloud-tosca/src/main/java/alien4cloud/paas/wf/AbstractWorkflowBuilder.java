@@ -61,7 +61,7 @@ public abstract class AbstractWorkflowBuilder {
         fromStep.removeFollowingFailure(to);
         toStep.removePrecedingFailure(from);
     }
-    
+
     void connectStepFrom(Workflow wf, String stepId, String[] stepNames) {
         WorkflowStep to = wf.getSteps().get(stepId);
         if (to == null) {
@@ -146,9 +146,11 @@ public abstract class AbstractWorkflowBuilder {
     private void insertActivityStep(Workflow wf, String stepId, String target, String targetRelationship, AbstractWorkflowActivity activity) {
         WorkflowStep lastStep = wf.getSteps().get(stepId);
         String stepBeforeId = null;
-        if (lastStep.getPrecedingSteps() != null && lastStep.getPrecedingSteps().size() == 1) {
+        if (lastStep.getPrecedingSteps() != null && lastStep.getPrecedingSteps().size() == 1
+                && (lastStep.getPrecedingFailSteps() == null || lastStep.getPrecedingFailSteps().size() == 0)) {
             stepBeforeId = lastStep.getPrecedingSteps().iterator().next();
         }
+
         WorkflowStep insertedStep = addActivityStep(wf, target, targetRelationship, activity);
         WorkflowUtils.linkSteps(insertedStep, lastStep);
         if (stepBeforeId != null) {
@@ -161,7 +163,8 @@ public abstract class AbstractWorkflowBuilder {
     private void appendActivityStep(Workflow wf, String stepId, String target, String targetRelationship, AbstractWorkflowActivity activity) {
         WorkflowStep lastStep = wf.getSteps().get(stepId);
         String stepAfterId = null;
-        if (lastStep.getOnSuccess() != null && lastStep.getOnSuccess().size() == 1) {
+        if (lastStep.getOnSuccess() != null && lastStep.getOnSuccess().size() == 1
+                && (lastStep.getOnFailure() == null || lastStep.getOnFailure().size() == 0) ) {
             stepAfterId = lastStep.getOnSuccess().iterator().next();
         }
         WorkflowStep insertedStep = addActivityStep(wf, target, targetRelationship, activity);

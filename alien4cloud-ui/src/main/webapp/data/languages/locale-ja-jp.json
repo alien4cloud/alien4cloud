@@ -382,7 +382,6 @@
       "currentSelection" : "Success selection",
       "delegateWorkflow" : "Workflow",
       "disconnect" : "Disconnect",
-      "disconnectFail" : "Disconnect on failure",
       "disconnectFrom" : "Disconnect from",
       "disconnectTo" : "Disconnect to",
       "errors" : {

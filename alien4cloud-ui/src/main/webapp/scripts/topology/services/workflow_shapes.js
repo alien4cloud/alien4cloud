@@ -176,7 +176,7 @@ define(function (require) {
           parent.on('click', function (edge) {
             if (edge.source.id !== 'start' && edge.target.id !== 'end') {
               // edge connected to start or end are no editable
-              self.scope.workflows.togglePinEdge(edge.source.id, edge.target.id);
+              self.scope.workflows.togglePinEdge(edge.source.id, edge.target.id, edge.name);
             }
           });
         },
@@ -189,7 +189,7 @@ define(function (require) {
           });
           path.attr('style', function(e) {
             if (e.pinnedStyle && self.scope.wfPinnedEdge) {
-              if (self.scope.wfPinnedEdge.from === e.source.id && self.scope.wfPinnedEdge.to === e.target.id) {
+              if (self.scope.wfPinnedEdge.from === e.source.id && self.scope.wfPinnedEdge.to === e.target.id && self.scope.wfPinnedEdge.name === e.name) {
                 return e.pinnedStyle;
               }
             }
@@ -197,7 +197,7 @@ define(function (require) {
           });
           path.attr('marker-end', function(e) {
             if (e.pinnedStyle && self.scope.wfPinnedEdge) {
-              if (self.scope.wfPinnedEdge.from === e.source.id && self.scope.wfPinnedEdge.to === e.target.id) {
+              if (self.scope.wfPinnedEdge.from === e.source.id && self.scope.wfPinnedEdge.to === e.target.id && self.scope.wfPinnedEdge.name === e.name) {
                 return 'url(#'+e.marker+'-pinned)';
               }
             }

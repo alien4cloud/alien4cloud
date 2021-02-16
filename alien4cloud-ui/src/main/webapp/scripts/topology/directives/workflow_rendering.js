@@ -97,7 +97,8 @@ define(function (require) {
                 arrowhead: 'vee',
                 style: 'stroke: black; stroke-width: 1.5px;',
                 pinnedStyle: 'stroke: black; stroke-width: 5px;',
-                marker: 'arrow-standard'
+                marker: 'arrow-standard',
+                name: 'success'
               };
               if (errorRenderingData.cycles[from] && _.contains(errorRenderingData.cycles[from], to)) {
                 // the edge is in a cycle, make it red
@@ -109,7 +110,7 @@ define(function (require) {
                   marker: 'arrow-error'
                 };
               }
-              g.setEdge(from, to, style);
+              g.setEdge(from, to, style , "success");
             }
 
             function appendFailureEdge(g, from, to) {
@@ -118,7 +119,8 @@ define(function (require) {
                 arrowhead: 'vee',
                 style: 'stroke: #fa0; stroke-width: 1.5px;',
                 pinnedStyle: 'stroke: #fa0; stroke-width: 5px;',
-                marker: 'arrow-failure'
+                marker: 'arrow-failure',
+                name: 'failure'
               };
               if (errorRenderingData.cycles[from] && _.contains(errorRenderingData.cycles[from], to)) {
                 // the edge is in a cycle, make it red
@@ -130,7 +132,7 @@ define(function (require) {
                   marker: 'arrow-error'
                 };
               }
-              g.setEdge(from, to, style);
+              g.setEdge(from, to, style, "failure");
             }
 
             function refresh() {
@@ -266,7 +268,7 @@ define(function (require) {
                 lineInterpolate: 'basis',
                 style: 'stroke: blue; stroke-width: 3px; stroke-dasharray: 5, 5;',
                 marker: 'arrow-preview'
-              });
+              },'success');
             }
 
             // preview events registering
@@ -275,7 +277,7 @@ define(function (require) {
                 lineInterpolate: 'basis',
                 style: 'stroke: #fa0; stroke-width: 3px; stroke-dasharray: 5, 5;',
                 marker: 'arrow-failure'
-              });
+              },'failure');
             }
 
             function setPreviewNormalEdge(g, from, to) {
@@ -307,34 +309,17 @@ define(function (require) {
                 height: 45
               });
             }
-            scope.$on('WfRemoveEdgePreview', function (event, from, to) {
-              console.debug('WfRemoveEdgePreview event received : ' + event + ', from:' + from + ', to:' + to);
-              g.removeEdge(from, to);
-              if (steps[from].onFailure.includes(to)) {
-                setPreviewFailNormalEdge(g, from , to);
-              } else {
-                  if (steps[from].onSuccess.length === 1 && steps[from].onFailure.length === 0) {
-                    setPreviewEdge(g, from, 'end');
-                  }
-                  if (steps[to].precedingSteps.length === 1 && steps[to].precedingFailSteps.length === 0) {
-                    setPreviewEdge(g, 'start', to);
-                  }
+            scope.$on('WfRemoveEdgePreview', function (event, from, to, name) {
+              console.debug('WfRemoveEdgePreview event received : ' + event + ', from:' + from + ', to:' + to + ', name:' + name);
+              g.removeEdge(from, to, name);
+
+              if (steps[from].onSuccess.length + steps[from].onFailure.length === 1) {
+                  setPreviewEdge(g, from, 'end');
               }
-              render(true);
-            });
-            scope.$on('WfRemoveFailureEdgePreview', function (event, from, to) {
-              console.debug('WfRemoveEdgePreview event received : ' + event + ', from:' + from + ', to:' + to);
-              g.removeEdge(from, to);
-              if (steps[from].onSuccess.includes(to)) {
-                setPreviewNormalEdge(g,from,to);
-              } else {
-                  if (steps[from].onFailure.length === 1 && steps[from].onSuccess.length === 0 ) {
-                    setPreviewEdge(g, from, 'end');
-                  }
-                  if (steps[to].precedingFailSteps.length === 1 && steps[to].precedingSteps.length === 0) {
-                    setPreviewEdge(g, 'start', to);
-                  }
+              if (steps[to].precedingSteps.length + steps[to].precedingFailSteps.length === 1) {
+                 setPreviewEdge(g, 'start', to);
               }
+
               render(true);
             });
             scope.$on('WfResetPreview', function (event) {
@@ -344,9 +329,9 @@ define(function (require) {
             scope.$on('WfConnectPreview', function (event, from, to) {
               console.debug('WfConnectPreview event received : ' + event + ', from:' + from + ', to:' + to);
               for (var i = 0; i < from.length; i++) {
-                g.removeEdge(from[i], 'end');
+                g.removeEdge(from[i], 'end', 'success');
                 for (var j = 0; j < to.length; j++) {
-                  g.removeEdge('start', to[j]);
+                  g.removeEdge('start', to[j], 'success');
                   setPreviewEdge(g, from[i], to[j]);
                 }
               }
@@ -355,9 +340,9 @@ define(function (require) {
             scope.$on('WfFailPreview', function (event, from, to) {
               console.debug('WfFailPreview event received : ' + event + ', from:' + from + ', to:' + to);
               for (var i = 0; i < from.length; i++) {
-                g.removeEdge(from[i], 'end');
+                g.removeEdge(from[i], 'end', 'success');
                 for (var j = 0; j < to.length; j++) {
-                  g.removeEdge('start', to[j]);
+                  g.removeEdge('start', to[j], 'success');
                   setPreviewFailEdge(g, from[i], to[j]);
                 }
               }
@@ -368,22 +353,23 @@ define(function (require) {
               setPreviewEdge(g, 'start', 'a4cPreviewNewStep');
               setPreviewEdge(g, 'a4cPreviewNewStep', 'end');
               if (_.size(steps) === 0) {
-                g.removeEdge('start', 'end');
+                g.removeEdge('start', 'end', 'success');
               }
               render(true);
             });
             scope.$on('WfInsertStepPreview', function (event, stepId) {
               console.debug('WfInsertStepPreview event received : ' + event + ', stepId:' + stepId);
               setPreviewNode(g);
-              var precedingStep;
-              if (steps[stepId].precedingSteps.length === 0) {
-                precedingStep = 'start';
-              } else if (steps[stepId].precedingSteps.length === 1) {
-                precedingStep = steps[stepId].precedingSteps[0];
-              }
-              if (precedingStep) {
-                g.removeEdge(precedingStep, stepId);
-                setPreviewEdge(g, precedingStep, 'a4cPreviewNewStep');
+              if (steps[stepId].precedingSteps.length + steps[stepId].precedingFailSteps.length == 0) {
+                g.removeEdge('start',stepId,'success');
+                setPreviewEdge(g, 'start', 'a4cPreviewNewStep');
+              } else{
+                if (steps[stepId].precedingSteps.length == 1 && steps[stepId].precedingFailSteps.length == 0) {
+                    g.removeEdge(steps[stepId].precedingSteps[0],stepId,'success');
+                    setPreviewEdge(g,steps[stepId].precedingSteps[0],'a4cPreviewNewStep');
+                } else {
+                    setPreviewEdge(g, 'start' , 'a4cPreviewNewStep');
+                }
               }
               setPreviewEdge(g, 'a4cPreviewNewStep', stepId);
               render(true);
@@ -391,15 +377,16 @@ define(function (require) {
             scope.$on('WfAppendStepPreview', function (event, stepId) {
               console.debug('WfAppendStepPreview event received : ' + event + ', stepId:' + stepId);
               setPreviewNode(g);
-              var followingStep;
-              if (steps[stepId].onSuccess.length === 0) {
-                followingStep = 'end';
-              } else if (steps[stepId].onSuccess.length === 1) {
-                followingStep = steps[stepId].onSuccess[0];
-              }
-              if (followingStep) {
-                g.removeEdge(stepId, followingStep);
-                setPreviewEdge(g, 'a4cPreviewNewStep', followingStep);
+              if (steps[stepId].onSuccess.length + steps[stepId].onFailure.length == 0) {
+                g.removeEdge(stepId,'end','success');
+                setPreviewEdge(g, 'a4cPreviewNewStep', 'end');
+              } else {
+                if (steps[stepId].onSuccess.length == 1 && steps[stepId].onFailure.length == 0) {
+                    g.removeEdge(stepId,steps[stepId].onSuccess[0],'success');
+                    setPreviewEdge(g,'a4cPreviewNewStep',steps[stepId].onSuccess[0]);
+                } else {
+                    setPreviewEdge(g, 'a4cPreviewNewStep', 'end');
+                }
               }
               setPreviewEdge(g, stepId, 'a4cPreviewNewStep');
               render(true);

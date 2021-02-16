@@ -384,7 +384,6 @@
       "currentSelection" : "Sélection courrante",
       "delegateWorkflow" : "Workflow",
       "disconnect" : "Déconnecter",
-      "disconnectFail" : "Déconnecter sur echec",
       "disconnectFrom" : "Déconnecter depuis",
       "disconnectTo" : "Déconnecter vers",
       "errors" : {

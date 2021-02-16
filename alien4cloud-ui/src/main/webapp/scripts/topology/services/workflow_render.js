@@ -14,7 +14,8 @@ define(function (require) {
         // Create the renderer
         createGraph: function() {
           var graph = new dagre.graphlib.Graph({
-            compound : true
+            compound : true,
+            multigraph : true
           }).setGraph({}).setDefaultEdgeLabel(function() {
             return {};
           });
@@ -152,7 +153,7 @@ define(function (require) {
           var instance = this;
           var edges = [];
           _.each(graph.edges(), function(edgeDef) {
-            var edge = graph.edge(edgeDef.v, edgeDef.w);
+            var edge = graph.edge(edgeDef.v, edgeDef.w, edgeDef.name);
             edge.id = instance.edgeToId(edgeDef);
             edge.source = graph.node(edgeDef.v);
             edge.target = graph.node(edgeDef.w);

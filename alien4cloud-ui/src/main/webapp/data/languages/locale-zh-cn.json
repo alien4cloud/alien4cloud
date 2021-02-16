@@ -381,7 +381,6 @@
       "currentSelection" : "当前选中的",
       "delegateWorkflow" : "工作流",
       "disconnect" : "断开连接的",
-      "disconnectFail" : "Disconnect on failure",
       "disconnectFrom" : "从断开",
       "disconnectTo" : "断开到",
       "errors" : {
