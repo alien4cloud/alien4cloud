@@ -4,7 +4,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.events.BeforeDeploymentUndeployedEvent;
 import org.alien4cloud.secret.services.SecretProviderService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +39,8 @@ public class UndeployService {
     private SecretProviderService secretProviderService;
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
+    @Inject
+    private ApplicationEventPublisher eventPublisher;
 
     /**
      * Un-deploy a deployment object
@@ -68,6 +72,7 @@ public class UndeployService {
     }
 
     private void undeploy(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, final Deployment deployment,boolean force) {
+        eventPublisher.publishEvent(new BeforeDeploymentUndeployedEvent(this, deployment.getId()));
         deploymentLockService.doWithDeploymentWriteLock(deployment.getOrchestratorDeploymentId(), () -> {
             log.info("Un-deploying deployment [{}] on orchestrator [{}]", deployment.getId(), deployment.getOrchestratorId());
             IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
