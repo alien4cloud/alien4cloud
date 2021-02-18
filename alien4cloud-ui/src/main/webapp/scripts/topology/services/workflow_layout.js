@@ -117,7 +117,7 @@ define(function (require) {
           var successorsProcessed = true;
           if(_.defined(successors)) {
             _.each(successors, function(successorKey) {
-              if(!graph.node(successorKey).unwraped) {
+              if(!graph.node(successorKey) || !graph.node(successorKey).unwraped) {
                 successorsProcessed = false;
               }
             });

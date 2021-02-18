@@ -15,6 +15,6 @@ public class FailStepToOperation extends AbstractWorkflowOperation {
 
     @Override
     public String commitMessage() {
-        return "Add onFailure link from step <" + getFromStepId() + "> to steps <" + StringUtils.join(getToStepIds(), ",") + "> in the workflow <" + getWorkflowName() + ">";
+        return "Add onFailure links from step <" + getFromStepId() + "> to steps <" + StringUtils.join(getToStepIds(), ",") + "> in the workflow <" + getWorkflowName() + ">";
     }
 }

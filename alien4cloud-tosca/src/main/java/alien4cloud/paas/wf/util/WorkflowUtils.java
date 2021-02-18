@@ -198,6 +198,11 @@ public class WorkflowUtils {
         to.removePreceding(from.getName());
     }
 
+    public static void unlinkOnFailureSteps(WorkflowStep from, WorkflowStep to) {
+        from.removeFollowingFailure(to.getName());
+        to.removePrecedingFailure(from.getName());
+    }
+
     public static void linkStepsWithOnFailure(WorkflowStep from, WorkflowStep to) {
         if (from != null && to != null) {
             from.addOnFailure(to.getName());
@@ -234,6 +239,19 @@ public class WorkflowUtils {
             for (Object followingId : step.getOnSuccess().toArray()) {
                 WorkflowStep following = wf.getSteps().get(followingId);
                 unlinkSteps(step, following);
+            }
+        }
+        if (step.getPrecedingFailSteps() != null) {
+            for (Object precedingId : step.getPrecedingFailSteps().toArray()) {
+                WorkflowStep preceding = wf.getSteps().get(precedingId);
+                unlinkOnFailureSteps(preceding,step);
+            }
+        }
+
+        if (step.getOnFailure() != null) {
+            for (Object followingId : step.getOnFailure().toArray()) {
+                WorkflowStep following = wf.getSteps().get(followingId);
+                unlinkOnFailureSteps(step, following);
             }
         }
     }

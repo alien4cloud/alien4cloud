@@ -305,6 +305,18 @@ public class WorkflowsBuilderService {
         return wf;
     }
 
+    public Workflow failStepFrom(Topology topology, Csar csar, String workflowName, String stepId, String[] stepNames) {
+        TopologyContext topologyContext = buildTopologyContext(topology, csar);
+        Workflow wf = topology.getWorkflows().get(workflowName);
+        if (wf == null) {
+            throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
+        }
+        AbstractWorkflowBuilder builder = getWorkflowBuilder(topologyContext.getDSLVersion(), wf);
+        builder.failStepFrom(wf, stepId, stepNames);
+        workflowValidator.validate(topologyContext, wf);
+        return wf;
+    }
+
     private AbstractWorkflowBuilder getWorkflowBuilder(String dslVersion, Workflow workflow) {
         if (workflow.isStandard()) {
             if (dslVersion == null || !this.defaultDeclarativeWorkflowsPerDslVersion.containsKey(dslVersion)) {

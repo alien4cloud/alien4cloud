@@ -9,12 +9,13 @@ import org.hibernate.validator.constraints.NotBlank;
 @Setter
 public class FailStepFromOperation extends AbstractWorkflowOperation {
     @NotBlank
-    private String fromStepId;
+    private String toStepId;
 
-    private String[] toStepIds;
+    private String[] fromStepIds;
 
     @Override
     public String commitMessage() {
-        return "Add onFailure link from step <" + getFromStepId() + "> to steps <" + StringUtils.join(getToStepIds(), ",") + "> in the workflow <" + getWorkflowName() + ">";
+        return "Add onFailure links from steps <" + StringUtils.join(getFromStepIds(), ",") + "> to step <" + getToStepId() + "> in the workflow <" + getWorkflowName() + ">";
     }
+
 }

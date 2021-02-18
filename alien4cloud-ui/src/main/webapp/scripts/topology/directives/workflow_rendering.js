@@ -101,12 +101,12 @@ define(function (require) {
                 name: 'success'
               };
               if (errorRenderingData.cycles[from] && _.contains(errorRenderingData.cycles[from], to)) {
-                // the edge is in a cycle, make it red
+                // the edge is in a cycle, mark it
                 style = {
                   lineInterpolate: 'basis',
                   arrowhead: 'vee',
-                  style: 'stroke: #f66; stroke-width: 1.5px;',
-                  pinnedStyle: 'stroke: black; stroke-width: 5px;',
+                  style: 'stroke: #9B59B6 ; stroke-width: 1.5px;',
+                  pinnedStyle: 'stroke: #9B59B6; stroke-width: 5px;',
                   marker: 'arrow-error'
                 };
               }
@@ -117,18 +117,18 @@ define(function (require) {
               var style = {
                 lineInterpolate: 'basis',
                 arrowhead: 'vee',
-                style: 'stroke: #fa0; stroke-width: 1.5px;',
-                pinnedStyle: 'stroke: #fa0; stroke-width: 5px;',
+                style: 'stroke: #E74C3C; stroke-width: 1.5px;',
+                pinnedStyle: 'stroke: #E74C3C; stroke-width: 5px;',
                 marker: 'arrow-failure',
                 name: 'failure'
               };
               if (errorRenderingData.cycles[from] && _.contains(errorRenderingData.cycles[from], to)) {
-                // the edge is in a cycle, make it red
+                // the edge is in a cycle, mark it
                 style = {
                   lineInterpolate: 'basis',
                   arrowhead: 'vee',
-                  style: 'stroke: #f66; stroke-width: 1.5px;',
-                  pinnedStyle: 'stroke: black; stroke-width: 5px;',
+                  style: 'stroke: #9B59B6; stroke-width: 1.5px;',
+                  pinnedStyle: 'stroke: #9B59B6; stroke-width: 5px;',
                   marker: 'arrow-error'
                 };
               }
@@ -250,6 +250,12 @@ define(function (require) {
               return html;
             };
 
+            function countLinks(sourceStep,targetStep) {
+              var cnt = 0;
+              cnt += steps[sourceStep].onSuccess.includes(targetStep) ? 1 : 0;
+              cnt += steps[sourceStep].onFailure.includes(targetStep) ? 1 : 0;
+              return cnt;
+            }
 
             scope.$on('WfRefresh', function (event, args) {
               if (args.layout) {
@@ -275,7 +281,7 @@ define(function (require) {
             function setPreviewFailEdge(g, from, to) {
               g.setEdge(from, to, {
                 lineInterpolate: 'basis',
-                style: 'stroke: #fa0; stroke-width: 3px; stroke-dasharray: 5, 5;',
+                style: 'stroke: #E74C3C; stroke-width: 3px; stroke-dasharray: 5, 5;',
                 marker: 'arrow-failure'
               },'failure');
             }
@@ -294,8 +300,8 @@ define(function (require) {
               g.setEdge(from, to, {
                 lineInterpolate: 'basis',
                 arrowhead: 'vee',
-                style: 'stroke: #fa0; stroke-width: 1.5px;',
-                pinnedStyle: 'stroke: #fa0; stroke-width: 1.5px;',
+                style: 'stroke: #E74C3C; stroke-width: 1.5px;',
+                pinnedStyle: 'stroke: #E74C3C; stroke-width: 1.5px;',
                 marker: 'arrow-failure-preview'
               });
             }
@@ -395,7 +401,7 @@ define(function (require) {
               console.debug('WfRemoveStepPreview event received : ' + event + ', stepId:' + stepId);
               g.removeNode(stepId);
               var precedingSteps;
-              if (!steps[stepId].precedingSteps || steps[stepId].precedingSteps.length === 0) {
+              if (!steps[stepId].precedingSteps || steps[stepId].precedingSteps.length == 0 ) {
                 precedingSteps = ['start'];
               } else if (steps[stepId].onSuccess) {
                 precedingSteps = steps[stepId].precedingSteps;
@@ -408,11 +414,25 @@ define(function (require) {
               }
               for (var i = 0; i < precedingSteps.length; i++) {
                 for (var j = 0; j < onSuccess.length; j++) {
-                  if (precedingSteps[i] === 'start' && onSuccess[j] === 'end') {
-                    continue;
-                  }
-                  setPreviewEdge(g, precedingSteps[i], onSuccess[j]);
+                  if ((precedingSteps[i] === 'start' && onSuccess[j] === 'end')
+                    || (precedingSteps[i] === 'start' && steps[onSuccess[j]].precedingSteps.length + steps[onSuccess[j]].precedingFailSteps.length - countLinks(stepId,onSuccess[j]) > 0)
+                    || (onSuccess[j] === 'end' && steps[precedingSteps[i]].onSuccess.length + steps[precedingSteps[i]].onFailure.length - countLinks(precedingSteps[i],stepId) > 0)
+                    ) continue;
+
+                 setPreviewEdge(g, precedingSteps[i], onSuccess[j]);
                 }
+              }
+              for (var i = 0 ; i < steps[stepId].onFailure.length; i++) {
+                  var stepName = steps[stepId].onFailure[i];
+                  if (steps[stepName].precedingFailSteps.length == 1 && steps[stepName].precedingSteps.length == 0) {
+                    setPreviewEdge(g,'start',stepName);
+                  }
+              }
+              for (var i = 0 ; i < steps[stepId].precedingFailSteps.length; i++) {
+                  var stepName = steps[stepId].precedingFailSteps[i];
+                  if (steps[stepName].onFailure.length == 1 && steps[stepName].onSuccess.length == 0) {
+                    setPreviewEdge(g,stepName,'end');
+                  }
               }
               render(true);
             });

@@ -239,6 +239,18 @@ define(function (require) {
           }
           return failToCandidate;
         },
+        getFailFromCandidates: function () {
+          var failFromCandidate = [];
+          var step = this.scope.pinnedWorkflowStep;
+          for (var selectedNodeIdx in this.scope.workflowCurrentStepSelection) {
+            var selectedNode = this.scope.workflowCurrentStepSelection[selectedNodeIdx];
+            if (selectedNode !== step.name && step.precedingFailSteps.indexOf(selectedNode) < 0) {
+              // the selected node is not in the preceding steps, we can propose it as 'from connection'
+              failFromCandidate.push(selectedNode);
+            }
+          }
+          return failFromCandidate;
+        },
         // pin or un-pin this step : when a step is pinned it remains the current step until it is un-pinned
         togglePinnedworkflowStep: function (nodeId, step) {
           if (this.scope.pinnedWorkflowStep === step) {
@@ -455,92 +467,70 @@ define(function (require) {
             }
           );
         },
-        connectFrom: function () {
-          var scope = this.scope;
-          var instance = this;
-          var connectFromCandidate = this.getConnectFromCandidates();
-          if (connectFromCandidate.length === 0) {
-            return;
-          }
-          this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.workflow.ConnectStepFromOperation',
-              toStepId: scope.pinnedWorkflowStep.name,
-              workflowName: scope.currentWorkflowName,
-              fromStepIds: connectFromCandidate
-            },
-            function (successResult) {
-              if (!successResult.error) {
-                if (scope.pinnedWorkflowStep) {
-                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
+        doAddEdge: function(operation) {
+            var scope = this.scope;
+            var instance = this;
+
+            this.scope.execute(operation,
+              function (successResult) {
+                if (!successResult.error) {
+                  if (scope.pinnedWorkflowStep) {
+                    instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
+                  }
+                  instance.refreshGraph(true, true);
+                  console.debug('operation succeded');
+                } else {
+                  console.debug(successResult.error);
                 }
-                instance.refreshGraph(true, true);
-                console.debug('operation succeded');
-              } else {
-                console.debug(successResult.error);
+              },
+              function (errorResult) {
+                console.debug(errorResult);
               }
-            },
-            function (errorResult) {
-              console.debug(errorResult);
-            }
-          );
+            );
         },
-        connectTo: function () {
-          var scope = this.scope;
-          var instance = this;
-          var connectToCandidate = this.getConnectToCandidates();
-          if (connectToCandidate.length === 0) {
-            return;
-          }
-          this.scope.execute({
+        connectTo: function() {
+            var candidates = this.getConnectToCandidates();
+            if (candidates.length == 0) return;
+
+            this.doAddEdge({
               type: 'org.alien4cloud.tosca.editor.operations.workflow.ConnectStepToOperation',
-              fromStepId: scope.pinnedWorkflowStep.name,
-              workflowName: scope.currentWorkflowName,
-              toStepIds: connectToCandidate
-            },
-            function (successResult) {
-              if (!successResult.error) {
-                if (scope.pinnedWorkflowStep) {
-                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
-                }
-                instance.refreshGraph(true, true);
-                console.debug('operation succeded');
-              } else {
-                console.debug(successResult.error);
-              }
-            },
-            function (errorResult) {
-              console.debug(errorResult);
-            }
-          );
+              fromStepId: this.scope.pinnedWorkflowStep.name,
+              workflowName: this.scope.currentWorkflowName,
+              toStepIds: candidates
+            });
+        },
+        connectFrom: function () {
+          var candidates = this.getConnectFromCandidates();
+          if (candidates.length == 0) return;
+
+          this.doAddEdge({
+            type: 'org.alien4cloud.tosca.editor.operations.workflow.ConnectStepFromOperation',
+            toStepId: this.scope.pinnedWorkflowStep.name,
+            workflowName: this.scope.currentWorkflowName,
+            fromStepIds: candidates
+          });
         },
         failTo: function () {
-          var scope = this.scope;
-          var instance = this;
-          var failToCandidate = this.getFailToCandidates();
-          if (failToCandidate.length === 0) {
-            return;
-          }
-          this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.workflow.FailStepToOperation',
-              fromStepId: scope.pinnedWorkflowStep.name,
-              workflowName: scope.currentWorkflowName,
-              toStepIds: failToCandidate
-            },
-            function (successResult) {
-              if (!successResult.error) {
-                if (scope.pinnedWorkflowStep) {
-                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
-                }
-                instance.refreshGraph(true, true);
-                console.debug('operation succeded');
-              } else {
-                console.debug(successResult.error);
-              }
-            },
-            function (errorResult) {
-              console.debug(errorResult);
-            }
-          );
+          var candidates = this.getFailToCandidates();
+          if (candidates.length == 0) return;
+
+          this.doAddEdge({
+            type: 'org.alien4cloud.tosca.editor.operations.workflow.FailStepToOperation',
+            fromStepId: this.scope.pinnedWorkflowStep.name,
+            workflowName: this.scope.currentWorkflowName,
+            toStepIds: candidates
+          });
+        },
+        failFrom: function () {
+          var candidates = this.getConnectFromCandidates();
+          if (candidates.length == 0) return;
+
+          this.doAddEdge({
+            type: 'org.alien4cloud.tosca.editor.operations.workflow.FailStepFromOperation',
+            toStepId: this.scope.pinnedWorkflowStep.name,
+            workflowName: this.scope.currentWorkflowName,
+            fromStepIds: candidates
+          });
         },
         swap: function (from, to) {
           var scope = this.scope;
@@ -730,6 +720,12 @@ define(function (require) {
           var candidates = this.getFailToCandidates();
           if (candidates && candidates.length > 0) {
             this.failPreview([this.scope.pinnedWorkflowStep.name], candidates);
+          }
+        },
+        failFromPreview: function () {
+          var candidates = this.getFailFromCandidates();
+          if (candidates && candidates.length > 0) {
+            this.failPreview(candidates, [this.scope.pinnedWorkflowStep.name]);
           }
         },
         swapPreview: function (from, to) {

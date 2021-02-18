@@ -198,26 +198,42 @@
               </div>
             </div>
 
-              <div
-                ng-repeat="precedingNodeId in pinnedWorkflowStep.precedingSteps">
+              <div ng-repeat="precedingNodeId in pinnedWorkflowStep.precedingSteps">
                 <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.removeEdgePreview(precedingNodeId, pinnedWorkflowStep.name)"
+                  ng-mouseover="workflows.removeEdgePreview(precedingNodeId, pinnedWorkflowStep.name, 'success')"
                   ng-mouseleave="workflows.resetPreview()"
                   confirm="{{'CONFIRM_MESSAGE' | translate}}"
                   confirm-title="{{'CONFIRM' | translate }}"
-                  confirm-handler="workflows.removeEdge(precedingNodeId, pinnedWorkflowStep.name)"
+                  confirm-handler="workflows.removeEdge(precedingNodeId, pinnedWorkflowStep.name, 'success')"
                   confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectFrom' | translate}} {{precedingNodeId}}</a>
               </div>
-              <div
-                ng-repeat="followingNodeId in pinnedWorkflowStep.onSuccess">
+              <div ng-repeat="followingNodeId in pinnedWorkflowStep.onSuccess">
                 <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.removeEdgePreview(pinnedWorkflowStep.name, followingNodeId)"
+                  ng-mouseover="workflows.removeEdgePreview(pinnedWorkflowStep.name, followingNodeId,'success')"
                   ng-mouseleave="workflows.resetPreview()"
                   confirm="{{'CONFIRM_MESSAGE' | translate}}"
                   confirm-title="{{'CONFIRM' | translate }}"
-                  confirm-handler="workflows.removeEdge(pinnedWorkflowStep.name, followingNodeId)"
+                  confirm-handler="workflows.removeEdge(pinnedWorkflowStep.name, followingNodeId, 'success')"
                   confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectTo' | translate}} {{followingNodeId}}</a>
               </div>
+            <div ng-repeat="precedingNodeId in pinnedWorkflowStep.precedingFailSteps">
+              <a class="btn btn-default btn-md"
+                 ng-mouseover="workflows.removeEdgePreview(precedingNodeId, pinnedWorkflowStep.name, 'failure')"
+                 ng-mouseleave="workflows.resetPreview()"
+                 confirm="{{'CONFIRM_MESSAGE' | translate}}"
+                 confirm-title="{{'CONFIRM' | translate }}"
+                 confirm-handler="workflows.removeEdge(precedingNodeId, pinnedWorkflowStep.name, 'failure')"
+                 confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectFailureFrom' | translate}} {{precedingNodeId}}</a>
+            </div>
+            <div ng-repeat="followingNodeId in pinnedWorkflowStep.onFailure">
+              <a class="btn btn-default btn-md"
+                 ng-mouseover="workflows.removeEdgePreview(pinnedWorkflowStep.name, followingNodeId,'failure')"
+                 ng-mouseleave="workflows.resetPreview()"
+                 confirm="{{'CONFIRM_MESSAGE' | translate}}"
+                 confirm-title="{{'CONFIRM' | translate }}"
+                 confirm-handler="workflows.removeEdge(pinnedWorkflowStep.name, followingNodeId, 'failure')"
+                 confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectFailureTo' | translate}} {{followingNodeId}}</a>
+            </div>
               <div ng-if="workflowCurrentStepSelection.length > 0">
                 <a class="btn btn-default btn-md"
                   ng-mouseover="workflows.connectFromPreview()"
@@ -238,6 +254,15 @@
               </div>
             <div ng-if="workflowCurrentStepSelection.length > 0">
               <a class="btn btn-default btn-md"
+                 ng-mouseover="workflows.failFromPreview()"
+                 ng-mouseleave="workflows.resetPreview()"
+                 confirm="{{'CONFIRM_MESSAGE' | translate}}"
+                 confirm-title="{{'CONFIRM' | translate }}"
+                 confirm-handler="workflows.failFrom()"
+                 confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.failFromSelection' | translate}}</a>
+            </div>
+            <div ng-if="workflowCurrentStepSelection.length > 0">
+              <a class="btn btn-default btn-md"
                  ng-mouseover="workflows.failToPreview()"
                  ng-mouseleave="workflows.resetPreview()"
                  confirm="{{'CONFIRM_MESSAGE' | translate}}"
@@ -245,8 +270,7 @@
                  confirm-handler="workflows.failTo()"
                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.failToSelection' | translate}}</a>
             </div>
-              <div
-                ng-repeat="precedingNodeId in pinnedWorkflowStep.precedingSteps">
+              <div ng-repeat="precedingNodeId in pinnedWorkflowStep.precedingSteps">
                 <a class="btn btn-default btn-md"
                   ng-mouseover="workflows.swapPreview(precedingNodeId, pinnedWorkflowStep.name)"
                   ng-mouseleave="workflows.resetPreview()"
@@ -255,8 +279,7 @@
                   confirm-handler="workflows.swap(precedingNodeId, pinnedWorkflowStep.name)"
                   confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.swapLeft' | translate}} ({{precedingNodeId}})</a>
               </div>
-              <div
-                ng-repeat="followingNodeId in pinnedWorkflowStep.onSuccess">
+              <div ng-repeat="followingNodeId in pinnedWorkflowStep.onSuccess">
                 <a class="btn btn-default btn-md"
                   ng-mouseover="workflows.swapPreview(pinnedWorkflowStep.name, followingNodeId)"
                   ng-mouseleave="workflows.resetPreview()"

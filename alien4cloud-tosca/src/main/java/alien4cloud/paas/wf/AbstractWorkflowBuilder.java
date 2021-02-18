@@ -102,6 +102,22 @@ public abstract class AbstractWorkflowBuilder {
         }
     }
 
+    void failStepFrom(Workflow wf, String stepId, String[] stepNames) {
+        WorkflowStep to = wf.getSteps().get(stepId);
+        if (to == null) {
+            throw new InconsistentWorkflowException(
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", stepId));
+        }
+        for (String preceding : stepNames) {
+            WorkflowStep precedingStep = wf.getSteps().get(preceding);
+            if (precedingStep == null) {
+                throw new InconsistentWorkflowException(
+                        String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", preceding));
+            }
+            WorkflowUtils.linkStepsWithOnFailure(precedingStep, to);
+        }
+    }
+
     private WorkflowStep addActivityStep(Workflow wf, String target, String targetRelationship, AbstractWorkflowActivity activity) {
         WorkflowStep step;
         if (StringUtils.isEmpty(targetRelationship)) {
