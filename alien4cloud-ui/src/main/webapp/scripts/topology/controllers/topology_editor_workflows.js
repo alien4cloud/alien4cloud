@@ -251,6 +251,22 @@ define(function (require) {
           }
           return failFromCandidate;
         },
+        getSwapRightCandidates: function() {
+            var candidates = [];
+            var step = this.scope.pinnedWorkflowStep;
+            if (step) {
+                candidates = _.union(step.onSuccess,step.onFailure);
+            }
+            return candidates;
+        },
+        getSwapLeftCandidates: function() {
+            var candidates = [];
+            var step = this.scope.pinnedWorkflowStep;
+            if (step) {
+                candidates = _.union(step.precedingSteps,step.precedingFailSteps);
+            }
+            return candidates;
+        },
         // pin or un-pin this step : when a step is pinned it remains the current step until it is un-pinned
         togglePinnedworkflowStep: function (nodeId, step) {
           if (this.scope.pinnedWorkflowStep === step) {

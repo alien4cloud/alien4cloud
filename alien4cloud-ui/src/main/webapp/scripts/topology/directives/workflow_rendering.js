@@ -440,28 +440,46 @@ define(function (require) {
             function swapLinks(from, to) {
               // from's preceding become preceding of to
               var precedingSteps;
-              if (!steps[from].precedingSteps || steps[from].precedingSteps.length === 0) {
+              var precedingFailSteps;
+
+              if (!steps[from].precedingSteps || steps[from].precedingSteps.length + steps[from].precedingFailSteps.length == 0) {
                 precedingSteps = ['start'];
               } else {
                 precedingSteps = steps[from].precedingSteps;
               }
+              precedingFailSteps = steps[from].precedingFailSteps;
+
               for (var i = 0; i < precedingSteps.length; i++) {
-                g.removeEdge(precedingSteps[i], from);
+                g.removeEdge(precedingSteps[i], from, 'success');
                 if (precedingSteps[i] !== to) {
                   setPreviewEdge(g, precedingSteps[i], to);
                 }
               }
+              for (var i = 0; i < steps[from].precedingFailSteps.length; i++) {
+                g.removeEdge(precedingFailSteps[i], from, 'failure');
+                if (precedingFailSteps[i] !== to) {
+                    setPreviewFailEdge(g, precedingFailSteps[i], to);
+                }
+              }
+
               // from's following become following of 'to' (except 'to' itself)
               var onSuccess;
-              if (!steps[from].onSuccess || steps[from].onSuccess.length === 0) {
+              var onFailure = steps[from].onFailure;
+              if (!steps[from].onSuccess || steps[from].onSuccess.length + steps[from].onFailure.length == 0) {
                 onSuccess = ['end'];
               } else {
                 onSuccess = steps[from].onSuccess;
               }
               for (var j = 0; j < onSuccess.length; j++) {
-                g.removeEdge(from, onSuccess[j]);
+                g.removeEdge(from, onSuccess[j] , 'success');
                 if (onSuccess[j] !== to) {
                   setPreviewEdge(g, to, onSuccess[j]);
+                }
+              }
+              for (var j = 0; j < onFailure.length; j++) {
+                g.removeEdge(from,onFailure[j], 'failure');
+                if (onFailure[j] !== to) {
+                  setPreviewFailEdge(g, to, onFailure[j]);
                 }
               }
             }
@@ -469,10 +487,16 @@ define(function (require) {
             // swap steps : connections between both is inversed and each other connections are swapped
             scope.$on('WfSwapPreview', function (event, from, to) {
               console.debug('WfSwapPreview event received : ' + event + ', from:' + from + ', to:' + from);
-              g.removeEdge(from, to);
+              g.removeEdge(from, to, 'success');
+              g.removeEdge(from, to, 'failure');
               swapLinks(from, to);
               swapLinks(to, from);
-              setPreviewEdge(g, to, from);
+              if (steps[from].onSuccess.includes(to)) {
+                setPreviewEdge(g, to, from);
+              }
+              if (steps[from].onFailure.includes(to)) {
+                setPreviewFailEdge(g, to, from);
+              }
               render(true);
             });
           }

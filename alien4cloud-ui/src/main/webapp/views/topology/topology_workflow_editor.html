@@ -270,7 +270,7 @@
                  confirm-handler="workflows.failTo()"
                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.failToSelection' | translate}}</a>
             </div>
-              <div ng-repeat="precedingNodeId in pinnedWorkflowStep.precedingSteps">
+              <div ng-repeat="precedingNodeId in  workflows.getSwapLeftCandidates()">
                 <a class="btn btn-default btn-md"
                   ng-mouseover="workflows.swapPreview(precedingNodeId, pinnedWorkflowStep.name)"
                   ng-mouseleave="workflows.resetPreview()"
@@ -279,14 +279,14 @@
                   confirm-handler="workflows.swap(precedingNodeId, pinnedWorkflowStep.name)"
                   confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.swapLeft' | translate}} ({{precedingNodeId}})</a>
               </div>
-              <div ng-repeat="followingNodeId in pinnedWorkflowStep.onSuccess">
+              <div ng-repeat="followingNodeId in workflows.getSwapRightCandidates()">
                 <a class="btn btn-default btn-md"
                   ng-mouseover="workflows.swapPreview(pinnedWorkflowStep.name, followingNodeId)"
                   ng-mouseleave="workflows.resetPreview()"
                   confirm="{{'CONFIRM_MESSAGE' | translate}}"
                   confirm-title="{{'CONFIRM' | translate }}"
                   confirm-handler="workflows.swap(pinnedWorkflowStep.name, followingNodeId)"
-                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.swapRigth' | translate}} ({{followingNodeId}})</a>
+                  confirm-placement="top" confirm-class="popover" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.swapRight' | translate}} ({{followingNodeId}})</a>
               </div>
               <div>
                 <a class="btn btn-default btn-md"

@@ -407,7 +407,7 @@
       "removeStep" : "Remove step",
       "stateName" : "State",
       "swapLeft" : "Swap to left",
-      "swapRigth" : "Swap to right",
+      "swapRight" : "Swap to right",
       "title" : "Workflows",
       "unpin" : "Unpin",
       "workflow" : "TRANSLATION_IS_REQUIRED"

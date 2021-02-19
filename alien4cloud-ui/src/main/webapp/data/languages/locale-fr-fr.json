@@ -409,7 +409,7 @@
       "removeStep" : "Supprimer le pas",
       "stateName" : "Etat",
       "swapLeft" : "Interchanger à gauche",
-      "swapRigth" : "Interchanger à droite",
+      "swapRight" : "Interchanger à droite",
       "title" : "Workflows",
       "unpin" : "Dévérouiller",
       "workflow" : "Workflow"
