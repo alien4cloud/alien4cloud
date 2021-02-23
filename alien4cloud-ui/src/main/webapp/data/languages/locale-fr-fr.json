@@ -792,6 +792,7 @@
   },
   "DETAILS" : "Détails",
   "EDITOR" : {
+    "AUTO_VALIDATION" : "Auto-Validation",
     "ARTIFACTS" : {
       "REPOS" : {
         "A4C_CSAR" : "CSAR",
