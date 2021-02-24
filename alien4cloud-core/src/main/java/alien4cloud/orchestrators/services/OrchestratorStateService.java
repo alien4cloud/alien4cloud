@@ -12,6 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.events.DeploymentRecoveredEvent;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
@@ -21,7 +22,6 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import org.alien4cloud.tosca.model.CSARDependency;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -232,6 +232,8 @@ public class OrchestratorStateService {
                         // this deployment is not known by the orchestrator, maybe it has been undeployed during downtime
                         log.info("Deployment {} ({}) no longer exists in orchestrator deployments, maybe undeployed during downtime, marking it as undeployed", deployment.getId(), deployment.getOrchestratorDeploymentId());
                         deploymentService.markUndeployed(deployment);
+                    } else {
+                        publisher.publishEvent(new DeploymentRecoveredEvent(this, deployment.getId()));
                     }
                 });
 
