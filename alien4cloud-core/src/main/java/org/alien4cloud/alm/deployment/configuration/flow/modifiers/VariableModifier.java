@@ -99,13 +99,13 @@ public class VariableModifier implements ITopologyModifier {
         PropertyDefinition definition = safe(type.getProperties()).get(entry.getKey());
 
         if (entry.getValue() instanceof ScalarPropertyValue) {
-            log.info("Processing {}", path);
+            log.debug("Processing {}", path);
             entry.setValue((AbstractPropertyValue) processScalar((ScalarPropertyValue) entry.getValue(),definition,path,context));
         } else if (entry.getValue() instanceof ComplexPropertyValue) {
-            log.info("Processing {}[]", path);
+            log.debug("Processing {}[]", path);
             processComplex((ComplexPropertyValue) entry.getValue(),definition,path,context);
         } else if (entry.getValue() instanceof ListPropertyValue) {
-            log.info("Processing {}[]", path);
+            log.debug("Processing {}[]", path);
             processListComplex(((ListPropertyValue) entry.getValue()).getValue(),definition,path,context);
         }
     }
