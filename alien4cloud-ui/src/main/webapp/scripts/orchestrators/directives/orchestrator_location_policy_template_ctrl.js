@@ -32,6 +32,12 @@ define(function(require) {
         });
       };
 
+      $scope.canToggleTemplateMode = true;
+      $scope.toggleTemplateMode = function() {
+        $scope.updateLocationResource('onlyTemplate', !$scope.resourceTemplate.onlyTemplate);
+        $scope.resourceTemplate.onlyTemplate = !$scope.resourceTemplate.onlyTemplate;
+      }
+
       $scope.updateResourceProperty = function(propertyName, propertyValue) {
         return $scope.onPropertyUpdate({
           propertyName: propertyName,

@@ -1173,11 +1173,15 @@
       "RESOURCES" : {
         "BACK" : "Back to catalog",
         "CONFIG" : "Resource configuration",
-        "CONFIG_HELP" : "You can configure the name and properties of the resource template. Defined properties will be immutable, undefined properties can be configured by users before deployment.",
+        "CONFIG_HELP" : "You can configure the name and properties of the resource. Defined properties will be immutable, undefined properties can be configured by users before deployment.",
         "DROP" : "Drop new resources here or on the table above",
         "PROVIDED" : "Provided type from the orchestrator",
         "TYPE" : "Resource types",
-        "DUPLICATE": "Duplicate"
+        "DUPLICATE": "Duplicate",
+        "TEMPLATE_MODE": {
+          "TITLE": "Template mode",
+          "DESCRIPTION": "When activating template mode for a policy location resource, the resource is used as a template, every property can be overridden at deployment stage, and template resource is only matched regarding it's type."
+        }
       },
       "SECRETS" : {
         "AUTHENTICATION_METHOD" : "Authentication method",

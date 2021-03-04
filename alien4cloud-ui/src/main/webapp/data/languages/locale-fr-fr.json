@@ -1173,11 +1173,15 @@
       "RESOURCES" : {
         "BACK" : "Retour au catalogue",
         "CONFIG" : "Configuration de la resource",
-        "CONFIG_HELP" : "Vous pouvez configurer le nom et les propriétés du template de la resource. Les propriétés définies sont immutable, les propriétés non définies pourront être définie par l'utilisateur avant le déploiement.",
+        "CONFIG_HELP" : "Vous pouvez configurer le nom et les propriétés de la resource. Les propriétés définies sont immutables, les propriétés non définies pourront être définies par l'utilisateur avant le déploiement.",
         "DROP" : "Déposez des ressources ici ou dans le tableau au dessus",
         "PROVIDED" : "Type fourni par l'orchestrateur",
         "TYPE" : "Type de ressources",
-        "DUPLICATE": "Dupliquer"
+        "DUPLICATE": "Dupliquer",
+        "TEMPLATE_MODE": {
+          "TITLE": "Mode template",
+          "DESCRIPTION": "Lorsque vous activez ce mode, la policy est utilisée comme un modèle: chacune de ses propriétés peut être surchargée lors du déploiement, et la resource est sélectionnée uniquement au regard de son type."
+        }
       },
       "SECRETS" : {
         "AUTHENTICATION_METHOD" : "Méthode d'authentification",

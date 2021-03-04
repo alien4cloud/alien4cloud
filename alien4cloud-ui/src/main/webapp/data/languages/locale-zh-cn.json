@@ -1173,7 +1173,12 @@
         "CONFIG_HELP" : "您可以配置按需资源的模板的名称和属性。定义的属性将是不可变的，在部署之前，用户可以配置未定义的属性。",
         "DROP" : "在这里或上面的表中删除新的资源",
         "PROVIDED" : "云编排工具提供的类型",
-        "TYPE" : "资源类型"
+        "TYPE" : "资源类型",
+        "DUPLICATE": "Duplicate",
+        "TEMPLATE_MODE": {
+          "TITLE": "Template mode",
+          "DESCRIPTION": "When activating template mode for a policy location resource, the resource is used as a template, every property can be overridden at deployment stage, and template resource is only matched regarding it's type."
+        }
       },
       "SECRETS" : {
         "AUTHENTICATION_METHOD" : "认证方法",

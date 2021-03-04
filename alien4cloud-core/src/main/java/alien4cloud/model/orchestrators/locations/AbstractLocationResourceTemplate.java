@@ -40,6 +40,7 @@ public abstract class AbstractLocationResourceTemplate<T extends AbstractTemplat
      * Flag to know if the resource template defines a service or a resource. In case of a resource it's type must be one of the orchestrator resource types.
      */
     private boolean isService;
+
     // TODO service may be related to an application.
     /** Array of types the template derives from - type of the template and all parents types. */
     @TermFilter

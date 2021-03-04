@@ -28,12 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 public class PostMatchingNodeSetupModifier extends AbstractPostMatchingSetupModifier<NodeType, NodeTemplate> {
 
     @Override
-    protected boolean doMergeNode(Topology topology, FlowExecutionContext context, String nodeTemplateId, NodePropsOverride nodePropsOverride) {
+    protected boolean doMergeNode(Topology topology, FlowExecutionContext context, String nodeTemplateId, NodePropsOverride nodePropsOverride, boolean targetPropertiesHavePriority) {
 
         final ConfigChanged configChanged = new ConfigChanged();
 
         // play the super method first. This will process nodetemplate properties
-        configChanged.changed = super.doMergeNode(topology, context, nodeTemplateId, nodePropsOverride);
+        configChanged.changed = super.doMergeNode(topology, context, nodeTemplateId, nodePropsOverride, targetPropertiesHavePriority);
 
         // Then process capabilities
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
@@ -48,7 +48,7 @@ public class PostMatchingNodeSetupModifier extends AbstractPostMatchingSetupModi
                 // When a selected node has changed we may need to cleanup properties that where defined but are not anymore on the capability
                 CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capability.getType());
                 capability.setProperties(mergeProperties(overrideCapabilityProperties.getValue().getProperties(), capability.getProperties(),
-                        capabilityType.getProperties(), s -> {
+                        capabilityType.getProperties(), targetPropertiesHavePriority, s -> {
                             configChanged.changed = true;
                             context.log()
                                     .info("The property [" + s + "] previously specified to configure capability [" + overrideCapabilityProperties.getKey()
@@ -83,5 +83,10 @@ public class PostMatchingNodeSetupModifier extends AbstractPostMatchingSetupModi
     @Override
     Class<NodeType> getToscaTypeClass() {
         return NodeType.class;
+    }
+
+    @Override
+    protected boolean isNodeSubstitutedByOnlyTemplateResource(FlowExecutionContext context, DeploymentMatchingConfiguration matchingConfiguration, String nodeId) {
+        return false;
     }
 }

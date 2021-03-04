@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.alien4cloud.alm.deployment.configuration.flow.FlowExecutionContext;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.PolicyTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.PolicyType;
@@ -46,5 +48,14 @@ public class SetMatchedPolicyPropertyModifier extends AbstractSetMatchedProperty
     @Override
     Map<String, PolicyTemplate> getTemplates(Topology topology) {
         return topology.getPolicies();
+    }
+
+    @Override
+    protected void verifyConditions(PolicyLocationResourceTemplate resourceTemplate, PolicyTemplate template) throws ConstraintViolationException {
+        if (!resourceTemplate.isOnlyTemplate()) {
+            // For not onlyTemplate policy resources, we can't override the provided property values
+            AbstractPropertyValue locationResourcePropertyValue = resourceTemplate.getTemplate().getProperties().get(propertyName);
+            ensureNotSet(locationResourcePropertyValue, "by the admin in the Location Resource Template", propertyName, propertyValue);
+        }
     }
 }

@@ -111,4 +111,12 @@ public class SetMatchedNodePropertyModifier extends AbstractSetMatchedPropertyMo
     Map<String, NodeTemplate> getTemplates(Topology topology) {
         return topology.getNodeTemplates();
     }
+
+    @Override
+    protected void verifyConditions(LocationResourceTemplate resourceTemplate, NodeTemplate template) throws ConstraintViolationException {
+        AbstractPropertyValue locationResourcePropertyValue = resourceTemplate.getTemplate().getProperties().get(propertyName);
+        ensureNotSet(locationResourcePropertyValue, "by the admin in the Location Resource Template", propertyName, propertyValue);
+        ensureNotSet(template.getProperties().get(propertyName), "in the portable topology", propertyName, propertyValue);
+    }
+
 }
