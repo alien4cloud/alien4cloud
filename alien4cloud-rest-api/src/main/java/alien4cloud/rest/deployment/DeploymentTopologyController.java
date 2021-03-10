@@ -24,6 +24,7 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -64,6 +65,9 @@ import io.swagger.annotations.Authorization;
         "/rest/latest/applications/{appId}/environments/{environmentId}/deployment-topology" })
 @Api(value = "", description = "Prepare a topology to be deployed on a specific environment (location matching, node matching and inputs configuration).")
 public class DeploymentTopologyController {
+    @Value("${upload.max_archive_size:10485760}")
+    private int maxArchiveSize;
+
     @Inject
     private ApplicationService applicationService;
     @Inject
@@ -141,6 +145,7 @@ public class DeploymentTopologyController {
         DeploymentTopologyDTO dto = null;
         try {
             ServletFileUpload upload = new ServletFileUpload();
+            upload.setSizeMax(maxArchiveSize);
             FileItemIterator iter = upload.getItemIterator(request);
             if (iter.hasNext()) {
                FileItemStream item = iter.next();

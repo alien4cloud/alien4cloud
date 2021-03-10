@@ -626,6 +626,7 @@
       "ERRONEOUS_ARCHIVE_FILE" : "Cannot load the archive file. Please check that the file is a valid zip.",
       "FAILED_TO_READ_FILE" : "Unable to read the file {{note}}",
       "FILE_PATH" : "File path",
+      "FILE_SIZE_EXCEEDED" : "サイズ制限を超えました. {{problem}}",
       "INVALID_ARTIFACT_REFERENCE" : "Invalid artifact's reference {{note}}",
       "INVALID_ICON_FORMAT" : "Icon file is not a supported image format.",
       "INVALID_NAME" : "{{context}} name [ {{problem}} ] invalid. renamed into [ {{note}} ].",

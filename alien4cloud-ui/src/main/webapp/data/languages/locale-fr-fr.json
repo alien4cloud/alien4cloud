@@ -628,6 +628,7 @@
       "ERRONEOUS_ARCHIVE_FILE" : "L'Archive n'est pas parsable, merci de vérifier qu'il est de format zip",
       "FAILED_TO_READ_FILE" : "Impossible de lire le fichier à l'emplacement suivant {{note}}",
       "FILE_PATH" : "Fichier",
+      "FILE_SIZE_EXCEEDED" : "Limite de taille dépassée. {{problem}}",
       "INVALID_ARTIFACT_REFERENCE" : "Référence d'artifact invalide {{note}}.",
       "INVALID_ICON_FORMAT" : "L'icône n'est pas un fichier d'image supporté.",
       "INVALID_NAME" : "Nom de {{context}} [{{problem}}] incorrect. Renommé en [{{note}}].",

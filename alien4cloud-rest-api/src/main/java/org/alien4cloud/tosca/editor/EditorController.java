@@ -16,6 +16,7 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -46,6 +47,9 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequestMapping({ "/rest/v2/editor", "/rest/latest/editor" })
 @Api
 public class EditorController {
+    @Value("${upload.max_archive_size:10485760}")
+    private int maxArchiveSize;
+
     @Inject
     private EditorService editorService;
     @Inject
@@ -105,6 +109,7 @@ public class EditorController {
         path = null;
 
         ServletFileUpload upload = new ServletFileUpload();
+        upload.setSizeMax(maxArchiveSize);
         FileItemIterator iter = upload.getItemIterator(request);
         while (iter.hasNext()) {
            FileItemStream item = iter.next();
@@ -212,6 +217,7 @@ public class EditorController {
     @RequestMapping(value = "/{topologyId:.+}/override", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> updateTopologyArchive(@PathVariable String topologyId, HttpServletRequest request) throws FileUploadException,IOException {
         ServletFileUpload upload = new ServletFileUpload();
+        upload.setSizeMax(maxArchiveSize);
         FileItemIterator iter = upload.getItemIterator(request);
         while (iter.hasNext()) {
            FileItemStream item = iter.next();
