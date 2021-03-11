@@ -20,7 +20,7 @@ define(function (require) {
       var loadingBar = document.getElementById('alien-plugins-loading-bar');
       var loadingName = document.getElementById('alien-plugins-loading-file');
 
-      $.ajax({ url: '/rest/latest/modules', dataType : 'json', timeout : 10000 }).error(function(xhr, error) {
+      $.ajax({ url: 'rest/latest/modules', dataType : 'json', timeout : 10000 }).error(function(xhr, error) {
         loadingName.innerHTML = 'Failed to request plugins from server: ' + error;
         loadingBar.className = 'progress-bar progress-bar-danger';
         loadingBar.style.width = '100%';

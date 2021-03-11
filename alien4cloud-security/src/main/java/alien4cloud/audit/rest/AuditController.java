@@ -125,9 +125,9 @@ public class AuditController {
     @ApiOperation(value = "Search for audit trace", notes = "Returns a search result with that contains auti traces matching the request. Audit search is only accessible to user with role [ ADMIN ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<FacetedSearchResult> search(@RequestBody FilteredSearchRequest searchRequest) {
+    public RestResponse<FacetedSearchResult> search(@RequestBody AuditLogSearchRequest searchRequest) {
         FacetedSearchResult searchResult = auditService.searchAuditTrace(searchRequest.getQuery(), searchRequest.getFilters(), searchRequest.getFrom(),
-                searchRequest.getSize());
+                searchRequest.getSize(),searchRequest.getFromDate(),searchRequest.getToDate());
         if (searchRequest.getFilters() == null || !searchRequest.getFilters().containsKey("category")) {
             searchResult.getFacets().remove("action");
         }

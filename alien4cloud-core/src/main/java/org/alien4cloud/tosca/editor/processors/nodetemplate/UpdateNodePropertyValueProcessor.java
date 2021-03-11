@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.utils.PropertyUtil;
 import org.alien4cloud.tosca.editor.exception.PropertyValueException;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -45,6 +46,9 @@ public class UpdateNodePropertyValueProcessor implements IEditorOperationProcess
             throw new NotFoundException(
                     "Property <" + propertyName + "> doesn't exists for node <" + operation.getNodeName() + "> of type <" + nodeTemp.getType() + ">");
         }
+
+        // Translate functions in complex values
+        propertyValue = PropertyUtil.adaptFunctionsInComplex(propertyValue,propertyDefinition);
 
         log.debug("Updating property [ {} ] of the Node template [ {} ] from the topology [ {} ]: changing value from [{}] to [{}].", propertyName,
                 operation.getNodeName(), topology.getId(), nodeTemp.getProperties().get(propertyName), propertyValue);

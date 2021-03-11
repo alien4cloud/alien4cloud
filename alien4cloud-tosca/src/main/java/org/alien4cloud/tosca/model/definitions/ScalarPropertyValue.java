@@ -18,7 +18,9 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class ScalarPropertyValue extends PropertyValue<String> {
 
+    protected String value;
+
     public ScalarPropertyValue(String value) {
-        super(value);
+        this.value = value;
     }
 }

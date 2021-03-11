@@ -80,7 +80,7 @@ public class WorkflowPostProcessor {
      * For activity, other than the first, we create 1 step per activity.
      */
     private void splitMultipleActivitiesSteps(TopologyContext topologyContext) {
-        if (!ToscaParser.ALIEN_DSL_200.equals(topologyContext.getDSLVersion()) || MapUtils.isEmpty(topologyContext.getTopology().getWorkflows())) {
+        if ((!ToscaParser.ALIEN_DSL_200.equals(topologyContext.getDSLVersion()) && !ToscaParser.ALIEN_DSL_300.equals(topologyContext.getDSLVersion())) || MapUtils.isEmpty(topologyContext.getTopology().getWorkflows())) {
             return;
         }
 
@@ -147,6 +147,7 @@ public class WorkflowPostProcessor {
         normalizeWorkflowNames(topologyContext.getTopology().getWorkflows());
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             wf.setStandard(WorkflowUtils.isStandardWorkflow(wf));
+            wf.setHasCustomModifications(true);
             if (wf.getSteps() != null) {
                 for (WorkflowStep step : wf.getSteps().values()) {
                     if (step.getOnSuccess() != null) {

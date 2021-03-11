@@ -55,8 +55,9 @@ public abstract class AbstractPostMatchingSetupModifier<T extends AbstractInheri
         while (propertiesOverrideIter.hasNext()) {
             Entry<String, NodePropsOverride> nodePropsOverrideEntry = propertiesOverrideIter.next();
             if (lastUserSubstitutions.containsKey(nodePropsOverrideEntry.getKey())) {
+                boolean targetPropertiesHavePriority = !isNodeSubstitutedByOnlyTemplateResource(context, deploymentMatchingConfiguration, nodePropsOverrideEntry.getKey());
                 // Merge the user overrides into the node.
-                configChanged = mergeNode(topology, context, nodePropsOverrideEntry.getKey(), nodePropsOverrideEntry.getValue());
+                configChanged = mergeNode(topology, context, nodePropsOverrideEntry.getKey(), nodePropsOverrideEntry.getValue(), targetPropertiesHavePriority);
             } else {
                 // This node is no more a matched node, remove from configuration
                 configChanged = true;
@@ -71,19 +72,21 @@ public abstract class AbstractPostMatchingSetupModifier<T extends AbstractInheri
         }
     }
 
-    private boolean mergeNode(Topology topology, FlowExecutionContext context, String templateId, NodePropsOverride nodePropsOverride) {
+    private boolean mergeNode(Topology topology, FlowExecutionContext context, String templateId, NodePropsOverride nodePropsOverride, boolean targetPropertiesHavePriority) {
         if (nodePropsOverride == null) {
             return false;
         }
-        return doMergeNode(topology, context, templateId, nodePropsOverride);
+        return doMergeNode(topology, context, templateId, nodePropsOverride, targetPropertiesHavePriority);
     }
 
-    protected boolean doMergeNode(Topology topology, FlowExecutionContext context, String templateId, NodePropsOverride nodePropsOverride) {
+    abstract protected boolean isNodeSubstitutedByOnlyTemplateResource(FlowExecutionContext context, DeploymentMatchingConfiguration matchingConfiguration, String nodeId);
+
+    protected boolean doMergeNode(Topology topology, FlowExecutionContext context, String templateId, NodePropsOverride nodePropsOverride, boolean targetPropertiesHavePriority) {
         final ConfigChanged configChanged = new ConfigChanged();
         // This node is still a matched node merge properties
         U template = getTemplates(topology).get(templateId);
         T toscaType = ToscaContext.get(getToscaTypeClass(), template.getType());
-        template.setProperties(mergeProperties(nodePropsOverride.getProperties(), template.getProperties(), toscaType.getProperties(), propertyName -> {
+        template.setProperties(mergeProperties(nodePropsOverride.getProperties(), template.getProperties(), toscaType.getProperties(), targetPropertiesHavePriority, propertyName -> {
             configChanged.changed = true;
             context.log().info("The property [" + propertyName + "] previously specified to configure " + getSubject() + " [" + templateId
                     + "] cannot be set anymore as it is already specified by the matched location resource or in the topology.");
@@ -93,10 +96,10 @@ public abstract class AbstractPostMatchingSetupModifier<T extends AbstractInheri
     }
 
     protected Map<String, AbstractPropertyValue> mergeProperties(Map<String, AbstractPropertyValue> source, Map<String, AbstractPropertyValue> target,
-            Map<String, PropertyDefinition> targetPropDefinitions, Consumer<String> messageConsumer) {
+                                                                 Map<String, PropertyDefinition> targetPropDefinitions, boolean targetPropertiesHavePriority, Consumer<String> messageConsumer) {
         Set<String> removeFromSource = Sets.newHashSet();
         for (Entry<String, AbstractPropertyValue> entry : safe(source).entrySet()) {
-            if (target.get(entry.getKey()) == null || !target.containsKey(entry.getKey())) {
+            if (!targetPropertiesHavePriority || (target.get(entry.getKey()) == null || !target.containsKey(entry.getKey()))) {
                 // First check that the source property is defined in the property definition and matches constraints.
                 if (targetPropDefinitions.containsKey(entry.getKey()) && isValidProperty(entry, targetPropDefinitions.get(entry.getKey()))) {
                     target.put(entry.getKey(), entry.getValue());
@@ -114,7 +117,7 @@ public abstract class AbstractPostMatchingSetupModifier<T extends AbstractInheri
         return target.isEmpty() ? null : target;
     }
 
-    private boolean isValidProperty(Entry<String, AbstractPropertyValue> propertyValueEntry, PropertyDefinition propertyDefinition) {
+    protected boolean isValidProperty(Entry<String, AbstractPropertyValue> propertyValueEntry, PropertyDefinition propertyDefinition) {
         if (propertyValueEntry.getValue() instanceof PropertyValue) {
             try {
                 ConstraintPropertyService.checkPropertyConstraint(propertyValueEntry.getKey(), ((PropertyValue) propertyValueEntry.getValue()).getValue(),

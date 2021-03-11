@@ -8,7 +8,7 @@ define(function (require) {
     function ($resource) {
       // Search for application environments
 
-      var workflowExecutionPerExecution = $resource('/rest/latest/workflow_execution/:deploymentId', {}, {
+      var workflowExecutionPerExecution = $resource('rest/latest/workflow_execution/:deploymentId', {}, {
         'get': {
           method: 'GET'
         }

@@ -283,7 +283,6 @@
 
 - node_template_property: __discriminator
   keys:
-    type: property_definition
     get_input: tosca_function
     get_property: tosca_function
     get_secret: tosca_function

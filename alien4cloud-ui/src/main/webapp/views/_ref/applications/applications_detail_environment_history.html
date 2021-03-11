@@ -1,0 +1,30 @@
+<div style="margin-bottom: 20px" class="grp-margin">
+    <div class="col-md-12">
+        <div class="content-head" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">
+            <i class="fa fa-info"></i>&nbsp;{{ 'COMMON.INFOS' | translate }}
+        </div>
+        <div class="row grp-margin">
+            <div class="col-md-6">
+                <span class="detail-term"> ID : </span> <span class="inline-block">{{application.id}}</span>
+            </div>
+            <div class="col-md-6">
+                <span class="detail-term"> {{'APPLICATIONS.APPLICATION' | translate }} : </span> <span class="inline-block">{{application.name}}</span>
+            </div>
+            <div class="col-md-6">
+                <span class="detail-term"> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate }} : </span> <span class="inline-block">{{environment.name}}</span>
+            </div>
+            <div class="col-md-6">
+                <span class="detail-term"> {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE' | translate }} : </span> <span class="inline-block">{{environment.environmentType}}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" style="margin-top: 20px;">
+        <div class="content-head" ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed">
+            <i class="fa fa-history"></i>&nbsp;{{ 'NAVAPPLICATIONS.MENU_HISTORY' | translate }}
+        </div>
+        <div class="row grp-margin">
+            <ui-view/>
+        </div>
+    </div>
+</div>
+

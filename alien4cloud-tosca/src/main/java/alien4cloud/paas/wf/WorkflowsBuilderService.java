@@ -21,6 +21,7 @@ import org.alien4cloud.tosca.model.workflow.declarative.DefaultDeclarativeWorkfl
 import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
@@ -57,6 +58,9 @@ public class WorkflowsBuilderService {
 
     private Map<String, DefaultDeclarativeWorkflows> defaultDeclarativeWorkflowsPerDslVersion;
 
+    @Value("${features.auto_simplify_workflows:#{true}}")
+    private boolean autoSimplifyWorkflows;
+
     private DefaultDeclarativeWorkflows loadDefaultDeclarativeWorkflow(String configName) throws IOException {
         return YamlParserUtil.parse(DefaultDeclarativeWorkflows.class.getClassLoader().getResourceAsStream(configName), DefaultDeclarativeWorkflows.class);
     }
@@ -66,6 +70,7 @@ public class WorkflowsBuilderService {
         this.defaultDeclarativeWorkflowsPerDslVersion = new HashMap<>();
         this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.NORMATIVE_DSL_100, loadDefaultDeclarativeWorkflow("declarative-workflows-2.0.0.yml"));
         this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.NORMATIVE_DSL_100_URL, loadDefaultDeclarativeWorkflow("declarative-workflows-2.0.0.yml"));
+        this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.ALIEN_DSL_300, loadDefaultDeclarativeWorkflow("declarative-workflows-2.0.0-jobs.yml"));
         this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.ALIEN_DSL_200, loadDefaultDeclarativeWorkflow("declarative-workflows-2.0.0-jobs.yml"));
         this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.ALIEN_DSL_120, loadDefaultDeclarativeWorkflow("declarative-workflows-old.yml"));
         this.defaultDeclarativeWorkflowsPerDslVersion.put(ToscaParser.ALIEN_DSL_130, loadDefaultDeclarativeWorkflow("declarative-workflows-old.yml"));
@@ -111,7 +116,9 @@ public class WorkflowsBuilderService {
     	// Put aside the original workflow
     	whiteList.forEach(name -> topologyContext.getTopology().getUnprocessedWorkflows().put(name, WorkflowUtils.cloneWorkflow(topologyContext.getTopology().getWorkflow(name))));
     	// Simplify workflow
-        workflowSimplifyService.simplifyWorkflow(topologyContext, whiteList);
+        if (autoSimplifyWorkflows) {
+            workflowSimplifyService.simplifyWorkflow(topologyContext, whiteList);
+        }
         whiteList.forEach(name -> workflowValidator.validate(topologyContext, topologyContext.getTopology().getWorkflow(name)));
         debugWorkflow(topologyContext.getTopology());
     }
@@ -514,5 +521,9 @@ public class WorkflowsBuilderService {
         }
 
         return workflow;
+    }
+
+    public void refreshUnprocessedWorkflow(Topology topology,String workflowName) {
+        topology.getUnprocessedWorkflows().put(workflowName,WorkflowUtils.cloneWorkflow(topology.getWorkflow(workflowName)));
     }
 }

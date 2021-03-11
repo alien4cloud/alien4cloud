@@ -90,6 +90,42 @@ public final class ParserUtils {
         return result;
     }
 
+    public static Object parseComplex(Node node, ParsingContextExecution context) {
+        if (node == null) {
+            return null;
+        } else if (node instanceof ScalarNode) {
+            return ((ScalarNode) node).getValue();
+        } else if (node instanceof SequenceNode) {
+            return parseComplexSequence((SequenceNode) node,context);
+        } else if (node instanceof MappingNode) {
+            INodeParser<Object> parser = ParsingContextExecution.getRegistry().get("complex_node_template_property");
+            if (parser != null) {
+                return parser.parse(node, context);
+            } else {
+                return  parseComplexMap((MappingNode) node,context);
+            }
+        } else {
+            throw new InvalidArgumentException("Unknown type of node " + node.getClass().getName());
+        }
+    }
+
+    public static List<Object> parseComplexSequence(SequenceNode sequenceNode, ParsingContextExecution context) {
+        List<Object> result = Lists.newArrayList();
+        for (Node node : sequenceNode.getValue()) {
+            result.add(parseComplex(node,context));
+        }
+        return result;
+    }
+
+    public static Map<String, Object> parseComplexMap(MappingNode mappingNode, ParsingContextExecution context) {
+        Map<String, Object> result = Maps.newHashMap();
+        for (NodeTuple entry : mappingNode.getValue()) {
+            String key = ((ScalarNode) entry.getKeyNode()).getValue();
+            result.put(key, parseComplex(entry.getValueNode(),context));
+        }
+        return result;
+    }
+
     public static Map<String, Object> parseMap(MappingNode mappingNode) {
         Map<String, Object> result = Maps.newHashMap();
         for (NodeTuple entry : mappingNode.getValue()) {

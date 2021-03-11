@@ -76,6 +76,8 @@ public abstract class AbstractSetMatchedPropertyModifier<T extends AbstractInher
         }
     }
 
+    abstract protected void verifyConditions(V resourceTemplate, U template) throws ConstraintViolationException;
+
     protected void setProperty(FlowExecutionContext context, V resourceTemplate, U template, DeploymentMatchingConfiguration matchingConfiguration)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         PropertyDefinition propertyDefinition = ((T) ToscaContext.getOrFail(AbstractToscaType.class, resourceTemplate.getTemplate().getType())).getProperties()
@@ -85,9 +87,7 @@ public abstract class AbstractSetMatchedPropertyModifier<T extends AbstractInher
                     + "] of type [" + resourceTemplate.getTemplate().getType() + "]");
         }
 
-        AbstractPropertyValue locationResourcePropertyValue = resourceTemplate.getTemplate().getProperties().get(propertyName);
-        ensureNotSet(locationResourcePropertyValue, "by the admin in the Location Resource Template", propertyName, propertyValue);
-        ensureNotSet(template.getProperties().get(propertyName), "in the portable topology", propertyName, propertyValue);
+        verifyConditions(resourceTemplate, template);
 
         // Update the configuration
         NodePropsOverride nodePropsOverride = getTemplatePropsOverride(matchingConfiguration);

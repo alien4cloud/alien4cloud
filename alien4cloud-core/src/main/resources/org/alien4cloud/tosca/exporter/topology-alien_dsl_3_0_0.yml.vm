@@ -1,0 +1,325 @@
+## Will look in the context for:
+## - template_name
+## - template_version
+## - template_author
+## - application_description
+## - topology
+#macro(serializeMetadata $template $indent)
+#if($utils.collectionIsNotEmpty($template.tags))
+${indent}metadata:
+#foreach($tag in ${template.tags})
+${indent}  ${tag.name}: $propertyUtils.renderScalar(${tag.value})
+#end##foreach($tag in ${template.tags})
+#end##if($utils.collectionIsNotEmpty($template.tags))
+#end## macro(serializeMetadata
+#macro(description $element $indent)
+#if($element.description)
+${indent}description: ${utils.renderDescription(${element.description}, "${indent}  ")}
+#end##if($element.description)
+#end## macro(description)
+## --------------------------------------------
+## BEGINNING OF DOCUMENT
+tosca_definitions_version: alien_dsl_3_0_0
+
+metadata:
+  template_name: ${template_name}
+  template_version: ${template_version}
+  template_author: ${template_author}
+
+description: ${utils.renderDescription(${template_description}, "")}
+#if($utils.collectionIsNotEmpty($topology.dependencies))
+
+imports:
+${importsUtils.generateImports($topology.dependencies)}
+#end## if
+#if($utils.hasRepositories($template_name, $template_version, $topology))
+
+repositories:
+${utils.formatRepositories($template_name, $template_version, $topology)}
+#end## if hasRepositories
+
+topology_template:
+#if($application_description)
+  description: ${utils.renderDescription(${topology_description}, "    ")}
+#end## if application_description defined
+#if($utils.collectionIsNotEmpty($topology.tags) || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.metaProperties))
+  tags:
+#if($utils.collectionIsNotEmpty($topology.tags))
+#foreach($tag in ${topology.tags})
+    "${tag.name}": "$propertyUtils.renderScalar(${tag.value})"
+#end##foreach($tag in ${topology.tags})
+#end##if($utils.collectionIsNotEmpty($topology.tags))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.metaProperties))
+#foreach($metaProperty in $topology.metaProperties.entrySet())
+    "A4C_META_${metaResolver.apply($metaProperty.key)}": "${metaProperty.value}"
+#end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.metaProperties))
+#end##foreach($metaProperty in $topology.metaProperties.entrySet())
+#end##if($utils.collectionIsNotEmpty($topology.tags) || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.metaProperties))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputs))
+  inputs:
+#foreach($inputEntry in $topology.inputs.entrySet())
+    ${inputEntry.key}:
+      type: ${inputEntry.value.type}
+      required: $inputEntry.value.required
+#if($inputEntry.value.entrySchema)
+      entry_schema:
+        type: ${inputEntry.value.entrySchema.type}
+#end## if entry_schema
+#if($inputEntry.value.default)
+      default: $propertyUtils.formatPropertyValue(6, $inputEntry.value.default)
+#end## if default defined
+#if($utils.collectionIsNotEmpty($inputEntry.value.constraints))
+      constraints:
+#foreach($constraint in $inputEntry.value.constraints)
+        - ${utils.renderConstraint($constraint)}
+#end## constraint iteration
+#end## if constraints not empty
+#if($inputEntry.value.description)
+      description: ${utils.renderDescription($inputEntry.value.description, "        ")}
+#end## if description defined
+#end## foreach($inputEntry in $topology.inputs.entrySet())
+#end## if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputs))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputArtifacts))
+  input_artifacts:
+#foreach($artifactEntry in ${topology.inputArtifacts.entrySet()})
+    $artifactEntry.key:
+${utils.formatArtifact($artifactEntry.value, 4)}
+#end## of $artifactEntry iteration
+#end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputArtifacts))
+#if($topology.substitutionMapping)
+  substitution_mappings:
+    node_type: ${topology.substitutionMapping.substitutionType}
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.substitutionMapping.capabilities))
+    capabilities:
+#foreach($substitutionCapabilityEntry in $topology.substitutionMapping.capabilities.entrySet())
+#if($utils.isNull(${substitutionCapabilityEntry.value.serviceRelationshipType}))
+      ${substitutionCapabilityEntry.key}: [ ${substitutionCapabilityEntry.value.nodeTemplateName}, ${substitutionCapabilityEntry.value.targetId} ]
+#else
+      ${substitutionCapabilityEntry.key}: [ ${substitutionCapabilityEntry.value.nodeTemplateName}, ${substitutionCapabilityEntry.value.targetId}, ${substitutionCapabilityEntry.value.serviceRelationshipType} ]
+#end
+#end##foreach($substitutionCapabilityEntry in $topology.substitutionMapping.capabilities.entrySet())
+#end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.substitutionMapping.capabilities))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.substitutionMapping.requirements))
+    requirements:
+#foreach($substitutionRequirementEntry in $topology.substitutionMapping.requirements.entrySet())
+#if($utils.isNull(${substitutionRequirementEntry.value.serviceRelationshipType}))
+      ${substitutionRequirementEntry.key}: [ ${substitutionRequirementEntry.value.nodeTemplateName}, ${substitutionRequirementEntry.value.targetId} ]
+#else
+      ${substitutionRequirementEntry.key}: [ ${substitutionRequirementEntry.value.nodeTemplateName}, ${substitutionRequirementEntry.value.targetId}, ${substitutionRequirementEntry.value.serviceRelationshipType} ]
+#end
+#end##foreach($substitutionRequirementEntry in $topology.substitutionMapping.requirements.entrySet())
+#end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.substitutionMapping.requirements))
+#end##if($topology.substitutionMapping)
+  node_templates:
+#foreach($nodeTemplateEntry in ${topology.nodeTemplates.entrySet()})
+    ${nodeTemplateEntry.key}:
+#if(!$utils.isNull(${nodeTemplateEntry.value.description}))
+      description: ${utils.renderDescription(${nodeTemplateEntry.value.description}, "        ")}
+#end## description
+#serializeMetadata($nodeTemplateEntry.value, "      ")
+      type: ${nodeTemplateEntry.value.type}
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.properties))
+      properties:$propertyUtils.formatProperties(4, $nodeTemplateEntry.value.properties)
+#end## if
+#set($serviceAttributes = $utils.getServiceAttributes($nodeTemplateEntry.value))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($serviceAttributes))
+      attributes:$propertyUtils.formatProperties(4, $serviceAttributes)
+#end## if
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.relationships))
+      requirements:
+#foreach($relationship in ${nodeTemplateEntry.value.relationships.values()})
+        - ${relationship.name}:
+#serializeMetadata($relationship, "            ")
+#if(${relationship.name} != ${relationship.requirementName})
+            type_requirement: ${relationship.requirementName}
+#end## if
+            node: ${relationship.target}
+            capability: $topology.nodeTemplates[$relationship.target].capabilities[$relationship.targetedCapabilityName].type
+            relationship: ${relationship.type}
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($relationship.properties))
+            properties:$propertyUtils.formatProperties(7, $relationship.properties)
+#end## if
+#set($serviceRelationshipArtifacts = $utils.getServiceRelationshipArtifacts($nodeTemplateEntry.value, $topology.nodeTemplates.get(${relationship.target}), $relationship))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($serviceRelationshipArtifacts))
+            artifacts:
+#foreach($artifactEntry in ${serviceRelationshipArtifacts.entrySet()})
+              $artifactEntry.key:
+${utils.formatArtifact($artifactEntry.value, 8)}
+#end## of $artifactEntry iteration
+#end## if has artifacts
+#if($utils.doesInterfacesContainsImplementedOperation($relationship.interfaces))
+            interfaces:
+#foreach($interfaceEntry in ${relationship.interfaces.entrySet()})
+#if($utils.doesInterfaceContainsImplementedOperation($interfaceEntry.value))
+              ${interfaceEntry.key}:
+#foreach($operationEntry in ${interfaceEntry.value.operations.entrySet()})
+#if($utils.isOperationImplemented($operationEntry.value))
+#set($enableImplementationArtifactShortNotation = $utils.canUseShortNotationForImplementationArtifact($operationEntry.value))
+#if($enableImplementationArtifactShortNotation)
+                ${operationEntry.key}: $operationEntry.value.implementationArtifact.artifactRef
+#else
+                ${operationEntry.key}:
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($operationEntry.value.inputParameters))
+                  inputs:$propertyUtils.formatProperties(10, $operationEntry.value.inputParameters)
+#end
+                  implementation:
+${utils.formatArtifact($operationEntry.value.implementationArtifact, 10)}
+#end## if inputParameters not empty
+#end## if isOperationImplemented
+#end## of operations iteration
+#end## if doesInterfaceContainsImplementedOperation
+#end## of interfaces iteration
+#end## if doesInterfacesContainsImplementedOperation
+#end## of relationship iteration
+#end## if
+#if($utils.hasCapabilitiesContainingNotNullProperties($nodeTemplateEntry.value))
+      capabilities:
+#foreach($capabilityEntry in ${nodeTemplateEntry.value.capabilities.entrySet()})
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($capabilityEntry.value.properties))
+        ${capabilityEntry.key}:
+          properties:$propertyUtils.formatProperties(6, $capabilityEntry.value.properties)
+#end## if capability properties not empty
+#end## of capabilityEntry iteration
+#end## if hasCapabilitiesContainingNotNullProperties
+#if($utils.doesInterfacesContainsImplementedOperation($nodeTemplateEntry.value.interfaces))
+      interfaces:
+#foreach($interfaceEntry in ${nodeTemplateEntry.value.interfaces.entrySet()})
+#if($utils.doesInterfaceContainsImplementedOperation($interfaceEntry.value))
+        ${interfaceEntry.key}:
+#foreach($operationEntry in ${interfaceEntry.value.operations.entrySet()})
+#if($utils.isOperationImplemented($operationEntry.value))
+#set($enableImplementationArtifactShortNotation = $utils.canUseShortNotationForImplementationArtifact($operationEntry.value))
+#if($enableImplementationArtifactShortNotation)
+          ${operationEntry.key}: $operationEntry.value.implementationArtifact.artifactRef
+#else
+          ${operationEntry.key}:
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($operationEntry.value.inputParameters))
+            input:$propertyUtils.formatProperties(7, $operationEntry.value.inputParameters)
+#end
+            implementation:
+${utils.formatArtifact($operationEntry.value.implementationArtifact, 7)}
+#end## if inputParameters not empty
+#end## if isOperationImplemented
+#end## of operations iteration
+#end## if doesInterfaceContainsImplementedOperation
+#end## of interfaces iteration
+#end## if doesInterfacesContainsImplementedOperation
+#set($nodeTopologyArtifacts = $utils.getTopologyArtifacts($template_name, $template_version, $nodeTemplateEntry.value.artifacts))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTopologyArtifacts))
+      artifacts:
+#foreach($artifactEntry in ${nodeTopologyArtifacts.entrySet()})
+        $artifactEntry.key:
+${utils.formatArtifact($artifactEntry.value, 5)}
+#end## of $artifactEntry iteration
+#end## if has artifacts
+#end## of nodeTemplateEntry iteration
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.groups))
+  groups:
+#foreach($groupEntry in ${topology.groups.entrySet()})
+    ${groupEntry.key}:
+      members: [ $utils.getCsvToString($groupEntry.value.members) ]
+#if($utils.collectionIsNotEmpty($groupEntry.value.policies))
+      policies:
+#foreach($policy in ${groupEntry.value.policies})
+        - name: ${policy.name}
+          type: ${policy.type}
+#end## of policy iteration
+#end## if $groupEntry.value.policies not empty
+#end## of groupEntry iteration
+#end## if $topology.groups not empty
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.policies))
+  policies:
+#foreach($policyEntry in ${topology.policies.entrySet()})
+    - ${policyEntry.key}:
+        type: ${policyEntry.value.type}
+#description($policyEntry.value, "        ")
+#serializeMetadata($policyEntry.value, "        ")
+        targets: [ $utils.getCsvToString($policyEntry.value.targets) ]
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($policyEntry.value.properties))
+        properties:$propertyUtils.formatProperties(5, $policyEntry.value.properties)
+#end## if policyEntry.value.properties not empty
+#end## of policyEntry iteration
+#end## if $topology.policies not empty
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputProperties) || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputAttributes)  || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputCapabilityProperties))
+  outputs:
+#foreach($outputPropertyEntry in ${topology.outputProperties.entrySet()})
+#foreach($outputProperty in ${outputPropertyEntry.value})
+    ${outputPropertyEntry.key}_${outputProperty}:
+      value: { get_property: [ ${outputPropertyEntry.key}, ${outputProperty} ] }
+#end## of outputProperty iteration
+#end## of outputPropertyEntry iteration
+#foreach($outputAttributeEntry in ${topology.outputAttributes.entrySet()})
+#foreach($outputAttribute in ${outputAttributeEntry.value})
+    ${outputAttributeEntry.key}_${outputAttribute}:
+      value: { get_attribute: [ ${outputAttributeEntry.key}, ${outputAttribute} ] }
+#end## of outputProperty iteration
+#end## of outputAttributeEntry iteration
+#foreach($outputCapaPropEntry in ${topology.outputCapabilityProperties.entrySet()})
+#foreach($outputCapaPropSubEntry in ${outputCapaPropEntry.value.entrySet()})
+#foreach($outputCapaProp in ${outputCapaPropSubEntry.value})
+    ${outputCapaPropEntry.key}_${outputCapaPropSubEntry.key}_${outputCapaProp}:
+      value: { get_property: [ ${outputCapaPropEntry.key}, ${outputCapaPropSubEntry.key}, ${outputCapaProp} ] }
+#end## of outputCapaProp iteration
+#end## of outputCapaPropSubEntry iteration
+#end## of outputCapaPropEntry iteration
+#end## if maps are not empty
+#if($utils.mapIsNotEmpty($topology.workflows) && ($generateWorkflow || $hasCustomWorkflows))
+  workflows:
+#foreach($wfEntry in ${topology.workflows.entrySet()})
+#if($generateWorkflow || ${wfEntry.value.hasCustomModifications})
+    ${wfEntry.key}:
+#if(${wfEntry.value.description})
+      description: ${utils.renderDescription(${wfEntry.value.description}, "        ")}
+#end## if wfEntry.value.description
+#if($utils.mapIsNotEmpty(${wfEntry.value.inputs}))
+      inputs:
+#foreach($inputEntry in ${wfEntry.value.inputs.entrySet()})
+        ${inputEntry.key}:
+          type: ${inputEntry.value.type}
+          required: $inputEntry.value.required
+#if($inputEntry.value.description)
+          description: ${utils.renderDescription($inputEntry.value.description, "            ")}
+#end## if description defined
+#if($inputEntry.value.entrySchema)
+          entry_schema:
+            type: ${inputEntry.value.entrySchema.type}
+#end## if entry_schema
+#if($inputEntry.value.default)
+          default: $propertyUtils.formatPropertyValue(6, $inputEntry.value.default)
+#end## if default defined
+#if($utils.collectionIsNotEmpty($inputEntry.value.constraints))
+          constraints:
+#foreach($constraint in $inputEntry.value.constraints)
+          - ${utils.renderConstraint($constraint)}
+#end## constraint iteration
+#end## if constraints not empty
+#end
+#end
+#if($utils.mapIsNotEmpty(${wfEntry.value.steps}))
+      steps:
+#foreach($taskEntry in ${wfEntry.value.steps.entrySet()})
+        ${taskEntry.key}:
+#if($taskEntry.value.target)
+          target: ${taskEntry.value.target}
+#end## if taskEntry.value.target
+#if($taskEntry.value.targetRelationship)
+          target_relationship: ${taskEntry.value.targetRelationship}
+#end
+#if($taskEntry.value.operationHost)
+          operation_host: ${taskEntry.value.operationHost}
+#end
+#if($taskEntry.value.activity)
+          activities:
+            - ${utils.getActivityLabel(${taskEntry.value.activity})}: ${utils.getInlineActivityArg(${taskEntry.value.activity})}
+#end## if taskEntry.value.activity
+#if($utils.collectionIsNotEmpty(${taskEntry.value.onSuccess}))
+          on_success:
+#foreach($following in ${taskEntry.value.onSuccess})
+            - ${following}
+#end## foreach taskEntry.value.followingSteps
+#end## if taskEntry.value.followingSteps not empty
+#end## foreach wfEntry.value.steps
+#end## if map wfEntry.value.steps not empty
+#end## if($generateWorkflow || ${wfEntry.value.hasCustomModifications})
+#end## foreach topology.workflows.entrySet
+#end## if map topology.workflows not empty

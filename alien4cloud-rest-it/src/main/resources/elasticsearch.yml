@@ -1,17 +1,9 @@
-
-index:
-  number_of_shards: 1
-  number_of_replicas: 0
 path:
-  data: target/elasticsearch/data
-  work: target/elasticsearch/work
-  logs: target/elasticsearch/logs
+  home: target/elasticsearch
 
 gateway:
   recover_after_nodes: 1
   expected_nodes: 1
 
-discovery.zen.ping.multicast.enabled: false
-discovery.zen.ping.unicast.enabled: true
-
-discovery.zen.ping.unicast.hosts: localhost
+cluster:
+  name: escluster

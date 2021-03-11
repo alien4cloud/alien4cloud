@@ -15,3 +15,20 @@
     </div>
   </div>
 </div>
+
+<div ng-if="canToggleTemplateMode">
+  <div id="only-template-header" class="clickable topology-column-content-head" ng-click="isOnlyTemplateCollapsed = !isOnlyTemplateCollapsed">
+    <i class="fa" ng-class="{'fa-caret-down' : !isOnlyTemplateCollapsed, 'fa-caret-right': isOnlyTemplateCollapsed}"></i>
+    {{'ORCHESTRATORS.LOCATIONS.RESOURCES.TEMPLATE_MODE.TITLE' | translate}}
+  </div>
+  <div id="only-template-panel" class="row row-margin" uib-collapse="isOnlyTemplateCollapsed" >
+    <div class="col-md-11">
+      {{'ORCHESTRATORS.LOCATIONS.RESOURCES.TEMPLATE_MODE.DESCRIPTION' | translate}}
+    </div>
+    <div class="col-md-1" style="margin-top: 6px;">
+      <div class="pull-right switch" ng-click="toggleTemplateMode()" >
+        <div class="switch-slider" ng-class="{'disabled' : !resourceTemplate.onlyTemplate , 'enabled': resourceTemplate.onlyTemplate}"></div>
+      </div>
+    </div>
+  </div>
+</div>

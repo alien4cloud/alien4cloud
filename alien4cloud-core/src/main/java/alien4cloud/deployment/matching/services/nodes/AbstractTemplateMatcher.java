@@ -110,7 +110,7 @@ public abstract class AbstractTemplateMatcher<R extends AbstractLocationResource
         return config;
     }
 
-    private boolean validateTemplateMatch(V abstractTemplate, R candidate, T candidateType, LocationResources locationResources,
+    protected boolean validateTemplateMatch(V abstractTemplate, R candidate, T candidateType, LocationResources locationResources,
             MatchingConfiguration matchingConfiguration) {
         // check that the node root properties matches the filters defined on the MatchingConfigurations.
         Map<String, List<IMatchPropertyConstraint>> configuredFilters = matchingConfiguration == null ? null : matchingConfiguration.getProperties();

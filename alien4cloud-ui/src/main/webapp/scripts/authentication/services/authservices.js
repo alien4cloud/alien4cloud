@@ -135,7 +135,7 @@ define(function(require) {
          */
         logOut: function() {
           this.currentStatus = null;
-          window.location.href = '/logout';
+          window.location.href = 'logout';
         },
         /**
          * Login and redirect to target

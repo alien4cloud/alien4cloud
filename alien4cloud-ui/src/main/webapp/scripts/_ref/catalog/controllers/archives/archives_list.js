@@ -26,7 +26,7 @@ define(function (require) {
     function ($scope, $state, csarService, $translate, toaster, $uibModal, $alresource, authService, searchServiceFactory) {
 
       $scope.writeWorkspaces = [];
-      var isComponentManager = authService.hasOneRoleIn(['COMPONENT_MANAGER', 'ARCHITECT']);
+      var isComponentManager = authService.hasOneRoleIn(['COMPONENTS_MANAGER', 'ARCHITECT']);
       if (isComponentManager === true) {
         $scope.writeWorkspaces.push({id:'ALIEN_GLOBAL_WORKSPACE'});
       } else if (isComponentManager.hasOwnProperty('then')) {
@@ -68,7 +68,7 @@ define(function (require) {
         $state.go('catalog.archives.git');
       };
 
-      var createTopologyArchiveResource = $alresource('/rest/latest/catalog/topologies/template');
+      var createTopologyArchiveResource = $alresource('rest/latest/catalog/topologies/template');
       $scope.createTopologyArchive = function(topologyTemplate) {
         // create a new topologyTemplate from the given name, version and description.
         createTopologyArchiveResource.create([], angular.toJson(topologyTemplate), function(response) {

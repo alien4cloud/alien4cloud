@@ -91,11 +91,6 @@ public abstract class AbstractWorkflowBuilder {
         return step;
     }
 
-    private void unlinkSteps(WorkflowStep from, WorkflowStep to) {
-        from.removeFollowing(to.getName());
-        to.removePreceding(from.getName());
-    }
-
     /**
      * @param wf the workflow to add activity
      * @param relatedStepId if specified, the step will be added near this one (maybe before)
@@ -131,7 +126,7 @@ public abstract class AbstractWorkflowBuilder {
         WorkflowUtils.linkSteps(insertedStep, lastStep);
         if (stepBeforeId != null) {
             WorkflowStep stepBefore = wf.getSteps().get(stepBeforeId);
-            unlinkSteps(stepBefore, lastStep);
+            WorkflowUtils.unlinkSteps(stepBefore, lastStep);
             WorkflowUtils.linkSteps(stepBefore, insertedStep);
         }
     }
@@ -146,42 +141,13 @@ public abstract class AbstractWorkflowBuilder {
         WorkflowUtils.linkSteps(lastStep, insertedStep);
         if (stepAfterId != null) {
             WorkflowStep stepAfter = wf.getSteps().get(stepAfterId);
-            unlinkSteps(lastStep, stepAfter);
+            WorkflowUtils.unlinkSteps(lastStep, stepAfter);
             WorkflowUtils.linkSteps(insertedStep, stepAfter);
         }
     }
 
     void removeStep(Workflow wf, String stepId, boolean force) {
-        WorkflowStep step = wf.getSteps().remove(stepId);
-        if (step == null) {
-            throw new InconsistentWorkflowException(
-                    String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", stepId));
-        }
-        if (!force && step.getActivity() instanceof DelegateWorkflowActivity) {
-            throw new BadWorkflowOperationException("Native steps can not be removed from workflow");
-        }
-        if (step.getPrecedingSteps() != null) {
-            if (step.getOnSuccess() != null) {
-                // connect all preceding to all following
-                for (String precedingId : step.getPrecedingSteps()) {
-                    WorkflowStep preceding = wf.getSteps().get(precedingId);
-                    for (String followingId : step.getOnSuccess()) {
-                        WorkflowStep following = wf.getSteps().get(followingId);
-                        WorkflowUtils.linkSteps(preceding, following);
-                    }
-                }
-            }
-            for (Object precedingId : step.getPrecedingSteps().toArray()) {
-                WorkflowStep preceding = wf.getSteps().get(precedingId);
-                unlinkSteps(preceding, step);
-            }
-        }
-        if (step.getOnSuccess() != null) {
-            for (Object followingId : step.getOnSuccess().toArray()) {
-                WorkflowStep following = wf.getSteps().get(followingId);
-                unlinkSteps(step, following);
-            }
-        }
+        WorkflowUtils.removeStep(wf, stepId, force);
     }
 
     public void renameStep(Workflow wf, String stepId, String newStepName) {
@@ -243,12 +209,12 @@ public abstract class AbstractWorkflowBuilder {
                 .forEach(nodeStep -> new ArrayList<>(AlienUtils.safe(nodeStep.getOnSuccess())).stream().map(followingId -> wf.getSteps().get(followingId))
                         .filter(followingStep -> sourceRelationships.entrySet().stream().anyMatch(
                                 relationshipTemplateEntry -> WorkflowUtils.isNodeStep(followingStep, relationshipTemplateEntry.getValue().getTarget())))
-                        .forEach(followingStep -> unlinkSteps(nodeStep, followingStep)));
+                        .forEach(followingStep ->  WorkflowUtils.unlinkSteps(nodeStep, followingStep)));
         wf.getSteps().values().stream().filter(step -> sourceNodeId.equals(step.getTarget()))
                 .forEach(nodeStep -> new ArrayList<>(AlienUtils.safe(nodeStep.getPrecedingSteps())).stream().map(precedingId -> wf.getSteps().get(precedingId))
                         .filter(precedingStep -> sourceRelationships.entrySet().stream().anyMatch(
                                 relationshipTemplateEntry -> WorkflowUtils.isNodeStep(precedingStep, relationshipTemplateEntry.getValue().getTarget())))
-                        .forEach(precedingStep -> unlinkSteps(precedingStep, nodeStep)));
+                        .forEach(precedingStep ->  WorkflowUtils.unlinkSteps(precedingStep, nodeStep)));
     }
 
     /**
@@ -263,7 +229,7 @@ public abstract class AbstractWorkflowBuilder {
     public void swapSteps(Workflow wf, String stepId, String targetId) {
         WorkflowStep step = wf.getSteps().get(stepId);
         WorkflowStep target = wf.getSteps().get(targetId);
-        unlinkSteps(step, target);
+        WorkflowUtils.unlinkSteps(step, target);
         List<WorkflowStep> stepPredecessors = removePredecessors(wf, step);
         List<WorkflowStep> stepFollowers = removeFollowers(wf, step);
         List<WorkflowStep> targetPredecessors = removePredecessors(wf, target);
@@ -295,7 +261,7 @@ public abstract class AbstractWorkflowBuilder {
         Object precedings[] = step.getPrecedingSteps().toArray();
         for (Object precedingId : precedings) {
             WorkflowStep precedingStep = wf.getSteps().get(precedingId);
-            unlinkSteps(precedingStep, step);
+            WorkflowUtils.unlinkSteps(precedingStep, step);
             result.add(precedingStep);
         }
         return result;
@@ -309,7 +275,7 @@ public abstract class AbstractWorkflowBuilder {
         Object followings[] = step.getOnSuccess().toArray();
         for (Object followingId : followings) {
             WorkflowStep followingStep = wf.getSteps().get(followingId);
-            unlinkSteps(step, followingStep);
+            WorkflowUtils.unlinkSteps(step, followingStep);
             result.add(followingStep);
         }
         return result;
@@ -320,6 +286,9 @@ public abstract class AbstractWorkflowBuilder {
             for (WorkflowStep step : wf.getSteps().values()) {
                 if (oldName.equals(step.getTarget())) {
                     step.setTarget(newName);
+                }
+                if (step instanceof NodeWorkflowStep && oldName.equals((((NodeWorkflowStep)step).getHostId()))) {
+                    ((NodeWorkflowStep)step).setHostId(newName);
                 }
             }
         }

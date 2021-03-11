@@ -9,9 +9,7 @@ import org.alien4cloud.tosca.exceptions.ConstraintTechnicalException;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.exceptions.InvalidPropertyValueException;
-import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.definitions.constraints.LengthConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
 import org.alien4cloud.tosca.model.definitions.constraints.MinLengthConstraint;
@@ -74,6 +72,10 @@ public final class ConstraintPropertyService {
         String typeName = propertyDefinition.getType();
         if (!ToscaTypes.isPrimitive(typeName)) {
             dataType = ToscaContext.get(DataType.class, typeName);
+            if (dataType == null) {
+                dataType = ToscaContext.get(PrimitiveDataType.class,typeName);
+            }
+
             if (dataType instanceof PrimitiveDataType) {
                 // the type is derived from a primitive type
                 isTypeDerivedFromPrimitive = true;
@@ -103,6 +105,8 @@ public final class ConstraintPropertyService {
             } else {
                 checkListPropertyConstraint(propertyName, (List<Object>) value, propertyDefinition, missingPropertyConsumer);
             }
+        } else if (value instanceof FunctionPropertyValue || value instanceof ConcatPropertyValue) {
+            // Can't check constraint now
         } else {
             throw new InvalidArgumentException(
                     "Not expecting to receive constraint validation for other types than String, Map or List, but got "

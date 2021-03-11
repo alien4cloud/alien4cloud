@@ -12,6 +12,8 @@ import lombok.Setter;
 public class UpdateLocationResourceTemplateRequest {
     @ApiModelProperty(value = "New name of the resource.", required = false)
     private String name;
+    @ApiModelProperty(value = "Flag to know if the resource is just a template (to build a resource instance).", required = false)
+    private Boolean onlyTemplate;
     @ApiModelProperty(value = "Flag to know if the resource is available to be used for configuration or matching.", required = false)
     private Boolean enabled;
 }

@@ -12,10 +12,15 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import alien4cloud.common.MetaPropertiesService;
+import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.common.MetaPropertyTarget;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.exception.EditorIOException;
@@ -32,6 +37,7 @@ import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
+import org.alien4cloud.tosca.utils.MetaPropertyFeeder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -82,6 +88,8 @@ public class EditorService {
     private TopologyValidationService topologyValidationService;
     @Inject
     private CsarService csarService;
+    @Inject
+    private MetaPropertyFeeder metaFeeder;
 
     @Value("${directories.alien}/${directories.upload_temp}")
     private String tempUploadDir;
@@ -365,7 +373,7 @@ public class EditorService {
         // Update the yaml in the archive
         Csar csar = EditionContextManager.getCsar();
         Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(csar.getYamlFilePath());
-        String yaml = exportService.getYaml(csar, EditionContextManager.getTopology());
+        String yaml = exportService.getYaml(csar, EditionContextManager.getTopology(),false,csar.getToscaDefinitionsVersion(),metaFeeder.buildContext());
         try (BufferedWriter writer = Files.newBufferedWriter(targetPath)) {
             writer.write(yaml);
         }

@@ -1,12 +1,12 @@
 <div class="row">
     <!-- UNDEPLOY BUTTON -->
-    <a style="margin:20px;"
+    <a style="margin:20px 10px 20px 20px; "
             class="btn btn-danger"
             ng-if="environment.environmentType !== 'PRODUCTION'"
             ng-class="{'disabled' : isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])}"
             ng-click="doUndeploy()">{{'APPLICATIONS.UNDEPLOY' | translate}}
     </a>
-    <a style="margin:20px;"
+    <a style="margin:20px 10px 20px 20px;"
             class="btn btn-danger"
             ng-if="environment.environmentType === 'PRODUCTION'"
             ng-class="{'disabled' : isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])}"
@@ -16,6 +16,23 @@
             confirm-class="popover"
             confirm-handler="doUndeploy()"
             ng-click="$event.stopPropagation();">{{'APPLICATIONS.UNDEPLOY' | translate}}
+    </a>
+    <a
+       class="btn btn-danger"
+       ng-if="environment.environmentType !== 'PRODUCTION' && isAnyState(['UNDEPLOYMENT_FAILURE'])"
+       ng-class="{'disabled' : isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])}"
+       ng-click="doUndeploy(true)">{{'APPLICATIONS.PURGE' | translate}}
+    </a>
+    <a
+       class="btn btn-danger"
+       ng-if="environment.environmentType === 'PRODUCTION' && isAnyState(['UNDEPLOYMENT_FAILURE'])"
+       ng-class="{'disabled' : isAnyState(['INIT_DEPLOYMENT', 'UNDEPLOYMENT_IN_PROGRESS', 'UNDEPLOYED'])}"
+       confirm="{{ 'APPLICATIONS.UNDEPLOY_CONFIRM' | translate }}"
+       confirm-title="{{ 'COMMON.ATTENTION' | translate }}"
+       confirm-placement="right"
+       confirm-class="popover"
+       confirm-handler="doUndeploy(true)"
+       ng-click="$event.stopPropagation();">{{'APPLICATIONS.PURGE' | translate}}
     </a>
 
     <div class="col-md-12 upload-infos-bloc" ng-if="wfProgressData">
@@ -104,9 +121,33 @@
         <div class="col-md-5">
             <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button"
                     ng-click="launchWorkflow()"
-                    ng-disabled="isLaunchingWorkflow" >
+                    ng-disabled="cantLaunchWorkflow()" >
                 <i class="fa" ng-class="{'fa-play': !isLaunchingWorkflow, 'fa-spinner fa-spin': isLaunchingWorkflow}"></i> {{'APPLICATIONS.WF.launch' | translate}}
             </button>
+        </div>
+        <div class="col-md-12 grp-margin">
+            <div class="content-head">
+                <i class="fa fa-sign-in"></i> {{'APPLICATIONS.TOPOLOGY.WORKFLOW_INPUTS' | translate}}
+            </div>
+            <div class="content-body">
+                <empty-place-holder data="workflowInputs"></empty-place-holder>
+                <table class="table table-condensed" id="wfInputsTable"  ng-if="_.isNotEmpty(workflowInputs)">
+                    <tr ng-repeat="(inputId, inputDefinition) in workflowInputs">
+                        <td>
+                            <property-display
+                                    definition="inputDefinition"
+                                    property-type="topology.dataTypes[inputDefinition.type]"
+                                    property-value="workflowInputsValues[inputId]"
+                                    on-save="workflows.updateWorkflowInputValue(propertyDefinition, propertyValue, inputId)"
+                                    dependencies="topology.topology.dependencies"
+                                    property-name="inputId"
+                                    editable="true"
+                                    condensed="true">
+                            </property-display>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>

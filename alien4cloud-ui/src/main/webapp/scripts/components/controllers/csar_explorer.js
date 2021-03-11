@@ -30,7 +30,7 @@ define(function (require) {
     $scope.opts = explorerService.getOps(false);
 
     $scope.showSelected = function(node) {
-      var selectedUrl = '/static/tosca/'+archiveName+'/'+archiveVersion+node.fullPath;
+      var selectedUrl = 'static/tosca/'+archiveName+'/'+archiveVersion+node.fullPath;
 
       _.isImage(selectedUrl).then(function(isImage) {
         if(isImage) {
@@ -52,7 +52,7 @@ define(function (require) {
 
     // Load archive content file
     $http({method: 'GET',
-      url: '/static/tosca/'+archiveName+'/'+archiveVersion+'/content.json'
+      url: 'static/tosca/'+archiveName+'/'+archiveVersion+'/content.json'
     }).then(function(result) {
       $scope.treedata.children = result.data.children[0].children;
       if(selected !== null) {

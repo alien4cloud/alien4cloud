@@ -21,7 +21,8 @@ define(function (require) {
             $location.path('/restricted');
             toaster.pop('error', $translate.instant('ERRORS.100'), $translate.instant('ERRORS.' + rejection.status), 6000, 'trustedHtml');
             $timeout(function redirect() {
-              $window.location.href = '/';
+              //$window.location.href = '/';
+              $window.location.href = window.location.pathname;;
             }, 6000);
           } else if (rejection.status === 503 && error.code === 0) {
             // Maintenance mode is enabled
@@ -58,7 +59,8 @@ define(function (require) {
               var error = rejection.data.error;
               // Redirect to homepage when the user is not authenticated
               if (error.code === 100) {
-                $window.location.href = '/';
+                //$window.location.href = '/';
+                $window.location.href = window.location.pathname;
               } else {
                 return {
                   status: rejection.status,

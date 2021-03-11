@@ -6,7 +6,7 @@ define(function (require) {
   modules.get('alien4cloud-admin', ['ngResource']).factory('auditService', ['$resource', function($resource) {
 
     // faceted search for audit traces
-    var auditSearch = $resource('/rest/latest/audit/search', {}, {
+    var auditSearch = $resource('rest/latest/audit/search', {}, {
       'search': {
         method: 'POST',
         isArray: false,
@@ -16,7 +16,7 @@ define(function (require) {
       }
     });
 
-    var auditConfiguration = $resource('/rest/latest/audit/configuration/:field');
+    var auditConfiguration = $resource('rest/latest/audit/configuration/:field');
 
     return {
       'search': auditSearch.search,

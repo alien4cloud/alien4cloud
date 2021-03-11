@@ -67,6 +67,7 @@
     },
     "META_PROPERTIES" : "メタプロパティ",
     "NEW" : "新規アプリケーション",
+    "PURGE": "Purge",
     "RUNTIME" : {
       "WORKFLOW" : {
         "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully.",
@@ -151,7 +152,7 @@
       "DEPENDENCIES" : {
         "CHANGE_VERSION" : {
           "CONFIRM" : "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology.",
-          "TITLE" : "Change version"
+          "TITLE" : "Change version for {{name}}"
         },
         "CONFLICTS" : {
           "MESSAGE_FROM" : "from ",
@@ -191,6 +192,7 @@
       "PARSING_ERROR" : "Topology is not valid",
       "PRECONFIGURED_PROPERTIES_INPUTS" : "Preconfigured input properties",
       "PROPERTIES_INPUTS" : "プロパティの入力",
+      "WORKFLOW_INPUTS" : "Workflow Inputs",
       "PROPERTIES_OUTPUTS" : "プロパティ出力",
       "RECOVERY" : {
         "CHOICE_ASK" : "What would you like to do with the topology ?",
@@ -438,7 +440,9 @@
       "LABEL" : "Audit Configuration",
       "RESET" : "Reset"
     },
-    "LOG" : "Operations Audit"
+    "FROM_DATE" : "From",
+    "LOG" : "Operations Audit",
+    "TO_DATE" : "To"
   },
   "BOUNDS" : "Bounds",
   "CANCEL" : "キャンセル",
@@ -531,7 +535,8 @@
     "END_DATE": "End Date",
     "DURATION": "Duration",
     "STATUS": "Status",
-    "INCLUDE_IN_FILTERS" : "Include in filters"
+    "INCLUDE_IN_FILTERS" : "Include in filters",
+    "DISPLAY_MORE":  "More ..."
   },
   "ENTITY" : {
     "EXECUTION" : {
@@ -774,6 +779,7 @@
       "UPDATE_DEPLOYMENT" : "Deployment update",
       "UPDATE_FAILURE" : "Update failed",
       "UPDATE_IN_PROGRESS" : "Updating deployment",
+      "UNDEPLOYMENT_FAILURE" : "Undeployment failed",
       "WARNING" : "Warning"
     },
     "TOASTER_STATUS" : {
@@ -784,6 +790,7 @@
   },
   "DETAILS" : "Details",
   "EDITOR" : {
+    "AUTO_VALIDATION" : "Auto-Validation",
     "ARTIFACTS" : {
       "REPOS" : {
         "A4C_CSAR" : "CSAR",
@@ -1052,6 +1059,7 @@
     "MENU_USERS" : "ユーザ"
   },
   "NAVAPPLICATIONS" : {
+    "MENU_HOME" : "Home",
     "MENU_DEPLOY_CURRENT" : "Manage current deployment",
     "MENU_DEPLOY_CURRENT_INFO" : "情報",
     "MENU_DEPLOY_CURRENT_EXEC" : "Executions",
@@ -1166,7 +1174,12 @@
         "CONFIG_HELP" : "You can configure the name and properties of the template for the on-demand resource. Defined properties will be immutable, undefined properties can be configured by users before deployment.",
         "DROP" : "Drop new resources here or on the table above",
         "PROVIDED" : "Provided type from the orchestrator",
-        "TYPE" : "Resource types"
+        "TYPE" : "Resource types",
+        "DUPLICATE": "Duplicate",
+        "TEMPLATE_MODE": {
+          "TITLE": "Template mode",
+          "DESCRIPTION": "When activating template mode for a policy location resource, the resource is used as a template, every property can be overridden at deployment stage, and template resource is only matched regarding it's type."
+        }
       },
       "SECRETS" : {
         "AUTHENTICATION_METHOD" : "Authentication method",

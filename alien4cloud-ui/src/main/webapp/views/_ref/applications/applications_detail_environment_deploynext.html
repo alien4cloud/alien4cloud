@@ -10,7 +10,8 @@
     <div class="row" ng-if="deploymentTopologyDTO.validation.warningList['LOG'].length > 0">
         <div class="col-md-12">
             <div class="text-warning" ng-repeat="task in deploymentTopologyDTO.validation.warningList['LOG']">
-                <i class="fa fa-exclamation-triangle fa-fw"></i><em><b style="white-space: pre-wrap;"> {{ task.message }}</b></em>
+                <i class="fa fa-exclamation-triangle fa-fw"></i>
+                <em><b style="white-space: pre-wrap;"><span ng-bind-html="task.message | linky:'_blank'"></span></b></em>
             </div>
         </div>
     </div>

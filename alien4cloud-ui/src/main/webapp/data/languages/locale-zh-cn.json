@@ -151,7 +151,7 @@
       "DEPENDENCIES" : {
         "CHANGE_VERSION" : {
           "CONFIRM" : "您想要确认对于依赖的版本更改吗？这个操作会影响在拓扑内的一些节点和关系。",
-          "TITLE" : "版本更改"
+          "TITLE" : "版本更改 {{name}}"
         },
         "CONFLICTS" : {
           "MESSAGE_FROM" : "来自 ",
@@ -191,6 +191,7 @@
       "PARSING_ERROR" : "拓扑不是合法的。",
       "PRECONFIGURED_PROPERTIES_INPUTS" : "预配置输入属性",
       "PROPERTIES_INPUTS" : "输入属性",
+      "WORKFLOW_INPUTS" : "Workflow Inputs",
       "PROPERTIES_OUTPUTS" : "输出属性",
       "RECOVERY" : {
         "CHOICE_ASK" : "您想对这个拓扑做什么呢？",
@@ -438,7 +439,9 @@
       "LABEL" : "审计设置",
       "RESET" : "重设"
     },
-    "LOG" : "操作的审计"
+    "FROM_DATE" : "From",
+    "LOG" : "操作的审计",
+    "TO_DATE" : "To"
   },
   "BOUNDS" : "界限",
   "CANCEL" : "取消",
@@ -531,7 +534,8 @@
     "END_DATE": "End Date",
     "DURATION": "Duration",
     "STATUS": "Status",
-    "INCLUDE_IN_FILTERS" : "Include in filters"
+    "INCLUDE_IN_FILTERS" : "Include in filters",
+    "DISPLAY_MORE":  "More ..."
   },
   "ENTITY" : {
     "EXECUTION" : {
@@ -774,6 +778,7 @@
       "UPDATE_DEPLOYMENT" : "更新部署",
       "UPDATE_FAILURE" : "更新失败",
       "UPDATE_IN_PROGRESS" : "正在更新部署",
+      "UNDEPLOYMENT_FAILED": "Undeployment Failed",
       "WARNING" : "警告"
     },
     "TOASTER_STATUS" : {
@@ -784,6 +789,7 @@
   },
   "DETAILS" : "详情",
   "EDITOR" : {
+    "AUTO_VALIDATION" : "Auto-Validation",
     "ARTIFACTS" : {
       "REPOS" : {
         "A4C_CSAR" : "CSAR",
@@ -1052,6 +1058,7 @@
     "MENU_USERS" : "用户"
   },
   "NAVAPPLICATIONS" : {
+    "MENU_HOME" : "Home",
     "MENU_DEPLOY_CURRENT" : "管理当前部署",
     "MENU_DEPLOY_CURRENT_INFO" : "信息",
     "MENU_DEPLOY_CURRENT_EXEC" : "Executions",
@@ -1166,7 +1173,12 @@
         "CONFIG_HELP" : "您可以配置按需资源的模板的名称和属性。定义的属性将是不可变的，在部署之前，用户可以配置未定义的属性。",
         "DROP" : "在这里或上面的表中删除新的资源",
         "PROVIDED" : "云编排工具提供的类型",
-        "TYPE" : "资源类型"
+        "TYPE" : "资源类型",
+        "DUPLICATE": "Duplicate",
+        "TEMPLATE_MODE": {
+          "TITLE": "Template mode",
+          "DESCRIPTION": "When activating template mode for a policy location resource, the resource is used as a template, every property can be overridden at deployment stage, and template resource is only matched regarding it's type."
+        }
       },
       "SECRETS" : {
         "AUTHENTICATION_METHOD" : "认证方法",

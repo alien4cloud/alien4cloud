@@ -390,8 +390,7 @@ public class RepositoryManager {
         final String remoteName = "remotes/origin";
         Map<String, Ref> refs = repository.getRepository().getAllRefs();
         for (String refId : refs.keySet()) {
-            String[] segments = refId.split("/");
-            if (segments.length > 1 && branch.equals(segments[segments.length - 1]) && refId.contains(remoteName)) {
+            if (refId.contains(remoteName) && refId.endsWith("/"+branch)) {
                 return refId;
             }
         }
@@ -405,6 +404,7 @@ public class RepositoryManager {
             checkoutCommand.setName(fullBranchReference);
             if (isBranch(repository, branch) && !branchExistsLocally(repository, fullBranchReference)) {
                 checkoutCommand.setCreateBranch(true);
+                checkoutCommand.setStartPoint("origin/" + branch);
             }
             checkoutCommand.call();
         } catch (GitAPIException e) {

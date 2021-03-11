@@ -97,6 +97,11 @@ define(function (require) {
     }
     updateSize();
 
+    // Hidden filters are not editable
+    $scope.displayFilter = function(term) {
+      return _.indexOf($scope.queryManager.hiddenFilters, term) == -1;
+    }
+
     $scope.search = function() {
       // detect filter pattern
       var match;
@@ -113,7 +118,10 @@ define(function (require) {
         } else {
           value = [value.trim()];
         }
-        _.set($scope.queryManager, ['filters', key], value);
+        // hidden filters are ignored
+        if ($scope.displayFilter(key)) {
+          _.set($scope.queryManager, ['filters', key], value);
+        }
         $scope.searchBoxContent = '';
       } else {
         $scope.queryManager.query = $scope.searchBoxContent;

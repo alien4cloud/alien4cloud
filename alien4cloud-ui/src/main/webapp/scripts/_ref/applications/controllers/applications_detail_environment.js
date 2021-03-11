@@ -9,7 +9,6 @@ define(function (require) {
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploynext');
   require('scripts/_ref/applications/controllers/applications_detail_environment_deploycurrent');
   require('scripts/_ref/applications/controllers/applications_detail_environment_history');
-
   require('scripts/common/services/user_context_services');
 
   states.state('applications.detail.environment', {
@@ -30,11 +29,11 @@ define(function (require) {
   });
 
   // TODO Manually forward to the state with visibility (users should go to summary)
-  states.forward('applications.detail.environment', 'applications.detail.environment.deploynext');
+  states.forward('applications.detail.environment', 'applications.detail.environment.history');
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentCtrl',
-    ['$scope', '$state', 'userContextServices', 'application', 'environment', 'menu', 'applicationEnvironmentsManager', 'breadcrumbsService',
-      function ($scope, $state, userContextServices, applicationResponse, environment, menu, applicationEnvironmentsManager, breadcrumbsService) {
+    ['$scope', '$state', 'userContextServices', 'application', 'environment', 'menu', 'applicationEnvironmentsManager', 'breadcrumbsService', '$timeout',
+      function ($scope, $state, userContextServices, applicationResponse, environment, menu, applicationEnvironmentsManager, breadcrumbsService,  $timeout) {
         $scope.application = applicationResponse.data;
         $scope.environment = environment;
         $scope.statusIconCss = alienUtils.getStatusIconCss;
@@ -65,6 +64,17 @@ define(function (require) {
           // update menu entry
           var deploycurrent = _.find($scope.menu, { 'state': 'applications.detail.environment.deploycurrent' });
           deploycurrent.disabled = $scope.isState('UNDEPLOYED');
+          if (!$scope.isState('UNDEPLOYED')) {
+            // to avoid long processing blocking request on prepare next deployement
+            // when the environnement is not undeployed, let's directly go to the active deployment page
+            states.forward('applications.detail.environment', 'applications.detail.environment.deploycurrent');
+          }
+          var deploynext = _.find($scope.menu, { 'state': 'applications.detail.environment.deploynext' });
+          if (_.indexOf(['DEPLOYMENT_IN_PROGRESS', 'UNDEPLOYMENT_IN_PROGRESS', 'UPDATE_IN_PROGRESS'], $scope.environment.status) !== -1) {
+            deploynext.disabled = true;
+          } else {
+            deploynext.disabled = false;
+          }
         }
 
         $scope.isState = function (stateName) {
@@ -87,7 +97,7 @@ define(function (require) {
 
         $scope.reloadEnvironment = function() {
           applicationEnvironmentsManager.reload($scope.environment.id, function(environment) {
-            $scope.environment = environment;
+            $scope.setEnvironment(environment);
           });
         };
 
@@ -102,6 +112,10 @@ define(function (require) {
           if (menuItem.disabled) {
             $event.preventDefault();
             $event.stopPropagation();
+          } else {
+            $timeout(function() {
+              $state.go(menuItem.state);
+            }, 100);
           }
         };
 
@@ -111,6 +125,14 @@ define(function (require) {
 
         // update variables related to env status
         $scope.setEnvironment($scope.environment);
+
+        if (!$scope.isState('UNDEPLOYED')) {
+          // to avoid long processing blocking request on prepare next deployement
+          // when the environnement is not undeployed, let's directly go to the active deployment page
+          states.forward('applications.detail.environment', 'applications.detail.environment.deploycurrent');
+        }
+
+
       }
     ]);
 });

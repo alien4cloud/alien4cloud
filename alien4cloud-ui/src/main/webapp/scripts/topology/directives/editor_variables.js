@@ -22,7 +22,7 @@ define(function (require) {
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace']).controller('editorVariablesCtrl',
     ['$scope', '$uibModal', '$alresource', function($scope, $uibModal, $alresource) {
 
-      var envVariableService = $alresource('/rest/latest/applications/:applicationId/topologyVersion/:topologyVersion/variables');
+      var envVariableService = $alresource('rest/latest/applications/:applicationId/topologyVersion/:topologyVersion/variables');
 
       var refresh = function(){
         envVariableService.get({

@@ -29,9 +29,12 @@ import lombok.Setter;
 public class User implements SocialUserDetails {
     private static final long serialVersionUID = 1L;
     @Id
+    @StringField(indexType = IndexType.not_analyzed)
     private String username;
     private String password;
+    @StringField(indexType = IndexType.not_analyzed)
     private String lastName;
+    @StringField(indexType = IndexType.not_analyzed)
     private String firstName;
     @StringField(includeInAll = false, indexType = IndexType.no)
     private String email;

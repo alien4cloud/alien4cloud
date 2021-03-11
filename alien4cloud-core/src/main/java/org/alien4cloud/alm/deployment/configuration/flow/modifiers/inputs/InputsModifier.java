@@ -81,31 +81,31 @@ public class InputsModifier implements ITopologyModifier {
 
             for (Entry<String, NodeTemplate> entry : topology.getNodeTemplates().entrySet()) {
                 NodeTemplate nodeTemplate = entry.getValue();
-                processGetInput(evaluatorContext, nodeTemplate, nodeTemplate.getProperties());
+                processGetInput(evaluatorContext, nodeTemplate, nodeTemplate.getProperties(),context);
 
                 if (nodeTemplate.getRelationships() != null) {
                     for (Entry<String, RelationshipTemplate> relEntry : nodeTemplate.getRelationships().entrySet()) {
                         RelationshipTemplate relationshipTemplate = relEntry.getValue();
-                        processGetInput(evaluatorContext, relationshipTemplate, relationshipTemplate.getProperties());
+                        processGetInput(evaluatorContext, relationshipTemplate, relationshipTemplate.getProperties(),context);
                     }
                 }
                 if (nodeTemplate.getCapabilities() != null) {
                     for (Entry<String, Capability> capaEntry : nodeTemplate.getCapabilities().entrySet()) {
                         Capability capability = capaEntry.getValue();
-                        processGetInput(evaluatorContext, nodeTemplate, capability.getProperties());
+                        processGetInput(evaluatorContext, nodeTemplate, capability.getProperties(),context);
                     }
                 }
                 if (nodeTemplate.getRequirements() != null) {
                     for (Entry<String, Requirement> requirementEntry : nodeTemplate.getRequirements().entrySet()) {
                         Requirement requirement = requirementEntry.getValue();
-                        processGetInput(evaluatorContext, nodeTemplate, requirement.getProperties());
+                        processGetInput(evaluatorContext, nodeTemplate, requirement.getProperties(),context);
                     }
                 }
             }
         }
     }
 
-    private void processGetInput(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template, Map<String, AbstractPropertyValue> properties) {
+    private void processGetInput(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template, Map<String, AbstractPropertyValue> properties,FlowExecutionContext context) {
         for (Map.Entry<String, AbstractPropertyValue> propEntry : safe(properties).entrySet()) {
             try {
                 AbstractPropertyValue value = FunctionEvaluator.tryResolveValue(evaluatorContext, template, properties, propEntry.getValue());
@@ -113,9 +113,7 @@ public class InputsModifier implements ITopologyModifier {
                     propEntry.setValue(value);
                 }
             } catch (IllegalArgumentException e) {
-                // FIXME we should add an error log rather than throwing the exception here. See internal of FunctionEvaluator.resolveValue and especially
-                // concat processing.
-                throw e;
+                context.log().error(e.getMessage());
             }
         }
     }

@@ -70,14 +70,25 @@ public final class TopologyNavigationUtil {
     }
 
     /**
-     * Get all incoming relationships of a node that match the requested type.
+     * Get first outgoing relationships of a node that match the requested type.
      * 
+     * @param template The node template for which to get relationships.
+     * @param type The expected type.
+     * @return null if not found.
+     */
+    public static RelationshipTemplate getRelationshipFromType(NodeTemplate template, String type) {
+        return getRelationshipFromType(template, type, id -> ToscaContext.getOrFail(RelationshipType.class, id));
+    }
+
+    /**
+     * Get all outgoing relationships of a node that match the requested type.
+     *
      * @param template The node template for which to get relationships.
      * @param type The expected type.
      * @return
      */
-    public static RelationshipTemplate getRelationshipFromType(NodeTemplate template, String type) {
-        return getRelationshipFromType(template, type, id -> ToscaContext.getOrFail(RelationshipType.class, id));
+    public static Set<RelationshipTemplate> getRelationshipsFromType(NodeTemplate template, String type) {
+        return getRelationshipsFromType(template, type, id -> ToscaContext.getOrFail(RelationshipType.class, id));
     }
 
     public static RelationshipTemplate getRelationshipFromType(NodeTemplate template, String type, IRelationshipTypeFinder toscaTypeFinder) {
@@ -88,6 +99,17 @@ public final class TopologyNavigationUtil {
             }
         }
         return null;
+    }
+
+    public static Set<RelationshipTemplate> getRelationshipsFromType(NodeTemplate template, String type, IRelationshipTypeFinder toscaTypeFinder) {
+        Set<RelationshipTemplate> result = Sets.newHashSet();
+        for (RelationshipTemplate relationshipTemplate : safe(template.getRelationships()).values()) {
+            RelationshipType relationshipType = toscaTypeFinder.findElement(relationshipTemplate.getType());
+            if (relationshipType != null && ToscaTypeUtils.isOfType(relationshipType, type)) {
+                result.add(relationshipTemplate);
+            }
+        }
+        return result;
     }
 
     /**

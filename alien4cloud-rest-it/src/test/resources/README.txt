@@ -21,3 +21,7 @@ and test some cases (recover the plugin configuration from old plugin version to
 - invalid-plugin-without-yml.jar : well named, this is a bad plugin jar, with missing plugin.yml file
 
 WARNING : tests with those 1.1 version files imply that the 1.0 version is loaded first (usually in Background IT Tests)
+
+Launch mnv tests with cucumber tags :
+
+mvn verify -DdoTest -pl alien4cloud-rest-it -Dcucumber.options="--tags @loic"

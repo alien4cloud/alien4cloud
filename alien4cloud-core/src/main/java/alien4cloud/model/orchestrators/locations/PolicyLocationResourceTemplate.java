@@ -14,6 +14,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PolicyLocationResourceTemplate extends AbstractLocationResourceTemplate<PolicyTemplate> {
+
+    /**
+     * If true, just consider this as a template, properties defined for location resource don't have the priority.
+     */
+    private boolean onlyTemplate;
+
     /** Policy template that describe the location policy (it's type must be a type derived from one of the orchestrator LocationPolicyDefinition types). */
     @ObjectField(enabled = false)
     private PolicyTemplate template;

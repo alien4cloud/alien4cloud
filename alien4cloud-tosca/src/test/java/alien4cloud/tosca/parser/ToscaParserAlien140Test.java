@@ -225,7 +225,7 @@ public class ToscaParserAlien140Test extends AbstractToscaParserSimpleProfileTes
                 .thenReturn(Mockito.mock(NodeType.class));
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "topo-duplicate-node-template.yml"));
-        Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
+        Assert.assertEquals(1, parsingResult.getContext().getParsingErrors().size());
 
     }
 }

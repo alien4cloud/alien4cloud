@@ -1,0 +1,49 @@
+<div width="50%">
+    <div class="modal-header">
+        <h3>{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.TITLE' | translate:{name: dependency.name} }}</h3>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <a4c-search query-manager="queryManager"
+                            search-service="searchService"
+                            label-prefix="COMPONENTS.CSAR.">
+                </a4c-search>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr ng-repeat="dependencyCandidate in queryManager.searchResult.data"
+                            id="candidate_{{dependencyCandidate.version}}"
+                            ng-click="select(dependencyCandidate.version)"
+                            ng-class="{'var-undefined': dependencyCandidate.version == dependency.version}"
+                            >
+                            <td>
+                                <i ng-if="selectedVersion == dependencyCandidate.version"
+                                   class="fa fa-check text-success">
+                                </i>
+                            </td>
+                            <td>{{ dependencyCandidate.version }}</td>
+                            <td>{{ dependencyCandidate.templateAuthor }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <pagination-directive pagination-info="searchService.pagination"/>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a class="btn btn-primary" name="button" ng-disabled="selectedVersion == dependency.version" ng-click="ok()">
+            {{'OK' | translate}}
+        </a>
+        <a class="btn btn-default" ng-click="cancel()">
+            {{'CLOSE' | translate}}
+        </a>
+    </div>
+</div>

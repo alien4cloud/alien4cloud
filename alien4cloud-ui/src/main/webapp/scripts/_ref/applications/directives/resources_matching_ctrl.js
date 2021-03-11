@@ -98,6 +98,9 @@ define(function (require) {
           // do not edit servie properties
           return false;
         }
+        if ($scope.selectedResourceTemplate.onlyTemplate) {
+          return true;
+        }
         if($scope.getSubstitutedTemplate($scope.selectedNodeName).id === $scope.selectedResourceTemplate.id){
           return isNodePropertyEditable(propertyPath.propertyName);
         }
@@ -110,6 +113,7 @@ define(function (require) {
           // do not edit servis properties
           return false;
         }
+
         if($scope.getSubstitutedTemplate($scope.selectedNodeName).id === $scope.selectedResourceTemplate.id){
           return $scope.isSecretPropertyEditable(propertyPath.propertyName);
         }

@@ -1,31 +1,26 @@
 package alien4cloud.rest.wizard;
 
-import alien4cloud.security.spring.ldap.LdapCondition;
-import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.*;
-import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Component
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "wizard", ignoreInvalidFields = true, ignoreUnknownFields = true)
+@Slf4j
 public class ApplicationWizardConfiguration {
 
     private Set<String> applicationOverviewMetapropertiesSet;
+    private Set<String> topologyOverviewMetapropertiesSet;
     private Set<String> componentOverviewMetapropertiesSet;
 
     // key: categorie, value: { key: metaproperty name, values : accepted values)
@@ -39,6 +34,13 @@ public class ApplicationWizardConfiguration {
     @Setter
     @Getter
     private String[] applicationOverviewMetaproperties;
+
+    /**
+     * The list of metaproperty names that should be returned for topologies. No filter if empty.
+     */
+    @Setter
+    @Getter
+    private String[] topologyOverviewMetaproperties;
 
     /**
      * The list of metaproperty names that should be returned for components. No filter if empty.
@@ -62,9 +64,9 @@ public class ApplicationWizardConfiguration {
     @Getter
     private Map<String, Map<String, String>> componentFilterByMetapropertyValues;
 
-
     @PostConstruct
     void init() {
+
         if (componentFilterByMetapropertyValues == null || componentFilterByMetapropertyValues.size() == 0) {
             // by default, we'll display all nodes, with no filter
             componentFilterByMetapropertyValues = Maps.newHashMap();
@@ -88,7 +90,7 @@ public class ApplicationWizardConfiguration {
                         allComponentFiltersSet.put(k, metaprops);
                     }
                     for (int i = 0; i < values.length; i++) {
-                        metaprops.add(values[i].toLowerCase());
+                        metaprops.add(values[i]);
                     }
                 });
             }
@@ -102,6 +104,12 @@ public class ApplicationWizardConfiguration {
             applicationOverviewMetapropertiesSet = Sets.newHashSet();
         }
 
+        if (topologyOverviewMetaproperties != null) {
+            topologyOverviewMetapropertiesSet = Sets.newHashSet(topologyOverviewMetaproperties);
+        } else {
+            topologyOverviewMetapropertiesSet = Sets.newHashSet();
+        }
+
         if (componentOverviewMetaproperties != null) {
             componentOverviewMetapropertiesSet = Sets.newHashSet(componentOverviewMetaproperties);
         } else {
@@ -112,6 +120,10 @@ public class ApplicationWizardConfiguration {
 
     public Set<String> getApplicationOverviewMetapropertiesSet() {
         return applicationOverviewMetapropertiesSet;
+    }
+
+    public Set<String> getTopologyOverviewMetapropertiesSet() {
+        return topologyOverviewMetapropertiesSet;
     }
 
     public Set<String> getComponentOverviewMetapropertiesSet() {

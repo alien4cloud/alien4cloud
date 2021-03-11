@@ -93,6 +93,8 @@ define(function (require) {
       var searchRequestObject = {
         'query': '',
         'filters': undefined,
+        'fromDate': undefined,
+        'toDate': undefined,
         'from': 0,
         'size': DEFAULT_AUDIT_PAGE_SIZE
       };
@@ -178,15 +180,30 @@ define(function (require) {
 
       }
 
+      $scope.onChangeFromDate = function(newDate) {
+        searchRequestObject.fromDate = newDate;
+        doSearch();
+      }
+
+      $scope.onChangeToDate = function(newDate) {
+        searchRequestObject.toDate = newDate;
+        doSearch();
+      }
+
       //////////////////////////////////
       // Search methods
       //////////////////////////////////
       var doSearch = function() {
+        // Reset paging
+        searchRequestObject.from = 0
+        $scope.auditTableParam.page(1)
+
         // prepare filters
         var allFacetFilters = [];
         allFacetFilters.push.apply(allFacetFilters, $scope.facetFilters);
         updateSearch($scope.searchedKeyword, allFacetFilters);
       };
+
 
       $scope.doSearch = doSearch;
 

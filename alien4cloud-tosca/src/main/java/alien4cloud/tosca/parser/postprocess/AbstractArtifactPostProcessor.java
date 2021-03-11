@@ -14,6 +14,8 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 
+import java.util.Map;
+
 /**
  * Perform post processing and validation of an artifact.
  *
@@ -30,6 +32,7 @@ public abstract class AbstractArtifactPostProcessor implements IPostProcessor<Ab
     public void process(AbstractArtifact instance) {
         Node node = ParsingContextExecution.getObjectToNodeMap().get(instance);
 
+        Map<Object,Node> map = ParsingContextExecution.getObjectToNodeMap();
         postProcessArtifactRef(node, instance.getArtifactRef());
 
         ArchiveRoot archiveRoot = ParsingContextExecution.getRootObj();
@@ -78,8 +81,19 @@ public abstract class AbstractArtifactPostProcessor implements IPostProcessor<Ab
                 type = artifactType.getElementId();
             }
             if (type == null) {
-                ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, "Implementation artifact", node.getStartMark(),
-                        "No artifact type in the repository references the artifact's extension", node.getEndMark(), extension));
+                if (node != null) {
+                    // Node will be null if coming from a cloned artifact (node merge)
+                    // In this case , no error reporting because it has been done
+                    // on the super node.
+                    ParsingContextExecution.getParsingErrors().add(new ParsingError(
+                            ErrorCode.TYPE_NOT_FOUND,
+                            "Implementation artifact",
+                            node.getStartMark(),
+                            "No artifact type in the repository references the artifact's extension",
+                            node.getEndMark(),
+                            extension
+                    ));
+                }
                 type = "unknown";
             }
         } else {

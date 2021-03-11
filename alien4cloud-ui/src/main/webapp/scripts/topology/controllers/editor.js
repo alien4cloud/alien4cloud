@@ -21,14 +21,16 @@ define(function (require) {
   require('scripts/topology/services/topology_json_processor');
   require('scripts/topology/services/topology_recovery_service');
   require('scripts/topology/services/topology_services');
+  require('scripts/topology/services/editor_preferences_service');
 
   // manage websockets for topology editor
   // require('scripts/topology/services/topology_editor_events_services');
   require('scripts/common/directives/parsing_errors');
+  require('scripts/common/services/feature_service');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
-    ['$scope', '$state', '$stateParams', '$alresource', '$uibModal', '$translate', 'toaster', 'hotkeys', 'menu', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topologyRecoveryServices',
-    function($scope, $state, $stateParams, $alresource, $uibModal, $translate, toaster, hotkeys, menu,  topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topologyRecoveryServices) {
+    ['$scope', '$state', '$stateParams', '$alresource', '$uibModal', '$translate', 'toaster', 'hotkeys', 'menu', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topologyRecoveryServices', 'editorPreferencesService','featureService',
+    function($scope, $state, $stateParams, $alresource, $uibModal, $translate, toaster, hotkeys, menu,  topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topologyRecoveryServices,editorPreferencesService,featureService) {
       // This controller acts as a specific layout for the topology edition.
       $scope.menu = menu;
       $scope.topologyId = $stateParams.archiveId;
@@ -36,6 +38,12 @@ define(function (require) {
       $scope.getShortName = toscaService.simpleName;
       // this allow to avoid file edition in the ui-ace.
       $scope.released = false;
+
+      featureService.autoValidation().then(function(data){
+        $scope.autoValidationEnabled=data;
+      }) ;
+
+      $scope.autoValidation = editorPreferencesService.autoValidation;
 
       // Initial load of the topology
       topologyServices.dao.get({ topologyId: $scope.topologyId },
@@ -98,6 +106,10 @@ define(function (require) {
           initial: initial,
           selectedNodeTemplateName: selectedNodeTemplateName
         });
+
+        if ($scope.autoValidation && !initial) {
+            $scope.validateTopology();
+        }
       };
 
       $scope.getLastOperationId = function(nullAsString) {
@@ -136,6 +148,9 @@ define(function (require) {
             } else {
               $scope.refreshTopology(result.data, selectedNodeTemplateName);
             }
+          }
+          if ($scope.autoValidation == true && operation.type != 'org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePositionOperation') {
+            $scope.validateTopology();
           }
           if(_.defined(successCallback)) {
             successCallback(result);
@@ -261,21 +276,29 @@ define(function (require) {
 
       // Fetching topology validation status
       var editedTopologyValidatorResource = $alresource('rest/latest/editor/:topologyId/isvalid');
-      function updateValidationDtos() {
-        //validate topology beeing edited
-        editedTopologyValidatorResource.create({
-          topologyId: $scope.topologyId
-        }, null, function (result) {
-          if (_.undefined(result.error)) {
-            $scope.editedTopologyIsValid = result.data.valid;
-          }
-        });
-      }
-      updateValidationDtos();
+
       $scope.validateTopology = function() {
-
+        if ($scope.autoValidation) {
+            //validate topology beeing edited
+            editedTopologyValidatorResource.create({
+              topologyId: $scope.topologyId
+            }, null, function (result) {
+              if (_.undefined(result.error)) {
+                $scope.editedTopologyIsValid = result.data.valid;
+              }
+            });
+        } else {
+            //validate topology beeing edited
+            topologyServices.isValid({
+              topologyId: $scope.topologyId
+            }, null, function (result) {
+              if (_.undefined(result.error)) {
+                $scope.editedTopologyIsValid = result.data.valid;
+              }
+            });
+        }
       }
-
+      $scope.validateTopology();
 
       // GIT PUSH FUNCTION
       //
@@ -299,6 +322,15 @@ define(function (require) {
             console.debug('pushed');
           });
         });
+      };
+
+      $scope.toggleValidation = function () {
+        editorPreferencesService.autoValidation = !editorPreferencesService.autoValidation;
+
+        $scope.autoValidation = editorPreferencesService.autoValidation;
+
+        // Refresh validation status
+        $scope.validateTopology();
       };
 
       $scope.showParsingErrors = function (response) {

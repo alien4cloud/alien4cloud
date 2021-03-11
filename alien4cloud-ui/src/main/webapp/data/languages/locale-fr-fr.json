@@ -67,6 +67,7 @@
     },
     "META_PROPERTIES" : "Méta-propriétés",
     "NEW" : "Nouvelle Application",
+    "PURGE" : "Purger",
     "RUNTIME" : {
       "WORKFLOW" : {
         "SUCCESS_TITLE" : "L'éxecution du workflow {{workflowId}} s'est terminée avec succès.",
@@ -151,7 +152,7 @@
       "DEPENDENCIES" : {
         "CHANGE_VERSION" : {
           "CONFIRM" : "Confirmez-vous le changement de version de la dépendance ? Cette opération peut affecter certains nodes et/ou relations dans la topologie.",
-          "TITLE" : "Modifier la version"
+          "TITLE" : "Modifier la version pour {{name}}"
         },
         "CONFLICTS" : {
           "MESSAGE_FROM" : "depuis ",
@@ -184,13 +185,14 @@
         "EMPTY_SECRET_PATH" : "The secret path can not be empty."
       },
       "INVALID_NAME" : "Nom invalide.",
-      "LOCATION_UNAUTHORIZED_MESSAGE" : "Vous n'avez plus l'authorisation de déployer sur la location précédament selectionnée pour cet environnement (location: <{{locationName}}>, orchestrateur: <{{orchestratorName}}>). \n Veuillez contacter votre administrateur.",
+      "LOCATION_UNAUTHORIZED_MESSAGE" : "Vous n'avez plus l'autorisation de déployer sur la location précédament selectionnée pour cet environnement (location: <{{locationName}}>, orchestrateur: <{{orchestratorName}}>). \n Veuillez contacter votre administrateur.",
       "NODE_INFO" : "Noeud sélectionné",
       "NO_OUTPUTS" : "Aucune propriété ou attribut en sortie",
       "ORCHESTRATOR_PROPERTIES" : "Propriétés de l'orchestrateur",
       "PARSING_ERROR" : "La topologie n'est pas valide",
       "PRECONFIGURED_PROPERTIES_INPUTS" : "Propriétés d'entrée préconfigurées",
       "PROPERTIES_INPUTS" : "Propriétés d'entrée",
+      "WORKFLOW_INPUTS" : "Entrées du workflow",
       "PROPERTIES_OUTPUTS" : "Propriétés de sortie",
       "RECOVERY" : {
         "CHOICE_ASK" : "Que souhaitez vous faire de la topologie ?",
@@ -202,7 +204,7 @@
         "ERRORS_TITLE" : "Des erreurs empêche la réconcilliation de la topologie",
         "RECOVER" : {
           "DESCRIPTION" : "Essayer de réparer la topologie en applicquant les opérations ci dessous. Notez que la topologie sera sauvegardée.",
-          "TITLE" : "Réparation de topology"
+          "TITLE" : "Réparation de topologie"
         },
         "RESET" : {
           "DESCRIPTION" : "Tout supprimer de la topologie, la laissant vide.",
@@ -440,7 +442,9 @@
       "LABEL" : "Configuration d'Audit",
       "RESET" : "Réinitialiser"
     },
-    "LOG" : "Audit des opérations"
+    "FROM_DATE" : "De",
+    "LOG" : "Audit des opérations",
+    "TO_DATE" : "A"
   },
   "BOUNDS" : "Bornes",
   "CANCEL" : "Annuler",
@@ -491,7 +495,7 @@
     "ATTENTION" : "Attention",
     "ATTRIBUTES" : "Attributs",
     "AUTHOR" : "Auteur",
-    "AUTHORIZED" : "Authorisé",
+    "AUTHORIZED" : "Autorisé",
     "CAPABILITIES" : "Capacités",
     "CONTENT" : "Contenu",
     "DATA" : "Données",
@@ -533,7 +537,8 @@
     "END_DATE": "Date de fin",
     "DURATION": "Durée",
     "STATUS": "Statut",
-    "INCLUDE_IN_FILTERS" : "Inclure dans les filtres"
+    "INCLUDE_IN_FILTERS" : "Inclure dans les filtres",
+    "DISPLAY_MORE":  "Afficher plus ..."
   },
   "ENTITY" : {
     "EXECUTION" : {
@@ -776,6 +781,7 @@
       "UPDATE_DEPLOYMENT" : "Déploiement en cours de modification",
       "UPDATE_FAILURE" : "Echec de la mise à jour",
       "UPDATE_IN_PROGRESS" : "Déploiement en cours de modification",
+      "UNDEPLOYMENT_FAILURE": "Echec de la desinstallation",
       "WARNING" : "Alerte"
     },
     "TOASTER_STATUS" : {
@@ -786,6 +792,7 @@
   },
   "DETAILS" : "Détails",
   "EDITOR" : {
+    "AUTO_VALIDATION" : "Auto-Validation",
     "ARTIFACTS" : {
       "REPOS" : {
         "A4C_CSAR" : "CSAR",
@@ -1054,6 +1061,7 @@
     "MENU_USERS" : "Utilisateurs"
   },
   "NAVAPPLICATIONS" : {
+    "MENU_HOME" : "Accueil",
     "MENU_DEPLOY_CURRENT" : "Gérer le déploiement actuel",
     "MENU_DEPLOY_CURRENT_INFO" : "Info",
     "MENU_DEPLOY_CURRENT_EXEC" : "Exécutions",
@@ -1120,7 +1128,7 @@
           "REVOKE" : "Révoquer certaines applications"
         },
         "AUTHORIZATIONS" : "Autorisations",
-        "FORCE_MESSAGE" : "Voulez-vous vraiment forcer cette action? Ceci donnera egalement des authorisations sur la location aux sujets non authorisés!",
+        "FORCE_MESSAGE" : "Voulez-vous vraiment forcer cette action? Ceci donnera egalement des autorisations sur la location aux sujets non autorisés!",
         "FORCE_TITLE" : "Forcer",
         "GROUPS" : {
           "ADD" : "Autoriser certains groupes",
@@ -1165,11 +1173,15 @@
       "RESOURCES" : {
         "BACK" : "Retour au catalogue",
         "CONFIG" : "Configuration de la resource",
-        "CONFIG_HELP" : "Vous pouvez configurer le nom et les propriétés du template de la resource. Les propriétés définies sont immutable, les propriétés non définies pourront être définie par l'utilisateur avant le déploiement.",
+        "CONFIG_HELP" : "Vous pouvez configurer le nom et les propriétés de la resource. Les propriétés définies sont immutables, les propriétés non définies pourront être définies par l'utilisateur avant le déploiement.",
         "DROP" : "Déposez des ressources ici ou dans le tableau au dessus",
         "PROVIDED" : "Type fourni par l'orchestrateur",
         "TYPE" : "Type de ressources",
-        "DUPLICATE": "Dupliquer"
+        "DUPLICATE": "Dupliquer",
+        "TEMPLATE_MODE": {
+          "TITLE": "Mode template",
+          "DESCRIPTION": "Lorsque vous activez ce mode, la policy est utilisée comme un modèle: chacune de ses propriétés peut être surchargée lors du déploiement, et la resource est sélectionnée uniquement au regard de son type."
+        }
       },
       "SECRETS" : {
         "AUTHENTICATION_METHOD" : "Méthode d'authentification",

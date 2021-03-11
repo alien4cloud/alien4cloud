@@ -13,6 +13,9 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
+import alien4cloud.paas.wf.exception.InconsistentWorkflowException;
+import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -190,6 +193,44 @@ public class WorkflowUtils {
         }
     }
 
+    public static void unlinkSteps(WorkflowStep from, WorkflowStep to) {
+        from.removeFollowing(to.getName());
+        to.removePreceding(from.getName());
+    }
+
+    public static void removeStep(Workflow wf, String stepId, boolean force) {
+        WorkflowStep step = wf.getSteps().remove(stepId);
+        if (step == null) {
+            throw new InconsistentWorkflowException(
+                    String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", stepId));
+        }
+        if (!force && step.getActivity() instanceof DelegateWorkflowActivity) {
+            throw new BadWorkflowOperationException("Native steps can not be removed from workflow");
+        }
+        if (step.getPrecedingSteps() != null) {
+            if (step.getOnSuccess() != null) {
+                // connect all preceding to all following
+                for (String precedingId : step.getPrecedingSteps()) {
+                    WorkflowStep preceding = wf.getSteps().get(precedingId);
+                    for (String followingId : step.getOnSuccess()) {
+                        WorkflowStep following = wf.getSteps().get(followingId);
+                        WorkflowUtils.linkSteps(preceding, following);
+                    }
+                }
+            }
+            for (Object precedingId : step.getPrecedingSteps().toArray()) {
+                WorkflowStep preceding = wf.getSteps().get(precedingId);
+                unlinkSteps(preceding, step);
+            }
+        }
+        if (step.getOnSuccess() != null) {
+            for (Object followingId : step.getOnSuccess().toArray()) {
+                WorkflowStep following = wf.getSteps().get(followingId);
+                unlinkSteps(step, following);
+            }
+        }
+    }
+
     public static String buildStepName(Workflow wf, WorkflowStep step, int increment) {
         StringBuilder nameBuilder = new StringBuilder(step.getStepAsString());
         if (increment > 0) {
@@ -204,19 +245,25 @@ public class WorkflowUtils {
     }
 
     public static String debugWorkflow(Workflow wf) {
+        return debugWorkflow(wf, true);
+    }
+
+    public static String debugWorkflow(Workflow wf, boolean clusterCompute) {
         StringBuilder stringBuilder = new StringBuilder("\n ======> Paste the folowing graph in http://www.webgraphviz.com/  !!\n");
         int subgraphCount = 0;
         stringBuilder.append("\ndigraph ").append(wf.getName()).append(" {");
         stringBuilder.append("\n  node [shape=box];");
-        for (String host : wf.getHosts()) {
-            stringBuilder.append("\n  subgraph cluster_").append(++subgraphCount).append(" {");
-            stringBuilder.append("\n    label = \"").append(host).append("\";\n    color=blue;");
-            for (WorkflowStep step : wf.getSteps().values()) {
-                if (step instanceof NodeWorkflowStep && host.equals(((NodeWorkflowStep) step).getHostId())) {
-                    stringBuilder.append("\n    \"").append(step.getName()).append("\";");
+        if (clusterCompute) {
+            for (String host : wf.getHosts()) {
+                stringBuilder.append("\n  subgraph cluster_").append(++subgraphCount).append(" {");
+                stringBuilder.append("\n    label = \"").append(host).append("\";\n    color=blue;");
+                for (WorkflowStep step : wf.getSteps().values()) {
+                    if (step instanceof NodeWorkflowStep && host.equals(((NodeWorkflowStep) step).getHostId())) {
+                        stringBuilder.append("\n    \"").append(step.getName()).append("\";");
+                    }
                 }
+                stringBuilder.append("\n  }\n");
             }
-            stringBuilder.append("\n  }\n");
         }
         for (WorkflowStep step : wf.getSteps().values()) {
             if (step.getOnSuccess() != null) {
@@ -462,19 +509,26 @@ public class WorkflowUtils {
      * @param stepName Given step name
      * @return A set of preceding node names
      */
-    public static Set<String> findAllPrecedences(Collection<WorkflowStep> steps, String stepName) {
+    public static Set<String> findAllPrecedences(Map<String,WorkflowStep> steps,String stepName) {
         Set<String> result = new HashSet<>();
-        rFindAllPrecedences(result, steps, findStep(steps, stepName));
-        return result;
-    }
 
-    private static void rFindAllPrecedences(Set<String> result, Collection<WorkflowStep> steps, WorkflowStep step) {
-        if (step == null) {
-            return;
+        List<String> currSteps = Lists.newArrayList(stepName);
+        while (currSteps.size() > 0) {
+            List<String> nextSteps = Lists.newArrayList();
+
+            for (String sn : currSteps) {
+                if (steps.containsKey(sn) && !result.contains(sn)) {
+                    // Otherwise we already check this step
+                    result.add(sn);
+
+                    nextSteps.addAll(steps.get(sn).getPrecedingSteps());
+                }
+            }
+
+            currSteps = nextSteps;
         }
-        result.add(step.getName());
-        List<WorkflowStep> preSteps = findSteps(steps, step.getPrecedingSteps());
-        preSteps.forEach(pre -> rFindAllPrecedences(result, steps, pre));
+
+        return result;
     }
 
     /**

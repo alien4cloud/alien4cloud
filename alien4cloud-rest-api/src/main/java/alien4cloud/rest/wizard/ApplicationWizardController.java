@@ -10,13 +10,21 @@ import alien4cloud.images.IImageDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.rest.wizard.model.WizardAddon;
+import alien4cloud.rest.wizard.model.WizardFeature;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.rest.component.ComponentSearchRequest;
-import alien4cloud.rest.model.*;
-import alien4cloud.rest.wizard.model.*;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.wizard.model.ApplicationModule;
+import alien4cloud.rest.wizard.model.ApplicationOverview;
+import alien4cloud.rest.wizard.model.MetaProperty;
+import alien4cloud.rest.wizard.model.TopologyOverview;
+import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.webconfiguration.WizardAddonsScanner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -41,9 +49,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
-
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
 /**
  * Service that allows managing applications.
@@ -57,6 +62,9 @@ public class ApplicationWizardController {
 
     @Resource
     private ApplicationWizardConfiguration applicationWizardConfiguration;
+
+    @Resource
+    private WizardAddonsScanner wizardAddonsScanner;
 
     @Resource
     private IImageDAO imageDAO;
@@ -172,6 +180,7 @@ public class ApplicationWizardController {
         TopologyOverview overview = new TopologyOverview();
         overview.setComponentCategories(applicationWizardConfiguration.getComponentCategories());
         Topology topology = topologyServiceCore.getOrFail(topologyId);
+        overview.setNamedMetaProperties(getNamedMetaProperties(topology.getMetaProperties(), applicationWizardConfiguration.getTopologyOverviewMetapropertiesSet()));
         overview.setDescription(topology.getDescription());
         TopologyDTO topologyDTO = topologyDTOBuilder.initTopologyDTO(topology, new TopologyDTO());
         overview.setTopologyDTO(topologyDTO);
@@ -179,6 +188,25 @@ public class ApplicationWizardController {
 //        overview.setTopologyVersion(topology.getArchiveVersion());
         overview.setComponentsPerCategory(getModulesPerCatgory(topology));
         return RestResponseBuilder.<TopologyOverview>builder().data(overview).build();
+    }
+
+    @ApiOperation(value = "Get the list of available wizard addons.", notes = "An addon can be available but not allowed for a given user, depending on the roles")
+    @RequestMapping(value = "/addons", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<List<WizardFeature>> getAddons() {
+        List<WizardFeature> result = Lists.newArrayList();
+        for (WizardAddon addon : wizardAddonsScanner.getAddons().values()) {
+
+            WizardFeature feature = new WizardFeature();
+            feature.setId(addon.getId());
+            feature.setIconName(addon.getIconName());
+            feature.setActivationLink(addon.getContextPath());
+            feature.setAllowed(AuthorizationUtil.hasOneRoleIn(addon.getAuthorizedRoles()));
+            feature.setEnabled(true);
+
+            result.add(feature);
+        }
+        return RestResponseBuilder.<List<WizardFeature>>builder().data(result).build();
     }
 
     private Map<String, List<ApplicationModule>> getModulesPerCatgory(Topology topology) {
@@ -234,13 +262,15 @@ public class ApplicationWizardController {
 
     private List<MetaProperty> getNamedMetaProperties(Map<String, String> metaProperties, Set<String> metaPropertiesFilter) {
         List<MetaProperty> namedMetaProperties = Lists.newArrayList();
-        metaProperties.forEach((id, value) -> {
-            MetaPropConfiguration configuration = dao.findById(MetaPropConfiguration.class, id);
-            // filter returned meta properties for applications
-            if (metaPropertiesFilter == null || metaPropertiesFilter.isEmpty() || metaPropertiesFilter.contains(configuration.getName())) {
-                namedMetaProperties.add(new MetaProperty(configuration, value));
-            }
-        });
+        if (metaProperties != null) {
+            metaProperties.forEach((id, value) -> {
+                MetaPropConfiguration configuration = dao.findById(MetaPropConfiguration.class, id);
+                // filter returned meta properties for applications
+                if (metaPropertiesFilter == null || metaPropertiesFilter.isEmpty() || metaPropertiesFilter.contains(configuration.getName())) {
+                    namedMetaProperties.add(new MetaProperty(configuration, value));
+                }
+            });
+        }
         return namedMetaProperties;
     }
 
@@ -270,7 +300,7 @@ public class ApplicationWizardController {
         Class<? extends AbstractToscaType> queryClass = searchRequest.getType() == null ? AbstractToscaType.class
                 : searchRequest.getType().getIndexedToscaElementClass();
         FacetedSearchResult<? extends AbstractToscaType> searchResult = toscaTypeSearchService.search(queryClass, searchRequest.getQuery(),
-                searchRequest.getSize(), filters);
+                Integer.MAX_VALUE, filters);
         return RestResponseBuilder.<FacetedSearchResult<? extends AbstractToscaType>> builder().data(searchResult).build();
     }
 

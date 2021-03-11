@@ -35,10 +35,11 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
     public static final String ALIEN_DSL_130 = "alien_dsl_1_3_0";
     public static final String ALIEN_DSL_140 = "alien_dsl_1_4_0";
     public static final String ALIEN_DSL_200 = "alien_dsl_2_0_0";
+    public static final String ALIEN_DSL_300 = "alien_dsl_3_0_0";
     public static final String NORMATIVE_DSL_100 = "tosca_simple_yaml_1_0";
     public static final String NORMATIVE_DSL_100_URL = "http://docs.oasis-open.org/tosca/ns/simple/yaml/1.0";
 
-    public static String LATEST_DSL = ALIEN_DSL_200;
+    public static String LATEST_DSL = ALIEN_DSL_300;
 
     private static final String DEFINITION_TYPE = "definition";
     private Map<String, Map<String, INodeParser>> parserRegistriesByVersion = Maps.newHashMap();
@@ -72,6 +73,9 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
         // 2.0.0
         registry = mappingGenerator.process("classpath:alien-dsl-2.0.0-mapping.yml");
         parserRegistriesByVersion.put(ALIEN_DSL_200, registry);
+        // 3.0.0
+        registry = mappingGenerator.process("classpath:alien-dsl-3.0.0-mapping.yml");
+        parserRegistriesByVersion.put(ALIEN_DSL_300, registry);
         // experimental
         registry = mappingGenerator.process("classpath:tosca_simple_yaml_1_0.yml");
         parserRegistriesByVersion.put(NORMATIVE_DSL_100, registry);

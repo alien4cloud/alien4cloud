@@ -1,0 +1,502 @@
+# Mapping definition for alien 4 cloud specific dsl 3.0.0
+
+# declare custom parsers for complex types that requires specific parser.
+- scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
+- import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
+- occurrences: alien4cloud.tosca.parser.impl.advanced.OccurrencesParser
+- input_artifact: alien4cloud.tosca.parser.impl.advanced.InputArtifactParser
+- tag: alien4cloud.tosca.parser.impl.advanced.TagParser
+- interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
+- interfaces: alien4cloud.tosca.parser.impl.advanced.InterfacesParser
+- outputs_type: alien4cloud.tosca.parser.impl.advanced.OuputsParser
+- group_policy_parser: alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser
+- artifact_ref_parser: alien4cloud.tosca.parser.impl.advanced.ArtifactReferenceParser
+- sustitution_mapping_parser: alien4cloud.tosca.parser.impl.advanced.SustitutionMappingParser
+- constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
+- abstract_property_value: alien4cloud.tosca.parser.impl.advanced.AbstractPropertyValueParser
+- meta_data: alien4cloud.tosca.parser.impl.advanced.MetaDataParser
+- fail_get_artifact: alien4cloud.tosca.parser.impl.advanced.FailGetArtifactParser
+- string_list: alien4cloud.tosca.parser.impl.advanced.StringListParser
+- relationship_template: alien4cloud.tosca.parser.impl.v20.RelationshipTemplateParser
+
+# declare standard mapping based parsers
+- definition: alien4cloud.tosca.model.ArchiveRoot
+  tosca_definitions_version: archive.toscaDefinitionsVersion
+  metadata:
+    reference: archive
+    type: meta_data
+  tosca_default_namespace: archive.toscaDefaultNamespace
+  template_name: archive.name
+  template_author: archive.templateAuthor
+  template_version: archive.version
+  description: archive.description
+  imports:
+    set: archive.dependencies
+    type: import_definition
+  dsl_definitions: null # this means we take this node in charge but won't parse it's content
+  node_types:
+    map: nodeTypes
+    key: elementId
+    type: node_type
+  repositories:
+    map: repositories
+    key: id
+    type: repository_definition
+  data_types:
+    map: dataTypes
+    key: elementId
+    type: data_type
+  capability_types:
+    map: capabilityTypes
+    key: elementId
+    type: capability_type
+  relationship_types:
+    map: relationshipTypes
+    key: elementId
+    type: relationship_type
+  artifact_types:
+    map: artifactTypes
+    key: elementId
+    type: artifact_type
+  policy_types:
+    map: policyTypes
+    key: elementId
+    type: policy_type
+  topology_template:
+    reference: topology
+    type: topology_template_type
+
+- topology_template_type: org.alien4cloud.tosca.model.templates.Topology
+  description: description
+  tags:
+    reference: tags
+    type: tag
+  inputs:
+    map: inputs
+    type: property_definition
+  input_artifacts:
+    map: inputArtifacts
+    type: input_artifact
+  substitution_mappings:
+    reference: substitutionMapping
+    type: sustitution_mapping_parser
+  node_templates:
+    map: nodeTemplates
+    key: name
+    type: node_template
+  outputs:
+    reference: void # means : do the parsing but do not set anything
+    type: outputs_type
+  groups:
+    map: groups
+    key: name
+    type: node_group
+  policies:
+    sequence_to_map: policies
+    node_is_value: false
+    # key: name
+    type: policy_template
+  workflows:
+    map: workflows
+    key: name
+    type: workflow
+
+- workflow: org.alien4cloud.tosca.model.workflow.Workflow
+  description: description
+  inputs:
+    map: inputs
+    type: property_definition
+  steps:
+    map: steps
+    key: name
+    type: workflow_step
+
+- workflow_step: __discriminator
+  keys:
+    target_relationship: relationship_workflow_step
+  default: node_workflow_step
+
+- node_workflow_step : org.alien4cloud.tosca.model.workflow.NodeWorkflowStep
+  target: target
+  operation_host: operationHost
+  activities:
+    list: activities
+    type: workflow_activity
+  on_success:
+    set: onSuccess
+    type: scalar
+
+- relationship_workflow_step : org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep
+  target: target
+  target_relationship: targetRelationship
+  operation_host: operationHost
+  activities:
+    list: activities
+    type: workflow_activity
+  on_success:
+    set: onSuccess
+    type: scalar
+
+- workflow_activity: __discriminator
+  keys:
+    set_state: set_state_activity
+    call_operation: call_operation_activity
+    delegate: delegate_activity
+    inline: inline_activity
+
+- set_state_activity: org.alien4cloud.tosca.model.workflow.activities.SetStateWorkflowActivity
+  set_state: stateName
+
+- call_operation_activity: org.alien4cloud.tosca.model.workflow.activities.CallOperationWorkflowActivity
+  call_operation: operationFqn
+
+- delegate_activity: org.alien4cloud.tosca.model.workflow.activities.DelegateWorkflowActivity
+  delegate: delegate
+
+- inline_activity: org.alien4cloud.tosca.model.workflow.activities.InlineWorkflowActivity
+  inline: inline
+
+- abstract_template: &abstract_template
+    type: type
+    description: description
+    metadata:
+      reference: tags
+      type: tag
+    properties:
+      map: properties
+      type: node_template_property
+
+- abstract_instantiable_template: &abstract_instantiable_template
+    <<: *abstract_template
+    interfaces:
+      reference: interfaces
+      type: interfaces
+    artifacts:
+      map: artifacts
+      type: deployment_artifact
+
+- node_group: org.alien4cloud.tosca.model.templates.NodeGroup
+  members:
+    set: members
+    type: scalar
+  policies:
+    list: policies
+    type: group_policy_parser
+
+- node_template: org.alien4cloud.tosca.model.templates.NodeTemplate
+  <<: *abstract_instantiable_template
+  requirements:
+    sequence_to_map: relationships
+    type: relationship_template
+    allow_duplicate: false
+  capabilities:
+    map: capabilities
+    type: node_template_capability_definition
+
+- node_template_capability_definition: org.alien4cloud.tosca.model.templates.Capability
+  type: type
+  properties:
+    map: properties
+    type: node_template_property
+
+- attribute_definition: org.alien4cloud.tosca.model.definitions.AttributeDefinition
+  description: description
+  type: type
+  default: default
+
+- property_definition: org.alien4cloud.tosca.model.definitions.PropertyDefinition
+  type: type
+  entry_schema:
+    reference: entrySchema
+    type: property_definition
+  required: required
+  description: description
+  default:
+    reference: default
+    type: abstract_property_value
+  constraints:
+    list: constraints
+    type: constraint
+
+- capability_definition: org.alien4cloud.tosca.model.definitions.CapabilityDefinition
+  description: description
+  type: type
+  occurrences:
+    reference: void
+    type: occurrences
+  valid_source_types:
+    list: validSources
+    type: scalar
+  properties:
+    map: properties
+    type: node_template_property
+
+- constraint_list: list # This element must be parsed as a list
+  type: constraint # the elements in the list are constraints
+
+# Node filter related types
+- filter_definition: org.alien4cloud.tosca.model.definitions.FilterDefinition
+  properties:
+    sequence_to_map: properties
+    type: constraint_list
+    node_is_value: false
+
+- node_filter_type: org.alien4cloud.tosca.model.definitions.NodeFilter
+  properties:
+    sequence_to_map: properties
+    type: constraint_list
+    node_is_value: false
+  capabilities:
+    sequence_to_map: capabilities
+    type: filter_definition
+    node_is_value: false
+
+- requirement_definition: org.alien4cloud.tosca.model.definitions.RequirementDefinition
+  capability: type
+  node: nodeType
+  node_filter:
+    reference: nodeFilter
+    type: node_filter_type
+  description: description
+  occurrences:
+    reference: void
+    type: occurrences
+  relationship: relationshipType
+  capability_name: capabilityName
+
+- tosca_function: org.alien4cloud.tosca.model.definitions.FunctionPropertyValue
+  __0:
+    key: function
+    value:
+      list: parameters
+      type: scalar
+
+- get_attribute: alien4cloud.tosca.parser.impl.advanced.GetAttributeParser
+
+- scalar_property_value: org.alien4cloud.tosca.model.definitions.ScalarPropertyValue
+
+- complex_property_value: alien4cloud.tosca.parser.impl.advanced.ComplexPropertyValueParser
+
+- complex_property_subvalue: alien4cloud.tosca.parser.impl.advanced.ComplexPropertySubValueParser
+
+- tosca_concat: org.alien4cloud.tosca.model.definitions.ConcatPropertyValue
+  __0:
+    key: function_concat
+    value:
+      list: parameters
+      type: input
+
+- node_template_property: __discriminator
+  keys:
+    get_input: tosca_function
+    get_property: tosca_function
+    get_secret: tosca_function
+    get_attribute: get_attribute
+    concat: tosca_concat
+  default: abstract_property_value
+
+- complex_node_template_property: __discriminator
+  keys:
+    get_input: tosca_function
+    concat: tosca_concat
+  default: complex_property_subvalue
+
+- input: __discriminator
+  keys:
+    type: property_definition
+    get_artifact: fail_get_artifact
+    get_input: tosca_function
+    get_property: tosca_function
+    get_secret: tosca_function
+    get_attribute: get_attribute
+    get_operation_output: tosca_function
+    concat: tosca_concat
+  default: abstract_property_value
+
+- attribute: __discriminator
+  keys:
+    type: attribute_definition
+    concat: tosca_concat
+    get_operation_output: tosca_function
+    get_attribute: get_attribute
+    get_property: tosca_function
+    get_secret: tosca_function
+  default: attribute_definition
+
+- deployment_artifact: org.alien4cloud.tosca.model.definitions.DeploymentArtifact
+  type: artifactType
+  file:
+    reference: artifactRef
+    type: artifact_ref_parser
+  repository: repositoryName
+  description: description
+  deploy_path: deployPath
+
+- implementation_artifact: org.alien4cloud.tosca.model.definitions.ImplementationArtifact
+  file:
+    reference: artifactRef
+    type: artifact_ref_parser
+  type: artifactType
+  repository: repositoryName
+
+- operation_definition: org.alien4cloud.tosca.model.definitions.Operation
+  implementation:
+    reference: implementationArtifact
+    type: implementation_artifact
+  dependencies:
+    list: dependencies
+    type: deployment_artifact
+  description: description
+  inputs:
+    map: inputParameters
+    type: input
+  input: # add tolerance to input as wd03 is inconsistent.
+    map: inputParameters
+    type: input
+
+############# TOSCA Types parsing definitions #############
+
+- abstract_type_no_props: &abstract_type_no_props
+    description: description
+    abstract: abstract
+    derived_from:
+      reference: derivedFrom
+      type: string_list
+    tags:
+      reference: tags
+      type: tag
+    metadata:
+      reference: tags
+      type: tag
+
+- abstract_type: &abstract_type
+    <<: *abstract_type_no_props
+    properties:
+      map: properties
+      type: property_definition
+
+- abstract_instantiable_type: &abstract_instantiable_type
+    <<: *abstract_type
+    attributes:
+      map: attributes
+      type: attribute
+    interfaces:
+      reference: interfaces
+      type: interfaces
+    artifacts:
+      sequence_to_map: artifacts
+      node_is_value: false
+      type: deployment_artifact
+
+- node_type: org.alien4cloud.tosca.model.types.NodeType
+  <<: *abstract_instantiable_type
+  requirements:
+    list: requirements
+    key: id
+    type: requirement_definition
+  capabilities:
+    list: capabilities
+    key: id
+    type: capability_definition
+  portability:
+    map: portability
+    type: node_template_property
+
+- data_type: __discriminator
+  keys:
+    constraints: simple_data_type
+  default: complex_data_type
+
+- simple_data_type: org.alien4cloud.tosca.model.types.PrimitiveDataType
+  <<: *abstract_type_no_props
+  constraints:
+    list: constraints
+    type: constraint
+
+- complex_data_type: org.alien4cloud.tosca.model.types.DataType
+  <<: *abstract_type
+
+- capability_type: org.alien4cloud.tosca.model.types.CapabilityType
+  <<: *abstract_type
+  valid_source_types:
+    list: validSources
+    type: scalar
+  attributes:
+    map: attributes
+    type: attribute
+
+- relationship_type: org.alien4cloud.tosca.model.types.RelationshipType
+  <<: *abstract_instantiable_type
+  valid_target_types:
+    list: validTargets
+    type: scalar
+
+- artifact_type: org.alien4cloud.tosca.model.types.ArtifactType
+  <<: *abstract_type
+  mime_type: mimeType
+  file_ext:
+    list: fileExt
+    type: scalar
+
+- repository_definition: org.alien4cloud.tosca.model.definitions.RepositoryDefinition
+  description: description
+  url: url
+  credential:
+    reference: credential
+    type: abstract_property_value
+  type: type
+
+- time_interval: org.alien4cloud.tosca.model.definitions.TimeInterval
+  start_time: startTime
+  end_time: startTime
+
+- event_filter: org.alien4cloud.tosca.model.definitions.PolicyEventFilter
+  node: node
+  requirement: requirement
+  capability: capability
+
+- policy_condition: org.alien4cloud.tosca.model.definitions.PolicyCondition
+  constraints:
+    list: constraints
+    type: constraint
+  period: period
+  evaluations: evaluations
+  method: method
+
+- policy_trigger: org.alien4cloud.tosca.model.definitions.PolicyTrigger
+  description: description
+  # Seems unclear in the specification what keyword is the right one
+  event: eventType
+  event_type: eventType
+  target_filter:
+    reference: eventFilter
+    type: event_filter
+  schedule:
+    reference: timeInterval
+    type: time_interval
+  condition:
+    reference: condition
+    type: policy_condition
+  action: actionWorkflow
+
+- policy_type: org.alien4cloud.tosca.model.types.PolicyType
+  <<: *abstract_type
+  targets:
+    set: targets
+    type: scalar
+  triggers:
+    map: triggers
+    type: policy_trigger
+
+############# TOSCA Templates parsing definitions #############
+
+- policy_template: org.alien4cloud.tosca.model.templates.PolicyTemplate
+  # Generic template properties
+  <<: *abstract_template
+  # Specific to policy template
+  targets:
+    set: targets
+    type: scalar
+  triggers:
+    map: triggers
+    type: policy_trigger

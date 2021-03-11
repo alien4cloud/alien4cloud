@@ -1,23 +1,28 @@
 package alien4cloud.rest.application;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import alien4cloud.rest.application.model.MonitoredDeploymentDTO;
+import alien4cloud.model.runtime.ExecutionInputs;
+import alien4cloud.rest.application.model.*;
+import alien4cloud.utils.services.PropertyService;
 import org.alien4cloud.alm.deployment.configuration.model.SecretCredentialInfo;
 import org.alien4cloud.git.GitLocationDao;
 import org.alien4cloud.git.LocalGitManager;
 import org.alien4cloud.git.model.GitLocation;
 import org.alien4cloud.secret.services.SecretProviderService;
+import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
+import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.normative.constants.NormativeWorkflowNameConstants;
 import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.alien4cloud.tosca.utils.TopologyUtils;
 import org.joda.time.DateTime;
@@ -65,9 +70,6 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
-import alien4cloud.rest.application.model.DeployApplicationRequest;
-import alien4cloud.rest.application.model.EnvironmentStatusDTO;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -126,6 +128,8 @@ public class ApplicationDeploymentController {
     private LocationService locationService;
     @Inject
     private SecretProviderService secretProviderService;
+    @Inject
+    private PropertyService propertyService;
 
     /**
      * Trigger deployment of the application on the current configured PaaS.
@@ -210,7 +214,7 @@ public class ApplicationDeploymentController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> undeploy(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
-        return doUndeploy(applicationId, applicationEnvironmentId, new SecretProviderConfigurationAndCredentials());
+        return doUndeploy(applicationId, applicationEnvironmentId, new SecretProviderConfigurationAndCredentials(),false);
     }
 
     /**
@@ -225,18 +229,18 @@ public class ApplicationDeploymentController {
     @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/deployment", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit(bodyHiddenFields = { "credentials" })
-    public RestResponse<Void> undeploy(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
+    public RestResponse<Void> undeploy(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId, @RequestParam Optional<Boolean> force,
             @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
-        return doUndeploy(applicationId, applicationEnvironmentId, secretProviderConfigurationAndCredentials);
+        return doUndeploy(applicationId, applicationEnvironmentId, secretProviderConfigurationAndCredentials,force.orElse(false));
     }
 
     private RestResponse<Void> doUndeploy(String applicationId, String applicationEnvironmentId,
-            SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
+            SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials,boolean force) {
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
         Application application = applicationService.checkAndGetApplication(applicationId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment);
         try {
-            undeployService.undeployEnvironment(secretProviderConfigurationAndCredentials, applicationEnvironmentId);
+            undeployService.undeployEnvironment(secretProviderConfigurationAndCredentials, applicationEnvironmentId,force);
         } catch (OrchestratorDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
@@ -276,13 +280,12 @@ public class ApplicationDeploymentController {
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForEnvironment(application, environment, ApplicationEnvironmentRole.APPLICATION_USER);
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
-        ApplicationTopologyVersion topologyVersion = applicationVersionService
-                .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
-        Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
+
+        DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
 
         MonitoredDeploymentDTO monitoredDeploymentDTO = new MonitoredDeploymentDTO();
         monitoredDeploymentDTO.setDeployment(deployment);
-        Map<String, Integer> stepInstanceCount = toscaContextualAspect.execInToscaContext(() -> TopologyUtils.estimateWorkflowStepInstanceCount(topology), true, topology);
+        Map<String, Integer> stepInstanceCount = toscaContextualAspect.execInToscaContext(() -> TopologyUtils.estimateWorkflowStepInstanceCount(deploymentTopology), true, deploymentTopology);
         monitoredDeploymentDTO.setWorkflowExpectedStepInstanceCount(stepInstanceCount);
 
         return RestResponseBuilder.<MonitoredDeploymentDTO> builder().data(monitoredDeploymentDTO).build();
@@ -608,6 +611,20 @@ public class ApplicationDeploymentController {
         return result;
     }
 
+    @ApiOperation(value = "Get latest inputs for a workflow execution.", notes = "Returns the latest inputs", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
+    @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/workflows/{workflowName}/last_inputs", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @Audit(bodyHiddenFields = { "credentials" })
+    public RestResponse<Map<String,AbstractPropertyValue>> getLastWorkflowInputs(
+            @ApiParam(value = "Application id.", required = true) @Valid @NotBlank @PathVariable String applicationId,
+            @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String applicationEnvironmentId,
+            @ApiParam(value = "Workflow name.", required = true) @Valid @NotBlank @PathVariable String workflowName) {
+
+        Map<String, AbstractPropertyValue> result = workflowExecutionService.getLastExecutionInputs(applicationEnvironmentId,workflowName);
+
+        return RestResponseBuilder.<Map<String,AbstractPropertyValue>> builder().data(result).build();
+    }
+
     @ApiOperation(value = "Launch a given workflow.", notes = "Returns the executionId as a result", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
     @RequestMapping(value = "/{applicationId:.+}/environments/{applicationEnvironmentId}/workflows/{workflowName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
@@ -616,19 +633,28 @@ public class ApplicationDeploymentController {
             @ApiParam(value = "Application id.", required = true) @Valid @NotBlank @PathVariable String applicationId,
             @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String applicationEnvironmentId,
             @ApiParam(value = "Workflow name.", required = true) @Valid @NotBlank @PathVariable String workflowName,
-            @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody(required = false) SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
+            @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody(required = false) LaunchWorkflowRequest request) {
 
         final DeferredResult<RestResponse<String>> result = new DeferredResult<>(15L * 60L * 1000L);
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
 
-        // TODO merge with incoming params
-        Map<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = request.getInputs() != null ? request.getInputs() : Maps.newHashMap();
+
+        if (workflowName.equals(NormativeWorkflowNameConstants.INSTALL) || workflowName.equals(NormativeWorkflowNameConstants.UNINSTALL)) {
+            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.BAD_WORKFLOW_OPERATION.getCode(), String.format("workflow %s cannot be launched",workflowName))).build());
+            return result;
+        }
 
         try {
-            workflowExecutionService.launchWorkflow(secretProviderConfigurationAndCredentials, environment.getId(), workflowName, params,
+            final ExecutionInputs executionInputs = buildExecutionInputs(workflowName,environment,params);
+
+            workflowExecutionService.launchWorkflow(request, environment.getId(), workflowName, params,
                     new IPaaSCallback<String>() {
                         @Override
                         public void onSuccess(String data) {
+                            executionInputs.setId(data);
+                            executionInputs.setTimestamp(new Date());
+                            workflowExecutionService.saveExecutionInputs(executionInputs);
                             result.setResult(RestResponseBuilder.<String> builder().data(data).build());
                         }
 
@@ -643,9 +669,32 @@ public class ApplicationDeploymentController {
                     RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
         } catch (PaaSDeploymentException e) {
             result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
+        } catch (ConstraintViolationException e) {
+            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR.getCode(), e.getMessage())).build());
+        } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR.getCode(), e.getMessage())).build());
         }
 
         return result;
     }
 
+    private ExecutionInputs buildExecutionInputs(String workflowName,ApplicationEnvironment environment,Map<String,Object> params) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        ExecutionInputs result = new ExecutionInputs();
+
+        ApplicationTopologyVersion topologyVersion = applicationVersionService
+                .getOrFail(Csar.createId(environment.getApplicationId(), environment.getVersion()), environment.getTopologyVersion());
+
+        Topology topology = topologyServiceCore.getOrFail(topologyVersion.getArchiveId());
+
+        for (Map.Entry<String,Object> e : params.entrySet()) {
+            PropertyDefinition propertyDefinition = topology.getWorkflow(workflowName).getInputs().get(e.getKey());
+
+            propertyService.setPropertyValue(result.getInputs(),propertyDefinition,e.getKey(),e.getValue());
+        }
+
+        result.setEnvironmentId(environment.getId());
+        result.setWorkflowName(workflowName);
+
+        return result;
+    }
 }

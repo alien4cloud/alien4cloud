@@ -48,7 +48,7 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
-    public void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
+    public void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback,boolean force) {
 
     }
 

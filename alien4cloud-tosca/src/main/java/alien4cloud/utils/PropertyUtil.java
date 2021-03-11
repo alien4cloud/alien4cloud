@@ -2,14 +2,15 @@ package alien4cloud.utils;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import alien4cloud.tosca.context.ToscaContext;
+import com.google.common.collect.Lists;
+import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.apache.commons.collections4.MapUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -331,5 +332,64 @@ public final class PropertyUtil {
             }
         }
         return target;
+    }
+
+    public static Object adaptFunctionsInComplex(Object object,PropertyDefinition definition) {
+        String typeName = definition.getType();
+
+        if (ToscaTypes.isPrimitive(typeName)) {
+            return object;
+        }
+
+        DataType dataType = ToscaContext.get(DataType.class, typeName);
+        if (dataType == null) {
+            // It s a primitive datatype
+            return object;
+        }
+
+        if (!(object instanceof Map)) {
+            return object;
+        }
+
+
+        ComplexPropertyUtil.transform((Map) object,element ->{
+            if (element instanceof Map) {
+                Map<String,Object> map = (Map<String,Object>) element;
+
+                if (map.containsKey("function") && map.containsKey("parameters")) {
+                    FunctionPropertyValue func = new FunctionPropertyValue();
+                    func.setFunction((String) map.get("function"));
+                    func.setParameters((List) map.get("parameters"));
+                    return func;
+                } else if (map.containsKey("function_concat") && map.containsKey("parameters")) {
+                    return  buildConcat((List) map.get("parameters"));
+                }
+            }
+            return element;
+        });
+
+        return object;
+    }
+
+    private static ConcatPropertyValue buildConcat(List<Object> parameters) {
+        ConcatPropertyValue result = new ConcatPropertyValue();
+
+        result.setParameters(Lists.newArrayList());
+
+        for (int i =0 ; i < parameters.size() ; i++) {
+            Map<String,Object> map = (Map<String,Object>) parameters.get(i);
+
+            if (map.containsKey("function") && map.containsKey("parameters")) {
+                FunctionPropertyValue func = new FunctionPropertyValue();
+                func.setFunction((String) map.get("function"));
+                func.setParameters((List) map.get("parameters"));
+                result.getParameters().add(func);
+            } else if (map.containsKey("function_concat") && map.containsKey("parameters")) {
+                result.getParameters().add(buildConcat((List) map.get("parameters")));
+            } else if (map.containsKey("value")) {
+                result.getParameters().add(new ScalarPropertyValue((String) map.get("value")));
+            }
+        }
+        return result;
     }
 }

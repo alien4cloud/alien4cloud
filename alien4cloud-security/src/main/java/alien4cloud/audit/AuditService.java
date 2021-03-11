@@ -1,13 +1,17 @@
 package alien4cloud.audit;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import alien4cloud.dao.QueryUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,9 +93,13 @@ public class AuditService {
         return auditConfiguration;
     }
 
-    public FacetedSearchResult searchAuditTrace(String query, Map<String, String[]> filters, int from, int size) {
+    public FacetedSearchResult searchAuditTrace(String query, Map<String, String[]> filters, int from, int size, Date fromDate, Date toDate) {
         QueryBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
-        return alienDAO.facetedSearch(AuditTrace.class, query, filters, authorizationFilter, null, from, size, "timestamp", "long", true);
+        QueryBuilder dateFilter = QueryUtils.buildTimestampRangeQuery(fromDate,toDate);
+
+        QueryBuilder customFilters = QueryUtils.allOf(authorizationFilter,dateFilter);
+
+        return alienDAO.facetedSearch(AuditTrace.class, query, filters, customFilters, null, from, size, "timestamp", "long", true);
     }
 
     private String getRequestMappingMethod(RequestMapping requestMapping) {

@@ -44,6 +44,8 @@ import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.paas.model.PaaSWorkflowStartedEvent;
+import alien4cloud.paas.model.PaaSWorkflowSucceededEvent;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
@@ -170,6 +172,15 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
 
         changeStatus(deploymentContext.getDeploymentPaaSId(), DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
 
+        PaaSWorkflowStartedEvent event = new PaaSWorkflowStartedEvent();
+        event.setDate((new Date()).getTime());
+        String execId = UUID.randomUUID().toString();
+        event.setExecutionId(execId);
+        event.setWorkflowId("install");
+        event.setWorkflowName("install");
+        event.setDeploymentId(deploymentContext.getDeploymentId());
+        toBeDeliveredEvents.add(event);
+
         executorService.schedule(new Runnable() {
             @Override
             public void run() {
@@ -182,6 +193,12 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
                     break;
                 default:
                     changeStatus(deploymentContext.getDeploymentPaaSId(), DeploymentStatus.DEPLOYED);
+                    PaaSWorkflowSucceededEvent event = new PaaSWorkflowSucceededEvent();
+                    event.setDate((new Date()).getTime());
+                    event.setExecutionId(execId);
+                    event.setWorkflowId("install");
+                    event.setDeploymentId(deploymentContext.getDeploymentId());
+                    toBeDeliveredEvents.add(event);
                 }
             }
         }, 5, TimeUnit.SECONDS);
@@ -205,12 +222,27 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
             }
         }
 
+        PaaSWorkflowStartedEvent event = new PaaSWorkflowStartedEvent();
+        event.setDate((new Date()).getTime());
+        String execId = UUID.randomUUID().toString();
+        event.setExecutionId(execId);
+        event.setWorkflowId("uninstall");
+        event.setWorkflowName("uninstall");
+        event.setDeploymentId(deploymentContext.getDeploymentId());
+        toBeDeliveredEvents.add(event);
+
         executorService.schedule(new Runnable() {
             @Override
             public void run() {
                 changeStatus(deploymentContext.getDeploymentPaaSId(), DeploymentStatus.UNDEPLOYED);
                 // cleanup deployment cache
                 runtimeDeploymentInfos.remove(deploymentContext.getDeploymentPaaSId());
+                PaaSWorkflowSucceededEvent event = new PaaSWorkflowSucceededEvent();
+                event.setDate((new Date()).getTime());
+                event.setExecutionId(execId);
+                event.setWorkflowId("uninstall");
+                event.setDeploymentId(deploymentContext.getDeploymentId());
+                toBeDeliveredEvents.add(event);
             }
         }, 5, TimeUnit.SECONDS);
     }

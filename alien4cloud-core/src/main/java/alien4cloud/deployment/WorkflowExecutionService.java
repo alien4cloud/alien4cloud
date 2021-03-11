@@ -5,7 +5,14 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.model.runtime.Execution;
+import alien4cloud.model.runtime.ExecutionInputs;
+import com.google.common.collect.Maps;
 import org.alien4cloud.secret.services.SecretProviderService;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -38,6 +45,8 @@ public class WorkflowExecutionService {
     private DeploymentTopologyService deploymentTopologyService;
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDAO;
 
     /**
      * Launch a given workflow.
@@ -61,4 +70,21 @@ public class WorkflowExecutionService {
         orchestratorPlugin.launchWorkflow(deploymentContext, workflowName, params, iPaaSCallback);
     }
 
+    public void saveExecutionInputs(ExecutionInputs executionInputs) {
+        alienDAO.save(executionInputs);
+    }
+
+    public Map<String, AbstractPropertyValue> getLastExecutionInputs(String applicationEnvironmentId, String workflowName) {
+        QueryBuilder qb = QueryBuilders.boolQuery()
+                .must(QueryBuilders.termQuery("environmentId",applicationEnvironmentId))
+                .must(QueryBuilders.termQuery("workflowName",workflowName));
+
+        FacetedSearchResult<ExecutionInputs> result = alienDAO.facetedSearch(ExecutionInputs.class, "", null, qb, null, 0, 1, "timestamp", "date", true);
+
+        if (result.getData().length > 0) {
+            return result.getData()[0].getInputs();
+        } else {
+            return Maps.newHashMap();
+        }
+    }
 }

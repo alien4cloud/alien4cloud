@@ -24,7 +24,7 @@
            ng-click="dependencies.getVersionsForDependency(dependency.name)"
            class="btn btn-default btn-xs"
            uib-dropdown-toggle
-           uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.TITLE' | translate}}"
+           uib-tooltip="{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.TITLE' | translate:{name: dependency.name} }}"
            tooltip-append-to-body="true">
         <i class="fa fa-exchange"></i>
         </a>
@@ -33,13 +33,20 @@
             <a  ng-if="version != dependency.version" id="dd_dep_version_{{dependency.name}}_{{version}}"
                 ng-click="$event.stopPropagation();"
                 confirm="{{'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.CONFIRM' | translate}}"
-                confirm-title="{{'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.TITLE' | translate }}"
+                confirm-title="{{'APPLICATIONS.TOPOLOGY.DEPENDENCIES.CHANGE_VERSION.TITLE' | translate:{name: dependency.name} }}"
                 confirm-placement="bottom"
                 confirm-class="popover"
                 confirm-handler="dependencies.changeDependencyVersion(dependency.name, dependency.version, version)">
               {{version}}
             </a>
             <div ng-if="version == dependency.version" class="dropdown-header">{{version}}</div>
+          </li>
+          <li ng-if="searchService.pagination.shouldPaginate()" class="divider"></li>
+          <li>
+            <a ng-if="searchService.pagination.shouldPaginate()"
+               ng-click="dependencies.displayMoreVersions(dependency);">
+              {{'COMMON.DISPLAY_MORE' | translate }}
+            </a>
           </li>
         </ul>
       </div>

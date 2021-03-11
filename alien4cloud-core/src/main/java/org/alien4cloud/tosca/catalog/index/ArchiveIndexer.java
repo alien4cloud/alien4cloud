@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.catalog.index;
 
 import alien4cloud.common.MetaPropertiesService;
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.ToscaTypeAlreadyDefinedInOtherCSAR;
 import alien4cloud.dao.FilterUtil;
@@ -38,10 +39,13 @@ import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
 import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.utils.MetaPropertyFeeder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -72,11 +76,6 @@ import static alien4cloud.utils.AlienUtils.safe;
 @Component
 public class ArchiveIndexer {
 
-    /**
-     * If this prefix is found in TOSCA metadata name, A4C will try to find and feed the corresponding meta-property for NodeType.
-     */
-    public static final String A4C_METAPROPERTY_PREFIX = "A4C_META_";
-
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
@@ -103,9 +102,14 @@ public class ArchiveIndexer {
     private IArchiveIndexerAuthorizationFilter archiveIndexerAuthorizationFilter;
     @Inject
     private MetaPropertiesService metaPropertiesService;
+    @Inject
+    private MetaPropertyFeeder metaFeeder;
 
     @Value("${features.archive_indexer_lock_used_archive:#{true}}")
     private boolean lockUsedArchive;
+
+    @Value("${features.archive_indexer_accept_upgrade_release:#{false}}")
+    private boolean acceptReleased;
 
     /**
      * Check that a CSAR name/version does not already exists in the repository and eventually throw an AlreadyExistException.
@@ -150,7 +154,7 @@ public class ArchiveIndexer {
         if (csar.getYamlFilePath() == null) {
             csar.setYamlFilePath("topology.yml");
         }
-        String yaml = exportService.getYaml(csar, topology);
+        String yaml = exportService.getYaml(csar, topology,false,csar.getToscaDefinitionsVersion(),metaFeeder.buildContext());
 
         // synch the dependencies before indexing
         csar.setDependencies(topology.getDependencies());
@@ -213,7 +217,10 @@ public class ArchiveIndexer {
         publisher.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
 
         // Throw an exception if we are trying to override a released (non SNAPSHOT) version.
-        checkNotReleased(currentIndexedArchive);
+        if (acceptReleased == false) {
+            checkNotReleased(currentIndexedArchive);
+        }
+
         // In the current version of alien4cloud we must prevent from overriding an archive that is used in a deployment as we still use catalog information at
         // runtime.
         if (lockUsedArchive) {
@@ -286,7 +293,7 @@ public class ArchiveIndexer {
 
     private void manageTopologyMetaproperties(Topology topology) {
         Map<String, MetaPropConfiguration> metapropsNames = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.TOPOLOGY);
-        feedA4CMetaproperties(topology, topology.getTags(), metapropsNames);
+        metaFeeder.feed(topology, topology.getTags(), metapropsNames);
     }
 
     private void indexTopology(final ArchiveRoot archiveRoot, List<ParsingError> parsingErrors, String archiveName, String archiveVersion) {
@@ -313,6 +320,8 @@ public class ArchiveIndexer {
                     .getArchive().getHash());
             topology.getDependencies().add(selfDependency);
         }
+
+        postProcessArtifacts(archiveRoot);
 
         // init the workflows
         TopologyContext topologyContext = workflowBuilderService.buildCachedTopologyContext(new TopologyContext() {
@@ -389,41 +398,6 @@ public class ArchiveIndexer {
         }
     }
 
-    private void feedA4CMetaproperties(IMetaProperties newElement, List<Tag> tags, Map<String, MetaPropConfiguration> metapropsByNames) {
-        if (tags == null) {
-            return;
-        }
-        Map<String, String> metaProperties = newElement.getMetaProperties();
-        if (metaProperties == null) {
-            metaProperties = Maps.newHashMap();
-            newElement.setMetaProperties(metaProperties);
-        }
-        Set<String> tagsToRemove = Sets.newHashSet();
-
-        Iterator<Tag> tagIterator = tags.iterator();
-        while (tagIterator.hasNext()) {
-            Tag tag = tagIterator.next();
-            if (tag.getName().startsWith(A4C_METAPROPERTY_PREFIX)) {
-                String metapropertyName = tag.getName().substring(A4C_METAPROPERTY_PREFIX.length());
-                MetaPropConfiguration metaPropConfig = metapropsByNames.get(metapropertyName);
-                if (metaPropConfig != null) {
-                    // validate tag value using meta prop constraints
-                    try {
-                        ConstraintPropertyService.checkPropertyConstraint(metaPropConfig.getId(), tag.getValue(), metaPropConfig);
-                        metaProperties.put(metaPropConfig.getId(), tag.getValue());
-                        tagIterator.remove();
-                    } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                        // TODO: manage error
-                        // for the moment the error is ignored, but the meta-property is not set and the
-                        // tag not removed, so the user can easily guess that something gone wrong ...
-                    } catch (ConstraintViolationException e) {
-                        // TODO: manage error
-                    }
-                }
-            }
-        }
-    }
-
     private void updateComponentMetaProperties(Map<String, NodeType> newElements, Map<String, AbstractToscaType> previousElements, Map<String, MetaPropConfiguration> metapropsNames) {
         if (newElements == null) {
             return;
@@ -432,7 +406,7 @@ public class ArchiveIndexer {
 //        Map<String, MetaPropConfiguration> metapropsNames = metaPropertiesService.getMetaPropConfigurationsByName(MetaPropertyTarget.COMPONENT);
 
         for (NodeType newElement : newElements.values()) {
-            feedA4CMetaproperties(newElement, newElement.getTags(), metapropsNames);
+            metaFeeder.feed(newElement, newElement.getTags(), metapropsNames);
             // now copy meta props from previous type if exists
             Map<String, String> metaProperties = newElement.getMetaProperties();
             if (metaProperties == null) {
@@ -466,7 +440,7 @@ public class ArchiveIndexer {
         indexerService.indexInheritableElements(root.getArtifactTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getCapabilityTypes(), root.getArchive().getDependencies());
         root.getNodeTypes().forEach((id, nodeType) -> {
-            feedA4CMetaproperties(nodeType, nodeType.getTags(), metapropsNames); }
+            metaFeeder.feed(nodeType, nodeType.getTags(), metapropsNames); }
         );
         indexerService.indexInheritableElements(root.getNodeTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(root.getRelationshipTypes(), root.getArchive().getDependencies());
@@ -477,6 +451,21 @@ public class ArchiveIndexer {
             for (ArchiveRoot child : root.getLocalImports()) {
                 performIndexing(child, metapropsNames);
             }
+        }
+    }
+
+    private void postProcessArtifacts(ArchiveRoot root) {
+        Topology topology = root.getTopology();
+
+        String archiveName = root.getArchive().getName();
+        String archiveVersion = root .getArchive().getVersion();
+
+        for (NodeTemplate node : safe(topology.getNodeTemplates().values())) {
+            for (DeploymentArtifact artifact : safe (node.getArtifacts().values()))
+                if (artifact.getArtifactRepository()==null && artifact.getArchiveName().equals(archiveName) && artifact.getArchiveVersion().equals(archiveVersion)) {
+                    artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY);
+                }
+
         }
     }
 }
