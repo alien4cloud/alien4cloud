@@ -30,7 +30,7 @@ public class NodeInstance {
     @ObjectField
     private NodeTemplate nodeTemplate;
 
-    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
+    @ObjectField(enabled = false)
     private Map<String, String> attributeValues = Maps.newHashMap();
 
     public void setAttribute(String key, String value) {
