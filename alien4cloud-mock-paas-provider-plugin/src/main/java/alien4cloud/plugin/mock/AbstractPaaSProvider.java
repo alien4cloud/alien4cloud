@@ -172,6 +172,11 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
         }
     }
 
+    @Override
+    public void purge(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
+        // TODO: mock something
+    }
+
     public DeploymentStatus getStatus(String deploymentId, boolean triggerEventIfUndeployed) {
         try {
             providerLock.readLock().lock();

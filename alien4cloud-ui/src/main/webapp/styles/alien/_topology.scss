@@ -31,6 +31,14 @@
   color: white;
 }
 
+.btn-topology {
+    margin: 20px 5px 20px 5px;
+}
+
+.btn-topology:first-child {
+    margin: 20px 5px 20px 20px;
+}
+
 .topology-row {
   display: table;
   table-layout: fixed;

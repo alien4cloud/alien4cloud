@@ -786,7 +786,8 @@
       "UPDATE_FAILURE" : "Echec de la mise à jour",
       "UPDATE_IN_PROGRESS" : "Déploiement en cours de modification",
       "UNDEPLOYMENT_FAILURE": "Echec de la desinstallation",
-      "WARNING" : "Alerte"
+      "WARNING" : "Alerte",
+      "PURGE_FAILURE" : "Echec de la purge"
     },
     "TOASTER_STATUS" : {
       "DEPLOYED" : "L'environnement < {{envName}} > de l'application < {{appName}} > est déployé.",

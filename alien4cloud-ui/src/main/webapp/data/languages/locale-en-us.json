@@ -786,7 +786,8 @@
       "UPDATE_FAILURE" : "Update failed",
       "UPDATE_IN_PROGRESS" : "Deployment update in progress",
       "UNDEPLOYMENT_FAILURE": "Undeployment failed",
-      "WARNING" : "Warning"
+      "WARNING" : "Warning",
+      "PURGE_FAILURE" : "Purge failed"
     },
     "TOASTER_STATUS" : {
       "DEPLOYED" : "The environment < {{envName}} > of application < {{appName}} > is deployed.",
