@@ -21,6 +21,6 @@ public class ConnectStepFromOperation extends AbstractWorkflowOperation {
 
     @Override
     public String commitMessage() {
-        return "Connect steps <" + StringUtils.join(getFromStepIds(), ",") + "> to step <" + getToStepId() + "> in the workflow <" + getWorkflowName() + ">";
+        return "Add onSuccess links from steps <" + StringUtils.join(getFromStepIds(), ",") + "> to step <" + getToStepId() + "> in the workflow <" + getWorkflowName() + ">";
     }
 }

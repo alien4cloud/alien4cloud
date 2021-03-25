@@ -115,9 +115,11 @@ define(function (require) {
                 scope.workflows.togglePinnedworkflowStep(nodeId, steps[nodeId]);
                 //scope.workflows.setPinnedWorkflowStep(nodeId, steps[nodeId]);
             } else {
+                var currentSteps = scope.topology.topology.workflows[scope.currentWorkflowName].steps;
+
                 if (stepPinned) {
                   // the step is pinned, let's unpin it
-                  scope.workflows.togglePinnedworkflowStep(nodeId, steps[nodeId]);
+                  scope.workflows.togglePinnedworkflowStep(nodeId, currentSteps[nodeId]);
                 } else if(hasStepPinned) {
                   // a step is pinned, we play with selections
                   scope.workflows.toggleStepSelection(nodeId);
@@ -126,7 +128,7 @@ define(function (require) {
                   scope.workflows.toggleStepSelection(nodeId);
                 } else {
                   // no step pinned, let's pin this one
-                  scope.workflows.togglePinnedworkflowStep(nodeId, steps[nodeId]);
+                  scope.workflows.togglePinnedworkflowStep(nodeId, currentSteps[nodeId]);
                 }
             }
           };
@@ -176,7 +178,7 @@ define(function (require) {
           parent.on('click', function (edge) {
             if (edge.source.id !== 'start' && edge.target.id !== 'end') {
               // edge connected to start or end are no editable
-              self.scope.workflows.togglePinEdge(edge.source.id, edge.target.id);
+              self.scope.workflows.togglePinEdge(edge.source.id, edge.target.id, edge.name);
             }
           });
         },
@@ -189,7 +191,7 @@ define(function (require) {
           });
           path.attr('style', function(e) {
             if (e.pinnedStyle && self.scope.wfPinnedEdge) {
-              if (self.scope.wfPinnedEdge.from === e.source.id && self.scope.wfPinnedEdge.to === e.target.id) {
+              if (self.scope.wfPinnedEdge.from === e.source.id && self.scope.wfPinnedEdge.to === e.target.id && self.scope.wfPinnedEdge.name === e.name) {
                 return e.pinnedStyle;
               }
             }
@@ -197,7 +199,7 @@ define(function (require) {
           });
           path.attr('marker-end', function(e) {
             if (e.pinnedStyle && self.scope.wfPinnedEdge) {
-              if (self.scope.wfPinnedEdge.from === e.source.id && self.scope.wfPinnedEdge.to === e.target.id) {
+              if (self.scope.wfPinnedEdge.from === e.source.id && self.scope.wfPinnedEdge.to === e.target.id && self.scope.wfPinnedEdge.name === e.name) {
                 return 'url(#'+e.marker+'-pinned)';
               }
             }
@@ -243,10 +245,14 @@ define(function (require) {
             }
           }
           addMarker('arrow-standard', 'black', false);
+          addMarker('arrow-failure', '#E74C3C', false);
+          addMarker('arrow-failure-pinned', '#E74C3C', true);
           addMarker('arrow-standard-pinned', 'black', true);
-          addMarker('arrow-error', '#f66', false);
-          addMarker('arrow-error-pinned', '#f66', true);
+          addMarker('arrow-error', '#9B59B6 ', false);
+          addMarker('arrow-error-pinned', '#9B59B6', true);
           addMarker('arrow-preview', 'blue', false);
+          addMarker('arrow-standard-preview-pinned','black',false);
+          addMarker('arrow-failure-preview-pinned','#E74C3C',false);
         },
 
         getStepStatus: function(nodeId) {

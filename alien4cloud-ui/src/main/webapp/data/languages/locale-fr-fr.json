@@ -386,12 +386,16 @@
       "disconnect" : "Déconnecter",
       "disconnectFrom" : "Déconnecter depuis",
       "disconnectTo" : "Déconnecter vers",
+      "disconnectFailureFrom" : "Déconnecter (sur echec) depuis",
+      "disconnectFailureTo" : "Déconnecter (sur echec) vers",
       "errors" : {
         "BadStateSequenceError" : "Mauvaise séquence : le pas '{{from}}' ne devrait pas se trouver avant le pas '{{to}}'",
         "ParallelSetStatesError" : "Des changements d'état sont effectués en parallèle pour le noeud '{{nodeId}}'",
         "UnknownNodeError" : "Le noeud '{{nodeId}}' référencé par le pas '{{stepId}}' n'existe pas",
         "WorkflowHasCycleError" : "Le workflow contient un cycle"
       },
+      "failFromSelection" : "Connecter sur echec depuis la sélection",
+      "failToSelection" : "Connecter sur echec vers la sélection",
       "hasErrors" : "erreur(s)",
       "host" : "Hôte",
       "inline" : "Inséré en ligne",
@@ -405,7 +409,7 @@
       "removeStep" : "Supprimer le pas",
       "stateName" : "Etat",
       "swapLeft" : "Interchanger à gauche",
-      "swapRigth" : "Interchanger à droite",
+      "swapRight" : "Interchanger à droite",
       "title" : "Workflows",
       "unpin" : "Dévérouiller",
       "workflow" : "Workflow"

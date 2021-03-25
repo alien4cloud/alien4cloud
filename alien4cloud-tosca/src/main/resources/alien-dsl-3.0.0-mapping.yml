@@ -125,6 +125,9 @@
   on_success:
     set: onSuccess
     type: scalar
+  on_failure:
+    set: onFailure
+    type: scalar
 
 - relationship_workflow_step : org.alien4cloud.tosca.model.workflow.RelationshipWorkflowStep
   target: target
@@ -135,6 +138,9 @@
     type: workflow_activity
   on_success:
     set: onSuccess
+    type: scalar
+  on_failure:
+    set: onFailure
     type: scalar
 
 - workflow_activity: __discriminator

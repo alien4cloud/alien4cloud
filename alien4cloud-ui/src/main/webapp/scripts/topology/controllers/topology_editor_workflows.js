@@ -113,15 +113,11 @@ define(function (require) {
           }
           this.scope.$digest();
         },
-        togglePinEdge: function (from, to) {
-          if (this.scope.wfPinnedEdge) {
-            if (this.scope.wfPinnedEdge.from === from && this.scope.wfPinnedEdge.to === to) {
-              this.scope.wfPinnedEdge = undefined;
-            } else {
-              this.scope.wfPinnedEdge = {'from': from, 'to': to};
-            }
+        togglePinEdge: function (from, to,name) {
+          if (this.scope.wfPinnedEdge && this.scope.wfPinnedEdge.from === from && this.scope.wfPinnedEdge.to === to && this.scope.wfPinnedEdge.name === name) {
+            this.scope.wfPinnedEdge = undefined;
           } else {
-            this.scope.wfPinnedEdge = {'from': from, 'to': to};
+            this.scope.wfPinnedEdge = {'from': from, 'to': to, 'name': name };
           }
           this.scope.$digest();
           this.refreshGraph();
@@ -230,6 +226,46 @@ define(function (require) {
             }
           }
           return connectToCandidate;
+        },
+        getFailToCandidates: function () {
+          var failToCandidate = [];
+          var step = this.scope.pinnedWorkflowStep;
+          for (var selectedNodeIdx in this.scope.workflowCurrentStepSelection) {
+            var selectedNode = this.scope.workflowCurrentStepSelection[selectedNodeIdx];
+            if (selectedNode !== step.name && step.onFailure.indexOf(selectedNode) < 0) {
+              // the selected node is not in the following steps, we can propose it as 'to connection'
+              failToCandidate.push(selectedNode);
+            }
+          }
+          return failToCandidate;
+        },
+        getFailFromCandidates: function () {
+          var failFromCandidate = [];
+          var step = this.scope.pinnedWorkflowStep;
+          for (var selectedNodeIdx in this.scope.workflowCurrentStepSelection) {
+            var selectedNode = this.scope.workflowCurrentStepSelection[selectedNodeIdx];
+            if (selectedNode !== step.name && step.precedingFailSteps.indexOf(selectedNode) < 0) {
+              // the selected node is not in the preceding steps, we can propose it as 'from connection'
+              failFromCandidate.push(selectedNode);
+            }
+          }
+          return failFromCandidate;
+        },
+        getSwapRightCandidates: function() {
+            var candidates = [];
+            var step = this.scope.pinnedWorkflowStep;
+            if (step) {
+                candidates = _.union(step.onSuccess,step.onFailure);
+            }
+            return candidates;
+        },
+        getSwapLeftCandidates: function() {
+            var candidates = [];
+            var step = this.scope.pinnedWorkflowStep;
+            if (step) {
+                candidates = _.union(step.precedingSteps,step.precedingFailSteps);
+            }
+            return candidates;
         },
         // pin or un-pin this step : when a step is pinned it remains the current step until it is un-pinned
         togglePinnedworkflowStep: function (nodeId, step) {
@@ -391,11 +427,17 @@ define(function (require) {
             }
           );
         },
-        removeEdge: function (from, to) {
+        removeEdge: function (from, to, name) {
           var scope = this.scope;
           var instance = this;
+          var operation = 'org.alien4cloud.tosca.editor.operations.workflow.RemoveEdgeOperation';
+
+          if (name === 'failure') {
+            operation = 'org.alien4cloud.tosca.editor.operations.workflow.RemoveFailureEdgeOperation';
+          }
+
           this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.workflow.RemoveEdgeOperation',
+              type: operation,
               fromStepId: from,
               toStepId: to,
               workflowName: scope.currentWorkflowName
@@ -441,63 +483,70 @@ define(function (require) {
             }
           );
         },
-        connectFrom: function () {
-          var scope = this.scope;
-          var instance = this;
-          var connectFromCandidate = this.getConnectFromCandidates();
-          if (connectFromCandidate.length === 0) {
-            return;
-          }
-          this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.workflow.ConnectStepFromOperation',
-              toStepId: scope.pinnedWorkflowStep.name,
-              workflowName: scope.currentWorkflowName,
-              fromStepIds: connectFromCandidate
-            },
-            function (successResult) {
-              if (!successResult.error) {
-                if (scope.pinnedWorkflowStep) {
-                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
+        doAddEdge: function(operation) {
+            var scope = this.scope;
+            var instance = this;
+
+            this.scope.execute(operation,
+              function (successResult) {
+                if (!successResult.error) {
+                  if (scope.pinnedWorkflowStep) {
+                    instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
+                  }
+                  instance.refreshGraph(true, true);
+                  console.debug('operation succeded');
+                } else {
+                  console.debug(successResult.error);
                 }
-                instance.refreshGraph(true, true);
-                console.debug('operation succeded');
-              } else {
-                console.debug(successResult.error);
+              },
+              function (errorResult) {
+                console.debug(errorResult);
               }
-            },
-            function (errorResult) {
-              console.debug(errorResult);
-            }
-          );
+            );
         },
-        connectTo: function () {
-          var scope = this.scope;
-          var instance = this;
-          var connectToCandidate = this.getConnectToCandidates();
-          if (connectToCandidate.length === 0) {
-            return;
-          }
-          this.scope.execute({
+        connectTo: function() {
+            var candidates = this.getConnectToCandidates();
+            if (candidates.length == 0) return;
+
+            this.doAddEdge({
               type: 'org.alien4cloud.tosca.editor.operations.workflow.ConnectStepToOperation',
-              fromStepId: scope.pinnedWorkflowStep.name,
-              workflowName: scope.currentWorkflowName,
-              toStepIds: connectToCandidate
-            },
-            function (successResult) {
-              if (!successResult.error) {
-                if (scope.pinnedWorkflowStep) {
-                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
-                }
-                instance.refreshGraph(true, true);
-                console.debug('operation succeded');
-              } else {
-                console.debug(successResult.error);
-              }
-            },
-            function (errorResult) {
-              console.debug(errorResult);
-            }
-          );
+              fromStepId: this.scope.pinnedWorkflowStep.name,
+              workflowName: this.scope.currentWorkflowName,
+              toStepIds: candidates
+            });
+        },
+        connectFrom: function () {
+          var candidates = this.getConnectFromCandidates();
+          if (candidates.length == 0) return;
+
+          this.doAddEdge({
+            type: 'org.alien4cloud.tosca.editor.operations.workflow.ConnectStepFromOperation',
+            toStepId: this.scope.pinnedWorkflowStep.name,
+            workflowName: this.scope.currentWorkflowName,
+            fromStepIds: candidates
+          });
+        },
+        failTo: function () {
+          var candidates = this.getFailToCandidates();
+          if (candidates.length == 0) return;
+
+          this.doAddEdge({
+            type: 'org.alien4cloud.tosca.editor.operations.workflow.FailStepToOperation',
+            fromStepId: this.scope.pinnedWorkflowStep.name,
+            workflowName: this.scope.currentWorkflowName,
+            toStepIds: candidates
+          });
+        },
+        failFrom: function () {
+          var candidates = this.getConnectFromCandidates();
+          if (candidates.length == 0) return;
+
+          this.doAddEdge({
+            type: 'org.alien4cloud.tosca.editor.operations.workflow.FailStepFromOperation',
+            toStepId: this.scope.pinnedWorkflowStep.name,
+            workflowName: this.scope.currentWorkflowName,
+            fromStepIds: candidates
+          });
         },
         swap: function (from, to) {
           var scope = this.scope;
@@ -665,8 +714,11 @@ define(function (require) {
         removeStepPreview: function (stepId) {
           this.scope.$broadcast('WfRemoveStepPreview', stepId);
         },
-        removeEdgePreview: function (from, to) {
-          this.scope.$broadcast('WfRemoveEdgePreview', from, to);
+        removeEdgePreview: function (from, to, name) {
+          this.scope.$broadcast('WfRemoveEdgePreview', from, to, name);
+        },
+        removeFailureEdgePreview: function (from, to) {
+          this.scope.$broadcast('WfRemoveFailureEdgePreview', from, to);
         },
         connectFromPreview: function () {
           var candidates = this.getConnectFromCandidates();
@@ -680,11 +732,26 @@ define(function (require) {
             this.connectPreview([this.scope.pinnedWorkflowStep.name], candidates);
           }
         },
+        failToPreview: function () {
+          var candidates = this.getFailToCandidates();
+          if (candidates && candidates.length > 0) {
+            this.failPreview([this.scope.pinnedWorkflowStep.name], candidates);
+          }
+        },
+        failFromPreview: function () {
+          var candidates = this.getFailFromCandidates();
+          if (candidates && candidates.length > 0) {
+            this.failPreview(candidates, [this.scope.pinnedWorkflowStep.name]);
+          }
+        },
         swapPreview: function (from, to) {
           this.scope.$broadcast('WfSwapPreview', from, to);
         },
         connectPreview: function (from, to) {
           this.scope.$broadcast('WfConnectPreview', from, to);
+        },
+        failPreview: function (from, to) {
+          this.scope.$broadcast('WfFailPreview', from, to);
         },
         addStepPreview: function () {
           this.scope.$broadcast('WfAddStepPreview');
