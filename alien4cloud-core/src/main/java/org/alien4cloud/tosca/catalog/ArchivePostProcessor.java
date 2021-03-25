@@ -28,7 +28,7 @@ public class ArchivePostProcessor extends AbstractArchivePostProcessor implement
         private FileSystem fileSystem;
 
         private ZipArchivePathResolver(Path archive) throws IOException {
-            fileSystem = FileSystems.newFileSystem(archive, null);
+            fileSystem = FileSystems.newFileSystem(archive, (ClassLoader)null);
         }
 
         @Override

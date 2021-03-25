@@ -493,6 +493,7 @@ public class DeploymentTopologyStepDefinitions {
 
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     private static class LocationPolicySetting {
         String groupName;
         String orchestratorName;

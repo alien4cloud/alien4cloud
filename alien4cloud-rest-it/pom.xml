@@ -18,7 +18,7 @@
       <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
 -->
       <jclouds.version>1.9.1</jclouds.version>
-      <jetty.version>9.4.9.v20180320</jetty.version>
+      <jetty.version>9.4.34.v20201102</jetty.version>
     </properties>
 
     <dependencies>

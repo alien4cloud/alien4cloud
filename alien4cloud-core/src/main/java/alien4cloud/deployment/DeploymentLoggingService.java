@@ -9,12 +9,10 @@ import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.paas.model.PaaSDeploymentLog;
-import groovy.util.logging.Log4j;
 
 /**
  * Service is used by some premium plugins for archive the deployments logs.
  */
-@Log4j
 @Service
 public class DeploymentLoggingService {
     @Resource(name = "alien-monitor-es-dao")
