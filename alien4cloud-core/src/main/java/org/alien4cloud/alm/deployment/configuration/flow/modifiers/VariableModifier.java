@@ -98,15 +98,19 @@ public class VariableModifier implements ITopologyModifier {
     private void processProperty(Map.Entry<String,AbstractPropertyValue> entry, AbstractInheritableToscaType type, String path, VariableModifierContext context) {
         PropertyDefinition definition = safe(type.getProperties()).get(entry.getKey());
 
-        if (entry.getValue() instanceof ScalarPropertyValue) {
-            log.debug("Processing {}", path);
-            entry.setValue((AbstractPropertyValue) processScalar((ScalarPropertyValue) entry.getValue(),definition,path,context));
-        } else if (entry.getValue() instanceof ComplexPropertyValue) {
-            log.debug("Processing {}[]", path);
-            processComplex((ComplexPropertyValue) entry.getValue(),definition,path,context);
-        } else if (entry.getValue() instanceof ListPropertyValue) {
-            log.debug("Processing {}[]", path);
-            processListComplex(((ListPropertyValue) entry.getValue()).getValue(),definition,path,context);
+        if (definition != null) {
+            if (entry.getValue() instanceof ScalarPropertyValue) {
+                log.debug("Processing {}", path);
+                entry.setValue((AbstractPropertyValue) processScalar((ScalarPropertyValue) entry.getValue(), definition, path, context));
+            } else if (entry.getValue() instanceof ComplexPropertyValue) {
+                log.debug("Processing {}[]", path);
+                processComplex((ComplexPropertyValue) entry.getValue(), definition, path, context);
+            } else if (entry.getValue() instanceof ListPropertyValue) {
+                log.debug("Processing {}[]", path);
+                processListComplex(((ListPropertyValue) entry.getValue()).getValue(), definition, path, context);
+            }
+        } else {
+            log.warn("Cannot find PropertyDefinition %s",entry.getKey());
         }
     }
 
