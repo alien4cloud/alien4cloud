@@ -29,7 +29,7 @@
         <ul class="dropdown-menu navbar-logout-dropdown" uib-dropdown-menu role="menu">
           <li ng-repeat="(code, language) in supportedLanguages">
             <a ng-click="changeLanguage(code)" name="link-language-{{code}}">
-              <img src="images/flags/iso/{{code}}.svg" class="language flag"> {{language}}
+              <img ng-src="images/flags/iso/{{code}}.svg" class="language flag"> {{language}}
             </a>
           </li>
           <li role="presentation" class="divider"></li>

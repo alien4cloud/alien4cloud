@@ -35,17 +35,19 @@ public abstract class WorkflowStep {
     /** The steps to trigger (in parallel if multiple) if the workflow step has been executed correctly. */
     private Set<String> onSuccess = new HashSet<>();
     /** The steps to trigger (in parallel if multiple) if the workflow step has failed. */
-    private Set<String> onFailure;
+    private Set<String> onFailure = new HashSet<>();
 
     /*
      * ________________________________________________________________________________________________
      * Everything underneath is non tosca, it does exist to facilitate implementation in Alien4Cloud
      * ________________________________________________________________________________________________
      */
-    /** The id / name of the step in the workflow **/
+    /** The id / name of the step in the workflow */
     private String name;
-    /** The steps that precedes immediately this step in the workflow sequence **/
+    /** The steps that precedes immediately this step in the workflow sequence */
     private Set<String> precedingSteps = new HashSet<>();
+    /** The steps that precedes immediately this step with the onFailure link in the wf sequence */
+    private Set<String> precedingFailSteps = new HashSet<>();
 
     @JsonIgnore
     public AbstractWorkflowActivity getActivity() {
@@ -73,6 +75,10 @@ public abstract class WorkflowStep {
         this.precedingSteps.add(name);
     }
 
+    public void addPrecedingFail(String name) {
+        this.precedingFailSteps.add(name);
+    }
+
     public void addAllPrecedings(Set<String> precedings) {
         this.precedingSteps.addAll(precedings);
     }
@@ -84,6 +90,8 @@ public abstract class WorkflowStep {
     public boolean removePreceding(String name) {
         return this.precedingSteps.remove(name);
     }
+
+    public boolean removePrecedingFailure(String name) { return this.precedingFailSteps.remove(name); }
 
     public void addFollowing(String name) {
         this.onSuccess.add(name);
@@ -97,8 +105,13 @@ public abstract class WorkflowStep {
         return this.onSuccess.remove(name);
     }
 
+    public boolean removeFollowingFailure(String name) {
+        return this.onFailure.remove(name);
+    }
+
     public void removeAllFollowings(Set<String> followings) {
         this.onSuccess.removeAll(followings);
     }
 
+    public void addOnFailure(String name) {this.onFailure.add(name);}
 }

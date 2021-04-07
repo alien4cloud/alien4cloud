@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
@@ -32,7 +33,8 @@ import org.apache.commons.lang3.StringUtils;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.wf.TopologyContext;
 import alien4cloud.paas.wf.model.Path;
-import alien4cloud.utils.AlienUtils;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 @Slf4j
 public class WorkflowGraphUtils {
@@ -75,7 +77,7 @@ public class WorkflowGraphUtils {
 
         path.add(step);
 
-        for (String stepName : step.getOnSuccess()) {
+        for (String stepName : Sets.union(safe(step.getOnSuccess()),safe(step.getOnFailure()))) {
             WorkflowStep nextStep = workflow.getSteps().get(stepName);
 
             if (colors.get(stepName) == Color.GRAY) {
@@ -154,7 +156,7 @@ public class WorkflowGraphUtils {
     }
 
     private static boolean hasImplementation(Map<String, Interface> interfaceMap, String stepInterfaceName, String stepOperationName) {
-        Optional<Interface> foundInterface = AlienUtils.safe(interfaceMap).entrySet().stream()
+        Optional<Interface> foundInterface = safe(interfaceMap).entrySet().stream()
                 .filter(ie -> ToscaNormativeUtil.getLongInterfaceName(ie.getKey()).equals(stepInterfaceName)).map(Map.Entry::getValue).findFirst();
         return foundInterface.map(anInterface -> {
             Operation operation = anInterface.getOperations().get(stepOperationName);

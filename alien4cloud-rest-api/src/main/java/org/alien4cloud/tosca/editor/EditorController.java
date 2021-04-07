@@ -93,9 +93,7 @@ public class EditorController {
      * Method exposed to REST to upload a file in an archive under edition.
      *
      * @param topologyId The id of the topology/archive under edition.
-     * @param lastOperationId The id of the user last known operation (for optimistic locking edition).
-     * @param path The path in which to save/override the file in the archive.
-     * @param file The file to save in the archive.
+     * @param request The http request.
      */
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")

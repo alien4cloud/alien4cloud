@@ -224,4 +224,12 @@ public class CycleDetectionTest extends AbstractValidationTest<CycleDetection> {
         processValidation(true, 1);
     }
 
+    @Test
+    public void testOneCycleWithOnFailure() {
+        WorkflowStep a = wf.addStep(new SimpleStep("a"));
+        WorkflowStep b = wf.addStep(new SimpleStep("b"));
+        WorkflowUtils.linkSteps(a,b);
+        WorkflowUtils.linkStepsWithOnFailure(b,a);
+        processValidation(true, 1);
+    }
 }

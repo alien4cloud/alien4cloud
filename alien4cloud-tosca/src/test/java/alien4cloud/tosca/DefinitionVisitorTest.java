@@ -18,7 +18,7 @@ public class DefinitionVisitorTest {
     @Test
     public void testVisitorInZip() throws IOException {
         Path path = Paths.get("src/test/resources/tosca/visitor/zipped.zip");
-        FileSystem fs = FileSystems.newFileSystem(path, null);
+        FileSystem fs = FileSystems.newFileSystem(path, (ClassLoader)null);
         doTest(fs);
     }
 

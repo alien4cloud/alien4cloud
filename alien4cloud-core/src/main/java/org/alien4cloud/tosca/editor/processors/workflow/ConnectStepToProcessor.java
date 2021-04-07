@@ -19,8 +19,8 @@ public class ConnectStepToProcessor extends AbstractWorkflowProcessor<ConnectSte
 
     @Override
     protected void processWorkflowOperation(Csar csar, Topology topology, ConnectStepToOperation operation, Workflow workflow) {
-        log.debug("connecting step [ {} ] to [ {} ] in the workflow [ {} ] from topology [ {} ]", operation.getFromStepId(),
+        log.debug("Connecting with onSuccess link step [ {} ] to [ {} ] in the workflow [ {} ] from topology [ {} ]", operation.getFromStepId(),
                 StringUtils.join(operation.getToStepIds(), ","), workflow.getName(), topology.getId());
         workflowBuilderService.connectStepTo(topology, csar, workflow.getName(), operation.getFromStepId(), operation.getToStepIds());
-    }
+     }
 }

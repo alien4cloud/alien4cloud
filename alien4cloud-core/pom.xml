@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.2.0-TEST-SNAPSHOT</version>
   </parent>
   <artifactId>alien4cloud-core</artifactId>
   <name>Alien 4 Cloud Core</name>
@@ -72,10 +72,12 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
     </dependency>
+<!--
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-all</artifactId>
     </dependency>
+-->
 
     <!-- RxJava -->
     <dependency>
@@ -108,7 +110,7 @@
     </dependency>
     <dependency>
       <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb</artifactId>
+      <artifactId>jaxb-impl</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.el</groupId>

@@ -83,7 +83,9 @@ define(function (require) {
         this.svgGroup = svgElement.append('g');
         this.zoom = d3.behavior.zoom().on('zoom',
             function() {
-              self.svgGroup.attr('transform', 'translate(' + d3.event.translate + ')' + 'scale(' + d3.event.scale + ')');
+              if (!isNaN(d3.event.scale)) {
+                self.svgGroup.attr('transform', 'translate(' + d3.event.translate + ')' + 'scale(' + d3.event.scale + ')');
+              }
             });
         if(_.defined(graphControl)) {
           graphControl.toRealCoords = function(coords) {
