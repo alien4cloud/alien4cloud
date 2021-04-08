@@ -373,7 +373,7 @@
                         <!-- redo configuration from parent - use itReportPath -->
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.4</version>
+                        <version>0.8.6</version>
                         <configuration>
                             <propertyName>jacocoargline</propertyName>
 <!--
