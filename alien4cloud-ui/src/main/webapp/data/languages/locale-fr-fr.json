@@ -1243,6 +1243,7 @@
   },
   "POLICIES" : "Policies",
   "PROPERTY_RESET" : "Réinitialiser à la valeur par défaut",
+  "PROPERTY_DEFAULT" : "Valeur par défaut",
   "PROPERTY_SUGGESTION" : {
     "MODAL" : {
       "DESCRIPTION" : "La valeur que vous avez saisie n'est pas enregistrée dans le système.",

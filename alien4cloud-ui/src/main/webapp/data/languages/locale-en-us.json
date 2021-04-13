@@ -1243,6 +1243,7 @@
   },
   "POLICIES" : "Policies",
   "PROPERTY_RESET" : "Set to default value or reset",
+  "PROPERTY_DEFAULT" : "Default value",
   "PROPERTY_SUGGESTION" : {
     "MODAL" : {
       "DESCRIPTION" : "The value that you entered has never been registered before in the system.",

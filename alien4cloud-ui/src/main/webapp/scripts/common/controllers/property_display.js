@@ -277,7 +277,6 @@ define(function(require) {
         }
 
         // handling default value
-        shownValue = shownValue || $scope.definition.default;
         $scope.definitionObject.hasDefaultValue = _.defined($scope.definition.default);
 
         // merge the constraints from the definition and from the type
