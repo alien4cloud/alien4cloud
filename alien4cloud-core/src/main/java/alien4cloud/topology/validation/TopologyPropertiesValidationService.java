@@ -1,6 +1,7 @@
 package alien4cloud.topology.validation;
 
 import alien4cloud.paas.exception.NotSupportedException;
+import alien4cloud.services.PropertyDefaultValueService;
 import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.task.ScalableTask;
 import alien4cloud.topology.task.TaskCode;
@@ -32,6 +33,7 @@ import org.alien4cloud.tosca.utils.FunctionEvaluator;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import com.google.common.collect.Lists;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -47,6 +49,10 @@ import static alien4cloud.utils.AlienUtils.safe;
 @Component
 @Slf4j
 public class TopologyPropertiesValidationService {
+
+    @Autowired
+    private PropertyDefaultValueService defaultValueService;
+
     /**
      * Validate that the properties values in the topology are matching the property definitions (required & constraints).
      * Skips properties defined as get_input
@@ -104,7 +110,8 @@ public class TopologyPropertiesValidationService {
 
         // Check the properties of node template
         if (MapUtils.isNotEmpty(nodeTemplate.getProperties())) {
-            addRequiredPropertyIdToTaskProperties(null, nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), task, skipInputProperties);
+            Map<String,AbstractPropertyValue> fedProperties = defaultValueService.feedDefaultValues(nodeTemplate);
+            addRequiredPropertyIdToTaskProperties(null, fedProperties, relatedIndexedNodeType.getProperties(), task, skipInputProperties);
         }
 
         // Check relationships PD
