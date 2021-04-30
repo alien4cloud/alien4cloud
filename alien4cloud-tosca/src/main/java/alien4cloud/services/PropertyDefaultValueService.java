@@ -13,10 +13,7 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -84,23 +81,29 @@ public class PropertyDefaultValueService {
     private void feedComplexProperties(Map<String,Object> values,DataType type) {
         // First feed default values
         for (var entry : safe(type.getProperties()).entrySet()) {
-            if (!values.containsKey(entry.getKey()) && entry.getValue().getDefault() != null) {
-                // No value but a default exists, lets use it
-                AbstractPropertyValue v = entry.getValue().getDefault();
+            if (!values.containsKey(entry.getKey())) {
+                if (entry.getValue().getDefault() != null) {
+                    // No value but a default exists, lets use it
+                    AbstractPropertyValue v = entry.getValue().getDefault();
 
-                Object o = null;
+                    Object o = null;
 
-                if (entry.getValue().getType().equals(ToscaTypes.MAP) && v instanceof ComplexPropertyValue) {
-                    o = ((ComplexPropertyValue) v).getValue();
-                } else if (entry.getValue().getType().equals(ToscaTypes.LIST) && v instanceof ListPropertyValue) {
-                    o = ((ListPropertyValue) v).getValue();
-                } else if (v instanceof ScalarPropertyValue) {
-                    o = ((ScalarPropertyValue) v).getValue();
-                } else {
-                    o = v;
+                    if (entry.getValue().getType().equals(ToscaTypes.MAP) && v instanceof ComplexPropertyValue) {
+                        o = ((ComplexPropertyValue) v).getValue();
+                    } else if (entry.getValue().getType().equals(ToscaTypes.LIST) && v instanceof ListPropertyValue) {
+                        o = ((ListPropertyValue) v).getValue();
+                    } else if (v instanceof ScalarPropertyValue) {
+                        o = ((ScalarPropertyValue) v).getValue();
+                    } else if (!ToscaTypes.isPrimitive(entry.getValue().getType()) && v instanceof ComplexPropertyValue) {
+                        o = ((ComplexPropertyValue) v).getValue();
+                    } else {
+                        o = v;
+                    }
+
+                    values.put(entry.getKey(), CloneUtil.clone(o));
+                } else if (!ToscaTypes.isPrimitive(entry.getValue().getType())) {
+                    values.put(entry.getKey(), Maps.newHashMap());
                 }
-
-                values.put(entry.getKey(), CloneUtil.clone(o));
             }
         }
 

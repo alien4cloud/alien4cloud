@@ -94,6 +94,3 @@ topology_template:
         prop7:
           - field1: prop7_0_value1
           - field1: prop7_1_value1
-        prop8:
-          nested2:
-            field1: prop9_nested2_1_value

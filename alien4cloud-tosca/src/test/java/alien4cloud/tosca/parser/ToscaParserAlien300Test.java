@@ -117,6 +117,9 @@ public class ToscaParserAlien300Test extends AbstractToscaParserSimpleProfileTes
         assertThat(mock1.getProperties(), hasKey("prop3"));
         assertThat(mock1.getProperties(), hasKey("prop4"));
         assertThat(mock1.getProperties(), hasKey("prop5"));
+        assertThat(mock1.getProperties(), hasKey("prop6"));
+        assertThat(mock1.getProperties(), hasKey("prop7"));
+        assertThat(mock1.getProperties(), hasKey("prop8"));
 
         cv0 = checkedConversion(ComplexPropertyValue.class, mock1.getProperties().get("prop2"));
         assertStringProp(cv0.getValue(), "field1", "Simple_Value1");
@@ -157,6 +160,10 @@ public class ToscaParserAlien300Test extends AbstractToscaParserSimpleProfileTes
         m0 = checkedConversion(Map.class, lv0.getValue().get(1));
         assertThat(m0.keySet(),hasSize(1));
         assertStringProp(m0, "field1", "prop7_1_value1");
+
+        cv0 = checkedConversion(ComplexPropertyValue.class, mock1.getProperties().get("prop8"));
+        assertThat(cv0.getValue().keySet(),hasSize(1));
+        assertStringProp(cv0.getValue(), "nested1", "Nested_Value1");
     }
 
     @Test
@@ -229,6 +236,16 @@ public class ToscaParserAlien300Test extends AbstractToscaParserSimpleProfileTes
             assertThat(m0.keySet(),hasSize(2));
             assertStringProp(m0, "field1", "prop7_1_value1"); // Coming from NodeTemplate
             assertStringProp(m0, "field2", "Simple_Value2");  // Injected default
+
+            cv0 = checkedConversion(ComplexPropertyValue.class, fedProperties.get("prop8"));
+            assertThat(cv0.getValue().keySet(),hasSize(3)); // Coming from NodeTemplate (injected by parser)
+            assertStringProp(cv0.getValue(), "nested1", "Nested_Value1");
+            m0 = checkedConversion(Map.class, cv0.getValue().get("nested2"));
+            assertStringProp(m0, "field1", "Simple_Value1"); // Injected default by Simple DT
+            assertStringProp(m0, "field2", "Simple_Value2"); // Injected default by Simple DT
+            m0 = checkedConversion(Map.class, cv0.getValue().get("nested3"));
+            assertStringProp(m0, "field1", "Nested3_Default_value1"); // Injected default by Nested DT
+            assertStringProp(m0, "field2", "Simple_Value2"); // Injected default by Simple DT
         } finally {
             ToscaContext.destroy();
         }
