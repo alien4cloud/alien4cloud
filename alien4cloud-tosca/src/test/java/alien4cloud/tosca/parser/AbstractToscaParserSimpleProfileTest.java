@@ -55,7 +55,7 @@ public abstract class AbstractToscaParserSimpleProfileTest {
     @Configuration
     @EnableAutoConfiguration(exclude = { HypermediaAutoConfiguration.class })
     @EnableAspectJAutoProxy(proxyTargetClass = true)
-    @ComponentScan(basePackages = { "alien4cloud.tosca.context", "alien4cloud.tosca.parser", "alien4cloud.paas.wf" })
+    @ComponentScan(basePackages = { "alien4cloud.tosca.context", "alien4cloud.tosca.parser", "alien4cloud.paas.wf", "alien4cloud.services" })
     static class ContextConfiguration {
         @Bean
         public ICSARRepositorySearchService repositorySearchService() {

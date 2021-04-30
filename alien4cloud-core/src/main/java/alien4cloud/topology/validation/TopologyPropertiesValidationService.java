@@ -110,12 +110,12 @@ public class TopologyPropertiesValidationService {
 
         // Check the properties of node template
         if (MapUtils.isNotEmpty(nodeTemplate.getProperties())) {
-            Map<String,AbstractPropertyValue> fedProperties = defaultValueService.feedDefaultValues(nodeTemplate);
+            var fedProperties = defaultValueService.feedDefaultValues(nodeTemplate);
             addRequiredPropertyIdToTaskProperties(null, fedProperties, relatedIndexedNodeType.getProperties(), task, skipInputProperties);
         }
 
         // Check relationships PD
-        for (Map.Entry<String, RelationshipTemplate> relationshipEntry : safe(nodeTemplate.getRelationships()).entrySet()) {
+        for (var relationshipEntry : safe(nodeTemplate.getRelationships()).entrySet()) {
             RelationshipTemplate relationship = relationshipEntry.getValue();
             if (relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
                 continue;
@@ -123,7 +123,9 @@ public class TopologyPropertiesValidationService {
             addRequiredPropertyIdToTaskProperties("relationships[" + relationshipEntry.getKey() + "]", relationship.getProperties(),
                     safe(ToscaContext.getOrFail(RelationshipType.class, relationshipEntry.getValue().getType()).getProperties()), task, skipInputProperties);
         }
-        for (Map.Entry<String, Capability> capabilityEntry : safe(nodeTemplate.getCapabilities()).entrySet()) {
+        for (var capabilityEntry : safe(nodeTemplate.getCapabilities()).entrySet()) {
+            var fedProperties = defaultValueService.feedDefaultValuesForCapability(nodeTemplate,capabilityEntry.getKey());
+
             Capability capability = capabilityEntry.getValue();
             if (capability.getProperties() == null || capability.getProperties().isEmpty()) {
                 continue;

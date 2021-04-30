@@ -2,13 +2,18 @@ package alien4cloud.tosca.parser.postprocess;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.Map;
 import java.util.Objects;
+
 
 import javax.annotation.Resource;
 
+import alien4cloud.services.PropertyDefaultValueService;
 import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -36,6 +41,8 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
     private TemplateDeploymentArtifactPostProcessor templateDeploymentArtifactPostProcessor;
     @Resource
     private ImplementationArtifactPostProcessor implementationArtifactPostProcessor;
+    @Resource
+    private PropertyDefaultValueService defaultValueService;
 
     @Override
     public void process(final NodeTemplate instance) {
@@ -69,9 +76,14 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
         instance.setInterfaces(tempObject.getInterfaces());
 
         // apply post processor to capabilities defined locally on the element (no need to post-processed the one merged)
-        safe(instance.getCapabilities()).entrySet().forEach(capabilityPostProcessor);
+        safe(instance.getCapabilities()).entrySet()
+                .stream()
+                .map(e -> new ImmutablePair<NodeTemplate,Map.Entry<String, Capability>>(instance,e))
+                .forEach(capabilityPostProcessor);
+
         safe(instance.getRequirements()).entrySet().forEach(requirementPostProcessor);
 
-        propertyValueChecker.checkProperties(nodeType, instance.getProperties(), instance.getName());
+        var fedProperties = defaultValueService.feedDefaultValues(instance);
+        propertyValueChecker.checkProperties(nodeType, fedProperties, instance.getName());
     }
 }

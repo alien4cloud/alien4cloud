@@ -1,0 +1,99 @@
+tosca_definitions_version: alien_dsl_3_0_0
+
+metadata:
+  template_name: org.alien4cloud.test.props.Defaults
+  template_author: alien4cloud
+  template_version: 3.0.0-SNAPSHOT
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+description: >
+  Default property test
+
+
+data_types:
+
+  org.alien4cloud.test.datatypes.Simple:
+    derived_from: tosca.datatypes.Root
+    description: Simple datatypes with required and default
+    properties:
+      field1:
+        type: string
+        default: Simple_Value1
+      field2:
+        type: string
+        default: Simple_Value2
+
+  org.alien4cloud.test.datatypes.Nested:
+    derived_from: tosca.datatypes.Root
+    description: Simple datatypes with required and default
+    properties:
+      nested1:
+        type: string
+        default: Nested_Value1
+      nested2:
+        type: org.alien4cloud.test.datatypes.Simple
+      nested3:
+        type: org.alien4cloud.test.datatypes.Simple
+        default:
+          field1: Nested3_Default_value1
+
+node_types:
+
+  org.alien4cloud.test.nodes.Mock:
+    description: Mock with default value
+    derived_from: tosca.nodes.Root
+    properties:
+      prop1:
+        type: string
+        default: value1
+      prop2:
+        type: org.alien4cloud.test.datatypes.Simple
+      prop3:
+        type: org.alien4cloud.test.datatypes.Simple
+      prop4:
+        type: map
+        entry_schema:
+          type: org.alien4cloud.test.datatypes.Simple
+        default:
+          k0:
+            field1: prop4_k0_value1
+          k1:
+            field1: prop4_k1_value1
+      prop5:
+        type: map
+        entry_schema:
+          type: org.alien4cloud.test.datatypes.Simple
+      prop6:
+        type: list
+        entry_schema:
+          type: org.alien4cloud.test.datatypes.Simple
+        default:
+          - field1: prop6_0_value1
+          - field1: prop6_1_value1
+      prop7:
+        type: list
+        entry_schema:
+          type: org.alien4cloud.test.datatypes.Simple
+      prop8:
+        type: org.alien4cloud.test.datatypes.Nested
+
+topology_template:
+  node_templates:
+    Mock1:
+      type: org.alien4cloud.test.nodes.Mock
+      properties:
+        prop3:
+          field2: Mock_Value2
+        prop5:
+          k0:
+            field1: prop5_k0_value1
+          k1:
+            field1: prop5_k1_value1
+        prop7:
+          - field1: prop7_0_value1
+          - field1: prop7_1_value1
+        prop8:
+          nested2:
+            field1: prop9_nested2_1_value
