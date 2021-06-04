@@ -54,7 +54,7 @@
     <!-- JSON and YAML Parsing -->
     <jackson.version>2.9.3</jackson.version>
     <!-- Yaml for properties -->
-    <snakeyaml.version>1.18</snakeyaml.version>
+    <snakeyaml.version>1.26</snakeyaml.version>
 
     <!-- XML Parsing -->
     <jaxb-api.version>2.0</jaxb-api.version>
