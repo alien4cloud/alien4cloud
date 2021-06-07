@@ -25,6 +25,8 @@ import alien4cloud.paas.wf.exception.InconsistentWorkflowException;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.utils.AlienUtils;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 public abstract class AbstractWorkflowBuilder {
 
     public abstract void addNode(Workflow wf, String nodeId, TopologyContext toscaTypeFinder, boolean isCompute);
@@ -36,28 +38,43 @@ public abstract class AbstractWorkflowBuilder {
         WorkflowStep fromStep = wf.getSteps().get(from);
         if (fromStep == null) {
             throw new InconsistentWorkflowException(
-                    String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", from));
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", from));
         }
         WorkflowStep toStep = wf.getSteps().get(to);
         if (toStep == null) {
             throw new InconsistentWorkflowException(
-                    String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", to));
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", to));
         }
         fromStep.removeFollowing(to);
         toStep.removePreceding(from);
+    }
+
+    public void removeFailureEdge(Workflow wf, String from, String to) {
+        WorkflowStep fromStep = wf.getSteps().get(from);
+        if (fromStep == null) {
+            throw new InconsistentWorkflowException(
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", from));
+        }
+        WorkflowStep toStep = wf.getSteps().get(to);
+        if (toStep == null) {
+            throw new InconsistentWorkflowException(
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", to));
+        }
+        fromStep.removeFollowingFailure(to);
+        toStep.removePrecedingFailure(from);
     }
 
     void connectStepFrom(Workflow wf, String stepId, String[] stepNames) {
         WorkflowStep to = wf.getSteps().get(stepId);
         if (to == null) {
             throw new InconsistentWorkflowException(
-                    String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", stepId));
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", stepId));
         }
         for (String preceding : stepNames) {
             WorkflowStep precedingStep = wf.getSteps().get(preceding);
             if (precedingStep == null) {
                 throw new InconsistentWorkflowException(
-                        String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", preceding));
+                        String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", preceding));
             }
             WorkflowUtils.linkSteps(precedingStep, to);
         }
@@ -67,11 +84,39 @@ public abstract class AbstractWorkflowBuilder {
         WorkflowStep from = wf.getSteps().get(stepId);
         if (from == null) {
             throw new InconsistentWorkflowException(
-                    String.format("Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", stepId));
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", stepId));
         }
         for (String following : stepNames) {
             WorkflowStep followingStep = wf.getSteps().get(following);
             WorkflowUtils.linkSteps(from, followingStep);
+        }
+    }
+
+    void failStepTo(Workflow wf, String stepId, String[] stepNames) {
+        WorkflowStep from = wf.getSteps().get(stepId);
+        if (from == null) {
+            throw new InconsistentWorkflowException(
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", stepId));
+        }
+        for (String following : stepNames) {
+            WorkflowStep followingStep = wf.getSteps().get(following);
+            WorkflowUtils.linkStepsWithOnFailure(from, followingStep);
+        }
+    }
+
+    void failStepFrom(Workflow wf, String stepId, String[] stepNames) {
+        WorkflowStep to = wf.getSteps().get(stepId);
+        if (to == null) {
+            throw new InconsistentWorkflowException(
+                    String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", stepId));
+        }
+        for (String preceding : stepNames) {
+            WorkflowStep precedingStep = wf.getSteps().get(preceding);
+            if (precedingStep == null) {
+                throw new InconsistentWorkflowException(
+                        String.format("Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", preceding));
+            }
+            WorkflowUtils.linkStepsWithOnFailure(precedingStep, to);
         }
     }
 
@@ -119,9 +164,11 @@ public abstract class AbstractWorkflowBuilder {
     private void insertActivityStep(Workflow wf, String stepId, String target, String targetRelationship, AbstractWorkflowActivity activity) {
         WorkflowStep lastStep = wf.getSteps().get(stepId);
         String stepBeforeId = null;
-        if (lastStep.getPrecedingSteps() != null && lastStep.getPrecedingSteps().size() == 1) {
+        if (lastStep.getPrecedingSteps() != null && lastStep.getPrecedingSteps().size() == 1
+                && (lastStep.getPrecedingFailSteps() == null || lastStep.getPrecedingFailSteps().size() == 0)) {
             stepBeforeId = lastStep.getPrecedingSteps().iterator().next();
         }
+
         WorkflowStep insertedStep = addActivityStep(wf, target, targetRelationship, activity);
         WorkflowUtils.linkSteps(insertedStep, lastStep);
         if (stepBeforeId != null) {
@@ -134,7 +181,8 @@ public abstract class AbstractWorkflowBuilder {
     private void appendActivityStep(Workflow wf, String stepId, String target, String targetRelationship, AbstractWorkflowActivity activity) {
         WorkflowStep lastStep = wf.getSteps().get(stepId);
         String stepAfterId = null;
-        if (lastStep.getOnSuccess() != null && lastStep.getOnSuccess().size() == 1) {
+        if (lastStep.getOnSuccess() != null && lastStep.getOnSuccess().size() == 1
+                && (lastStep.getOnFailure() == null || lastStep.getOnFailure().size() == 0) ) {
             stepAfterId = lastStep.getOnSuccess().iterator().next();
         }
         WorkflowStep insertedStep = addActivityStep(wf, target, targetRelationship, activity);
@@ -206,12 +254,12 @@ public abstract class AbstractWorkflowBuilder {
         relationshipWorkflowSteps.forEach(step -> removeStep(wf, step.getName(), true));
         // Find all links from and to the node's steps and unlink them all if they come from relationship template
         wf.getSteps().values().stream().filter(step -> sourceNodeId.equals(step.getTarget()))
-                .forEach(nodeStep -> new ArrayList<>(AlienUtils.safe(nodeStep.getOnSuccess())).stream().map(followingId -> wf.getSteps().get(followingId))
+                .forEach(nodeStep -> new ArrayList<>(safe(nodeStep.getOnSuccess())).stream().map(followingId -> wf.getSteps().get(followingId))
                         .filter(followingStep -> sourceRelationships.entrySet().stream().anyMatch(
                                 relationshipTemplateEntry -> WorkflowUtils.isNodeStep(followingStep, relationshipTemplateEntry.getValue().getTarget())))
                         .forEach(followingStep ->  WorkflowUtils.unlinkSteps(nodeStep, followingStep)));
         wf.getSteps().values().stream().filter(step -> sourceNodeId.equals(step.getTarget()))
-                .forEach(nodeStep -> new ArrayList<>(AlienUtils.safe(nodeStep.getPrecedingSteps())).stream().map(precedingId -> wf.getSteps().get(precedingId))
+                .forEach(nodeStep -> new ArrayList<>(safe(nodeStep.getPrecedingSteps())).stream().map(precedingId -> wf.getSteps().get(precedingId))
                         .filter(precedingStep -> sourceRelationships.entrySet().stream().anyMatch(
                                 relationshipTemplateEntry -> WorkflowUtils.isNodeStep(precedingStep, relationshipTemplateEntry.getValue().getTarget())))
                         .forEach(precedingStep ->  WorkflowUtils.unlinkSteps(precedingStep, nodeStep)));
@@ -229,55 +277,68 @@ public abstract class AbstractWorkflowBuilder {
     public void swapSteps(Workflow wf, String stepId, String targetId) {
         WorkflowStep step = wf.getSteps().get(stepId);
         WorkflowStep target = wf.getSteps().get(targetId);
-        WorkflowUtils.unlinkSteps(step, target);
+
+        boolean hasSuccessLink = step.getOnSuccess().contains(targetId);
+        boolean hasFailureLink = step.getOnFailure().contains(targetId);
+
+        if (hasSuccessLink) {
+            WorkflowUtils.unlinkSteps(step, target);
+        }
+
+        if (hasFailureLink) {
+            WorkflowUtils.unlinkOnFailureSteps(step,target);
+        }
+
         List<WorkflowStep> stepPredecessors = removePredecessors(wf, step);
         List<WorkflowStep> stepFollowers = removeFollowers(wf, step);
         List<WorkflowStep> targetPredecessors = removePredecessors(wf, target);
         List<WorkflowStep> targetFollowers = removeFollowers(wf, target);
-        associateFollowers(step, targetFollowers);
-        associateFollowers(target, stepFollowers);
-        associatePredecessors(step, targetPredecessors);
-        associatePredecessors(target, stepPredecessors);
-        WorkflowUtils.linkSteps(target, step);
-    }
 
-    private void associatePredecessors(WorkflowStep step, List<WorkflowStep> stepPredecessors) {
-        for (WorkflowStep predecessor : stepPredecessors) {
-            WorkflowUtils.linkSteps(predecessor, step);
+        List<WorkflowStep> stepFailPredecessors = removeFailPredecessors(wf, step);
+        List<WorkflowStep> stepFailFollowers = removeFailFollowers(wf, step);
+        List<WorkflowStep> targetFailPredecessors = removeFailPredecessors(wf, target);
+        List<WorkflowStep> targetFailFollowers = removeFailFollowers(wf, target);
+
+        targetFollowers.forEach(follower -> WorkflowUtils.linkSteps(step,follower));
+        stepFollowers.forEach(follower -> WorkflowUtils.linkSteps(target,follower));
+        targetPredecessors.forEach(predecessor -> WorkflowUtils.linkSteps(predecessor,step));
+        stepPredecessors.forEach(predecessor -> WorkflowUtils.linkSteps(predecessor,target));
+
+        targetFailFollowers.forEach(follower -> WorkflowUtils.linkStepsWithOnFailure(step,follower));
+        stepFailFollowers.forEach(follower -> WorkflowUtils.linkStepsWithOnFailure(target,follower));
+        targetFailPredecessors.forEach(predecessor -> WorkflowUtils.linkStepsWithOnFailure(predecessor,step));
+        stepFailPredecessors.forEach(predecessor -> WorkflowUtils.linkStepsWithOnFailure(predecessor,target));
+
+        if (hasSuccessLink) {
+            WorkflowUtils.linkSteps(target, step);
         }
-    }
 
-    private void associateFollowers(WorkflowStep step, List<WorkflowStep> stepFollowers) {
-        for (WorkflowStep follower : stepFollowers) {
-            WorkflowUtils.linkSteps(step, follower);
+        if (hasFailureLink) {
+            WorkflowUtils.linkStepsWithOnFailure(target, step);
         }
     }
 
     private List<WorkflowStep> removePredecessors(Workflow wf, WorkflowStep step) {
-        List<WorkflowStep> result = Lists.newArrayList();
-        if (step.getPrecedingSteps() == null || step.getPrecedingSteps().size() == 0) {
-            return result;
-        }
-        Object precedings[] = step.getPrecedingSteps().toArray();
-        for (Object precedingId : precedings) {
-            WorkflowStep precedingStep = wf.getSteps().get(precedingId);
-            WorkflowUtils.unlinkSteps(precedingStep, step);
-            result.add(precedingStep);
-        }
+        List<WorkflowStep> result = safe(step.getPrecedingSteps()).stream().map(name -> wf.getSteps().get(name)).collect(Collectors.toList());
+        result.forEach(precedingStep -> WorkflowUtils.unlinkSteps(precedingStep,step));
         return result;
     }
 
     private List<WorkflowStep> removeFollowers(Workflow wf, WorkflowStep step) {
-        List<WorkflowStep> result = Lists.newArrayList();
-        if (step.getOnSuccess() == null || step.getOnSuccess().size() == 0) {
-            return result;
-        }
-        Object followings[] = step.getOnSuccess().toArray();
-        for (Object followingId : followings) {
-            WorkflowStep followingStep = wf.getSteps().get(followingId);
-            WorkflowUtils.unlinkSteps(step, followingStep);
-            result.add(followingStep);
-        }
+        List<WorkflowStep> result = safe(step.getOnSuccess()).stream().map(name -> wf.getSteps().get(name)).collect(Collectors.toList());
+        result.forEach(followingStep -> WorkflowUtils.unlinkSteps(step, followingStep));
+        return result;
+    }
+
+    private List<WorkflowStep> removeFailPredecessors(Workflow wf, WorkflowStep step) {
+        List<WorkflowStep> result = safe(step.getPrecedingFailSteps()).stream().map(name -> wf.getSteps().get(name)).collect(Collectors.toList());
+        result.forEach(precedingStep -> WorkflowUtils.unlinkOnFailureSteps(precedingStep,step));
+        return result;
+    }
+
+    private List<WorkflowStep> removeFailFollowers(Workflow wf, WorkflowStep step) {
+        List<WorkflowStep> result = safe(step.getOnFailure()).stream().map(name -> wf.getSteps().get(name)).collect(Collectors.toList());
+        result.forEach(followingStep -> WorkflowUtils.unlinkOnFailureSteps(step, followingStep));
         return result;
     }
 

@@ -36,6 +36,12 @@ define(function (require) {
         }
       });
 
+      var applicationPurgeResource =  $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/purge', {}, {
+         'purge': {
+           method: 'POST'
+         }
+      });
+
       var applicationDeploymentUpdate = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/update-deployment', {}, {
         'update': {
           method: 'POST'
@@ -197,7 +203,8 @@ define(function (require) {
         'create': applicationCreate.create,
         'search': applicationSearch.search,
         'launchWorkflow' : applicationWorkflowResource.launch,
-        'lastWorkflowInputs' : applicationWorkflowLastInputsResource.get
+        'lastWorkflowInputs' : applicationWorkflowLastInputsResource.get,
+        'purge': applicationPurgeResource.purge
       };
     }
   ]);

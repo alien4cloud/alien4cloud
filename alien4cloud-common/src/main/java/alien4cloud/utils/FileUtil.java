@@ -14,14 +14,13 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 
@@ -108,6 +107,9 @@ public final class FileUtil {
                 Files.walkFileTree(inputPath, new ZipDirWalker(inputPath, zipOutputStream));
             }
             zipOutputStream.flush();
+        } catch (IOException e) {
+           log.error ("zip error", e);
+           throw e;
         } finally {
             Closeables.close(zipOutputStream, true);
         }
@@ -158,7 +160,7 @@ public final class FileUtil {
      * @throws IOException In case something fails.
      */
     public static void unzip(final Path zipFile, final Path destination) throws IOException {
-        try (FileSystem zipFS = FileSystems.newFileSystem(zipFile, null)) {
+        try (FileSystem zipFS = FileSystems.newFileSystem(zipFile, (ClassLoader)null)) {
             final Path root = zipFS.getPath("/");
             copy(root, destination, StandardCopyOption.REPLACE_EXISTING);
         }
@@ -379,7 +381,8 @@ public final class FileUtil {
         }
         MessageDigest digest = MessageDigest.getInstance("SHA1");
         addFileToDigest(digest, path);
-        return DatatypeConverter.printHexBinary(digest.digest());
+        return BaseEncoding.base16().encode(digest.digest());
+        //return DatatypeConverter.printHexBinary(digest.digest());
     }
 
     /**
@@ -391,7 +394,7 @@ public final class FileUtil {
     @SneakyThrows({ IOException.class })
     public static String deepSHA1(Path rootPath) {
         if (isZipFile(rootPath)) {
-            try (FileSystem csarFS = FileSystems.newFileSystem(rootPath, null)) {
+            try (FileSystem csarFS = FileSystems.newFileSystem(rootPath, (ClassLoader)null)) {
                 Path innerZipPath = csarFS.getPath(FileSystems.getDefault().getSeparator());
                 return computeDirectoryHash(innerZipPath);
             }
@@ -407,7 +410,8 @@ public final class FileUtil {
     private static String computeDirectoryHash(Path rootPath) {
         MessageDigest digest = MessageDigest.getInstance("SHA1");
         Files.walk(rootPath).filter(FileUtil::isNotHidden).filter(Files::isRegularFile).forEach(path -> addFileToDigest(digest, path));
-        return DatatypeConverter.printHexBinary(digest.digest());
+        return BaseEncoding.base16().encode(digest.digest());
+        //return DatatypeConverter.printHexBinary(digest.digest());
 
     }
 

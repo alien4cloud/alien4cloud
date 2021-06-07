@@ -80,7 +80,7 @@ public class ArchiveImageLoader {
                 csarFS = FileSystems.getDefault();
                 iconPath = csarFS.getPath(archiveFile.toString(), iconTag.getValue());
             } else {
-                csarFS = FileSystems.newFileSystem(archiveFile, null);
+                csarFS = FileSystems.newFileSystem(archiveFile, (ClassLoader)null);
                 iconPath = csarFS.getPath(iconTag.getValue());
             }
             if (!Files.isDirectory(iconPath)) {

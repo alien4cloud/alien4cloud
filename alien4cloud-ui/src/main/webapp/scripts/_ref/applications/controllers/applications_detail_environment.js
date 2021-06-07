@@ -109,10 +109,9 @@ define(function (require) {
         };
 
         $scope.onItemClick = function ($event, menuItem) {
-          if (menuItem.disabled) {
-            $event.preventDefault();
-            $event.stopPropagation();
-          } else {
+          $event.preventDefault();
+          $event.stopPropagation();
+          if (!menuItem.disabled) {
             $timeout(function() {
               $state.go(menuItem.state);
             }, 100);

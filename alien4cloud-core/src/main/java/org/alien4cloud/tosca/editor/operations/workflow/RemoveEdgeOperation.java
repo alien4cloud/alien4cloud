@@ -5,7 +5,7 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
- * Operation to remove an edge (link between two steps) from a workflow
+ * Operation to remove an onSuccess edge (link between two steps) from a workflow
  */
 @Getter
 @Setter
@@ -23,6 +23,6 @@ public class RemoveEdgeOperation extends AbstractWorkflowOperation {
 
     @Override
     public String commitMessage() {
-        return "Remove edge from step <" + getFromStepId() + "> to step <" + getToStepId() + "> from  the workflow <" + getWorkflowName() + ">";
+        return "Remove onSuccess edge from step <" + getFromStepId() + "> to step <" + getToStepId() + "> from  the workflow <" + getWorkflowName() + ">";
     }
 }

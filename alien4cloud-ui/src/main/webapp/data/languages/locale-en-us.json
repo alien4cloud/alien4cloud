@@ -386,12 +386,16 @@
       "disconnect" : "Disconnect",
       "disconnectFrom" : "Disconnect from",
       "disconnectTo" : "Disconnect to",
+      "disconnectFailureFrom" : "Disconnect (On Failure) from",
+      "disconnectFailureTo" : "Disconnect (On Failure) to",
       "errors" : {
         "BadStateSequenceError" : "Bad sequence : step '{{from}}' should not be found before '{{to}}'",
         "ParallelSetStatesError" : "State changes are done in parallel for node '{{nodeId}}'",
         "UnknownNodeError" : "The node '{{nodeId}}' referenced by the step '{{stepId}}' doesn't exists",
         "WorkflowHasCycleError" : "Workflow contains one cycle"
       },
+      "failFromSelection" : "On Failure from selection",
+      "failToSelection" : "On Failure to selection",
       "hasErrors" : "error(s)",
       "host" : "Host",
       "inline" : "Inlined",
@@ -405,7 +409,7 @@
       "removeStep" : "Remove step",
       "stateName" : "State",
       "swapLeft" : "Swap to left",
-      "swapRigth" : "Swap to right",
+      "swapRight" : "Swap to right",
       "title" : "Workflows",
       "unpin" : "Unpin",
       "workflow" : "Workflow"
@@ -782,7 +786,8 @@
       "UPDATE_FAILURE" : "Update failed",
       "UPDATE_IN_PROGRESS" : "Deployment update in progress",
       "UNDEPLOYMENT_FAILURE": "Undeployment failed",
-      "WARNING" : "Warning"
+      "WARNING" : "Warning",
+      "PURGE_FAILURE" : "Purge failed"
     },
     "TOASTER_STATUS" : {
       "DEPLOYED" : "The environment < {{envName}} > of application < {{appName}} > is deployed.",
@@ -1238,6 +1243,7 @@
   },
   "POLICIES" : "Policies",
   "PROPERTY_RESET" : "Set to default value or reset",
+  "PROPERTY_DEFAULT" : "Default value",
   "PROPERTY_SUGGESTION" : {
     "MODAL" : {
       "DESCRIPTION" : "The value that you entered has never been registered before in the system.",

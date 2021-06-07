@@ -14,7 +14,8 @@ define(function () {
     'UNDEPLOYMENT_FAILURE': '#C51919',
     'DEPLOYMENT_IN_PROGRESS': '#2C80D3',
     'UPDATE_IN_PROGRESS': '#2C80D3',
-    'UNDEPLOYMENT_IN_PROGRESS': '#D0ADAD'
+    'UNDEPLOYMENT_IN_PROGRESS': '#D0ADAD',
+    'PURGE_FAILURE': '#C51919'
   };
 
   return {
@@ -33,6 +34,7 @@ define(function () {
 
         case 'UNDEPLOYMENT_FAILURE':
         case 'FAILURE':
+        case 'PURGE_FAILURE':
           return 'fa-circle text-danger';
 
         case 'UNKNOWN':
@@ -61,6 +63,7 @@ define(function () {
           return 'text-warning';
 
         case 'UNDEPLOYMENT_FAILURE':
+        case 'PURGE_FAILURE':
         case 'FAILURE':
           return 'text-danger';
 

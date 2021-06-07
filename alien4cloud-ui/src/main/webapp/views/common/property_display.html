@@ -84,8 +84,13 @@
       <span class="pull-right">
         <span id='reset-property-{{propertyName}}' ng-show="editable" class="btn btn-xs" ng-click="resetProperty();">
           <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}"
-            tooltip-append-to-body="true"
-            tooltip-placement="left"></i>
+            tooltip-append-to-body="false"
+            tooltip-placement="left"
+            ng-if="!definitionObject.hasDefaultValue"></i>
+          <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}&#xA;{{ 'PROPERTY_DEFAULT' | translate}}: {{definition.default.value | truncate:30}}"
+             tooltip-append-to-body="false"
+             tooltip-placement="left"
+             ng-if="definitionObject.hasDefaultValue"></i>
         </span>
         <info content="definition.description"></info>
       </span>
@@ -138,7 +143,12 @@
         <span id='reset-property-{{propertyName}}' ng-show="editable" class="btn btn-xs" ng-click="resetProperty();">
           <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}"
             tooltip-append-to-body="true"
-            tooltip-placement="left"></i>
+            tooltip-placement="left"
+            ng-if="!definitionObject.hasDefaultValue"></i>
+          <i class="fa fa-undo text-default" uib-tooltip="{{ 'PROPERTY_RESET' | translate }}&#xA;{{ 'PROPERTY_DEFAULT' | translate}}: {{definition.default.value | truncate:30}}"
+             tooltip-append-to-body="true"
+             tooltip-placement="left"
+             ng-if="definitionObject.hasDefaultValue"></i>
         </span>
         <info content="definition.description"></info>
       </span>

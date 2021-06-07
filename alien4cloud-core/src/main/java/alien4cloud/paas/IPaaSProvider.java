@@ -50,6 +50,13 @@ public interface IPaaSProvider {
     void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback,boolean force);
 
     /**
+     * Purge a deployment
+     *
+     * @param deploymentContext the context of the un-deployment
+     */
+    void purge(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback);
+
+    /**
      * Scale up/down a node
      *
      * @param deploymentContext the deployment context
