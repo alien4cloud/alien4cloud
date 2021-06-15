@@ -141,7 +141,7 @@ define(function(require) {
       };
 
       $scope.mergeContext = function(context) {
-        return {...$scope.propEditionContext, ...context};
+        return _.assign({}, $scope.propEditionContext, context);
       };
 
     }]);

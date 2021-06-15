@@ -140,7 +140,7 @@ define(function(require) {
         $rootScope.$on('$contextPush', function(event, context) {
           // this event is triggered when entering a child scope
           // we merge the data with previous and add it at the top of the stack
-          let mergedData = {...$rootScope.currentContext.data, ...context.data};
+          let mergedData = _.assign({}, $rootScope.currentContext.data, context.data);
           context.data = mergedData;
           $rootScope.contextStack.push(context);
           $rootScope.currentContext = context;

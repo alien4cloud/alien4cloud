@@ -104,7 +104,7 @@ define(function(require) {
         get: function(text) {
           if (_.defined($scope.definition.suggestionId)) {
 
-              let mergedData = {...$rootScope.currentContext.data, ...$scope.propEditionContext, ...{propertyName: $scope.propertyPath}};
+              let mergedData = _.assign({}, $rootScope.currentContext.data, $scope.propEditionContext, {propertyName: $scope.propertyPath});
               let propEditionContext = {type: $rootScope.currentContext.type, data: mergedData};
 
               return propertySuggestionServices.getContextual({
@@ -177,7 +177,7 @@ define(function(require) {
         };
         if (_.defined($scope.definition.suggestionId) && _.defined(data) && data !== null) {
 
-          let mergedData = {...$rootScope.currentContext.data, ...$scope.propEditionContext, ...{propertyName: $scope.propertyPath}};
+          let mergedData = _.assign({}, $rootScope.currentContext.data, $scope.propEditionContext, {propertyName: $scope.propertyPath});
           let propEditionContext = {type: $rootScope.currentContext.type, data: mergedData};
 
           return propertySuggestionServices.getContextual({
