@@ -131,6 +131,26 @@ define(function(require) {
         $rootScope.dotWb = function(inputStr) {
           return $sce.trustAsHtml(inputStr.replace(/\./g, '.<wbr>'));
         };
+
+        // Context management : to manage transverse property edition context for suggestions
+        // The context is a stack, the last entered context will inherit data from all stack.
+        $rootScope.contextStack = [];
+        $rootScope.currentContext = {type: "root", data: {}};
+        $rootScope.contextStack.push($rootScope.currentContext);
+        $rootScope.$on('$contextPush', function(event, context) {
+          // this event is triggered when entering a child scope
+          // we merge the data with previous and add it at the top of the stack
+          let mergedData = {...$rootScope.currentContext.data, ...context.data};
+          context.data = mergedData;
+          $rootScope.contextStack.push(context);
+          $rootScope.currentContext = context;
+        });
+        $rootScope.$on('$contextPoll', function(event) {
+          // triggered when leaving a scope, just come back to the last known scope
+          $rootScope.contextStack.pop();
+          $rootScope.currentContext = $rootScope.contextStack[$rootScope.contextStack.length - 1];
+        });
+
         // check when the state is about to change
         $rootScope.$on('$stateChangeStart', function(event, toState, toParams) {
           if (!statusFetched && _.defined(event)) {

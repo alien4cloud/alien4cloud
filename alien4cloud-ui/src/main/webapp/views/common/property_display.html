@@ -23,7 +23,9 @@
                 onbeforesave="propertySave($data)" blur="submit"
                 onhide="switchLongTextChoice(false)"
                 e-form="myForm"
-                e-uib-typeahead="suggestion for suggestion in suggestion.get($viewValue)" class="typeahead editable-property"
+                e-uib-typeahead="suggestion as suggestionLabel(suggestion) for suggestion in suggestion.get($viewValue)" class="typeahead editable-property"
+                e-typeahead
+                e-typeahead-on-select="suggestionSelected($item, $model, $label)"
                 e-typeahead-min-length="suggestion.minLength"
                 e-typeahead-wait-ms="suggestion.waitBeforeRequest"
                 e-typeahead-loading="searching">
@@ -38,7 +40,8 @@
                 onbeforesave="propertySave($data)" blur="submit"
                 onhide="switchLongTextChoice(false)"
                 e-form="myForm"
-                e-uib-typeahead="suggestion for suggestion in suggestion.get($viewValue)" class="typeahead editable-property"
+                e-uib-typeahead="suggestion as suggestionLabel(suggestion) for suggestion in suggestion.get($viewValue)" class="typeahead editable-property"
+                e-typeahead-on-select="suggestionSelected($item, $model, $label)"
                 e-typeahead-min-length="suggestion.minLength"
                 e-typeahead-wait-ms="suggestion.waitBeforeRequest"
                 e-typeahead-loading="searching">
@@ -162,7 +165,7 @@
   </div>
 
   <script type="text/ng-template" id="propertySuggestionModal.html">
-    <form name="updateSuggestionProperty" class="form-horizontal" role="form" ng-init="choice.value = propertySuggestionData.propertyValue" novalidate>
+    <form name="updateSuggestionProperty" class="form-horizontal" role="form" ng-init="choice.value = { value: propertySuggestionData.propertyValue }" novalidate>
       <div class="modal-header">
         <h3>{{'PROPERTY_SUGGESTION.MODAL.TITLE' | translate}}</h3>
       </div>
@@ -173,11 +176,11 @@
             <div class="row">
                 <div class="col-md-4">
                   <div class="radio">
-                    <label><input type="radio" name="newSuggestionValue" ng-model="choice.value" ng-value="propertySuggestionData.propertyValue"> {{'PROPERTY_SUGGESTION.MODAL.USE' | translate}} <b>'{{propertySuggestionData.propertyValue}}'</b> {{'PROPERTY_SUGGESTION.MODAL.USE_YOUR_VALUE' | translate}}</label>
+                    <label><input type="radio" name="newSuggestionValue" ng-model="choice.value" ng-value="{ value: propertySuggestionData.propertyValue }"> {{'PROPERTY_SUGGESTION.MODAL.USE' | translate}} <b>'{{propertySuggestionData.propertyValue}}'</b> {{'PROPERTY_SUGGESTION.MODAL.USE_YOUR_VALUE' | translate}}</label>
                   </div>
                   <span ng-repeat="suggestion in propertySuggestionData.suggestions">
                     <div class="radio">
-                      <label><input type="radio" name="newSuggestionValue" ng-model="choice.value" ng-value="suggestion">{{'PROPERTY_SUGGESTION.MODAL.USE' | translate}} <b>'{{suggestion}}'</b></label>
+                      <label><input type="radio" name="newSuggestionValue" ng-model="choice.value" ng-value="suggestion">{{'PROPERTY_SUGGESTION.MODAL.USE' | translate}} <b>'{{suggestion.value}}'</b></label>
                     </div>
                   </span>
                 </div>

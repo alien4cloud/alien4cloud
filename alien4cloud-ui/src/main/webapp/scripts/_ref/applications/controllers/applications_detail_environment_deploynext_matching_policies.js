@@ -32,6 +32,14 @@ define(function (require) {
         successCallback: $scope.updateScopeDeploymentTopologyDTO
       };
 
+      $scope.$emit('$contextPush',
+          { type: "DeploymentPolicyMatching",
+            data: { topologyId: $scope.deploymentTopologyDTO.topology.id }
+          });
+      $scope.$on('$destroy', function() {
+        $scope.$emit('$contextPoll');
+      });
+
     }
   ]);
 });

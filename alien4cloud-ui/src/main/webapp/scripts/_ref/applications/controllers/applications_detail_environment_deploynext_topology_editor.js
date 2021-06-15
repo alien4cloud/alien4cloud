@@ -102,6 +102,13 @@ define(function (require) {
           setupBreadCrumbs($scope);
         }
       });
+
+      $scope.$emit('$contextPush', {type: 'Environment', data: {applicationId: $stateParams.applicationId,
+                                                                environmentId: $stateParams.environmentId}});
+      $scope.$on('$destroy', function() {
+        $scope.$emit('$contextPoll');
+      });
+
     }
   ]);
 });

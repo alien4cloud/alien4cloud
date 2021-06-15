@@ -38,6 +38,7 @@
               property-value="propEntry.value"
               editable="canEditProperty(propEntry.key)"
               on-save="updateProperty(propertyName, propertyValue)"
+              prop-edition-context-fn="mergeContext({propertyName: propEntry.key})"
               condensed="condensed">
             </property-display>
           </td>

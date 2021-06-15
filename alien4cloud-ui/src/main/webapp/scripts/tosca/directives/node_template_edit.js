@@ -27,7 +27,8 @@ define(function(require) {
         'onHalfRelationshipTypeUpdate' : '&?', // callback operation triggered when an half relationship type is updated (isService should be true)
         'capabilitiesRelationshipTypes' : '=?', // list of relationship type by capabilities (isService should be true)
         'isService': '=?', // is it a service ?
-        'isRelEditable': '&?' // callback operation that should return true if a relationship can be edited.
+        'isRelEditable': '&?', // callback operation that should return true if a relationship can be edited.
+        'propEditionContext': '=?'
       },
       link: {}
     };

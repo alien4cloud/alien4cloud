@@ -52,6 +52,8 @@ public class PropertyService {
             return (T) propertyValue;
         } else if (propertyValue instanceof String) {
             return (T) new ScalarPropertyValue((String) propertyValue);
+        } else if (propertyValue instanceof Integer) {
+            return (T) new ScalarPropertyValue(((Integer) propertyValue).toString());
         } else if (propertyValue instanceof FunctionPropertyValue) {
             return (T) propertyValue;
         } else if (propertyValue instanceof Map) {

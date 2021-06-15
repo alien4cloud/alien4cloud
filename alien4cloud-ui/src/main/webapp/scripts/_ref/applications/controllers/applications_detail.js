@@ -77,6 +77,9 @@ define(function (require) {
       $scope.$on('$destroy', function() {
         // We must stop all event registrations
         applicationEnvironmentsManager.stopEvents();
+        $scope.$emit('$contextPoll');
       });
+
+      $scope.$emit('$contextPush', {type: 'Application', data: {applicationId: application.data.id}});
     }]);
 });

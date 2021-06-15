@@ -453,6 +453,7 @@
   "BOUNDS" : "Bounds",
   "CANCEL" : "Cancel",
   "CANCELLED" : "Cancelled",
+  "FORBIDDEN" : "Forbidden",
   "CLOSE" : "Close",
   "CLOUDS" : {
     "ADMINISTRATION" : {

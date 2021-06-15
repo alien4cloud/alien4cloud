@@ -120,6 +120,10 @@ define(function (require) {
 
         $scope.$watch('environment', function (env) {
           $scope.setEnvironment(env);
+          $scope.$emit('$contextPush',
+              { type: "Environment",
+                data: { environmentId: $scope.environment.id }
+              });
         });
 
         // update variables related to env status
@@ -131,6 +135,9 @@ define(function (require) {
           states.forward('applications.detail.environment', 'applications.detail.environment.deploycurrent');
         }
 
+        $scope.$on('$destroy', function() {
+          $scope.$emit('$contextPoll');
+        });
 
       }
     ]);

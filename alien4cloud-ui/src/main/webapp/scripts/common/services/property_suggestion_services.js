@@ -15,6 +15,16 @@ define(function(require) {
           input: '@input',
           limit: '@limit'
         }
+      },
+      'getContextual': {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        params: {
+          input: '@input',
+          limit: '@limit'
+        }
       }
     });
 
@@ -34,6 +44,7 @@ define(function(require) {
 
     return {
       get: propertySuggestionResource.get,
+      getContextual: propertySuggestionResource.getContextual,
       add: propertySuggestionPutValueResource.update
     };
 

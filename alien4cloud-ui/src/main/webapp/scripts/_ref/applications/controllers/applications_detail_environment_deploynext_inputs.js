@@ -162,6 +162,13 @@ define(function (require) {
         $scope.updateInputValue(null, propertyValue, propertyName);
       };
 
+      $scope.$emit('$contextPush',
+          { type: "DeploymentInput",
+            data: { topologyId: $scope.deploymentTopologyDTO.topology.id }
+          });
+      $scope.$on('$destroy', function() {
+        $scope.$emit('$contextPoll');
+      });
     }
   ]);
 });

@@ -23,7 +23,7 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.it.Context;
-import alien4cloud.model.common.SuggestionEntry;
+import alien4cloud.model.suggestion.SuggestionEntry;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.suggestion.CreateSuggestionEntryRequest;
 import alien4cloud.rest.utils.JsonUtil;

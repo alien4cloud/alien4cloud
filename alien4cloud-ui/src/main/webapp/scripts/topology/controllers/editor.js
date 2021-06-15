@@ -485,7 +485,12 @@ define(function (require) {
             proceedToStateChange();
           });
         });
-      }
+
+      $scope.$emit('$contextPush', { type: "TopologyEdit", data: {topologyId: $scope.topologyId}});
+      $scope.$on('$destroy', function () {
+        $scope.$emit('$contextPoll');
+      });
+    }
     ]);
   }
 ); // define

@@ -81,7 +81,9 @@ public final class ConstraintPropertyService {
                 isTypeDerivedFromPrimitive = true;
             }
         }
-
+        if (value instanceof Integer) {
+            value = ((Integer)value).toString();
+        }
         if (value instanceof String) {
             if (ToscaTypes.isSimple(typeName)) {
                 checkSimplePropertyConstraint(propertyName, (String) value, propertyDefinition);
@@ -110,7 +112,7 @@ public final class ConstraintPropertyService {
         } else {
             throw new InvalidArgumentException(
                     "Not expecting to receive constraint validation for other types than String, Map or List, but got "
-                    + value.getClass().getName());
+                    + ((value == null) ? "null" : value.getClass().getName()));
         }
     }
 

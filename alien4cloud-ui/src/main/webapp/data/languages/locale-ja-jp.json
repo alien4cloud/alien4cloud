@@ -451,6 +451,7 @@
   "BOUNDS" : "Bounds",
   "CANCEL" : "キャンセル",
   "CANCELLED" : "Cancelled",
+  "FORBIDDEN" : "Forbidden",
   "CLOSE" : "閉じる",
   "CLOUDS" : {
     "ADMINISTRATION" : {

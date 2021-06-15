@@ -231,6 +231,7 @@
             property-value="propEntry.value"
             on-save="nodes.updateProperty(propertyDefinition, propertyName, propertyValue)"
             editable="!properties.isInputProperty(propEntry.key)"
+            prop-edition-context="{nodeId: selectedNodeTemplate.name}"
             condensed="condensed">
           </property-display>
         </td>
@@ -353,6 +354,7 @@
               property-value="propertyEntry.value"
               on-save="properties.updateCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
               editable="!properties.isInputPropertyValue(propertyEntry.value)"
+              prop-edition-context="{nodeId: selectedNodeTemplate.name, capabilityId: capabilityEntry.key}"
               condensed="condensed">
             </property-display>
           </td>
@@ -574,6 +576,7 @@
                     relationship-name="relationshipEntry.key"
                     on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyName, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
                     editable="!properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
+                    prop-edition-context="{nodeId: selectedNodeTemplate.name, relationshipId: relationshipEntry.key}"
                     condensed="condensed">
                   </property-display>
                 </td>

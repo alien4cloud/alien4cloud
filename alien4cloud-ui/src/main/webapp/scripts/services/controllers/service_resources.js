@@ -356,6 +356,11 @@ define(function (require) {
           return $scope.selectedService.id;
         }
       });
+
+      $scope.$emit('$contextPush', { type: "ServiceConfiguration", data: {}});
+      $scope.$on('$destroy', function () {
+        $scope.$emit('$contextPoll');
+      });
     }
   ]); // controller
 }); // define

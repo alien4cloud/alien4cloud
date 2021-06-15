@@ -121,6 +121,20 @@ public class EditorService {
     }
 
     /**
+     * Check the authorization in the context of a topology edition.
+     *
+     * @param topologyId The id of the topology.
+     */
+    public Topology getTopology(String topologyId) {
+        try {
+            editionContextManager.init(topologyId);
+            return EditionContextManager.getTopology();
+        } finally {
+            editionContextManager.destroy();
+        }
+    }
+
+    /**
      * Call this method only for checking optimistic locking and initializing edition context for method that don't process an operation (save, undo etc.)
      * 
      * @param topologyId The id of the topology under edition.
