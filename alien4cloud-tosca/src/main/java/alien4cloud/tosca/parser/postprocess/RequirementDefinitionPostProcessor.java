@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser.postprocess;
 
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -32,7 +33,7 @@ public class RequirementDefinitionPostProcessor implements IPostProcessor<Requir
             break;
         default:
             // In latest versions we process the capability only.
-            capabilityReferencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance, instance.getType()));
+            capabilityReferencePostProcessor.process(ParsingErrorLevel.WARNING, new ReferencePostProcessor.TypeReference(instance, instance.getType()));
             break;
         }
         if(instance.getNodeType() != null) {

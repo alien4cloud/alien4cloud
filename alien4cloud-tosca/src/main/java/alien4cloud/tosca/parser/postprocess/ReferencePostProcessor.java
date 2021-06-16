@@ -1,5 +1,6 @@
 package alien4cloud.tosca.parser.postprocess;
 
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -18,8 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class ReferencePostProcessor implements IPostProcessor<ReferencePostProcessor.TypeReference> {
+
     @Override
     public void process(TypeReference typeReference) {
+        process(ParsingErrorLevel.ERROR, typeReference);
+    }
+
+    public void process(ParsingErrorLevel parsingErrorLevel, TypeReference typeReference) {
         for (Class<? extends AbstractInheritableToscaType> clazz : typeReference.classes) {
             AbstractInheritableToscaType reference = ToscaContext.get(clazz, typeReference.getKey());
             if (reference != null) {
@@ -33,12 +39,12 @@ public class ReferencePostProcessor implements IPostProcessor<ReferencePostProce
                 log.info("Node not found, probably it's from an transitive dependency archive");
             } else {
                 ParsingContextExecution.getParsingErrors()
-                        .add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, "Type not found", node.getStartMark(),
+                        .add(new ParsingError(parsingErrorLevel, ErrorCode.TYPE_NOT_FOUND, "Type not found", node.getStartMark(),
                                 "The type from the element is not found neither in the archive or it's dependencies or is not defined while required.",
                                 node.getEndMark(), typeReference.getKey()));
             }
         } else {
-            ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, "Type not found", node.getStartMark(),
+            ParsingContextExecution.getParsingErrors().add(new ParsingError(parsingErrorLevel, ErrorCode.TYPE_NOT_FOUND, "Type not found", node.getStartMark(),
                     "The referenced type is not found neither in the archive or it's dependencies.", node.getEndMark(), typeReference.getKey()));
         }
     }
