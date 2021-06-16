@@ -97,7 +97,11 @@ public class SuggestionService {
         if (suggestionEntries != null && !suggestionEntries.isEmpty()) {
             for (AbstractSuggestionEntry suggestionEntry : suggestionEntries) {
                 if (suggestionEntry instanceof SuggestionEntry) {
-                    setSuggestionIdOnPropertyDefinition((SuggestionEntry) suggestionEntry);
+                    try {
+                        setSuggestionIdOnPropertyDefinition((SuggestionEntry) suggestionEntry);
+                    } catch(Exception e) {
+                        log.warn("Not able to apply suggestion entry <{}> due to the following exception : {}", suggestionEntry.getId(), e.getMessage());
+                    }
                 }
             }
         }
@@ -113,7 +117,7 @@ public class SuggestionService {
             if (!similarValues.isEmpty()) {
                 // Has some similar values in the system already
                 SuggestionService.MatchedSuggestion mostMatched = similarValues.poll();
-                if (!mostMatched.getValue().equals(propertyTextValue)) {
+                if (!mostMatched.getValue().getValue().equals(propertyTextValue)) {
                     // If user has entered a property value not the same as the most matched in the system
                     ParsingErrorLevel level;
                     if (mostMatched.getPriority() == 1.0) {
@@ -127,7 +131,7 @@ public class SuggestionService {
                     }
                     context.getParsingErrors()
                             .add(new ParsingError(level, ErrorCode.POTENTIAL_BAD_PROPERTY_VALUE, null, null, null, null, "At path [" + nodePrefix + "."
-                                    + propertyName + "] existing value [" + mostMatched.getValue() + "] is very similar to [" + propertyTextValue + "]"));
+                                    + propertyName + "] existing value [" + mostMatched.getValue().getValue() + "] is very similar to [" + propertyTextValue + "]"));
                 }
             } else {
                 // Not similar add suggestion
@@ -311,7 +315,7 @@ public class SuggestionService {
      * 
      * @param suggestionEntry entry of suggestion
      */
-    public void setSuggestionIdOnPropertyDefinition(SuggestionEntry suggestionEntry) {
+    private void setSuggestionIdOnPropertyDefinition(SuggestionEntry suggestionEntry) {
         Class<? extends AbstractInheritableToscaType> targetClass = (Class<? extends AbstractInheritableToscaType>) alienDAO.getTypesToClasses()
                 .get(suggestionEntry.getEsType());
 
