@@ -626,6 +626,7 @@
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT" : "Une topologie ayant une dépendence vers une archive de ce nom et cette version est déployée. Afin de garantir la stabilité des déploiements, cette archive ne peut être modifiée.",
       "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE" : "La dépendance [ {{note}} ] n'est pas visible depuis le workspace cible",
       "DEPENDENCY_VERSION_CONFLICT" : "La dependence [{{problem}}] est en conflit avec la dépendance [{{context}}]. Le conflit a été résolu en utilisant la version la plus récente.",
+      "DEPENDENCY_UPDATED": "Le CSAR {{note}} qui est dépendant de ce CSAR a été mis à jour.",
       "DERIVED_FROM_CONCRETE_TYPE_SUBSTITUTION" : "Substitution hérite le type concret [ {{note}} ], merci d'utiliser un type abstrait.",
       "DERIVED_FROM_NOTHING" : "Le type tosca [{{note}}] doit hériter explicitement du type de base [{{context}}], Alien a automatiquement ajouté [{{context}}] comme son parent",
       "DUPLICATED_ELEMENT_DECLARATION" : "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",

@@ -623,6 +623,7 @@
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT" : "依赖于相同名称和版本的拓扑已经被部署。为了确保运行时处理的稳定性，Alien4Cloud不允许覆盖。",
       "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE" : "依赖 [ {{note}} ] i{{note}} s 在目标的工作目录内不可见。",
       "DEPENDENCY_VERSION_CONFLICT" : "依赖 [{{problem}}] 与依赖 [{{context}}] 产生冲突。冲突已通过使用最新版本解决。",
+      "DEPENDENCY_UPDATED": "CSAR {{note}} which is dependent to this CSAR has been updated.",
       "DERIVED_FROM_CONCRETE_TYPE_SUBSTITUTION" : "需要替换具体类型[{{note}}]），请使用抽象类型。",
       "DERIVED_FROM_NOTHING" : "TOSCA类型[{{note}}]必须来自基类型[{{context}}]，Alien已自动添加[{{context}}]作为其父母",
       "DUPLICATED_ELEMENT_DECLARATION" : "元素[{{note}}]已经在此定义文件中定义。",

@@ -19,6 +19,7 @@ import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.normative.constants.NormativeCredentialConstant;
 import org.apache.commons.collections.MapUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -53,6 +54,8 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
     private PropertyValueChecker propertyValueChecker;
     @Resource
     private PolicyTypePostProcessor policyTypePostProcessor;
+    @Value("${features.archive_indexer.accept_missing_requirement:#{false}}")
+    private boolean acceptMissingRequirementDependency;
 
     /**
      * Perform validation of a Tosca archive.
@@ -132,7 +135,7 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
 
         // Compute all distinct transitives dependencies
         final Set<CSARDependency> transitiveDependencies = new HashSet<>(
-                dependencies.stream().map(csarDependency -> ToscaContext.get().getArchive(csarDependency.getName(), csarDependency.getVersion()))
+                dependencies.stream().map(csarDependency -> ToscaContext.get().getArchive(csarDependency.getName(), csarDependency.getVersion(), acceptMissingRequirementDependency))
                         .map(Csar::getDependencies).filter(c -> c != null).reduce(Sets::union).orElse(Collections.emptySet()));
 
         // 2. Resolve all transitive vs. direct dependencies conflicts using the direct dependency's version

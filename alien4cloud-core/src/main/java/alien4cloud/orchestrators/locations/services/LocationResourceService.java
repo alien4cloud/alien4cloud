@@ -14,6 +14,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
@@ -93,6 +94,8 @@ public class LocationResourceService implements ILocationResourceService {
     private ICsarDependencyLoader csarDependencyLoader;
     @Inject
     private PluginArchiveIndexer pluginArchiveIndexer;
+    @Inject
+    private CsarService csarService;
 
     /*
      * (non-Javadoc)
@@ -323,6 +326,9 @@ public class LocationResourceService implements ILocationResourceService {
 
     private LocationResourceTemplate addResourceTemplate(Location location, String resourceName, String resourceTypeName) {
         NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTypeName, location.getDependencies());
+        // refuse the creation of a resource if the related type's CSAR has unresolved dependencies
+        csarService.validateMissgingDependencies(resourceType);
+
         NodeTemplate nodeTemplate = templateBuilder.buildNodeTemplate(location.getDependencies(), resourceType);
         LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
         locationResourceTemplate.setGenerated(false);

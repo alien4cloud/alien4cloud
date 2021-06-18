@@ -1,33 +1,21 @@
 package alien4cloud.tosca.context;
 
-import static alien4cloud.utils.AlienUtils.safe;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
-
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.types.ArtifactType;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.PolicyType;
-import org.alien4cloud.tosca.model.types.RelationshipType;
-
+import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.tosca.model.ArchiveRoot;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.tosca.model.ArchiveRoot;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.*;
+
+import java.util.*;
+import java.util.function.Predicate;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Manage thread-local tosca contexts.
@@ -156,14 +144,20 @@ public class ToscaContext {
          * 
          * @param dependency The dependency to add.
          */
-        public void addDependency(CSARDependency dependency) {
+        public void addDependency(CSARDependency dependency, boolean acceptMissingDependency) {
             log.debug("Add dependency to context", dependency);
             if (dependency.getHash() == null) {
                 // we should try to get the hash from the repository
-                Csar csar = getArchive(dependency.getName(), dependency.getVersion());
-                dependency.setHash(csar.getHash());
+                Csar csar = getArchive(dependency.getName(), dependency.getVersion(), acceptMissingDependency);
+                if (csar != null) {
+                    dependency.setHash(csar.getHash());
+                }
             }
             dependencies.add(dependency);
+        }
+
+        public void addDependency(CSARDependency dependency) {
+            addDependency(dependency, false);
         }
 
         /**
@@ -257,18 +251,31 @@ public class ToscaContext {
          * 
          * @param name The name of the archive to get.
          * @param version The version of the archive to get.
+         * @param acceptMissingDependency true if we accept missing dependency (dependency that can not be found in the system).
          * @return The archive from it's id.
          */
-        public Csar getArchive(String name, String version) {
-            String id = new Csar(name, version).getId();
+        public Csar getArchive(String name, String version, boolean acceptMissingDependency) {
+            Csar csar = new Csar(name, version);
+            String id = csar.getId();
             Csar archive = archivesMap.get(id);
             log.debug("get archive from map {} {} {}", id, archive);
             if (archive == null) {
                 archive = csarRepositorySearchService.getArchive(name, version);
                 log.debug("get archive from repo {} {} {}", id, archive, csarRepositorySearchService.getClass().getName());
-                archivesMap.put(id, archive);
+                if (archive != null) {
+                    archivesMap.put(id, archive);
+                } else if (acceptMissingDependency) {
+                    archive = csar;
+                    archivesMap.put(id, archive);
+                } else {
+                    throw new NotFoundException("Can not find CSAR dependency " + name + ":" + version);
+                }
             }
             return archive;
+        }
+
+        public Csar getArchive(String name, String version) {
+            return getArchive(name, version, false);
         }
 
         /**

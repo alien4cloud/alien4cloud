@@ -6,6 +6,7 @@ import alien4cloud.tosca.parser.ParsingErrorLevel;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -21,6 +22,8 @@ public class RequirementDefinitionPostProcessor implements IPostProcessor<Requir
     private CapabilityOrNodeReferencePostProcessor capabilityOrNodeReferencePostProcessor;
     @Resource
     private CapabilityReferencePostProcessor capabilityReferencePostProcessor;
+    @Value("${features.archive_indexer.accept_missing_requirement:#{false}}")
+    private boolean acceptMissingRequirementDependency;
 
     @Override
     public void process(RequirementDefinition instance) {
@@ -33,7 +36,8 @@ public class RequirementDefinitionPostProcessor implements IPostProcessor<Requir
             break;
         default:
             // In latest versions we process the capability only.
-            capabilityReferencePostProcessor.process(ParsingErrorLevel.WARNING, new ReferencePostProcessor.TypeReference(instance, instance.getType()));
+            ParsingErrorLevel parsingErrorLevel = (acceptMissingRequirementDependency) ? ParsingErrorLevel.WARNING : ParsingErrorLevel.ERROR;
+            capabilityReferencePostProcessor.process(parsingErrorLevel, new ReferencePostProcessor.TypeReference(instance, instance.getType()));
             break;
         }
         if(instance.getNodeType() != null) {

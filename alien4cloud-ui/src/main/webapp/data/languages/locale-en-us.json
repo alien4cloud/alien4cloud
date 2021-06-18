@@ -626,6 +626,7 @@
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT" : "A topology having a dependency from an archive with the same name and version is deployed. In order to ensure stability for the runtime processing, Alien4Cloud doesn't allow the overriding.",
       "DEPENDENCY_NOT_VISIBLE_FROM_TARGET_WORKSPACE" : "The dependency [ {{note}} ] i{{note}} s not visible from the target workspace",
       "DEPENDENCY_VERSION_CONFLICT" : "The dependency [{{problem}}] is in conflict with the dependency [{{context}}]. The conflict has been resolved by using the latest version.",
+      "DEPENDENCY_UPDATED": "CSAR {{note}} which is dependent to this CSAR has been updated.",
       "DERIVED_FROM_CONCRETE_TYPE_SUBSTITUTION" : "Substitution derive from concrete type [ {{note}} ], please use an abstract type.",
       "DERIVED_FROM_NOTHING" : "The tosca type [{{note}}] must derive from the base type [{{context}}], Alien has automatically added [{{context}}] as its parent",
       "DUPLICATED_ELEMENT_DECLARATION" : "The element [ {{note}} ] has already be defined in this definition file.",

@@ -14,6 +14,8 @@ public enum ErrorCode {
     CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE,
     /** The csar is importing itself **/
     CSAR_IMPORT_ITSELF,
+    /** A dependent CSar has been updated **/
+    DEPENDENCY_UPDATED,
     /* Cannot define a type and use it as substitute in the same archive */
     UNSUPPORTED_SUBSTITUTION,
     /* Substitution cannot derive from a concrete type */

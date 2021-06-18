@@ -22,6 +22,7 @@ import org.alien4cloud.alm.service.events.ServiceUsageRequestEvent;
 import org.alien4cloud.alm.service.exceptions.IncompatibleHalfRelationshipException;
 import org.alien4cloud.alm.service.exceptions.ServiceUsageException;
 import org.alien4cloud.tosca.catalog.events.ArchiveUsageRequestEvent;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.exceptions.ConstraintValueDoNotMatchPropertyTypeException;
 import org.alien4cloud.tosca.exceptions.ConstraintViolationException;
@@ -70,6 +71,8 @@ public class ServiceResourceService {
     private IToscaTypeSearchService toscaTypeSearchService;
     @Inject
     private ApplicationEventPublisher publisher;
+    @Inject
+    private CsarService csarService;
 
     /**
      * Creates a service.
@@ -106,6 +109,9 @@ public class ServiceResourceService {
 
         // build a node instance from the given type
         NodeType nodeType = toscaTypeSearchService.findOrFail(NodeType.class, serviceNodeType, serviceNodeVersion);
+        // we refuse service creation if node's csar has unresolved dependencies
+        csarService.validateMissgingDependencies(nodeType);
+
         serviceResource.setNodeInstance(nodeInstanceService.create(nodeType, serviceNodeVersion));
         serviceResource.setDependency(new CSARDependency(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
 

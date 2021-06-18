@@ -19,6 +19,7 @@ import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -116,6 +117,25 @@ public class CsarService {
         GetMultipleDataResult<Csar> result = csarDAO.buildQuery(Csar.class).prepareSearch()
                 .setFilters(fromKeyValueCouples("dependencies.name", name, "dependencies.version", version), notSelf).search(0, 10000);
         return result.getData();
+    }
+
+    /**
+     * If some Csar refer to this Csar as unresolved dependency, update dependency hashCode.
+     *
+     * @param csar
+     * @return the collection of Csar that have been updated.
+     */
+    public Set<Csar> processDangledDependencies(Csar csar) {
+        Csar[] csars = this.getDependantCsars(csar.getName(), csar.getVersion());
+        final Set<Csar> updatedCsars = Sets.newHashSet();
+        for (Csar dependentCsar : csars) {
+            dependentCsar.getDependencies().stream().filter(csarDependency -> csarDependency.getName().equals(csar.getName()) && csarDependency.getVersion().equals(csar.getVersion())).findFirst().ifPresent(csarDependency -> {
+                csarDependency.setHash(csar.getHash());
+                updatedCsars.add(dependentCsar);
+                csarDAO.save(dependentCsar);
+            });
+        }
+        return updatedCsars;
     }
 
     /**
@@ -231,6 +251,21 @@ public class CsarService {
      */
     public Csar getOrFail(String name, String version) {
         return getOrFail(Csar.createId(name, version));
+    }
+
+    /**
+     * Ensure this nodeType is not part of a CSAR that has unresolved dependencies (dependency with null hashCode).
+     *
+     * @param nodeType
+     * @throws a {@link NotFoundException} if some dependencies are unresolved
+     */
+    public void validateMissgingDependencies(NodeType nodeType) {
+        Csar typeArchive = getOrFail(nodeType.getArchiveName(), nodeType.getArchiveVersion());
+        typeArchive.getDependencies().stream().filter(csarDependency -> csarDependency.getHash() == null)
+                .findFirst()
+                .ifPresent(csarDependency -> {
+                    throw new NotFoundException("Dependency " + csarDependency.getName() + ":" + csarDependency.getVersion() + " can not be found in the system");
+                });
     }
 
     /**

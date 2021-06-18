@@ -9,6 +9,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.common.MetaPropertyTarget;
@@ -57,6 +58,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
@@ -231,6 +233,22 @@ public class ArchiveIndexer {
 
         checkIfToscaTypesAreDefinedInOtherArchive(archiveRoot);
 
+        if (archiveRoot.hasToscaTopologyTemplate() && !archiveRoot.getTopology().isEmpty()) {
+            // if Csar contains a topology, we check if it doesn't have missing dependencies
+            List<CSARDependency> unresolvedDependencies = archiveRoot.getArchive().getDependencies()
+                    .stream()
+                    .filter(csarDependency -> csarDependency.getHash() == null)
+                    .collect(Collectors.toList());
+
+            if (!unresolvedDependencies.isEmpty()) {
+                unresolvedDependencies.forEach(csarDependency -> {
+                    parsingErrors.add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_DEPENDENCY, "", null,
+                            "Missing dependency not allowed for topology template", null, csarDependency.getName() + ":" + csarDependency.getVersion()));
+                });
+                return;
+            }
+        }
+
         // save the archive (before we index and save other data so we can cleanup if anything goes wrong).
         if (source == null) {
             source = CSARSource.OTHER;
@@ -252,6 +270,11 @@ public class ArchiveIndexer {
         // index the archive content in elastic-search
         indexArchiveTypes(archiveName, archiveVersion, archiveRoot.getArchive().getWorkspace(), archiveRoot, currentIndexedArchive, metapropsNames);
         indexTopology(archiveRoot, parsingErrors, archiveName, archiveVersion);
+        Set<Csar> updatedCsars = csarService.processDangledDependencies(archiveRoot.getArchive());
+        updatedCsars.forEach(csar -> {
+            parsingErrors.add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.DEPENDENCY_UPDATED, "", null, "A CSAR dependency has been updated", null,
+                    csar.getId()));
+        });
 
         publisher.publishEvent(new AfterArchiveIndexed(this, archiveRoot));
     }

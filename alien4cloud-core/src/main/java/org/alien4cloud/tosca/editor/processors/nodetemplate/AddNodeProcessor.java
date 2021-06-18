@@ -1,9 +1,18 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
-import java.util.LinkedHashMap;
-
-import javax.inject.Inject;
-
+import alien4cloud.application.TopologyCompositionService;
+import alien4cloud.exception.CyclicReferenceException;
+import alien4cloud.model.common.Tag;
+import alien4cloud.paas.wf.TopologyContext;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.topology.TopologyService;
+import alien4cloud.tosca.topology.TemplateBuilder;
+import alien4cloud.utils.AlienUtils;
+import alien4cloud.utils.NameValidationUtils;
+import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.catalog.index.CsarDependencyLoader;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.Constants;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
@@ -15,18 +24,8 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.services.DanglingRequirementService;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
-
-import alien4cloud.application.TopologyCompositionService;
-import alien4cloud.exception.CyclicReferenceException;
-import alien4cloud.model.common.Tag;
-import alien4cloud.paas.wf.TopologyContext;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.tosca.topology.TemplateBuilder;
-import alien4cloud.utils.AlienUtils;
-import alien4cloud.utils.NameValidationUtils;
-import lombok.extern.slf4j.Slf4j;
+import javax.inject.Inject;
+import java.util.LinkedHashMap;
 
 /**
  * Process an {@link AddNodeOperation}
@@ -44,6 +43,10 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
     private WorkflowsBuilderService workflowBuilderService;
     @Inject
     private DanglingRequirementService danglingRequirementService;
+    @Inject
+    private CsarDependencyLoader csarDependencyLoader;
+    @Inject
+    private CsarService csarService;
 
     @Override
     public void process(Csar csar, Topology topology, AddNodeOperation operation) {
@@ -52,6 +55,9 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
                 "A node template with the given name {} already exists in the topology {}.", operation.getNodeName(), topology.getId());
 
         NodeType nodeType = toscaTypeSearchService.findByIdOrFail(NodeType.class, operation.getIndexedNodeTypeId());
+
+        // Refuse to create a service if related node's Csar has unresolved dependencies
+        csarService.validateMissgingDependencies(nodeType);
 
         if (nodeType.getSubstitutionTopologyId() != null) {
             // TODO merge that in the topologyCompositionService.recursivelyDetectTopologyCompositionCyclicReference
@@ -70,6 +76,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
         log.debug("Create node template [ {} ]", operation.getNodeName());
 
         NodeType loadedIndexedNodeType = topologyService.loadType(topology, nodeType);
+
 
         NodeTemplate nodeTemplate = TemplateBuilder.buildNodeTemplate(loadedIndexedNodeType);
         nodeTemplate.setName(operation.getNodeName());
