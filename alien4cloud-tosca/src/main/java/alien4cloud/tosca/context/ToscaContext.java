@@ -267,8 +267,6 @@ public class ToscaContext {
                 } else if (acceptMissingDependency) {
                     archive = csar;
                     archivesMap.put(id, archive);
-                } else {
-                    throw new NotFoundException("Can not find CSAR dependency " + name + ":" + version);
                 }
             }
             return archive;
