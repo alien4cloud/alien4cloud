@@ -37,7 +37,7 @@ public class ImportParser implements INodeParser<CSARDependency> {
         String currentArchiveVersion = context.<ArchiveRoot> getRootObj().getArchive().getVersion();
         Csar csar = ToscaContext.get().getArchive(dependency.getName(), dependency.getVersion(), acceptMissingRequirementDependency);
         log.debug("Import {} {} {}", dependency.getName(), dependency.getVersion(), csar);
-        if (null == csar.getHash()) {
+        if (null == csar || null == csar.getHash()) {
             // in case of acceptMissingRequirementDependency == true, a CSAR is returned with null hashCode, this is an unresolved dependency
             // error is not a blocker, as long as no type is missing we just mark it as a warning.
             context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_DEPENDENCY, "Import definition is not valid",
