@@ -16,6 +16,15 @@ define(function (require) {
                     return true;
                 }
             });
+        },
+        lockNextDeploymentTabs: function() {
+            return features.then(function(result) {
+                if ('lockNextDeploymentTabs' in result.data) {
+                    return result.data.lockNextDeploymentTabs;
+                } else {
+                    return true;
+                }
+            });
         }
     };
   }]); // factory

@@ -161,7 +161,7 @@ define(function (require) {
           if (_.undefined(newValue)) {
             return;
           }
-          if (_.indexOf(['DEPLOYMENT_IN_PROGRESS', 'UNDEPLOYMENT_IN_PROGRESS', 'UPDATE_IN_PROGRESS'], newValue) !== -1) {
+          if (_.indexOf(['DEPLOYMENT_IN_PROGRESS', 'UNDEPLOYMENT_IN_PROGRESS', 'UPDATE_IN_PROGRESS'], newValue) !== -1 && $scope.lockNextDeploymentTabs == true) {
             $state.go('applications.detail.environment.deploycurrent');
           }
         });
