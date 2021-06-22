@@ -1,16 +1,16 @@
 package alien4cloud.rest.component;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
 
+import alien4cloud.utils.VersionUtil;
 import org.alien4cloud.tosca.catalog.CatalogVersionResult;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -105,6 +105,13 @@ public class ComponentController {
                 AbstractToscaType element = ((AbstractToscaType) Array.get(array, i));
                 versions[i] = new CatalogVersionResult(element.getId(), element.getArchiveVersion());
             }
+            Arrays.sort(versions, new Comparator<CatalogVersionResult>() {
+                @Override
+                public int compare(CatalogVersionResult o1, CatalogVersionResult o2) {
+                    // reverse sort versions (most recent first)
+                    return VersionUtil.compare(o2.getVersion(), o1.getVersion());
+                }
+            });
             return RestResponseBuilder.<CatalogVersionResult[]> builder().data(versions).build();
         }
         return RestResponseBuilder.<CatalogVersionResult[]> builder().data(new CatalogVersionResult[0]).build();
