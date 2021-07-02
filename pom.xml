@@ -73,7 +73,7 @@
 
     <!-- Elastic Search mapper (reference the elastic search version actually). -->
     <!-- Elastic Search is in Elastic Search dependencies -->
-    <elasticsearch.version>6.8.13</elasticsearch.version>
+    <elasticsearch.version>6.8.15</elasticsearch.version>
     <es-mapping.version>6.8.13-1</es-mapping.version>
     <!-- Groovy is required for ElasticSearch to run as server in order to process scripts -->
     <groovy.version>3.0.6</groovy.version>
