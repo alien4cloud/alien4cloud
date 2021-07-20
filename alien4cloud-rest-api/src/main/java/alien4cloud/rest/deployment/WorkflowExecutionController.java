@@ -139,6 +139,12 @@ public class WorkflowExecutionController {
         result.getStepInstances().forEach((stepId, workflowStepInstances) -> {
             WorkflowExecutionDTO.WorkflowExecutionStepStatus stepStatus = result.getStepStatus().get(stepId);
 
+            // Possible d avoir plusieurs instances avec le workflow resume
+            // Il faut ameliorer ce code pour filtrer et garder le dernier resultat
+            // Soit
+            // - on update la db plutot qu'insert
+            // - soit on dedoublonne à l'exec mais il faut un timestamp
+
             for (WorkflowStepInstance workflowStepInstance : workflowStepInstances) {
                 if (stepStatus == null) {
                     switch (workflowStepInstance.getStatus()) {
