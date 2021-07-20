@@ -57,6 +57,17 @@ public interface IPaaSProvider {
     void purge(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback);
 
     /**
+     * Resuming an execution
+     *
+     * @param deploymentContext the deployment context
+     * @param executionId the id of the execution
+     * @param callback callback when the status will be available
+     *
+     */
+    void resume(PaaSDeploymentContext deploymentContext, String executionId, IPaaSCallback<?> callback);
+
+
+    /**
      * Scale up/down a node
      *
      * @param deploymentContext the deployment context

@@ -68,6 +68,7 @@
     "META_PROPERTIES" : "Meta-properties",
     "NEW" : "New Application",
     "PURGE" : "Purge",
+    "RESUME" : "Resume",
     "RUNTIME" : {
       "WORKFLOW" : {
         "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully.",

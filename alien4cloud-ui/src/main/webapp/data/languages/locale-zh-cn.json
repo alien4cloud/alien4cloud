@@ -67,6 +67,8 @@
     },
     "META_PROPERTIES" : "元属性",
     "NEW" : "新建应用",
+    "PURGE": "Purge",
+    "RESUME" : "Resume",
     "RUNTIME" : {
       "WORKFLOW" : {
         "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully.",

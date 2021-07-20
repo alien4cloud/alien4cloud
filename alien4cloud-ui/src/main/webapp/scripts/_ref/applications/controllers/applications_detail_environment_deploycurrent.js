@@ -35,8 +35,8 @@ define(function (require) {
   states.forward('applications.detail.environment.deploycurrent', 'applications.detail.environment.deploycurrent.info');
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentCtrl',
-    ['$scope', 'menu', 'deploymentServices', 'topologyJsonProcessor', 'applicationServices', '$uibModal', 'a4cRuntimeEventService', '$state', 'toaster', '$timeout', 'secretDisplayModal',
-      function ($scope, menu, deploymentServices, topologyJsonProcessor, applicationServices, $uibModal, a4cRuntimeEventService, $state, toaster, $timeout, secretDisplayModal) {
+    ['$scope', 'menu', 'deploymentServices', 'workflowExecutionServices', 'topologyJsonProcessor', 'applicationServices', '$uibModal', 'a4cRuntimeEventService', '$state', 'toaster', '$timeout', 'secretDisplayModal',
+      function ($scope, menu, deploymentServices, workflowExecutionServices, topologyJsonProcessor, applicationServices, $uibModal, a4cRuntimeEventService, $state, toaster, $timeout, secretDisplayModal) {
         $scope.menu = menu;
 
         function exitIfUndeployed(){
@@ -69,9 +69,23 @@ define(function (require) {
           }
         });
 
-        $scope.doPurge = function() {
-            console.log("PURGE REQUEST");
+        $scope.doResume = function(deployment) {
+            secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
+                var secretProviderInfoRequest = {};
+                if (_.defined(secretProviderInfo)) {
+                    secretProviderInfoRequest.secretProviderConfiguration = secretProviderInfo;
+                    secretProviderInfoRequest.credentials = secretProviderInfo.credentials;
+                }
 
+                workflowExecutionServices.resume({
+                    deploymentId: deployment.id
+                }, angular.toJson(secretProviderInfoRequest), function (result) {
+                     console.log("RESUME RESULT:",result);
+                });
+          });
+        };
+
+        $scope.doPurge = function() {
             secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
                 var secretProviderInfoRequest = {};
                 if (_.defined(secretProviderInfo)) {
@@ -88,12 +102,6 @@ define(function (require) {
                 $scope.reloadEnvironment();
             });
           });
-/*            applicationServices.purge({
-                applicationId: $scope.application.id,
-                applicationEnvironmentId: $scope.environment.id
-            },{},function(successResult) {
-                console.log(successResult);
-            });*/
         };
 
         $scope.doUndeploy = function(force = false ) {
