@@ -1244,6 +1244,7 @@
   "POLICIES" : "政策",
   "PROPERTY_RESET" : "设置为默认值或重置",
   "PROPERTY_DEFAULT" : "Default value",
+  "PROPERTY_POPUP_EDIT" : "Edit value in popup window",
   "PROPERTY_SUGGESTION" : {
     "MODAL" : {
       "DESCRIPTION" : "您输入的值从未在系统中注册过。",

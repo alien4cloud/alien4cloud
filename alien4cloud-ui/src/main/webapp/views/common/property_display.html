@@ -48,6 +48,7 @@
             <span>{{definitionObject.uiValue | truncate:30}}</span>
             <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
           </span>
+          <span ng-if="showLongTextChoice || definitionObject.uiValue && definitionObject.uiValue.length > 30" class="fa fa-pencil-square clickable" ng-click="openEditPopup($event)" uib-tooltip="{{'PROPERTY_POPUP_EDIT' | translate}}" tooltip-append-to-body="true"></span>
           <span ng-if="definitionObject.uiValue" uib-tooltip="{{definitionObject.uiValue}}" class="fa fa-clipboard btn-cb clickable"></span>
           <span class="fa clickable" ng-class="{'fa-expand': !isLongText, 'fa-compress': isLongText}" ng-if="showLongTextChoice" ng-click="switchToLongText($event)"></span>
         </span>
@@ -190,6 +191,53 @@
       </div>
       <div class="modal-footer">
         <button id="btn-create" class="btn btn-primary" ng-click="create(choice.value)">{{'OK' | translate}}</button>
+        <button id="btn-cancel" class="btn btn-default" ng-click="cancel();$event.stopPropagation();">{{'CANCEL' | translate}}</button>
+      </div>
+    </form>
+  </script>
+
+  <script type="text/ng-template" id="propertyEditModal.html">
+    <form name="propertyEditModal" class="form-horizontal" role="form" novalidate>
+      <div class="modal-header">
+        <h3>{{ propertyName }}</h3>
+        <i>{{ definition.description }}</i>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-11" >
+            <form ng-submit="update()">
+              <input ng-if="!isLongText" type="text" class="form-control" ng-model="modalValue.value"
+                     name="modalTextInput"
+                     ng-keydown="keydown($event)"
+                     id="modalTextInput"
+                     uib-typeahead="suggestion as suggestionLabel(suggestion) for suggestion in suggestion.get($viewValue)"
+                     class="typeahead editable-property"
+                     typeahead
+                     typeahead-on-select="modalSuggestionSelected($item, $model, $label)"
+                     typeahead-min-length="suggestion.minLength"
+                     typeahead-wait-ms="suggestion.waitBeforeRequest"
+                     typeahead-loading="searching"
+              />
+              <textarea ng-if="isLongText" class="form-control" ng-model="modalValue.value" rows="15"
+                     name="modalTextareaInput"
+                     id="modalTextareaInput"
+                     uib-typeahead="suggestion as suggestionLabel(suggestion) for suggestion in suggestion.get($viewValue)"
+                     class="typeahead editable-property"
+                     typeahead
+                     typeahead-on-select="modalSuggestionSelected($item, $model, $label)"
+                     typeahead-min-length="suggestion.minLength"
+                     typeahead-wait-ms="suggestion.waitBeforeRequest"
+                     typeahead-loading="searching"
+              />
+            </form>
+          </div>
+          <div class="col-md-1">
+            <span class="fa clickable" ng-class="{'fa-expand': !isLongText, 'fa-compress': isLongText}" ng-click="switchToLongText($event)"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-create" class="btn btn-primary" ng-click="update()">{{'OK' | translate}}</button>
         <button id="btn-cancel" class="btn btn-default" ng-click="cancel();$event.stopPropagation();">{{'CANCEL' | translate}}</button>
       </div>
     </form>
