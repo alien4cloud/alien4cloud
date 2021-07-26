@@ -52,6 +52,33 @@ define(function(require) {
     }
   ];
 
+  var PropertyEditModalCtrl = ['$scope', '$uibModalInstance',
+    function($scope, $uibModalInstance) {
+
+      $scope.modalValue = {};
+      $scope.modalValue.value = $scope.definitionObject.uiValue;
+
+      $scope.modalSuggestionSelected = function($item, $model, $label) {
+        if ($item.value) {
+          $scope.modalValue.value = $item.value;
+        }
+      }
+
+      $scope.keydown = function(event) {
+        if (event.keyCode == 13) {
+          $scope.update();
+        }
+      }
+
+      $scope.update = function() {
+        $uibModalInstance.close($scope.modalValue.value);
+      };
+
+      $scope.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+      };
+    }
+  ];
 
   modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', '$rootScope', 'propertiesServices', '$translate', '$uibModal', '$timeout', 'propertySuggestionServices',
     function($scope, $rootScope, propertiesServices, $translate, $uibModal, $timeout, propertySuggestionServices) {
@@ -63,6 +90,22 @@ define(function(require) {
 
       $scope.switchLongTextChoice = function(on) {
         $scope.showLongTextChoice = on;
+      };
+
+      $scope.openEditPopup = function($event) {
+        // TODO: open a popup to able edition in a popup
+        $scope.switchLongTextChoice(false);
+
+        var modalInstance = $uibModal.open({
+          templateUrl: 'propertyEditModal.html',
+          controller: PropertyEditModalCtrl,
+          size: 'lg',
+          scope: $scope
+        });
+        modalInstance.result.then(function(modalResult) {
+          console.log("result:" + modalResult);
+          $scope.propertySave(modalResult);
+        });
       };
 
       $scope.switchToLongText = function($event) {
