@@ -77,6 +77,12 @@ define(function (require) {
                     secretProviderInfoRequest.credentials = secretProviderInfo.credentials;
                 }
 
+                if ($scope.isState("FAILURE")) {
+                    $scope.setState('DEPLOYMENT_IN_PROGRESS');
+                } else if ($scope.isState("UNDEPLOYMENT_FAILURE")) {
+                    $scope.setState('UNDEPLOYMENT_IN_PROGRESS');
+                }
+
                 workflowExecutionServices.resume({
                     deploymentId: deployment.id
                 }, angular.toJson(secretProviderInfoRequest), function (result) {
