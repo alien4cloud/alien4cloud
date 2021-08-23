@@ -128,7 +128,6 @@ public class PluginManager {
     @PreDestroy
     public void preDestroy() throws IOException {
         log.info("Destroying PluginManager");
-        unloadAllPlugins();
     }
 
     /**
@@ -335,6 +334,7 @@ public class PluginManager {
         if (managedPlugin != null) {
             // send events to plugin loading callbacks
             for (IPluginLoadingCallback callback : SpringUtils.getBeansOfType(alienContext, IPluginLoadingCallback.class)) {
+                log.info("Calling onPluginClosed onto {} to inform shutdown off {}", callback.getClass(), pluginId);
                 callback.onPluginClosed(managedPlugin);
             }
 
