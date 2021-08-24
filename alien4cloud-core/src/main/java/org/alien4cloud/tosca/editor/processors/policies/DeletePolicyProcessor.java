@@ -27,6 +27,6 @@ public class DeletePolicyProcessor extends AbstractPolicyProcessor<DeletePolicyO
                 + topology.getId() + "> .");
 
         topology.getPolicies().remove(operation.getPolicyName());
-        topologyService.unloadType(topology, policyTemplate.getType());
+        topologyService.rebuildDependencies(topology);
     }
 }
