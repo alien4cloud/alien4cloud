@@ -31,7 +31,7 @@
               <div class="col-md-2">
                 <strong>{{'CREATION_DATE' | translate }}</strong>
               </div>
-              <div class="col-md-4">{{component.creationDate | date:'medium'}}</div>
+              <div class="col-md-4">{{component.creationDate | amDateFormat:'llll'}}</div>
             </div>
             <div class="row grp-margin">
               <div class="col-md-2">
@@ -41,7 +41,7 @@
               <div class="col-md-2">
                 <strong>{{'UPDATE_DATE' | translate }}</strong>
               </div>
-              <div class="col-md-4">{{component.lastUpdateDate | date:'medium'}}</div>
+              <div class="col-md-4">{{component.lastUpdateDate | amDateFormat:'llll'}}</div>
             </div>
 
             <!-- derived from -->

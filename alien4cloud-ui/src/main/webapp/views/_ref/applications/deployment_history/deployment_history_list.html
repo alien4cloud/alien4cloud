@@ -19,10 +19,10 @@
           {{ deployment.locations[0].name }}
         </td>
         <td>
-          {{ deployment.deployment.startDate | date:'medium' }}
+          {{ deployment.deployment.startDate | amDateFormat:'llll' }}
         </td>
         <td>
-          {{ (deployment.deployment.endDate | date:'medium') || '---' }}
+          {{ (deployment.deployment.endDate | amDateFormat:'llll') || '---' }}
         </td>
         <td>
           {{ ((deployment.deployment.endDate || now) - deployment.deployment.startDate) | amDurationFormat : 'millisecond' }}

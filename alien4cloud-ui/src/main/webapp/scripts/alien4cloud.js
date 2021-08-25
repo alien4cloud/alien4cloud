@@ -6,6 +6,7 @@ define(function(require) {
   var plugins = require('plugins');
   var _ = require('lodash');
   var angular = require('angular');
+  var moment = require('moment');
 
   require('scripts/layout/layout');
 
@@ -122,8 +123,8 @@ define(function(require) {
       }
     ]);
 
-    alien4cloud.run(['$templateCache', '$rootScope', '$state', '$sce', 'editableOptions', 'editableThemes', 'authService', 'restTechnicalErrorInterceptor',
-      function($templateCache, $rootScope, $state, $sce, editableOptions, editableThemes, authService, restTechnicalErrorInterceptor) {
+    alien4cloud.run(['$templateCache', '$rootScope', '$state', '$sce', '$translate', 'editableOptions', 'editableThemes', 'authService', 'restTechnicalErrorInterceptor', 'amMoment',
+      function($templateCache, $rootScope, $state, $sce, $translate, editableOptions, editableThemes, authService, restTechnicalErrorInterceptor, amMoment) {
         restTechnicalErrorInterceptor.$state = $state;
         templateInjector($templateCache);
         var statusFetched = false; // flag to know if we have fetched current user status (logged in and roles)
@@ -181,6 +182,13 @@ define(function(require) {
           if (_.defined(forward)) {
             $state.go(forward);
           }
+        });
+
+        // lang has changes, let's change moment's locale in order to i18n dates and intervals
+        $rootScope.$on('$translateChangeSuccess', function() {
+          const lang = $translate.use();
+          amMoment.changeLocale(lang);
+          moment.locale(lang);
         });
 
         /* angular-xeditable config */
