@@ -14,13 +14,13 @@
   <div class="col-md-4">
     <strong>{{'APPLICATIONS.DEPLOYMENT.HISTORY.DEPLOYED_AT' | translate }}</strong>
   </div>
-  <div class="col-md-8">{{deploymentDTO.deployment.startDate | date:'medium'}}</div>
+  <div class="col-md-8">{{deploymentDTO.deployment.startDate | amDateFormat:'llll'}}</div>
 </div>
 <div class="row grp-margin">
   <div class="col-md-4">
     <strong>{{'APPLICATIONS.DEPLOYMENT.HISTORY.UNDEPLOYED_AT' | translate }}</strong>
   </div>
-  <div class="col-md-8">{{deploymentDTO.deployment.endDate | date:'medium'}}</div>
+  <div class="col-md-8">{{deploymentDTO.deployment.endDate | amDateFormat:'llll'}}</div>
 </div>
 <div class="row grp-margin">
   <div class="col-md-4">
@@ -51,10 +51,10 @@
       {{ execution.workflowName || execution.workflowId }}
     </td>
     <td class="clickable" ng-click="displayTasks(execution)">
-      {{ execution.startDate | date:'medium' }}
+      {{ execution.startDate | amDateFormat:'llll' }}
     </td>
     <td class="clickable" ng-click="displayTasks(execution)">
-      {{ (execution.endDate | date:'medium') || '---' }}
+      {{ (execution.endDate | amDateFormat:'llll') || '---' }}
     </td>
     <td class="clickable" ng-click="displayTasks(execution)">
       {{ ((execution.endDate || now) - execution.startDate) | amDurationFormat : 'millisecond' }}

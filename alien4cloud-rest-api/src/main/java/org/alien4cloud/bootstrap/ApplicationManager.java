@@ -3,6 +3,7 @@ package org.alien4cloud.bootstrap;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import alien4cloud.plugin.PluginManager;
 import alien4cloud.utils.SpringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -110,6 +111,18 @@ public class ApplicationManager implements ApplicationListener<AlienEvent>, Hand
             }
         } else {
             if (childContextLaunched) {
+                Object pluginManagerBean = fullApplicationContext.getBean("plugin-manager");
+                if (pluginManagerBean != null) {
+                    PluginManager pluginManager = (PluginManager)pluginManagerBean;
+                    log.info("Unloading all plugin before Destroying the full application context");
+                    try {
+                        pluginManager.unloadAllPlugins();
+                    } catch(Exception e) {
+                        log.error("Not able to unload plugins", e);
+                    }
+                } else {
+                    log.warn("plugin-manager can not be found");
+                }
                 log.info("Destroying the full application context");
 
                 mapper = null;

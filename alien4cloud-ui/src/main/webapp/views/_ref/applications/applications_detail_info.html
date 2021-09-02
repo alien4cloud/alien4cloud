@@ -55,13 +55,13 @@
       <div class="col-md-4">
         <strong>{{'CREATION_DATE' | translate }}</strong>
       </div>
-      <div class="col-md-8">{{application.creationDate | date:'medium'}}</div>
+      <div class="col-md-8">{{application.creationDate | amDateFormat:'llll'}}</div>
     </div>
     <div class="row grp-margin">
       <div class="col-md-4">
         <strong>{{'UPDATE_DATE' | translate }}</strong>
       </div>
-      <div class="col-md-8">{{application.lastUpdateDate | date:'medium'}}</div>
+      <div class="col-md-8">{{application.lastUpdateDate | amDateFormat:'llll'}}</div>
     </div>
 
     <!-- dynamic sub-states menu -->
