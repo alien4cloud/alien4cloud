@@ -201,7 +201,7 @@ public class ApplicationWizardController {
             feature.setId(addon.getId());
             feature.setIconName(addon.getIconName());
             feature.setActivationLink(addon.getContextPath());
-            feature.setAllowed(AuthorizationUtil.hasOneRoleIn(addon.getAuthorizedRoles()));
+            feature.setAllowed(!addon.isDisabled() && AuthorizationUtil.hasOneRoleIn(addon.getAuthorizedRoles()));
             feature.setEnabled(true);
 
             result.add(feature);
