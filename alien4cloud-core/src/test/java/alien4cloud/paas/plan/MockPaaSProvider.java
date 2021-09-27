@@ -58,6 +58,11 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
+    public void resume(PaaSDeploymentContext deploymentContext, String executionId, IPaaSCallback<?> callback) {
+
+    }
+
+    @Override
     public void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, int instances, IPaaSCallback<?> callback) {
 
     }
