@@ -115,7 +115,7 @@ public class WorkflowEventHandler implements IPaasEventListener<AbstractMonitorE
             if (log.isDebugEnabled()) {
                 log.debug("WorkflowStepStartedEvent recceived for #" + ((WorkflowStepStartedEvent) event).getStepId());
             }
-            createWorkflowStepInstance((WorkflowStepStartedEvent)event);
+            createOrUpdateWorkflowStepInstance((WorkflowStepStartedEvent)event);
         } else if (event instanceof WorkflowStepCompletedEvent) {
             if (log.isDebugEnabled()) {
                 log.debug("WorkflowStepCompletedEvent recceived for #" + ((WorkflowStepCompletedEvent) event).getStepId());
@@ -178,6 +178,27 @@ public class WorkflowEventHandler implements IPaasEventListener<AbstractMonitorE
         i.setTargetInstanceId(e.getTargetInstanceId());
         i.setStatus(WorkflowStepInstanceStatus.STARTED);
         alienDAO.save(i);
+    }
+
+    private void createOrUpdateWorkflowStepInstance(WorkflowStepStartedEvent e) {
+        Map<String, String[]> filter = Maps.newHashMap();
+        filter.put("executionId", new String[] { e.getExecutionId() });
+        filter.put("deploymentId", new String[] { e.getDeploymentId() });
+        filter.put("stepId", new String[] { e.getStepId() });
+        filter.put("nodeId", new String[] { e.getNodeId() });
+        filter.put("instanceId", new String[] { e.getInstanceId() });
+        filter.put("targetNodeId", new String[] { e.getTargetNodeId() });
+        filter.put("targetInstanceId", new String[] { e.getTargetInstanceId() });
+
+        GetMultipleDataResult<WorkflowStepInstance> result = alienDAO.find(WorkflowStepInstance.class, filter, 1);
+        if (result.getTotalResults() > 0) {
+            WorkflowStepInstance i = result.getData()[0];
+            i.setStatus(WorkflowStepInstanceStatus.STARTED);
+            i.setHasFailedTasks(false);
+            alienDAO.save(i);
+        } else {
+            createWorkflowStepInstance(e);
+        }
     }
 
     private void updateWorkflowStepInstance(WorkflowStepCompletedEvent e) {

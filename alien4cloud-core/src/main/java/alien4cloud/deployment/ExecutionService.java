@@ -2,13 +2,26 @@ package alien4cloud.deployment;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
+import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
+import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.runtime.Execution;
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.paas.IPaaSCallback;
+import alien4cloud.paas.OrchestratorPluginService;
+import alien4cloud.paas.model.PaaSDeploymentContext;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.secret.services.SecretProviderService;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.Map;
 
 /**
  * Manage execution operations on a cloud.
@@ -18,6 +31,60 @@ import javax.annotation.Resource;
 public class ExecutionService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDao;
+
+    @Inject
+    private DeploymentService deploymentService;
+
+    @Inject
+    private DeploymentLockService deploymentLockService;
+
+    @Inject
+    private OrchestratorPluginService orchestratorPluginService;
+
+    @Inject
+    private DeploymentRuntimeStateService deploymentRuntimeStateService;
+
+    @Inject
+    private SecretProviderService secretProviderService;
+
+    @Inject
+    private DeploymentTopologyService deploymentTopologyService;
+
+    public void resumeExecution(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, Execution execution) {
+        Deployment deployment = deploymentService.getOrfail(execution.getDeploymentId());
+
+        deploymentLockService.doWithDeploymentWriteLock(deployment.getOrchestratorDeploymentId(), () -> {
+            log.info("Resuming execution {} of deployment [{}] on orchestrator [{}]", execution.getId(), deployment.getId(), deployment.getOrchestratorId());
+
+            IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
+
+            DeploymentTopology deployedTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
+
+            Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deployedTopology);
+            Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
+
+            SecretProviderConfigurationAndCredentials authResponse = null;
+            if (secretProviderService.isSecretProvided(secretProviderConfigurationAndCredentials)) {
+                authResponse = secretProviderService.generateToken(locations,
+                        secretProviderConfigurationAndCredentials.getSecretProviderConfiguration().getPluginName(),
+                        secretProviderConfigurationAndCredentials.getCredentials());
+            }
+
+            PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deployedTopology, authResponse);
+
+            orchestratorPlugin.resume(deploymentContext, execution.getId(), new IPaaSCallback<Void>() {
+                @Override
+                public void onSuccess(Void data) {
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                }
+            });
+            return null;
+        });
+
+    }
 
     /**
      * Get an execution by it's id.

@@ -11,11 +11,18 @@ define(function (require) {
       var workflowExecutionPerExecution = $resource('rest/latest/workflow_execution/:deploymentId', {}, {
         'get': {
           method: 'GET'
+        },
+        'resume': {
+          method: 'PATCH',
+          params: {
+            deploymentId : '@deploymentId'
+          }
         }
       });
 
       return {
-        'get': workflowExecutionPerExecution.get
+        'get': workflowExecutionPerExecution.get,
+        'resume': workflowExecutionPerExecution.resume
       };
     }
   ]);
