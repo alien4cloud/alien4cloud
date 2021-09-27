@@ -20,6 +20,7 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.util.NamedThreadFactory;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -111,7 +112,7 @@ public abstract class ESIndexMapper {
 
     private List<TTL> TTLs = new ArrayList<TTL>();
 
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new NamedThreadFactory("es-ttl-cleaner"));
 
     /**
      * Initialize the array of all indices managed by this dao.
@@ -270,12 +271,17 @@ public abstract class ESIndexMapper {
     }
 
     private void cleanIndex (String index, String ts, String ttl) {
-       log.debug ("Cleaning index " + index + "(" + ts + ") ttl=" + ttl);
-       BulkByScrollResponse response = new DeleteByQueryRequestBuilder(esClient.getClient(), DeleteByQueryAction.INSTANCE)
-               .source(index)
-               .filter(QueryBuilders.rangeQuery(ts).lte("now-" + ttl))
-               .get();
-       log.debug ("Deleted " + response.getDeleted() + " docs");
+       log.info ("Cleaning index " + index + "(" + ts + ") ttl=" + ttl);
+       try {
+           BulkByScrollResponse response = new DeleteByQueryRequestBuilder(esClient.getClient(), DeleteByQueryAction.INSTANCE)
+                   .source(index)
+                   .filter(QueryBuilders.rangeQuery(ts).lte("now-" + ttl))
+                   .get();
+           log.info ("Deleted " + response.getDeleted() + " docs");
+       } catch(Exception e) {
+          log.error("An error occured while cleaning (TTL) index " + index, e);
+       }
+
     }
 
     @SneakyThrows({ ExecutionException.class, InterruptedException.class })
