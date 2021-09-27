@@ -1,11 +1,13 @@
 <div ng-class="{'row':condensed, 'form-group': !condensed}" ng-controller="PropertiesCtrl">
   <!-- Property Name -->
-  <label ng-if="translated" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required && definitionObject.uiEmpty}"
+  <label ng-if="translated" id="p_name_{{propertyName}}" class="col-md-3 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required && definitionObject.uiEmpty}"
          uib-tooltip="{{propertyName | translate}}" tooltip-append-to-body="true">
-    {{propertyName | translate}}
+    <span>{{propertyName | translate}}</span>
+    <span ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</span>
   </label>
   <label ng-if="!translated" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required && definitionObject.uiEmpty}" uib-tooltip="{{propertyName}}" tooltip-append-to-body="true">
-    {{propertyName}}
+    <span>{{propertyName}}</span>
+    <span ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</span>
   </label>
   <div ng-class="{'col-md-5': deletable, 'col-md-8': !deletable, 'form-editable': !condensed}"
     ng-init="isStringDisplayType = (definitionObject.uiName === 'scalar-unit' || definitionObject.uiName === 'string');">
@@ -13,9 +15,9 @@
     <div id="div_{{propertyName}}"  ng-if="isStringDisplayType && !definitionObject.uiSecret" ng-class="{'property-required' : definition.required && definitionObject.uiEmpty}">
 
       <!-- Case : string -->
-      <div class="col-md-9">
-        <span id="p_{{propertyName}}" ng-if=" !definitionObject.uiPassword && !definitionObject.units && editable">
-          <span ng-if="!isLongText"
+      <div id="c_{{propertyName}}" class="col-md-9">
+        <span id="p_{{propertyName}}" ng-if=" !definitionObject.uiPassword && !definitionObject.units && editable" style="display: block; width: 100%">
+          <span ng-if="!isLongText" style="width: 100%"
                 tabindex="0"
                 ng-keypress="switchLongTextChoice(true); myForm.$show();"
                 ng-click="switchLongTextChoice(true);myForm.$show();"
@@ -29,10 +31,10 @@
                 e-typeahead-min-length="suggestion.minLength"
                 e-typeahead-wait-ms="suggestion.waitBeforeRequest"
                 e-typeahead-loading="searching">
-            <span>{{definitionObject.uiValue | truncate:30}}</span>
+            <span>{{definitionObject.uiValue | truncate:getMaxCharNumber('p_' + propertyName)}}</span>
             <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
           </span>
-          <span ng-if="isLongText"
+          <span ng-if="isLongText" style="width: 100%"
                 tabindex="0"
                 ng-keypress="switchLongTextChoice(true); myForm.$show();"
                 ng-click="switchLongTextChoice(true); myForm.$show();"
@@ -45,12 +47,12 @@
                 e-typeahead-min-length="suggestion.minLength"
                 e-typeahead-wait-ms="suggestion.waitBeforeRequest"
                 e-typeahead-loading="searching">
-            <span>{{definitionObject.uiValue | truncate:30}}</span>
+            <span>{{definitionObject.uiValue | truncate:getMaxCharNumber('p_' + propertyName)}}</span>
             <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
           </span>
-          <span ng-if="showLongTextChoice || definitionObject.uiValue && definitionObject.uiValue.length > 30" class="fa fa-pencil-square clickable" ng-click="openEditPopup($event)" uib-tooltip="{{'PROPERTY_POPUP_EDIT' | translate}}" tooltip-append-to-body="true"></span>
-          <span ng-if="definitionObject.uiValue" uib-tooltip="{{definitionObject.uiValue}}" class="fa fa-clipboard btn-cb clickable"></span>
           <span class="fa clickable" ng-class="{'fa-expand': !isLongText, 'fa-compress': isLongText}" ng-if="showLongTextChoice" ng-click="switchToLongText($event)"></span>
+          <span ng-if="definitionObject.uiValue" uib-tooltip="{{definitionObject.uiValue}}" class="fa fa-clipboard btn-cb clickable"></span>
+          <span ng-if="showLongTextChoice || definitionObject.uiValue && definitionObject.uiValue.length > getMaxCharNumber('p_' + propertyName)" class="fa fa-pencil-square clickable" ng-click="openEditPopup($event)" uib-tooltip="{{'PROPERTY_POPUP_EDIT' | translate}}" tooltip-append-to-body="true"></span>
         </span>
         <span id="p_{{propertyName}}" ng-if=" !definitionObject.uiPassword && definitionObject.units && editable">
           <!-- Property with unit -->
@@ -71,7 +73,7 @@
           </div>
           <div ng-if="unitError" class="help-inline text-danger">{{unitError}}</div>
         </span>
-        <em ng-if="!definitionObject.uiPassword && !editable" uib-tooltip="{{definitionObject.uiValue}}">{{ (definitionObject.uiValue) ? (definitionObject.uiValue|truncate:30) : '...'}}</em>
+        <em ng-if="!definitionObject.uiPassword && !editable" uib-tooltip="{{definitionObject.uiValue}}">{{ (definitionObject.uiValue) ? (definitionObject.uiValue|truncate:getMaxCharNumber('c_' + propertyName)) : '...'}}</em>
         <em ng-if="!definitionObject.uiPassword && !editable && definitionObject.uiValue" uib-tooltip="{{definitionObject.uiValue}}" class="fa fa-clipboard btn-cb clickable"></em>
 
         <!-- Case : password -->
@@ -82,7 +84,7 @@
         <em ng-if=" definitionObject.uiPassword && !editable">{{ definitionObject.uiValue | password:'*' }}</em>
 
         <em ng-if=" definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
-        <label ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</label>
+        <!--label ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</label-->
       </div>
       <!-- Reset button for any property definition -->
       <span class="pull-right">
@@ -140,7 +142,7 @@
           <em ng-if="!editable">{{definitionObject.uiValue}}</em>
         </span>
 
-        <label ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</label>
+        <!--label ng-if="definition.required" uib-tooltip="{{ 'REQUIRED' | translate }}">*</label-->
       </div>
       <!-- Reset button for any property definition -->
       <span class="pull-right">

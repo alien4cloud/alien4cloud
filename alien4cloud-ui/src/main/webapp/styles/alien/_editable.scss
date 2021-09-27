@@ -32,12 +32,24 @@ a.editable-click:hover {
 }
 
 #scaleEditableInput .editable-wrap .editable-controls > input {
-  width: 50%;
+  width: 100%;
+}
+
+.editable-wrap .editable-controls > input,
+.editable-wrap .editable-controls > select,
+.editable-wrap .editable-controls > textarea {
+  margin-bottom: 0;
+  width: 100%;
 }
 
 .editable-controls {
   width: 100%;
 }
+
+.editable-text {
+  width: 100%;
+}
+
 .editable-input-lg {
   width: 100% !important;
 }
@@ -51,7 +63,7 @@ a.editable-click:hover {
 // for a better display of editable form in property display directive
 property-display [editable-text] + form.editable-wrap,
 property-display [editable-textarea] + form.editable-wrap {
-  width: auto;
+  width: 100%;
 }
 
 .form-horizontal property-display [editable-text] + form.editable-wrap .form-group,
@@ -76,7 +88,7 @@ select.form-control-inline {
 
 .editable-property span {
   @extend .not-overflow;
-  max-width: 120px;
+  //max-width: 120px;
 }
 
 /* ---- It is the css class for secret editable --------*/
