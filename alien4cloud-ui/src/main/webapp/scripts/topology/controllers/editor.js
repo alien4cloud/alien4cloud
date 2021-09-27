@@ -41,7 +41,7 @@ define(function (require) {
 
       featureService.autoValidation().then(function(data){
         $scope.autoValidationEnabled=data;
-      });
+      }) ;
 
       $scope.autoValidation = editorPreferencesService.autoValidation;
 
