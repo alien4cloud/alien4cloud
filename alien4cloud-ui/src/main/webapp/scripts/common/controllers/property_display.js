@@ -88,21 +88,6 @@ define(function(require) {
 
       $scope.showLongTextChoice = false;
 
-      $scope.getMaxCharNumber = function(elementId) {
-        const box = document.getElementById(elementId);
-        if (_.undefined(box)) {
-          return 30;
-        } else {
-          let width = box.offsetWidth;
-          console.log(elementId + " width: " + width);
-          let length = width/8;
-          if (length > 50) {
-            length = length * 1.4;
-          }
-          return length;
-        }
-      };
-
       $scope.switchLongTextChoice = function(on) {
         $scope.showLongTextChoice = on;
       };
