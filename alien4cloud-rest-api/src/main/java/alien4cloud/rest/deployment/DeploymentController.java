@@ -8,24 +8,20 @@ import alien4cloud.dao.ResponseUtil;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.deployment.DeploymentLockService;
-import alien4cloud.deployment.DeploymentRuntimeStateService;
-import alien4cloud.deployment.DeploymentService;
-import alien4cloud.deployment.UndeployService;
+import alien4cloud.deployment.*;
+import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.runtime.Execution;
+import alien4cloud.model.runtime.ExecutionStatus;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.rest.model.JsonRawRestResponse;
-import alien4cloud.rest.model.RestError;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.model.*;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.SettableFuture;
@@ -74,6 +70,8 @@ public class DeploymentController {
     private LocationService locationService;
     @Inject
     private DeploymentLockService deploymentLockService;
+    @Inject
+    private ExecutionService executionService;
 
     @ApiOperation(value = "Get a deployment from its id.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
     @RequestMapping(value = "/{deploymentId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -286,6 +284,26 @@ public class DeploymentController {
                     .error(new RestError(RestErrorCode.NOT_FOUND_ERROR.getCode(), "Deployment with id <" + deploymentId + "> was not found.")).build();
         }
         return RestResponseBuilder.<Void> builder().data(null).build();
+    }
+
+    /**
+     * Resume the last workflow
+     */
+    @ApiOperation(value = "Resume the last workflow execution", notes = "For a given deployment, resume the last workflow execution.")
+    @RequestMapping(value = "/{deploymentId}/resume-last-execution", method = RequestMethod.PATCH)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<Void> resumeLastWorkflowExecution(@ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String deploymentId,@ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
+
+        // Find the last execution
+        Execution execution = executionService.getLastExecution(deploymentId);
+        if (execution == null) {
+            RestError error = RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("Last execution not found").build();
+            return RestResponseBuilder.<Void>builder().error(error).build();
+        }
+
+        executionService.resumeExecution(secretProviderConfigurationAndCredentials, execution);
+
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     /**

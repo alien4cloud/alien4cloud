@@ -8,10 +8,15 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.runtime.Execution;
+import alien4cloud.model.runtime.ExecutionStatus;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
+import alien4cloud.rest.model.RestResponseBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.secret.services.SecretProviderService;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -53,11 +58,18 @@ public class ExecutionService {
     public void resumeExecution(SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials, Execution execution) {
         Deployment deployment = deploymentService.getOrfail(execution.getDeploymentId());
 
+        // Ensure that the execution is in failed state
+        if (!execution.getStatus().equals(ExecutionStatus.FAILED)) {
+            throw new IllegalStateException(String.format("Execution %s must be in FAILED state to be resumed",execution.getId()));
+        }
+
+        // Ensure that the deployment is still alive
+        if (deployment.getEndDate() != null) {
+            throw new IllegalStateException(String.format("Can't resume execution %s because its deployment is no longer alive",execution.getId()));
+        }
+
         deploymentLockService.doWithDeploymentWriteLock(deployment.getOrchestratorDeploymentId(), () -> {
-            log.info("Resuming execution {} of deployment [{}] on orchestrator [{}]", execution.getId(), deployment.getId(), deployment.getOrchestratorId());
-
             IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
-
             DeploymentTopology deployedTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
 
             Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deployedTopology);
@@ -72,7 +84,9 @@ public class ExecutionService {
 
             PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deployedTopology, authResponse);
 
-            orchestratorPlugin.resume(deploymentContext, execution.getId(), new IPaaSCallback<Void>() {
+            log.info("Resuming execution {} of deployment [{}] on orchestrator [{}]", execution.getId(), deployment.getId(), deployment.getOrchestratorId());
+
+            orchestratorPlugin.resume(deploymentContext, execution, new IPaaSCallback<Void>() {
                 @Override
                 public void onSuccess(Void data) {
                 }
@@ -81,9 +95,9 @@ public class ExecutionService {
                 public void onFailure(Throwable throwable) {
                 }
             });
+
             return null;
         });
-
     }
 
     /**

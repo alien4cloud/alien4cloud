@@ -1,26 +1,24 @@
 package alien4cloud.rest.deployment;
 
-import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.deployment.*;
+import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.runtime.Execution;
 import alien4cloud.model.runtime.ExecutionStatus;
-import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
-import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.PaaSDeploymentContext;
-import alien4cloud.paas.model.PaaSWorkflowFinishedEvent;
 import alien4cloud.paas.model.PaaSWorkflowMonitorEvent;
 import alien4cloud.rest.model.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,8 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.annotation.Resource;
-import javax.inject.Inject;
-import java.util.Date;
+import javax.validation.Valid;
 
 @Slf4j
 @RestController
@@ -90,6 +87,26 @@ public class ExecutionController {
            return RestResponseBuilder.<Execution> builder().data(null)
                     .error(new RestError(RestErrorCode.NOT_FOUND_ERROR.getCode(), "Execution with id <" + id + "> was not found.")).build();
         }
+    }
+
+    @ApiOperation(value = "Resume a workflow execution", notes = "resume a workflow execution.")
+    @RequestMapping(value = "/{executionId}", method = RequestMethod.PATCH)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<Void> resumeWorkflowExecution(
+            @ApiParam(value = "Execution id.", required = true) @Valid @NotBlank @PathVariable String executionId,
+            @ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials
+    ) {
+
+        // Find the execution
+        Execution execution = executionService.getExecution(executionId);
+        if (execution == null) {
+            RestError error = RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("Execution not found").build();
+            return RestResponseBuilder.<Void>builder().error(error).build();
+        }
+
+        executionService.resumeExecution(secretProviderConfigurationAndCredentials,execution);
+
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     @ApiOperation(value = "Cancel an execution", notes = "Cancel a running execution.")

@@ -39,6 +39,15 @@ define(function (require) {
 
       var undeploymentResource = $resource('rest/latest/deployments/:deploymentId/undeploy');
 
+      var lastWorkflowResumeResource = $resource('rest/latest/deployments/:deploymentId/resume-last-execution', {}, {
+        'resume': {
+          method: 'PATCH',
+          params: {
+            deploymentId : '@deploymentId'
+          }
+        }
+      });
+
       /*runtime controller*/
       var runtimeTopologyResource = $resource('rest/latest/runtime/:applicationId/environment/:applicationEnvironmentId/topology', {}, {
         'get': {
@@ -82,7 +91,8 @@ define(function (require) {
           'on': deploymentMaintenanceResource.save,
           'off': deploymentMaintenanceResource.remove
         },
-        'getNonNativeNodes' : nonNativeNodesResource.get
+        'getNonNativeNodes' : nonNativeNodesResource.get,
+        'resumeLastWorkflow' : lastWorkflowResumeResource.resume
       };
     }
   ]);

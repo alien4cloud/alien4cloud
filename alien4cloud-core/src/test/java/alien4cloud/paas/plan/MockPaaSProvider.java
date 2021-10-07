@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.model.runtime.Execution;
 import lombok.Getter;
 
 import org.springframework.stereotype.Component;
@@ -58,7 +59,7 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
-    public void resume(PaaSDeploymentContext deploymentContext, String executionId, IPaaSCallback<?> callback) {
+    public void resume(PaaSDeploymentContext deploymentContext, Execution execution, IPaaSCallback<?> callback) {
 
     }
 

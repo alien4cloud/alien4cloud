@@ -35,8 +35,8 @@ define(function (require) {
   states.forward('applications.detail.environment.deploycurrent', 'applications.detail.environment.deploycurrent.info');
 
   modules.get('a4c-applications').controller('ApplicationEnvDeployCurrentCtrl',
-    ['$scope', 'menu', 'deploymentServices', 'workflowExecutionServices', 'topologyJsonProcessor', 'applicationServices', '$uibModal', 'a4cRuntimeEventService', '$state', 'toaster', '$timeout', 'secretDisplayModal',
-      function ($scope, menu, deploymentServices, workflowExecutionServices, topologyJsonProcessor, applicationServices, $uibModal, a4cRuntimeEventService, $state, toaster, $timeout, secretDisplayModal) {
+    ['$scope', 'menu', 'deploymentServices', 'topologyJsonProcessor', 'applicationServices', '$uibModal', 'a4cRuntimeEventService', '$state', 'toaster', '$timeout', 'secretDisplayModal',
+      function ($scope, menu, deploymentServices, topologyJsonProcessor, applicationServices, $uibModal, a4cRuntimeEventService, $state, toaster, $timeout, secretDisplayModal) {
         $scope.menu = menu;
 
         function exitIfUndeployed(){
@@ -83,7 +83,7 @@ define(function (require) {
                     $scope.setState('UNDEPLOYMENT_IN_PROGRESS');
                 }
 
-                workflowExecutionServices.resume({
+                deploymentServices.resumeLastWorkflow({
                     deploymentId: deployment.id
                 }, angular.toJson(secretProviderInfoRequest), function (result) {
                      console.log("RESUME RESULT:",result);
