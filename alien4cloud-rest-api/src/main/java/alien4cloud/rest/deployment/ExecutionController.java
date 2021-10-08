@@ -90,7 +90,7 @@ public class ExecutionController {
     }
 
     @ApiOperation(value = "Resume a workflow execution", notes = "resume a workflow execution.")
-    @RequestMapping(value = "/{executionId}", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/{executionId}/resume", method = RequestMethod.POST)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<Void> resumeWorkflowExecution(
             @ApiParam(value = "Execution id.", required = true) @Valid @NotBlank @PathVariable String executionId,

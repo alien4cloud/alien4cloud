@@ -41,7 +41,7 @@ define(function (require) {
 
       var lastWorkflowResumeResource = $resource('rest/latest/deployments/:deploymentId/resume-last-execution', {}, {
         'resume': {
-          method: 'PATCH',
+          method: 'POST',
           params: {
             deploymentId : '@deploymentId'
           }

@@ -290,7 +290,7 @@ public class DeploymentController {
      * Resume the last workflow
      */
     @ApiOperation(value = "Resume the last workflow execution", notes = "For a given deployment, resume the last workflow execution.")
-    @RequestMapping(value = "/{deploymentId}/resume-last-execution", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/{deploymentId}/resume-last-execution", method = RequestMethod.POST)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<Void> resumeLastWorkflowExecution(@ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String deploymentId,@ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
 
