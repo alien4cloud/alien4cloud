@@ -13,6 +13,7 @@ import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSWorkflowMonitorEvent;
+import alien4cloud.rest.deployment.model.ExecutionCancellationRequest;
 import alien4cloud.rest.model.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -107,6 +108,30 @@ public class ExecutionController {
         executionService.resumeExecution(secretProviderConfigurationAndCredentials,execution);
 
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Reset an execution step", notes = "Reset an execution step.")
+    @RequestMapping(value = "/{executionId}/step/{stepId}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public DeferredResult<RestResponse<Void>> updateStep(
+            @ApiParam(value = "Execution id.", required = true) @Valid @NotBlank @PathVariable String executionId,
+            @ApiParam(value = "Step id.", required = true) @Valid @NotBlank @PathVariable String stepId
+            ) {
+        final DeferredResult<RestResponse<Void>> result = new DeferredResult<>(15L * 60L * 1000L);
+
+        // Find the execution
+        Execution execution = executionService.getExecution(executionId);
+        if (execution == null) {
+            RestError error = RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("Execution not found").build();
+            result.setErrorResult(RestResponseBuilder.<Void> builder().error(error).build());
+            return result;
+        }
+
+        executionService.resetExecutionStep(execution,stepId);
+
+        result.setResult(RestResponseBuilder.<Void> builder().build());
+
+        return result;
     }
 
     @ApiOperation(value = "Cancel an execution", notes = "Cancel a running execution.")

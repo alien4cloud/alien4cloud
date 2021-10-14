@@ -67,6 +67,16 @@ public interface IPaaSProvider {
      */
     void resume(PaaSDeploymentContext deploymentContext, Execution execution, IPaaSCallback<?> callback);
 
+    /**
+     *  Reset a step
+     * @param deploymentContext the deployment context
+     * @param execution the execution to resume
+     * @param stepName name of the step to reset
+     * @param done if true, reset the step as done, otherwise mark it as scheduled
+     * @param callback callback when the status will be available
+     *
+     */
+    void resetStep(PaaSDeploymentContext deploymentContext, Execution execution,String stepName,boolean done, IPaaSCallback<?> callback);
 
     /**
      * Scale up/down a node
