@@ -51,6 +51,7 @@ public abstract class AbstractSuggestionEntry {
      *   <li><b>Accept</b>: Don't ask for nothing, accept the value for the property, but don't add it to registry.</li>
      * </ul>
      */
+    @FetchContext(contexts = { SUMMARY }, include = { true })
     private SuggestionPolicy suggestionPolicy = SuggestionPolicy.Accept;
 
     public Collection<Suggestion> getBuiltSuggestions() {

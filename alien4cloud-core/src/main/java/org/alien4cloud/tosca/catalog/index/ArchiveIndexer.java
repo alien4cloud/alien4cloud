@@ -40,11 +40,14 @@ import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.normative.constants.ToscaFunctionConstants;
 import org.alien4cloud.tosca.utils.MetaPropertyFeeder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -322,6 +325,42 @@ public class ArchiveIndexer {
         }
 
         postProcessArtifacts(archiveRoot);
+
+        // update suggestions for inputs if any
+        if ((topology.getInputs() != null) && (topology.getInputs().size() > 0)) {
+           topology.getInputs().forEach ((inputName, inputProps) -> {
+              log.debug ("Looking for input {}", inputName);
+              boolean found = false;
+              for (NodeTemplate node : safe(topology.getNodeTemplates()).values()) {
+                 log.debug ("Searching node {}", node.getName());
+                 for (var nodeProp : safe(node.getProperties()).entrySet()) {
+                    log.debug ("Searching prop {}", nodeProp.getKey());
+                    if (nodeProp.getValue() instanceof FunctionPropertyValue) {
+                       log.debug ("This is a func");
+                       FunctionPropertyValue funcProp = (FunctionPropertyValue)nodeProp.getValue();
+                       if (funcProp.getFunction().equals(ToscaFunctionConstants.GET_INPUT) && funcProp.getParameters().get(0).equals(inputName)) {
+                          log.debug ("Found input");
+                          found = true;
+                       }
+                    }
+                    if (found) {
+                       log.debug ("Node type for input: {}", node.getType());
+                       NodeType nodeType = ToscaContext.get(NodeType.class, node.getType());
+                       PropertyDefinition prop = safe(nodeType.getProperties()).get(nodeProp.getKey());
+                       if (prop != null) {
+                          log.debug ("found prop in nodetype");
+                          inputProps.setSuggestionId(prop.getSuggestionId());
+                          inputProps.setSuggestionPolicy(prop.getSuggestionPolicy());
+                       }
+                       break;
+                    }
+                 }
+                 if (found) {
+                    break;
+                 }
+              }
+           });
+        }
 
         // init the workflows
         TopologyContext topologyContext = workflowBuilderService.buildCachedTopologyContext(new TopologyContext() {
