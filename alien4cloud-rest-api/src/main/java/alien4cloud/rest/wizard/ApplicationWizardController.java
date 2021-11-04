@@ -266,7 +266,8 @@ public class ApplicationWizardController {
             metaProperties.forEach((id, value) -> {
                 MetaPropConfiguration configuration = dao.findById(MetaPropConfiguration.class, id);
                 // filter returned meta properties for applications
-                if (metaPropertiesFilter == null || metaPropertiesFilter.isEmpty() || metaPropertiesFilter.contains(configuration.getName())) {
+                if (metaPropertiesFilter == null || metaPropertiesFilter.isEmpty() || 
+                    ((configuration != null) && metaPropertiesFilter.contains(configuration.getName())) ) {
                     namedMetaProperties.add(new MetaProperty(configuration, value));
                 }
             });
