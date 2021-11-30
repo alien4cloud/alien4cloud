@@ -5,8 +5,10 @@ define(function(require) {
   var states = require('states');
   var _ = require('lodash');
 
-  modules.get('a4c-auth', ['ngResource']).factory('authService', ['$resource', '$location', '$state', '$http',
-    function($resource, $location, $state, $http) {
+  require('scripts/common/services/option_service');
+
+  modules.get('a4c-auth', ['ngResource', 'a4c-option']).factory('authService', ['$resource', '$location', '$state', '$http', 'optionService',
+    function($resource, $location, $state, $http, optionService) {
       var userStatusResource = $resource('rest/latest/auth/status', {}, {
         'query': {
           method: 'GET',
@@ -155,6 +157,8 @@ define(function(require) {
                   'data': 'Authentication error. Invalid username or password.'
                 };
                 scope.error = loginError;
+              } else {
+                optionService.reset();
               }
               $state.go('home', {}, {
                 reload: true
