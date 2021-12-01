@@ -67,6 +67,14 @@ define(function (require) {
         successCallback: $scope.updateScopeDeploymentTopologyDTO
       };
 
+      $scope.$emit('$contextPush',
+          { type: "DeploymentNodeMatching",
+            data: { topologyId: $scope.deploymentTopologyDTO.topology.id }
+          });
+      $scope.$on('$destroy', function() {
+        $scope.$emit('$contextPoll');
+      });
+
       $scope.populate = function(scope){
 
         scope.updateSubstitutionCapabilityProperty = function(capabilityName, propertyName, propertyValue) {

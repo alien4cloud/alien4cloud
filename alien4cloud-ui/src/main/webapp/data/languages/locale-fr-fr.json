@@ -68,6 +68,7 @@
     "META_PROPERTIES" : "Méta-propriétés",
     "NEW" : "Nouvelle Application",
     "PURGE" : "Purger",
+    "RESUME" : "Relancer",
     "RUNTIME" : {
       "WORKFLOW" : {
         "SUCCESS_TITLE" : "L'éxecution du workflow {{workflowId}} s'est terminée avec succès.",
@@ -453,6 +454,7 @@
   "BOUNDS" : "Bornes",
   "CANCEL" : "Annuler",
   "CANCELLED" : "Annulé",
+  "FORBIDDEN" : "Interdit",
   "CLOSE" : "Fermer",
   "CLOUDS" : {
     "ADMINISTRATION" : {
@@ -1244,6 +1246,7 @@
   "POLICIES" : "Policies",
   "PROPERTY_RESET" : "Réinitialiser à la valeur par défaut",
   "PROPERTY_DEFAULT" : "Valeur par défaut",
+  "PROPERTY_POPUP_EDIT" : "Editer la valeur dans une fenêtre modale",
   "PROPERTY_SUGGESTION" : {
     "MODAL" : {
       "DESCRIPTION" : "La valeur que vous avez saisie n'est pas enregistrée dans le système.",

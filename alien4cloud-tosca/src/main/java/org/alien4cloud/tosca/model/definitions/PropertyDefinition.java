@@ -64,6 +64,9 @@ public class PropertyDefinition implements IValue {
     @StringField(indexType = IndexType.no)
     private String suggestionId;
 
+    @StringField(indexType = IndexType.no)
+    private String suggestionPolicy;
+
     @ObjectField(enabled = false)
     @Valid
     @ToscaPropertyConstraintDuplicate

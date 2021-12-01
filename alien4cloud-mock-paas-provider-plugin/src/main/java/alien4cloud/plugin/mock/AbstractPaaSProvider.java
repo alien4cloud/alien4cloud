@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import alien4cloud.model.runtime.Execution;
 import alien4cloud.tosca.parser.ToscaParser;
 import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.Csar;
@@ -175,6 +176,16 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
     @Override
     public void purge(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
         // TODO: mock something
+    }
+
+    @Override
+    public void resume(PaaSDeploymentContext deploymentContext, Execution execution, IPaaSCallback<?> callback) {
+        //TODO: mock something
+    }
+
+    @Override
+    public void resetStep(PaaSDeploymentContext deploymentContext, Execution execution,String stepName, boolean done, IPaaSCallback<?> callback) {
+        //TODO: mock something
     }
 
     public DeploymentStatus getStatus(String deploymentId, boolean triggerEventIfUndeployed) {

@@ -64,8 +64,8 @@ define(function (require) {
     }
   ];
 
-  modules.get('a4c-applications').controller('ApplicationVariablesCtrl', ['$scope', '$translate', '$alresource', '$uibModal', 'authService', 'breadcrumbsService', 'application',
-    function($scope, $translate, $alresource, $uibModal, authService, breadcrumbsService, applicationResponse) {
+  modules.get('a4c-applications').controller('ApplicationVariablesCtrl', ['$scope', '$translate', '$alresource', '$uibModal', 'authService', 'breadcrumbsService', 'resizeServices', 'application',
+    function($scope, $translate, $alresource, $uibModal, authService, breadcrumbsService, resizeServices, applicationResponse) {
       breadcrumbsService.putConfig({
         state : 'applications.detail.variables',
         text: function(){
@@ -90,6 +90,11 @@ define(function (require) {
           setAceEditorContent($scope.editorContent.new);
         });
       };
+
+      resizeServices.registerContainer(function(width, height) {
+        $scope.viewHeight = height - 85;
+        $scope.$digest();
+      }, "#variable-editor");
 
       $scope.load = function() {
         variablesService.get({applicationId: $scope.application.id}).$promise.then(function(result){

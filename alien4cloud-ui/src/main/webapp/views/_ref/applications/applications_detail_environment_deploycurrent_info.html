@@ -35,6 +35,24 @@
        confirm-handler="doPurge()"
        ng-click="$event.stopPropagation();">{{'APPLICATIONS.PURGE' | translate}}
     </a>
+    <!-- RESUME BUTTON -->
+    <a
+            class="btn btn-warning btn-topology"
+            ng-if="environment.environmentType !== 'PRODUCTION' && isAnyState(['FAILURE','UNDEPLOYMENT_FAILURE'])"
+            ng-class="{'disabled' : false }"
+            ng-click="doResume(activeDeployment)">{{'APPLICATIONS.RESUME' | translate}}
+    </a>
+    <a
+            class="btn btn-warning btn-topology"
+            ng-if="environment.environmentType === 'PRODUCTION' && isAnyState(['FAILURE','UNDEPLOYMENT_FAILURE'])"
+            ng-class="{'disabled' : false }"
+            confirm="{{ 'APPLICATIONS.UNDEPLOY_CONFIRM' | translate }}"
+            confirm-title="{{ 'COMMON.ATTENTION' | translate }}"
+            confirm-placement="right"
+            confirm-class="popover"
+            confirm-handler="doResume(activeDeployment)"
+            ng-click="$event.stopPropagation();">{{'APPLICATIONS.RESUME' | translate}}
+    </a>
 
     <div class="col-md-12 upload-infos-bloc" ng-if="wfProgressData">
       <div uib-alert ng-class="'alert-' + getExecutionStatusCss(wfProgressData.status)" class="clickable" style="margin-top: 15px;" ng-click="displayWorkflows()">
@@ -96,7 +114,7 @@
                 <div class="col-md-4">
                     <strong>{{'APPLICATIONS.DEPLOYMENT.HISTORY.DEPLOYED_AT' | translate }}</strong>
                 </div>
-                <div class="col-md-8">{{ activeDeployment.startDate | date:'medium' || 'loading'}}</div>
+                <div class="col-md-8">{{ activeDeployment.startDate | amDateFormat:'llll' || 'loading'}}</div>
             </div>
 
             <div class="row grp-margin">

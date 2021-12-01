@@ -3,20 +3,21 @@ package alien4cloud.suggestions.services;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.suggestion.AbstractSuggestionEntry;
+import alien4cloud.model.suggestion.Suggestion;
+import alien4cloud.model.suggestion.SuggestionEntry;
+import alien4cloud.model.suggestion.SuggestionRequestContext;
+import alien4cloud.plugin.exception.MissingPluginException;
+import alien4cloud.suggestions.IComplexSuggestionPluginProvider;
+import alien4cloud.suggestions.ISimpleSuggestionPluginProvider;
+import alien4cloud.suggestions.ISuggestionPluginProvider;
+import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FilterDefinition;
@@ -49,9 +50,6 @@ import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.common.AbstractSuggestionEntry;
-import alien4cloud.model.common.SimpleSuggestionEntry;
-import alien4cloud.model.common.SuggestionEntry;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContext;
 import alien4cloud.tosca.parser.ParsingError;
@@ -70,6 +68,9 @@ public class SuggestionService {
     @Inject
     private IToscaTypeSearchService toscaTypeSearchService;
 
+    @Inject
+    private SuggestionPluginRegistry suggestionPluginRegistry;
+
     /* The Levenshtein distance is a string metric for measuring the difference between two sequences. */
     private static final double MIN_JAROWINKLER = 0.0;
 
@@ -83,14 +84,7 @@ public class SuggestionService {
         try (InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("suggestion-configuration.yml")) {
             SuggestionEntry[] suggestions = YamlParserUtil.parse(input, SuggestionEntry[].class);
             for (SuggestionEntry suggestionEntry : suggestions) {
-                if (!isSuggestionExist(suggestionEntry)) {
-                    alienDAO.save(suggestionEntry);
-                    try {
-                        setSuggestionIdOnPropertyDefinition(suggestionEntry);
-                    } catch (Exception e) {
-                        log.warn(e.getClass().getName() + " : " + e.getMessage());
-                    }
-                }
+                createSuggestionEntry(suggestionEntry);
             }
         }
     }
@@ -103,7 +97,11 @@ public class SuggestionService {
         if (suggestionEntries != null && !suggestionEntries.isEmpty()) {
             for (AbstractSuggestionEntry suggestionEntry : suggestionEntries) {
                 if (suggestionEntry instanceof SuggestionEntry) {
-                    setSuggestionIdOnPropertyDefinition((SuggestionEntry) suggestionEntry);
+                    try {
+                        setSuggestionIdOnPropertyDefinition((SuggestionEntry) suggestionEntry);
+                    } catch(Exception e) {
+                        log.warn("Not able to apply suggestion entry <{}> due to the following exception : {}", suggestionEntry.getId(), e.getMessage());
+                    }
                 }
             }
         }
@@ -114,12 +112,12 @@ public class SuggestionService {
         AbstractSuggestionEntry suggestionEntry = getSuggestionEntry(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, type.getSimpleName().toLowerCase(), elementId,
                 propertyName);
         if (suggestionEntry != null) {
-            PriorityQueue<SuggestionService.MatchedSuggestion> similarValues = getJaroWinklerMatchedSuggestions(suggestionEntry.getSuggestions(),
+            PriorityQueue<SuggestionService.MatchedSuggestion> similarValues = getJaroWinklerMatchedSuggestions(suggestionEntry.getBuiltSuggestions(),
                     propertyTextValue, 0.8);
             if (!similarValues.isEmpty()) {
                 // Has some similar values in the system already
                 SuggestionService.MatchedSuggestion mostMatched = similarValues.poll();
-                if (!mostMatched.getValue().equals(propertyTextValue)) {
+                if (!mostMatched.getValue().getValue().equals(propertyTextValue)) {
                     // If user has entered a property value not the same as the most matched in the system
                     ParsingErrorLevel level;
                     if (mostMatched.getPriority() == 1.0) {
@@ -133,7 +131,7 @@ public class SuggestionService {
                     }
                     context.getParsingErrors()
                             .add(new ParsingError(level, ErrorCode.POTENTIAL_BAD_PROPERTY_VALUE, null, null, null, null, "At path [" + nodePrefix + "."
-                                    + propertyName + "] existing value [" + mostMatched.getValue() + "] is very similar to [" + propertyTextValue + "]"));
+                                    + propertyName + "] existing value [" + mostMatched.getValue().getValue() + "] is very similar to [" + propertyTextValue + "]"));
                 }
             } else {
                 // Not similar add suggestion
@@ -252,15 +250,32 @@ public class SuggestionService {
         suggestionEntry.setSuggestions(initialValues);
         suggestionEntry.setTargetElementId(elementId);
         suggestionEntry.setTargetProperty(propertyName);
-        alienDAO.save(suggestionEntry);
-        setSuggestionIdOnPropertyDefinition(suggestionEntry);
+        createSuggestionEntry(suggestionEntry);
     }
 
     /**
      * Create a new simple suggestion entry.
      */
-    public void createSimpleSuggestionEntry(SimpleSuggestionEntry suggestionEntry) {
-        alienDAO.save(suggestionEntry);
+    public void createSuggestionEntry(SuggestionEntry suggestionEntry) {
+        AbstractSuggestionEntry existingSuggestionEntry = alienDAO.findById(AbstractSuggestionEntry.class, suggestionEntry.getId());
+        if (existingSuggestionEntry == null) {
+            alienDAO.save(suggestionEntry);
+        } else {
+            existingSuggestionEntry.setSuggestionPolicy(suggestionEntry.getSuggestionPolicy());
+            existingSuggestionEntry.setSuggestionHookPlugin(suggestionEntry.getSuggestionHookPlugin());
+            suggestionEntry.getSuggestions().forEach(s -> {
+                if (!existingSuggestionEntry.getSuggestions().contains(s)) {
+                    existingSuggestionEntry.getSuggestions().add(s);
+                }
+            });
+            suggestionEntry.getComplexSuggestions().forEach(suggestion -> {
+                if (!existingSuggestionEntry.getComplexSuggestions().stream().anyMatch(existing -> existing.getValue().equals(suggestion.getValue()))) {
+                    existingSuggestionEntry.getComplexSuggestions().add(suggestion);
+                }
+            });
+            alienDAO.save(existingSuggestionEntry);
+        }
+        setSuggestionIdOnPropertyDefinition(suggestionEntry);
     }
 
     private void checkPropertyConstraints(String prefix, Class<? extends AbstractInheritableToscaType> type, String elementId, String propertyName,
@@ -300,7 +315,7 @@ public class SuggestionService {
      * 
      * @param suggestionEntry entry of suggestion
      */
-    public void setSuggestionIdOnPropertyDefinition(SuggestionEntry suggestionEntry) {
+    private void setSuggestionIdOnPropertyDefinition(SuggestionEntry suggestionEntry) {
         Class<? extends AbstractInheritableToscaType> targetClass = (Class<? extends AbstractInheritableToscaType>) alienDAO.getTypesToClasses()
                 .get(suggestionEntry.getEsType());
 
@@ -319,6 +334,7 @@ public class SuggestionService {
                     case ToscaTypes.VERSION:
                     case ToscaTypes.STRING:
                         propertyDefinition.setSuggestionId(suggestionEntry.getId());
+                        propertyDefinition.setSuggestionPolicy(suggestionEntry.getSuggestionPolicy().name());
                         alienDAO.save(targetElement);
                         break;
                     case ToscaTypes.LIST:
@@ -326,6 +342,7 @@ public class SuggestionService {
                         PropertyDefinition entrySchema = propertyDefinition.getEntrySchema();
                         if (entrySchema != null) {
                             entrySchema.setSuggestionId(suggestionEntry.getId());
+                            entrySchema.setSuggestionPolicy(suggestionEntry.getSuggestionPolicy().name());
                             alienDAO.save(targetElement);
                         } else {
                             throw new InvalidArgumentException("Cannot suggest a list / map type with no entry schema definition");
@@ -345,6 +362,10 @@ public class SuggestionService {
         if (suggestion == null) {
             throw new NotFoundException("Suggestion entry [" + suggestionId + "] cannot be found");
         }
+        if (StringUtils.isNotEmpty(suggestion.getSuggestionHookPlugin())) {
+            // a suggestion that is related to a plugin bean don't need to store it's values.
+            return;
+        }
         // TODO: should check the format of new value
         if (suggestion.getSuggestions().contains(newValue)) {
             return;
@@ -363,9 +384,9 @@ public class SuggestionService {
 
     public static class MatchedSuggestion {
         Double priority;
-        String value;
+        Suggestion value;
 
-        public MatchedSuggestion(Double priority, String value) {
+        public MatchedSuggestion(Double priority, Suggestion value) {
             this.priority = priority;
             this.value = value;
         }
@@ -374,15 +395,22 @@ public class SuggestionService {
             return priority;
         }
 
-        public String getValue() {
+        public Suggestion getValue() {
             return value;
         }
     }
 
-    private MatchedSuggestion getMatch(String suggestion, String normalizedValue, double minJarowinkler) {
+    private MatchedSuggestion getMatch(Suggestion suggestion, String normalizedValue, double minJarowinkler) {
         // Compute the match score between the suggestion and the normalized value
-        String normalizedSuggestion = normalizeTextForMatching(suggestion);
+        String normalizedSuggestion = normalizeTextForMatching(suggestion.getValue());
         double distance = StringUtils.getJaroWinklerDistance(normalizedValue, normalizedSuggestion);
+        if (StringUtils.isNotEmpty(suggestion.getDescription())) {
+            String normalizedSuggestionDesc = normalizeTextForMatching(suggestion.getDescription());
+            double distanceToDescription = StringUtils.getJaroWinklerDistance(normalizedValue, normalizedSuggestionDesc);
+            if (distanceToDescription > distance) {
+                distance = distanceToDescription;
+            }
+        }
         if (distance == 1 && !normalizedValue.equals(normalizedSuggestion)) {
             distance = 0.999;
         }
@@ -393,7 +421,7 @@ public class SuggestionService {
         }
     }
 
-    public PriorityQueue<MatchedSuggestion> getJaroWinklerMatchedSuggestions(Set<String> allSuggestions, String input, double minJaroWinkler) {
+    public PriorityQueue<MatchedSuggestion> getJaroWinklerMatchedSuggestions(Collection<Suggestion> allSuggestions, String input, double minJaroWinkler) {
         String normalizedInput = normalizeTextForMatching(input);
         // The priority queue is here is to see what is the value that matches the suggestion the most
         PriorityQueue<MatchedSuggestion> matchedSuggestions = new PriorityQueue<>(10, Collections.reverseOrder(new Comparator<MatchedSuggestion>() {
@@ -403,7 +431,7 @@ public class SuggestionService {
             }
         }));
         // Process matched text with its score
-        for (String suggestion : allSuggestions) {
+        for (Suggestion suggestion : allSuggestions) {
             MatchedSuggestion matchedSuggestion = getMatch(suggestion, normalizedInput, minJaroWinkler);
             if (matchedSuggestion != null) {
                 matchedSuggestions.add(matchedSuggestion);
@@ -412,25 +440,32 @@ public class SuggestionService {
         return matchedSuggestions;
     }
 
-    /**
-     * Get the suggestions that might match the input value.
-     *
-     * @param input value to match for suggestion
-     * @param suggestionId id of the suggestion
-     * @param limit the number of match to consider
-     * @return the suggestions ordered by the most match.
-     */
-    public String[] getJaroWinklerMatchedSuggestions(String suggestionId, String input, int limit) {
-        Set<String> allSuggestions = getSuggestions(suggestionId);
+    public List<Suggestion> getJaroWinklerMatchedSuggestions(String suggestionId, String input, int limit) {
+        return this.getJaroWinklerMatchedSuggestions(suggestionId, input, limit, null);
+    }
+
+        /**
+         * Get the suggestions that might match the input value.
+         *
+         * @param input value to match for suggestion
+         * @param suggestionId id of the suggestion
+         * @param limit the number of match to consider
+         * @return the suggestions ordered by the most match.
+         */
+    public List<Suggestion> getJaroWinklerMatchedSuggestions(String suggestionId, String input, int limit, SuggestionRequestContext context) {
+        log.info("Current context is: {}", context);
+        Collection<Suggestion> allSuggestions = getSuggestions(suggestionId, input, context);
         if (limit > allSuggestions.size()) {
             limit = allSuggestions.size();
         }
         if (StringUtils.isBlank(input)) {
             // Finish prematurely the algorithm as the searched value is empty
-            String[] matches = new String[limit];
-            Iterator<String> allSuggestionsIterator = allSuggestions.iterator();
+            List<Suggestion> matches = Lists.newArrayList();
+            //String[] matches = new String[limit];
+            Iterator<Suggestion> allSuggestionsIterator = allSuggestions.iterator();
             for (int i = 0; i < limit; i++) {
-                matches[i] = allSuggestionsIterator.next();
+                matches.add(allSuggestionsIterator.next());
+                //matches[i] = allSuggestionsIterator.next();
             }
             return matches;
         }
@@ -438,9 +473,9 @@ public class SuggestionService {
         if (limit > matchedSuggestions.size()) {
             limit = matchedSuggestions.size();
         }
-        String[] results = new String[limit];
+        List<Suggestion> results = Lists.newArrayList();
         for (int i = 0; i < limit; i++) {
-            results[i] = matchedSuggestions.poll().value;
+            results.add(matchedSuggestions.poll().value);
         }
         return results;
     }
@@ -451,12 +486,48 @@ public class SuggestionService {
      * @param suggestionId id of the suggestion
      * @return all suggestions of the {@link SuggestionEntry}.
      */
-    public Set<String> getSuggestions(String suggestionId) {
+    public Collection<Suggestion> getSuggestions(String suggestionId, String input, SuggestionRequestContext context) {
         AbstractSuggestionEntry suggestionEntry = alienDAO.findById(AbstractSuggestionEntry.class, suggestionId);
         if (suggestionEntry == null) {
             throw new NotFoundException("Suggestion entry [" + suggestionId + "] cannot be found");
         }
-        return suggestionEntry.getSuggestions();
+        List<Suggestion> suggestions = Lists.newArrayList();
+        // TODO change to getSuggestion()
+        suggestions.addAll(suggestionEntry.getBuiltSuggestions());
+        Collection<Suggestion> pluginSuggestions = getSuggestionFromHookPlugin(suggestionEntry, input, context);
+        if (pluginSuggestions != null) {
+            suggestions.addAll(pluginSuggestions);
+        }
+        return suggestions;
+        //return CollectionUtils.merge(suggestionEntry.getSuggestions(), getSuggestionFromHookPlugin(suggestionEntry));
+    }
+
+    public Collection<Suggestion> getSuggestionFromHookPlugin(AbstractSuggestionEntry suggestionEntry, String input, SuggestionRequestContext context) {
+        if (suggestionEntry.getSuggestionHookPlugin() != null) {
+            String[] pluginIdentifiers = suggestionEntry.getSuggestionHookPlugin().split(":");
+            if (pluginIdentifiers.length != 2) {
+                log.warn("Can't parse suggestion_hook_plugin for suggestion {} : {} (should be pluginId:beanName)", suggestionEntry.getId(), suggestionEntry.getSuggestionHookPlugin());
+            } else {
+                try {
+                    ISuggestionPluginProvider suggestionPlugin = suggestionPluginRegistry.getPluginBean(pluginIdentifiers[0], pluginIdentifiers[1]);
+                    if (suggestionPlugin instanceof ISimpleSuggestionPluginProvider) {
+                        Collection<String> suggestionsStrs = ((ISimpleSuggestionPluginProvider)suggestionPlugin).getSuggestions(input, context);
+                        // TODO: how to do this just with streams ?
+                        List<Suggestion> result = Lists.newArrayList();
+                        suggestionsStrs.stream().forEach(s -> result.add(new Suggestion(s, null)));
+                        return result;
+                    } else if (suggestionPlugin instanceof IComplexSuggestionPluginProvider) {
+                        return ((IComplexSuggestionPluginProvider)suggestionPlugin).getSuggestions(input, context);
+                    }
+
+                } catch(MissingPluginException mpe) {
+                    log.warn("Can't find plugin for suggestions {} : {} ({})", suggestionEntry.getId(), suggestionEntry.getSuggestionHookPlugin(), mpe.getMessage());
+                } catch(Exception e) {
+                    log.error("An error occurred while getting suggestions from plugin {} : {}", suggestionEntry.getId(), suggestionEntry.getSuggestionHookPlugin(), e);
+                }
+            }
+        }
+        return null;
     }
 
     /**

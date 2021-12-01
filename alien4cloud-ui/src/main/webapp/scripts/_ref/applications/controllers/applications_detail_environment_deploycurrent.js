@@ -69,9 +69,29 @@ define(function (require) {
           }
         });
 
-        $scope.doPurge = function() {
-            console.log("PURGE REQUEST");
+        $scope.doResume = function(deployment) {
+            secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
+                var secretProviderInfoRequest = {};
+                if (_.defined(secretProviderInfo)) {
+                    secretProviderInfoRequest.secretProviderConfiguration = secretProviderInfo;
+                    secretProviderInfoRequest.credentials = secretProviderInfo.credentials;
+                }
 
+                if ($scope.isState("FAILURE")) {
+                    $scope.setState('DEPLOYMENT_IN_PROGRESS');
+                } else if ($scope.isState("UNDEPLOYMENT_FAILURE")) {
+                    $scope.setState('UNDEPLOYMENT_IN_PROGRESS');
+                }
+
+                deploymentServices.resumeLastWorkflow({
+                    deploymentId: deployment.id
+                }, angular.toJson(secretProviderInfoRequest), function (result) {
+                     console.log("RESUME RESULT:",result);
+                });
+          });
+        };
+
+        $scope.doPurge = function() {
             secretDisplayModal($scope.secretProviderConfigurations).then(function (secretProviderInfo) {
                 var secretProviderInfoRequest = {};
                 if (_.defined(secretProviderInfo)) {
@@ -88,12 +108,6 @@ define(function (require) {
                 $scope.reloadEnvironment();
             });
           });
-/*            applicationServices.purge({
-                applicationId: $scope.application.id,
-                applicationEnvironmentId: $scope.environment.id
-            },{},function(successResult) {
-                console.log(successResult);
-            });*/
         };
 
         $scope.doUndeploy = function(force = false ) {

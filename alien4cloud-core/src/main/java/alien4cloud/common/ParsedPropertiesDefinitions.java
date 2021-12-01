@@ -9,7 +9,7 @@ import lombok.Setter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.common.SimpleSuggestionEntry;
+import alien4cloud.model.suggestion.SimpleSuggestionEntry;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 
 @Getter

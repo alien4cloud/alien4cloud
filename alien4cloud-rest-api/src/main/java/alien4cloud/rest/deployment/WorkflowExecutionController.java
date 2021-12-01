@@ -5,9 +5,9 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.deployment.ExecutionService;
 import alien4cloud.deployment.TaskService;
 import alien4cloud.deployment.WorkflowStepInstanceService;
+import alien4cloud.deployment.model.SecretProviderConfigurationAndCredentials;
 import alien4cloud.model.runtime.*;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.model.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -16,10 +16,7 @@ import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -39,7 +36,7 @@ public class WorkflowExecutionController {
     private TaskService taskService;
     @Resource
     private WorkflowStepInstanceService workflowStepInstanceService;
-
+    
     /**
      * For a given deployment, get the last workflow execution monitor data.
      */
@@ -116,6 +113,12 @@ public class WorkflowExecutionController {
         // - If all instance are COMPLETED but one has error, then the step is COMPLETED_WITH_ERROR.
         result.getStepInstances().forEach((stepId, workflowStepInstances) -> {
             WorkflowExecutionDTO.WorkflowExecutionStepStatus stepStatus = result.getStepStatus().get(stepId);
+
+            // Possible d avoir plusieurs instances avec le workflow resume
+            // Il faut ameliorer ce code pour filtrer et garder le dernier resultat
+            // Soit
+            // - on update la db plutot qu'insert
+            // - soit on dedoublonne à l'exec mais il faut un timestamp
 
             for (WorkflowStepInstance workflowStepInstance : workflowStepInstances) {
                 if (stepStatus == null) {

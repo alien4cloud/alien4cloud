@@ -1,9 +1,14 @@
 package alien4cloud.rest.suggestion;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.suggestion.Suggestion;
+import alien4cloud.model.suggestion.SuggestionRequestContext;
+import alien4cloud.security.AuthorizationUtil;
 import io.swagger.annotations.Api;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,6 +55,9 @@ public class GenericSuggestionController {
     /**
      * Get matched suggestions
      *
+     * Deprecated : we keep this GET for retro compatibility, but the POST request with context should be preferred.
+     * @see GenericSuggestionController#getContextualMatchedSuggestions(java.lang.String, java.lang.String, java.lang.Integer, SuggestionRequestContext)
+     *
      * @param suggestionId the suggestionEntry id.
      * @param input the input entered by the user, if the input is empty then get all values.
      * @param limit the maximum number of suggestions to return
@@ -58,13 +66,45 @@ public class GenericSuggestionController {
     @ApiOperation(value = "Get matched suggestions", notes = "Returns the matched suggestions.")
     @RequestMapping(value = "/{suggestionId:.+}/values", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<String[]> getMatchedSuggestions(@PathVariable String suggestionId, @RequestParam(required = false) String input,
-            @RequestParam(required = false) Integer limit) {
+    @Deprecated
+    public RestResponse<List<String>> getMatchedSuggestions(@PathVariable String suggestionId, @RequestParam(required = false) String input,
+                                                                @RequestParam(required = false) Integer limit) {
+
+        SuggestionRequestContext context = new SuggestionRequestContext();
+        context.setUser(AuthorizationUtil.getCurrentUser());
+        RestResponse<List<Suggestion>> matchedSuggestions = this.getMatchedSuggestions(suggestionId, input, limit, context);
+        List<String> simpleSuggestions = matchedSuggestions.getData().stream().map(suggestion -> suggestion.getValue()).collect(Collectors.toList());
+        return RestResponseBuilder.<List<String>> builder().data(simpleSuggestions).error(matchedSuggestions.getError()).build();
+    }
+
+    private RestResponse<List<Suggestion>> getMatchedSuggestions(String suggestionId, String input,
+                                                                 Integer limit, SuggestionRequestContext context) {
         if (limit == null || limit <= 0) {
             limit = Integer.MAX_VALUE;
         }
-        String[] suggestions = suggestionService.getJaroWinklerMatchedSuggestions(suggestionId, input, limit);
-        return RestResponseBuilder.<String[]> builder().data(suggestions).build();
+        List<Suggestion> suggestions = suggestionService.getJaroWinklerMatchedSuggestions(suggestionId, input, limit, context);
+        return RestResponseBuilder.<List<Suggestion>> builder().data(suggestions).build();
+    }
+
+    /**
+     * Get matched suggestions
+     *
+     * @param suggestionId the suggestionEntry id.
+     * @param input the input entered by the user, if the input is empty then get all values.
+     * @param limit the maximum number of suggestions to return
+     * @return The suggestion who match the input entered by the user.
+     */
+    @ApiOperation(value = "Get matched suggestions", notes = "Returns the matched suggestions.")
+    @RequestMapping(value = "/{suggestionId:.+}/values", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<List<Suggestion>> getContextualMatchedSuggestions(@PathVariable String suggestionId,
+                                                                          @RequestParam(required = false) String input,
+                                                                          @RequestParam(required = false) Integer limit,
+                                                                          @RequestBody SuggestionRequestContext context
+    ) {
+
+        context.setUser(AuthorizationUtil.getCurrentUser());
+        return this.getMatchedSuggestions(suggestionId, input, limit, context);
     }
 
     /**

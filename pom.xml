@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>3.3.0-SNAPSHOT</version>
+  <version>3.5.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle
@@ -49,7 +49,7 @@
     <commons-compress.version>1.9</commons-compress.version>
     <spring.fsm.version>2.0.3.RELEASE</spring.fsm.version>
     <rxjava.version>2.2.4</rxjava.version>
-    <io.jsonwebtoken.jjwt.version>0.9.1</io.jsonwebtoken.jjwt.version>
+    <io.jsonwebtoken.jjwt.version>0.11.2</io.jsonwebtoken.jjwt.version>
 
     <!-- JSON and YAML Parsing -->
     <jackson.version>2.9.3</jackson.version>
@@ -478,9 +478,19 @@
 
       <!-- JWT -->
       <dependency>
-        <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt</artifactId>
-        <version>${io.jsonwebtoken.jjwt.version}</version>
+          <groupId>io.jsonwebtoken</groupId>
+          <artifactId>jjwt-api</artifactId>
+          <version>${io.jsonwebtoken.jjwt.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>io.jsonwebtoken</groupId>
+          <artifactId>jjwt-impl</artifactId>
+          <version>${io.jsonwebtoken.jjwt.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>io.jsonwebtoken</groupId>
+          <artifactId>jjwt-jackson</artifactId>
+          <version>${io.jsonwebtoken.jjwt.version}</version>
       </dependency>
 
       <!-- XML parsing -->

@@ -4,8 +4,9 @@ import static org.alien4cloud.test.util.SPELUtils.evaluateAndAssertExpression;
 import static org.alien4cloud.test.util.SPELUtils.evaluateAndAssertExpressionContains;
 
 import java.nio.file.Files;
-import java.util.List;
 
+import alien4cloud.model.suggestion.SimpleSuggestionEntry;
+import alien4cloud.model.suggestion.SuggestionEntry;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentInputs;
 import org.alien4cloud.alm.deployment.configuration.model.DeploymentMatchingConfiguration;
 import org.alien4cloud.alm.deployment.configuration.model.OrchestratorDeploymentProperties;
@@ -38,7 +39,6 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.common.*;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;

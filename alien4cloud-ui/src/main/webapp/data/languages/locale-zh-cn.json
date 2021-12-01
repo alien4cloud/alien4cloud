@@ -62,11 +62,13 @@
       "CLEAR" : "清除",
       "DEPLOYER" : "部署者输入",
       "EXPRESSION" : "表达式",
-      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE" : "不匹配输入类型的表达式已经提供了。 转到\"表达式 \"标签来编辑它。 \ n如果要将其作为属性进行编辑，请确保提供与输入类型匹配的表达式，或将其设置为空。",
+      "EXPRESSION_DOES_NOT_MATCH_INPUT_TYPE" : "不匹配输入类型的表达式已经提供了。 转到\"表达式 \"标签来编辑它。 \n如果要将其作为属性进行编辑，请确保提供与输入类型匹配的表达式，或将其设置为空。",
       "MODAL_HEADER" : "编辑输入 < {{var}} >"
     },
     "META_PROPERTIES" : "元属性",
     "NEW" : "新建应用",
+    "PURGE": "Purge",
+    "RESUME" : "Resume",
     "RUNTIME" : {
       "WORKFLOW" : {
         "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully.",
@@ -450,6 +452,7 @@
   "BOUNDS" : "界限",
   "CANCEL" : "取消",
   "CANCELLED" : "取消的",
+  "FORBIDDEN" : "Forbidden",
   "CLOSE" : "关闭",
   "CLOUDS" : {
     "ADMINISTRATION" : {
@@ -1241,6 +1244,7 @@
   "POLICIES" : "政策",
   "PROPERTY_RESET" : "设置为默认值或重置",
   "PROPERTY_DEFAULT" : "Default value",
+  "PROPERTY_POPUP_EDIT" : "Edit value in popup window",
   "PROPERTY_SUGGESTION" : {
     "MODAL" : {
       "DESCRIPTION" : "您输入的值从未在系统中注册过。",

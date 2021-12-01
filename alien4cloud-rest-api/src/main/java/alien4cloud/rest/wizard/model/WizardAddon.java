@@ -17,4 +17,5 @@ public class WizardAddon {
     private String[] roles;
     private Role[] authorizedRoles;
     private String contextPath;
+    private boolean disabled;
 }

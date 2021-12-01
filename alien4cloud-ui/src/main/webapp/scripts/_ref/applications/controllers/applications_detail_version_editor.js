@@ -86,6 +86,11 @@ define(function (require) {
           setupBreadCrumbs($scope);
         }
       });
+
+      $scope.$emit('$contextPush', {type: 'Application', data: {applicationId: $stateParams.applicationId}});
+      $scope.$on('$destroy', function() {
+        $scope.$emit('$contextPoll');
+      });
     }
   ]);
 });

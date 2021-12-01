@@ -1,3 +1,4 @@
+
 - es_index: toscaelement
   es_type: capabilitytype
   target_element_id: tosca.capabilities.OperatingSystem

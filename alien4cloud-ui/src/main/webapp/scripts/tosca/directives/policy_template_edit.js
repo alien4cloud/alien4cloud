@@ -21,7 +21,8 @@ define(function(require) {
         'dependencies': '=', // dependencies
         'onPropertyUpdate': '&', // callback operation triggered when a property is actually updated
         'isPropertyEditable': '&?', // callback operation that should return true if a property or a capability property can be edited.
-        'isSecretEditable': '&?' // callback operation that should return true if a secret
+        'isSecretEditable': '&?', // callback operation that should return true if a secret
+        'propEditionContext': '=?'
         // 'isService': '=?', // is it a service ?
       },
       link: {}

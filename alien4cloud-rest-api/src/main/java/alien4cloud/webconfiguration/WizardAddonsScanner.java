@@ -1,12 +1,15 @@
 package alien4cloud.webconfiguration;
 
-import alien4cloud.rest.wizard.model.WizardAddon;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.rest.wizard.model.WizardAddon;
 import alien4cloud.security.model.Role;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -27,14 +30,22 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 @Component
+@EnableConfigurationProperties
+@ConfigurationProperties(prefix = "wizard_addons", ignoreInvalidFields = true, ignoreUnknownFields = true)
 public class WizardAddonsScanner {
 
     @Getter
     private Map<String, WizardAddon> addons;
 
+    @Setter
+    @Getter
+    private String[] disabled;
+
     @PostConstruct
     private void initAddons() {
         this.addons = Maps.newHashMap();
+        Set<String> disabledAddons = (disabled != null) ? Sets.newHashSet(disabled) : Sets.newHashSet();
+        log.info("Following addons will be disabled : {}", disabledAddons);
 
         Pattern addonPathDetectionPattern = Pattern.compile(".*\\/wizard_addons\\/(.+)\\/wizard_addon\\.json");
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
@@ -54,6 +65,7 @@ public class WizardAddonsScanner {
                     if (m.matches() && m.group(1) != null && StringUtils.hasText(m.group(1))) {
                         String contextPath = m.group(1);
                         addon.setContextPath(contextPath);
+                        addon.setDisabled(disabledAddons.contains(addon.getId()));
                         populateRoles(addon);
                         this.addons.put(contextPath, addon);
                         log.info("Wizard addon with id <{}> added for context path <{}>", addon.getId(), addon.getContextPath());

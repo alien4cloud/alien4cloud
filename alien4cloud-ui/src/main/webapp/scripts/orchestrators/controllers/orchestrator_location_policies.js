@@ -31,6 +31,11 @@ define(function (require) {
       // populate the scope with the ncessary for location policies resources security
       locationResourcesSecurity('rest/latest/orchestrators/:orchestratorId/locations/:locationId/policies', $scope);
 
+      $scope.$emit('$contextPush', { type: "OrchestratorPolicyConfiguration", data: {}});
+      $scope.$on('$destroy', function () {
+        $scope.$emit('$contextPoll');
+      });
+
     }
   ]);
 }); // define

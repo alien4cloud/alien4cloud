@@ -52,9 +52,36 @@ define(function(require) {
     }
   ];
 
+  var PropertyEditModalCtrl = ['$scope', '$uibModalInstance',
+    function($scope, $uibModalInstance) {
 
-  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$uibModal', '$timeout', 'propertySuggestionServices',
-    function($scope, propertiesServices, $translate, $uibModal, $timeout, propertySuggestionServices) {
+      $scope.modalValue = {};
+      $scope.modalValue.value = $scope.definitionObject.uiValue;
+
+      $scope.modalSuggestionSelected = function($item, $model, $label) {
+        if ($item.value) {
+          $scope.modalValue.value = $item.value;
+        }
+      }
+
+      $scope.keydown = function(event) {
+        if (event.keyCode == 13) {
+          $scope.update();
+        }
+      }
+
+      $scope.update = function() {
+        $uibModalInstance.close($scope.modalValue.value);
+      };
+
+      $scope.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+      };
+    }
+  ];
+
+  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', '$rootScope', 'propertiesServices', '$translate', '$uibModal', '$timeout', 'propertySuggestionServices',
+    function($scope, $rootScope, propertiesServices, $translate, $uibModal, $timeout, propertySuggestionServices) {
       if (_.undefined($scope.translated)) {
         $scope.translated = false;
       }
@@ -65,6 +92,22 @@ define(function(require) {
         $scope.showLongTextChoice = on;
       };
 
+      $scope.openEditPopup = function($event) {
+        // TODO: open a popup to able edition in a popup
+        $scope.switchLongTextChoice(false);
+
+        var modalInstance = $uibModal.open({
+          templateUrl: 'propertyEditModal.html',
+          controller: PropertyEditModalCtrl,
+          size: 'lg',
+          scope: $scope
+        });
+        modalInstance.result.then(function(modalResult) {
+          console.log("result:" + modalResult);
+          $scope.propertySave(modalResult);
+        });
+      };
+
       $scope.switchToLongText = function($event) {
         $scope.isLongText = !$scope.isLongText;
         $timeout(function() {
@@ -72,29 +115,62 @@ define(function(require) {
         });
       };
 
+      $scope.suggestionLabel = function(suggestion) {
+        var label = "";
+        if (suggestion) {
+          if (suggestion.value) {
+            label += suggestion.value;
+            if (suggestion.description) {
+              label += " (" + suggestion.description + ")";
+            }
+          } else {
+            label = suggestion;
+          }
+        }
+        return label;
+      }
+
+      $scope.suggestionSelected = function($item, $model, $label) {
+        if ($item.value) {
+          $scope.definitionObject.uiValue = $item.value;
+          $scope.propertySave($item.value, $scope.definitionObject.units, true);
+        }
+      }
+
+      var existsInSuggestions = function(suggestionResultData, value) {
+        return _.find(suggestionResultData, function (data) {
+          return data.value === value;
+        }) !== undefined;
+      }
+
       $scope.suggestion = {
         get: function(text) {
           if (_.defined($scope.definition.suggestionId)) {
-            return propertySuggestionServices.get({
-              input: text,
-              limit: 5,
-              suggestionId: $scope.definition.suggestionId
-            }).$promise.then(function(result) {
-              if (_.defined(result.data)) {
-                if (result.data.indexOf(text) < 0) {
-                  result.data.push(text);
+
+              let mergedData = _.assign({}, $rootScope.currentContext.data, $scope.propEditionContext, {propertyName: $scope.propertyPath});
+              let propEditionContext = {type: $rootScope.currentContext.type, data: mergedData};
+
+              return propertySuggestionServices.getContextual({
+                input: text,
+                limit: 5,
+                suggestionId: $scope.definition.suggestionId
+              }, propEditionContext).$promise.then(function(result) {
+                if (_.defined(result.data)) {
+
+                  if (!existsInSuggestions(result.data, text) && $scope.definition.suggestionPolicy !== "Strict") {
+                    result.data.unshift({value: text});
+                  }
+                  return result.data;
+                } else {
+                  return [];
                 }
-                return result.data;
-              } else {
-                return [];
-              }
-            });
+              });
           } else {
             return [];
           }
         },
         waitBeforeRequest: 0,
-        minLength: 1
+        minLength: (_.defined($scope.definition.suggestionPolicy) && $scope.definition.suggestionPolicy == "Strict") ? 0 : 1
       };
 
       /* method private to factorise all call to the serve and trigge errors */
@@ -143,36 +219,63 @@ define(function(require) {
           propertyValue: data
         };
         if (_.defined($scope.definition.suggestionId) && _.defined(data) && data !== null) {
-          return propertySuggestionServices.get({
+
+          let mergedData = _.assign({}, $rootScope.currentContext.data, $scope.propEditionContext, {propertyName: $scope.propertyPath});
+          let propEditionContext = {type: $rootScope.currentContext.type, data: mergedData};
+
+          return propertySuggestionServices.getContextual({
             input: data,
             limit: 5,
             suggestionId: $scope.definition.suggestionId
-          }).$promise.then(function(suggestionResult) {
+          }, propEditionContext).$promise.then(function(suggestionResult) {
             var promise;
             $scope.propertySuggestionData = {
               suggestions: suggestionResult.data,
               propertyValue: data
             };
-            if (suggestionResult.data.indexOf(data) < 0) {
-              var modalInstance = $uibModal.open({
-                templateUrl: 'propertySuggestionModal.html',
-                controller: PropertySuggestionModalCtrl,
-                scope: $scope
-              });
-              promise = modalInstance.result.then(function(modalResult) {
-                if (suggestionResult.data.indexOf(modalResult) < 0) {
-                  propertySuggestionServices.add([], {
-                    suggestionId: $scope.definition.suggestionId,
-                    value: modalResult
-                  }, null);
-                }
-                propertyRequest.propertyValue = modalResult;
-                return callSaveService(propertyRequest);
-              }, function() {
-                return $translate.instant('CANCELLED');
-              });
-            } else {
+            // Dans le suggestionresult
+            // TODO: here, we should intercept the fact that
+            var suggested = existsInSuggestions(suggestionResult.data, data);
+            if (!_.defined($scope.definition.suggestionPolicy) || $scope.definition.suggestionPolicy == "Ask") {
+              if (!suggested) {
+                var modalInstance = $uibModal.open({
+                  templateUrl: 'propertySuggestionModal.html',
+                  controller: PropertySuggestionModalCtrl,
+                  scope: $scope
+                });
+                promise = modalInstance.result.then(function(modalResult) {
+                  if (!existsInSuggestions(suggestionResult.data, modalResult.value)) {
+                    // the user has chosen to add the new value
+                    propertySuggestionServices.add([], {
+                      suggestionId: $scope.definition.suggestionId,
+                      value: modalResult.value
+                    }, null);
+                  }
+                  propertyRequest.propertyValue = modalResult.value;
+                  return callSaveService(propertyRequest);
+                }, function() {
+                  return $translate.instant('CANCELLED');
+                });
+              } else {
+                promise = callSaveService(propertyRequest);
+              }
+            } else if ($scope.definition.suggestionPolicy == "Accept") {
+              // Just accept the value from user input
               promise = callSaveService(propertyRequest);
+            } else if ($scope.definition.suggestionPolicy == "Add") {
+              if (!suggested) {
+                propertySuggestionServices.add([], {
+                  suggestionId: $scope.definition.suggestionId,
+                  value: data
+                }, null);
+              }
+              promise = callSaveService(propertyRequest);
+            } else if ($scope.definition.suggestionPolicy == "Strict") {
+              if (!suggested) {
+                return $translate.instant('FORBIDDEN');
+              } else {
+                promise = callSaveService(propertyRequest);
+              }
             }
             return promise;
           });
@@ -268,6 +371,19 @@ define(function(require) {
         // Define properties
         if (!_.defined($scope.definition)) {
           return;
+        }
+
+        // Setup property edition context
+        if (!_.defined($scope.propEditionContext)) {
+          let contexFnResult = $scope.propEditionContextFn();
+          if (_.defined(contexFnResult)) {
+            $scope.propEditionContext = contexFnResult;
+          }
+        }
+        $scope.propertyPath = $scope.propertyName;
+        let propertyPathFnResult = $scope.propertyNameFn();
+        if (_.defined(propertyPathFnResult)) {
+          $scope.propertyPath = propertyPathFnResult;
         }
 
         // Now a property is an AbstractPropertyValue : (Scalar or Function)

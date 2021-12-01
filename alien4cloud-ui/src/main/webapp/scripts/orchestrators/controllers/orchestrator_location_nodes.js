@@ -51,6 +51,10 @@ define(function (require) {
           });
       };
 
+      $scope.$emit('$contextPush', { type: "OrchestratorResourceConfiguration", data: {}});
+      $scope.$on('$destroy', function () {
+        $scope.$emit('$contextPoll');
+      });
 
       /************************************
       *  For authorizations directives

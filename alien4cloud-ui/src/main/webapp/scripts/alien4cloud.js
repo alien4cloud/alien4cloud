@@ -6,6 +6,7 @@ define(function(require) {
   var plugins = require('plugins');
   var _ = require('lodash');
   var angular = require('angular');
+  var moment = require('moment');
 
   require('scripts/layout/layout');
 
@@ -122,8 +123,8 @@ define(function(require) {
       }
     ]);
 
-    alien4cloud.run(['$templateCache', '$rootScope', '$state', '$sce', 'editableOptions', 'editableThemes', 'authService', 'restTechnicalErrorInterceptor',
-      function($templateCache, $rootScope, $state, $sce, editableOptions, editableThemes, authService, restTechnicalErrorInterceptor) {
+    alien4cloud.run(['$templateCache', '$rootScope', '$state', '$sce', '$translate', 'editableOptions', 'editableThemes', 'authService', 'restTechnicalErrorInterceptor', 'amMoment',
+      function($templateCache, $rootScope, $state, $sce, $translate, editableOptions, editableThemes, authService, restTechnicalErrorInterceptor, amMoment) {
         restTechnicalErrorInterceptor.$state = $state;
         templateInjector($templateCache);
         var statusFetched = false; // flag to know if we have fetched current user status (logged in and roles)
@@ -131,6 +132,26 @@ define(function(require) {
         $rootScope.dotWb = function(inputStr) {
           return $sce.trustAsHtml(inputStr.replace(/\./g, '.<wbr>'));
         };
+
+        // Context management : to manage transverse property edition context for suggestions
+        // The context is a stack, the last entered context will inherit data from all stack.
+        $rootScope.contextStack = [];
+        $rootScope.currentContext = {type: "root", data: {}};
+        $rootScope.contextStack.push($rootScope.currentContext);
+        $rootScope.$on('$contextPush', function(event, context) {
+          // this event is triggered when entering a child scope
+          // we merge the data with previous and add it at the top of the stack
+          let mergedData = _.assign({}, $rootScope.currentContext.data, context.data);
+          context.data = mergedData;
+          $rootScope.contextStack.push(context);
+          $rootScope.currentContext = context;
+        });
+        $rootScope.$on('$contextPoll', function(event) {
+          // triggered when leaving a scope, just come back to the last known scope
+          $rootScope.contextStack.pop();
+          $rootScope.currentContext = $rootScope.contextStack[$rootScope.contextStack.length - 1];
+        });
+
         // check when the state is about to change
         $rootScope.$on('$stateChangeStart', function(event, toState, toParams) {
           if (!statusFetched && _.defined(event)) {
@@ -161,6 +182,13 @@ define(function(require) {
           if (_.defined(forward)) {
             $state.go(forward);
           }
+        });
+
+        // lang has changes, let's change moment's locale in order to i18n dates and intervals
+        $rootScope.$on('$translateChangeSuccess', function() {
+          const lang = $translate.use();
+          amMoment.changeLocale(lang);
+          moment.locale(lang);
         });
 
         /* angular-xeditable config */

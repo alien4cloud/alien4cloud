@@ -68,6 +68,7 @@
     "META_PROPERTIES" : "Meta-properties",
     "NEW" : "New Application",
     "PURGE" : "Purge",
+    "RESUME" : "Resume",
     "RUNTIME" : {
       "WORKFLOW" : {
         "SUCCESS_TITLE" : "Workflow {{workflowId}} finishes the execution successfully.",
@@ -453,6 +454,7 @@
   "BOUNDS" : "Bounds",
   "CANCEL" : "Cancel",
   "CANCELLED" : "Cancelled",
+  "FORBIDDEN" : "Forbidden",
   "CLOSE" : "Close",
   "CLOUDS" : {
     "ADMINISTRATION" : {
@@ -1244,6 +1246,7 @@
   "POLICIES" : "Policies",
   "PROPERTY_RESET" : "Set to default value or reset",
   "PROPERTY_DEFAULT" : "Default value",
+  "PROPERTY_POPUP_EDIT" : "Edit value in popup window",
   "PROPERTY_SUGGESTION" : {
     "MODAL" : {
       "DESCRIPTION" : "The value that you entered has never been registered before in the system.",

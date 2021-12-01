@@ -1,11 +1,10 @@
-package alien4cloud.model.common;
+package alien4cloud.model.suggestion;
 
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 import lombok.Getter;
 import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.query.FetchContext;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -42,6 +41,8 @@ public class SuggestionEntry extends AbstractSuggestionEntry {
      */
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private String targetProperty;
+
+
 
     public static String generateId(String esIndex, String esType, String targetElementId, String targetProperty) {
         return esIndex + ":" + esType + ":" + targetElementId + ":" + targetProperty;

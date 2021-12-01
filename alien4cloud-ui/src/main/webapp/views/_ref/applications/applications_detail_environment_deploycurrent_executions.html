@@ -78,10 +78,10 @@
                 {{ execution.workflowName || execution.workflowId }}
             </td>
             <td class="clickable" ng-click="displayTasks(execution)">
-                {{ execution.startDate | date:'medium' }}
+                {{ execution.startDate | amDateFormat:'llll' }}
             </td>
             <td class="clickable" ng-click="displayTasks(execution)">
-                {{ (execution.endDate | date:'medium') || '---' }}
+                {{ (execution.endDate | amDateFormat:'llll') || '---' }}
             </td>
             <td class="clickable" ng-click="displayTasks(execution)">
                 {{ ((execution.endDate || now) - execution.startDate) | amDurationFormat : 'millisecond' }}

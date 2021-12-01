@@ -23,7 +23,7 @@
       {{ task.operationName }}
     </td>
     <td>
-      {{ task.scheduleDate | date:'medium' }}
+      {{ task.scheduleDate | amDateFormat:'llll' }}
     </td>
     <td>
       <i class="fa {{getTaskStatusIconCss(task)}}"></i> <span class="{{getTaskStatusTextCss(task)}}">{{'ENTITY.TASK.STATUS.VALUES.' + task.status | translate}}</span>

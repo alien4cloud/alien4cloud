@@ -41,6 +41,7 @@
               property-value="propEntry.value"
               editable="canEditProperty(propEntry.key)"
               on-save="updateProperty(propertyName, propertyValue)"
+              prop-edition-context-fn="mergeContext({propertyName: propEntry.key})"
               condensed="condensed">
           </property-display>
         </td>
@@ -111,6 +112,7 @@
                   capability-name="capabilityEntry.key"
                   editable="canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                   on-save="updateCapabilityProperty(capabilityEntry.key, propertyName, propertyValue)"
+                  prop-edition-context-fn="mergeContext({capabilityId: capabilityEntry.key, propertyName: propertyEntry.key})"
                   condensed="condensed">
               </property-display>
             </td>

@@ -24,7 +24,16 @@ define(function (require) {
         'onDelete': '&',
         'editable': '=',
         'condensed': '=',
-        'deletable': '=?'
+        'deletable': '=?',
+        // The context defines what we are editing (a node, a capability, a relationship, an input)
+        // so it handle stuffs like nodeId, capabilityId, relationshipId ... depending of the edition context
+        // used in suggestions
+        // refer to alien4cloud.model.suggestion.SuggestionContextData
+        'propEditionContext': '=?',
+        // in some context we to call a function to get the context recursively)
+        'propEditionContextFn': '&',
+        // in some context we to call a function to get the property name for lists or maps)
+        'propertyNameFn': '&',
       },
       link: {}
     };

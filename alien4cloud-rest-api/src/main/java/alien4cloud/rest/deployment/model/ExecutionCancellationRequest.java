@@ -1,4 +1,4 @@
-package alien4cloud.rest.deployment;
+package alien4cloud.rest.deployment.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

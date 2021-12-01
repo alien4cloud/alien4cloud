@@ -37,6 +37,7 @@ define(function(require) {
         partialUpdate: '=',
         useXeditable: '=',
         configuration: '=?',
+        propEditionContext: '=',
         /* Callbacks */
         suggest: '&',
         save: '&',
@@ -91,6 +92,7 @@ define(function(require) {
   FORMS.initOthers = function(scope, type, element, $compile) {
     var mapElement = FORMS.elementsFactory(type._type, false, scope.configuration.formStyle);
     var newScope = scope.$new();
+    newScope.rootName = scope.rootName;
     newScope.path = scope.path;
     newScope.labelPath = scope.labelPath;
     newScope.propertyName = scope.rootName;
@@ -360,6 +362,20 @@ define(function(require) {
       templateUrl: 'views/generic-form/tosca_form_label_template.html',
       link: function(scope, element) {
         FORMS.initFormScope('toscaTypeFormLabel', scope, element, false);
+        // returns the complete path of the property from root
+        scope.getPropertyPath = function() {
+          let propertyPath = scope.rootName;
+          for (let i = 0; i < scope.path.length; i++) {
+            if (Number.isInteger(scope.path[i])) {
+              // manage array index differently : [0]
+              propertyPath += "[" + scope.path[i] + "]";
+            } else {
+              propertyPath += ((propertyPath.length > 0 ) ? "." : "") + scope.path[i];
+            }
+            // TODO: manage maps differently ... ex : prop_name[key] ?
+          }
+          return propertyPath;
+        };
         scope.inputChanged = function(propertyDefinition, propertyValue) {
           if (_.undefined(propertyValue)) {
             FORMS.deleteValueForPath(scope.rootObject, scope.path);
@@ -831,11 +847,13 @@ define(function(require) {
   };
 
   FORMS.directiveParameters = {
+    rootName: '=',
     propertyName: '=',
     propertyType: '=',
     path: '=',
     labelPath: '=',
     rootObject: '=',
+    propEditionContext: '=',
     saveAction: '&',
     deleteAction: '&',
     isDeletable: '=',
@@ -1071,8 +1089,9 @@ define(function(require) {
 
   FORMS.directiveFactory = function(directiveName, isDeletable) {
     var elementDeclaration = '<' + directiveName + ' property-name="propertyName"';
+    elementDeclaration += ' root-name="rootName"';
     elementDeclaration += ' property-type="propertyType"';
-    elementDeclaration += ' path="path"' + ' label-path="labelPath"' + 'root-object="rootObject"' + ' suggest="suggest(searchConfiguration, text)"' + ' is-deletable="' + isDeletable + '" save-action="saveAction(object)" configuration="configuration"';
+    elementDeclaration += ' path="path"' + ' label-path="labelPath"' + ' root-object="rootObject"' + ' prop-edition-context="propEditionContext"' + ' suggest="suggest(searchConfiguration, text)"' + ' is-deletable="' + isDeletable + '" save-action="saveAction(object)" configuration="configuration"';
     if (isDeletable) {
       elementDeclaration += ' delete-action="deleteAction(deletedElement)"';
     }

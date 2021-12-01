@@ -140,5 +140,9 @@ define(function(require) {
         });
       };
 
+      $scope.mergeContext = function(context) {
+        return _.assign({}, $scope.propEditionContext, context);
+      };
+
     }]);
 });
