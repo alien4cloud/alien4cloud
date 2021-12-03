@@ -127,10 +127,11 @@ public class TopologyPropertiesValidationService {
             var fedProperties = defaultValueService.feedDefaultValuesForCapability(nodeTemplate,capabilityEntry.getKey());
 
             Capability capability = capabilityEntry.getValue();
-            if (capability.getProperties() == null || capability.getProperties().isEmpty()) {
+            if (fedProperties == null || fedProperties.isEmpty()) {
                 continue;
             }
-            addRequiredPropertyIdToTaskProperties("capabilities[" + capabilityEntry.getKey() + "]", capability.getProperties(),
+
+            addRequiredPropertyIdToTaskProperties("capabilities[" + capabilityEntry.getKey() + "]", fedProperties,
                     safe(ToscaContext.getOrFail(CapabilityType.class, capabilityEntry.getValue().getType()).getProperties()), task, skipInputProperties);
             if (capability.getType().equals(NormativeCapabilityTypes.SCALABLE)) {
                 Map<String, AbstractPropertyValue> scalableProperties = capability.getProperties();
