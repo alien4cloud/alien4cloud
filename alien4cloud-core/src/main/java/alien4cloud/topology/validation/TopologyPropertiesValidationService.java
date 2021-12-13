@@ -116,11 +116,12 @@ public class TopologyPropertiesValidationService {
 
         // Check relationships PD
         for (var relationshipEntry : safe(nodeTemplate.getRelationships()).entrySet()) {
-            RelationshipTemplate relationship = relationshipEntry.getValue();
-            if (relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
+            var fedProperties = defaultValueService.feedDefaultValuesForRelationship(nodeTemplate,relationshipEntry.getKey());
+
+            if (fedProperties == null || fedProperties.isEmpty()) {
                 continue;
             }
-            addRequiredPropertyIdToTaskProperties("relationships[" + relationshipEntry.getKey() + "]", relationship.getProperties(),
+            addRequiredPropertyIdToTaskProperties("relationships[" + relationshipEntry.getKey() + "]", fedProperties,
                     safe(ToscaContext.getOrFail(RelationshipType.class, relationshipEntry.getValue().getType()).getProperties()), task, skipInputProperties);
         }
         for (var capabilityEntry : safe(nodeTemplate.getCapabilities()).entrySet()) {

@@ -7,9 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.alien4cloud.tosca.normative.types.ToscaTypes;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +39,23 @@ public class PropertyDefaultValueService {
 
         // Now process complex properties
         forEachComplex(values,type.getProperties(),this::feedComplexProperties);
+
+        return values;
+    }
+
+    public Map<String, AbstractPropertyValue> feedDefaultValuesForRelationship(NodeTemplate node,String relationshipName) {
+        RelationshipTemplate relationship = node.getRelationships().get(relationshipName);
+
+        var values = CloneUtil.clone(relationship.getProperties());
+
+        RelationshipType relationshipType = ToscaContext.get(RelationshipType.class,relationship.getType());
+        if (relationshipType != null) {
+            // Inject vales from the relationship type
+            addMissingProperties(values,relationshipType.getProperties(),PropertyDefinition::getDefault);
+
+            // And Recurse inside
+            forEachComplex(values,relationshipType.getProperties(),this::feedComplexProperties);
+        }
 
         return values;
     }
