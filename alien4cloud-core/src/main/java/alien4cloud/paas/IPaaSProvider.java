@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.model.runtime.Execution;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
@@ -60,12 +61,22 @@ public interface IPaaSProvider {
      * Resuming an execution
      *
      * @param deploymentContext the deployment context
-     * @param executionId the id of the execution
+     * @param execution the execution to resume
      * @param callback callback when the status will be available
      *
      */
-    void resume(PaaSDeploymentContext deploymentContext, String executionId, IPaaSCallback<?> callback);
+    void resume(PaaSDeploymentContext deploymentContext, Execution execution, IPaaSCallback<?> callback);
 
+    /**
+     *  Reset a step
+     * @param deploymentContext the deployment context
+     * @param execution the execution to resume
+     * @param stepName name of the step to reset
+     * @param done if true, reset the step as done, otherwise mark it as scheduled
+     * @param callback callback when the status will be available
+     *
+     */
+    void resetStep(PaaSDeploymentContext deploymentContext, Execution execution,String stepName,boolean done, IPaaSCallback<?> callback);
 
     /**
      * Scale up/down a node

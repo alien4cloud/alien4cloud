@@ -36,32 +36,7 @@ public class WorkflowExecutionController {
     private TaskService taskService;
     @Resource
     private WorkflowStepInstanceService workflowStepInstanceService;
-
-    /**
-     * Resume the last workflow
-     */
-    @ApiOperation(value = "Resume the last workflow execution", notes = "For a given deployment, resume the last workflow execution.")
-    @RequestMapping(value = "/{deploymentId}", method = RequestMethod.PATCH)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<Void> resumeLastWorkflowExecution(@ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String deploymentId,@ApiParam(value = "The secret provider configuration and credentials.") @RequestBody SecretProviderConfigurationAndCredentials secretProviderConfigurationAndCredentials) {
-
-        // Find the last execution
-        Execution execution = executionService.getLastExecution(deploymentId);
-        if (execution == null) {
-            RestError error = RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("Last execution not found").build();
-            return RestResponseBuilder.<Void>builder().error(error).build();
-        }
-
-        if (!execution.getStatus().equals(ExecutionStatus.FAILED)) {
-            RestError error = RestErrorBuilder.builder(RestErrorCode.ILLEGAL_STATE_OPERATION).message("Execution must be in FAILED state").build();
-            return RestResponseBuilder.<Void>builder().error(error).build();
-        }
-
-        executionService.resumeExecution(secretProviderConfigurationAndCredentials, execution);
-
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
+    
     /**
      * For a given deployment, get the last workflow execution monitor data.
      */
