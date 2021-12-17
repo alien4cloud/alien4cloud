@@ -1,9 +1,6 @@
 package alien4cloud.json.deserializer;
 
-import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
-import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
-import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
-import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.definitions.*;
 
 /**
  * Custom deserializer to handle multiple AttributeValue types
@@ -14,5 +11,6 @@ public class AttributeDeserializer extends AbstractDiscriminatorPolymorphicDeser
         addToRegistry("type", AttributeDefinition.class);
         addToRegistry("function", FunctionPropertyValue.class);
         addToRegistry("function_concat", ConcatPropertyValue.class);
+        addToRegistry("function_token", TokenPropertyValue.class);
     }
 }

@@ -285,6 +285,13 @@
 
 - complex_property_subvalue: alien4cloud.tosca.parser.impl.advanced.ComplexPropertySubValueParser
 
+- tosca_token: org.alien4cloud.tosca.model.definitions.TokenPropertyValue
+  __0:
+    key: function_token
+    value:
+      list: parameters
+      type: input
+
 - tosca_concat: org.alien4cloud.tosca.model.definitions.ConcatPropertyValue
   __0:
     key: function_concat
@@ -299,12 +306,14 @@
     get_secret: tosca_function
     get_attribute: get_attribute
     concat: tosca_concat
+    token: tosca_token
   default: abstract_property_value
 
 - complex_node_template_property: __discriminator
   keys:
     get_input: tosca_function
     concat: tosca_concat
+    token: tosca_token
   default: complex_property_subvalue
 
 - input: __discriminator
@@ -317,12 +326,14 @@
     get_attribute: get_attribute
     get_operation_output: tosca_function
     concat: tosca_concat
+    token: tosca_token
   default: abstract_property_value
 
 - attribute: __discriminator
   keys:
     type: attribute_definition
     concat: tosca_concat
+    token: tosca_token
     get_operation_output: tosca_function
     get_attribute: get_attribute
     get_property: tosca_function

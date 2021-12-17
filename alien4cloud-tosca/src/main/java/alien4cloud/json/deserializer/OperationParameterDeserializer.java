@@ -12,6 +12,7 @@ public class OperationParameterDeserializer extends AbstractDiscriminatorPolymor
         addToRegistry("type", PropertyDefinition.class);
         addToRegistry("function", FunctionPropertyValue.class);
         addToRegistry("function_concat", ConcatPropertyValue.class);
+        addToRegistry("function_token", TokenPropertyValue.class);
         addToRegistry("value", JsonNodeType.STRING.toString(), ScalarPropertyValue.class);
         addToRegistry("value", JsonNodeType.ARRAY.toString(), ListPropertyValue.class);
         addToRegistry("value", JsonNodeType.OBJECT.toString(), ComplexPropertyValue.class);

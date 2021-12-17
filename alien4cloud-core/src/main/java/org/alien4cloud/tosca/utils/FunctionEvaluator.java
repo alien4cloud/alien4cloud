@@ -10,13 +10,7 @@ import java.util.function.UnaryOperator;
 
 import alien4cloud.utils.CloneUtil;
 import alien4cloud.utils.ComplexPropertyUtil;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
-import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
-import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
-import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.templates.AbstractInstantiableTemplate;
 import org.alien4cloud.tosca.model.templates.Capability;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
@@ -81,6 +75,10 @@ public class FunctionEvaluator {
         if (evaluatedProperty instanceof ConcatPropertyValue) {
             // Perform the concat evaluation
             return concat(evaluatorContext, template, properties, (ConcatPropertyValue) evaluatedProperty);
+        }
+        if (evaluatedProperty instanceof TokenPropertyValue) {
+            // Perform the concat evaluation
+            return token(evaluatorContext, template, properties, (TokenPropertyValue) evaluatedProperty);
         }
         throw new IllegalArgumentException("AbstractPropertyValue must be one of null, a secret, PropertyValue, FunctionPropertyValue or ConcatPropertyValue");
     }
@@ -308,6 +306,47 @@ public class FunctionEvaluator {
         }
 
         return safe(properties).get(propertyPath);
+    }
+
+    private static AbstractPropertyValue token(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template,
+                                                Map<String, AbstractPropertyValue> properties, TokenPropertyValue tpv) {
+
+        List<AbstractPropertyValue> parameters = tpv.getParameters();
+        if (parameters == null || parameters.size() != 3) {
+            throw new IllegalArgumentException("Not able to handle token function: token function must have exactly 3 parameters");
+        }
+        AbstractPropertyValue stringWithTokensAPV = parameters.get(0);
+        AbstractPropertyValue resolvedStringWithTokensAPV = tryResolveValue(evaluatorContext, template, properties, stringWithTokensAPV);
+
+        if (!(resolvedStringWithTokensAPV instanceof ScalarPropertyValue)) {
+            throw new IllegalArgumentException("Not able to handle token function: 1st parameter should be resolvable has a scalar but is not");
+        }
+        String stringWithTokens = ((ScalarPropertyValue)resolvedStringWithTokensAPV).getValue();
+
+        AbstractPropertyValue stringOfTokenCharsAPV = parameters.get(1);
+        if (!(stringOfTokenCharsAPV instanceof ScalarPropertyValue)) {
+            throw new IllegalArgumentException("Not able to handle token function: 2nd parameter should be a scalar but is not");
+        }
+        String stringOfTokenChars = ((ScalarPropertyValue)stringOfTokenCharsAPV).getValue();
+
+        AbstractPropertyValue substringIndexAPV = parameters.get(2);
+        if (!(substringIndexAPV instanceof ScalarPropertyValue)) {
+            throw new IllegalArgumentException("Not able to handle token function: 3nd parameter should be a scalar but is not");
+        }
+        String substringIndexStr = ((ScalarPropertyValue)substringIndexAPV).getValue();
+
+        int substringIndex = -1;
+        try {
+            substringIndex = Integer.parseInt(substringIndexStr);
+        } catch(NumberFormatException nfe) {
+            throw new IllegalArgumentException("Not able to handle token function: 3nd parameter should be an integer but is not");
+        }
+
+        String[] splitedString = StringUtils.split(stringWithTokens, stringOfTokenChars);
+        if (substringIndex > splitedString.length - 1) {
+            throw new IllegalArgumentException("Not able to handle token function: index out of bound");
+        }
+        return new ScalarPropertyValue(splitedString[substringIndex]);
     }
 
     private static AbstractPropertyValue concat(FunctionEvaluatorContext evaluatorContext, AbstractInstantiableTemplate template,
