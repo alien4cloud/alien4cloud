@@ -79,7 +79,7 @@
     <groovy.version>3.0.6</groovy.version>
 
     <!-- Logging -->
-    <log4j.version>2.8.2</log4j.version>
+    <log4j.version>2.16.0</log4j.version>
     <slf4j.version>1.7.24</slf4j.version>
 
     <!-- Documentation -->
@@ -673,12 +673,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>external.atlassian.jgitflow</groupId>
-        <artifactId>jgitflow-maven-plugin</artifactId>
-        <version>1.0-m5.1-alien</version>
       </plugin>
 
       <plugin>
