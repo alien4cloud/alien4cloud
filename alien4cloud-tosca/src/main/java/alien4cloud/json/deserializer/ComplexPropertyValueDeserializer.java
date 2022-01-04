@@ -10,6 +10,7 @@ public class ComplexPropertyValueDeserializer extends AbstractTreeDiscriminatorP
 
     public ComplexPropertyValueDeserializer() {
         addToRegistry("function_concat", ConcatPropertyValue.class);
+        addToRegistry("function_token", ConcatPropertyValue.class);
         addToRegistry("function", FunctionPropertyValue.class);
     }
 }

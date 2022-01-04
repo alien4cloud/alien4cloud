@@ -334,6 +334,7 @@ public final class PropertyUtil {
         return target;
     }
 
+    // TODO: should be unit tested
     public static Object adaptFunctionsInComplex(Object object,PropertyDefinition definition) {
         String typeName = definition.getType();
 
@@ -355,14 +356,9 @@ public final class PropertyUtil {
         ComplexPropertyUtil.transform((Map) object,element ->{
             if (element instanceof Map) {
                 Map<String,Object> map = (Map<String,Object>) element;
-
-                if (map.containsKey("function") && map.containsKey("parameters")) {
-                    FunctionPropertyValue func = new FunctionPropertyValue();
-                    func.setFunction((String) map.get("function"));
-                    func.setParameters((List) map.get("parameters"));
-                    return func;
-                } else if (map.containsKey("function_concat") && map.containsKey("parameters")) {
-                    return  buildConcat((List) map.get("parameters"));
+                AbstractPropertyValue apv = getAPVFromMap(map);
+                if (apv != null) {
+                    return apv;
                 }
             }
             return element;
@@ -373,23 +369,42 @@ public final class PropertyUtil {
 
     private static ConcatPropertyValue buildConcat(List<Object> parameters) {
         ConcatPropertyValue result = new ConcatPropertyValue();
+        result.setParameters(adaptParameters(parameters));
+        return result;
+    }
 
-        result.setParameters(Lists.newArrayList());
-
+    private static List<AbstractPropertyValue> adaptParameters(List<Object> parameters) {
+        List<AbstractPropertyValue> result = Lists.newArrayList();
         for (int i =0 ; i < parameters.size() ; i++) {
             Map<String,Object> map = (Map<String,Object>) parameters.get(i);
-
-            if (map.containsKey("function") && map.containsKey("parameters")) {
-                FunctionPropertyValue func = new FunctionPropertyValue();
-                func.setFunction((String) map.get("function"));
-                func.setParameters((List) map.get("parameters"));
-                result.getParameters().add(func);
-            } else if (map.containsKey("function_concat") && map.containsKey("parameters")) {
-                result.getParameters().add(buildConcat((List) map.get("parameters")));
-            } else if (map.containsKey("value")) {
-                result.getParameters().add(new ScalarPropertyValue((String) map.get("value")));
+            AbstractPropertyValue apv = getAPVFromMap(map);
+            if (apv != null) {
+                result.add(apv);
             }
         }
         return result;
     }
+
+    private static AbstractPropertyValue getAPVFromMap(Map<String, Object> map) {
+        if (map.containsKey("function") && map.containsKey("parameters")) {
+            FunctionPropertyValue func = new FunctionPropertyValue();
+            func.setFunction((String) map.get("function"));
+            func.setParameters((List) map.get("parameters"));
+            return func;
+        } else if (map.containsKey("function_concat") && map.containsKey("parameters")) {
+            return buildConcat((List) map.get("parameters"));
+        } else if (map.containsKey("function_token") && map.containsKey("parameters")) {
+            return buildToken((List) map.get("parameters"));
+        } else if (map.containsKey("value")) {
+            return new ScalarPropertyValue((String) map.get("value"));
+        }
+        return null;
+    }
+
+    private static TokenPropertyValue buildToken(List<Object> parameters) {
+        TokenPropertyValue result = new TokenPropertyValue();
+        result.setParameters(adaptParameters(parameters));
+        return result;
+    }
+
 }
