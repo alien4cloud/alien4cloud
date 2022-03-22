@@ -19,6 +19,7 @@ import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
 import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.normative.constants.NormativeCredentialConstant;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -73,6 +74,22 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
         if (archiveVersion == null) {
             archiveRoot.getArchive().setVersion("undefined");
         }
+
+        if (StringUtils.isNotBlank(archiveVersion) && !VersionUtil.isValid(archiveVersion)) {
+            boolean gotit = false;
+            for (ParsingError err : ParsingContextExecution.getParsingErrors()) {
+               if ((err.getErrorCode() == ErrorCode.SYNTAX_ERROR) && 
+                   (err.getNote() != null) &&
+                   (err.getNote().equals("version"))) {
+                  gotit = true;
+               }
+            }
+            if (!gotit) {
+               ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, "Invalid type syntax",
+                                                                            null, "Expected the type to match tosca type", null, "version"));
+            }
+        }
+
         // All type validation may require local archive types, so we need to register the current archive.
         ToscaContext.get().register(archiveRoot);
 
