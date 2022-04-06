@@ -638,6 +638,7 @@
       "INVALID_ICON_FORMAT" : "Icon file is not a supported image format.",
       "INVALID_NAME" : "Invalid {{context}} name [{{problem}}]. Renamed into [{{note}}].",
       "INVALID_SCALAR_UNIT" : "Expected type was a TOSCA scalar unit, both unit and value are required.",
+      "INVALID_VERSION" : "CSAR component version format is invalid : supported versions have the following syntax : <Digit1>.<Digit2>.<Digit3>-(SNAPSHOT). For instance, version 3.0.0-SNAPSHOT is correct, version 3.0.0--SNAPSHOT is not correct",
       "INVALID_YAML" : "The File does not respect YAML format,\n({{problem}}).",
       "LABEL" : "Errors",
       "MISSING_DEPENDENCY" : "Dependency [{{note}}] cannot be found in Alien4Cloud repository.",

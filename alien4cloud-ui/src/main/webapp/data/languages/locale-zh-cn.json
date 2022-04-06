@@ -636,6 +636,7 @@
       "INVALID_ICON_FORMAT" : "图标文件不是支持的图像格式。",
       "INVALID_NAME" : "无效 {{context}} 问题名称： [{{problem}}]。 重命名到 [{{note}}]。",
       "INVALID_SCALAR_UNIT" : "类型必须是TOSCA标量单位，需要单位和数值。",
+      "INVALID_VERSION" : "CSAR component version format is invalid : supported versions have the following syntax : <Digit1>.<Digit2>.<Digit3>-(SNAPSHOT). For instance, version 3.0.0-SNAPSHOT is correct, version 3.0.0--SNAPSHOT is not correct",
       "INVALID_YAML" : "文件不符合YAML格式，\n({{problem}})。",
       "LABEL" : "错误",
       "MISSING_DEPENDENCY" : "依赖 [{{note}}] 在Alien4Cloud存储库中找不到。",

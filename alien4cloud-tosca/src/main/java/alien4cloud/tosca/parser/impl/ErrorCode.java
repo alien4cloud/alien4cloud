@@ -110,5 +110,7 @@ public enum ErrorCode {
     /** version conflict between a transitive and a direct dependency **/
     TRANSITIVE_DEPENDENCY_VERSION_CONFLICT,
     /** Same dependency name with different version **/
-    DEPENDENCY_VERSION_CONFLICT;
+    DEPENDENCY_VERSION_CONFLICT,
+    /** Version does not respect syntax **/
+    INVALID_VERSION;
 }

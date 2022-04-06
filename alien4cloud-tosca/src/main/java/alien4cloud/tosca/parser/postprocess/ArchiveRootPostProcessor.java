@@ -85,7 +85,7 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
                }
             }
             if (!gotit) {
-               ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, "Invalid type syntax",
+               ParsingContextExecution.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.INVALID_VERSION, "Invalid type syntax",
                                                                             null, "Expected the type to match tosca type", null, "version"));
             }
         }
