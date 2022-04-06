@@ -416,10 +416,11 @@ public class TopologyService {
     public void updateDependencies(EditionContext context, CSARDependency newDependency) {
         final Set<CSARDependency> oldDependencies = new HashSet<>(context.getTopology().getDependencies());
         final Set<CSARDependency> newDependencies = csarDependencyLoader.getDependencies(newDependency.getName(), newDependency.getVersion());
-        newDependencies.add(newDependency);
+        //newDependencies.add(newDependency);
 
+        context.getToscaContext().updateDependency(newDependency);
         // Update context with the new dependencies.
-        newDependencies.forEach(csarDependency -> context.getToscaContext().updateDependency(csarDependency));
+        newDependencies.forEach(csarDependency -> context.getToscaContext().updateDependencyByName(csarDependency));
 
         // Validate that the dependency change does not induce missing types.
         try {

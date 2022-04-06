@@ -19,6 +19,7 @@ import org.alien4cloud.tosca.model.types.DataType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.PolicyType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+import alien4cloud.utils.VersionUtil;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -204,8 +205,8 @@ public class ToscaContext {
          *
          * @param dependency The updated dependency.
          */
-        public void updateDependency(CSARDependency dependency) {
-            // Do not update dependency if the version hasn't changed
+        public void updateDependencyByName(CSARDependency dependency) {
+            // Do not update dependency if the version is not greater
             if (hasDependency(dependency)) {
                 log.debug("Dependency already exist in context.");
                 return;
@@ -215,6 +216,25 @@ public class ToscaContext {
         }
 
         private boolean hasDependency(CSARDependency dependency) {
+            for (CSARDependency existDependency : this.dependencies) {
+                if (existDependency.getName().equals(dependency.getName())) {
+                    return (VersionUtil.compare(existDependency.getVersion(), dependency.getVersion()) >= 0);
+                }
+            }
+            return false;
+        }
+
+        public void updateDependency(CSARDependency dependency) {
+            // Do not update dependency if the version hasn't changed
+            if (hasDependencyAndSameVersion(dependency)) {
+                log.debug("Dependency already exist in context.");
+                return;
+            }
+            removeDependency(dependency);
+            addDependency(dependency);
+        }
+
+        private boolean hasDependencyAndSameVersion(CSARDependency dependency) {
             for (CSARDependency existDependency : this.dependencies) {
                 if (existDependency.getName().equals(dependency.getName())) {
                     return existDependency.getVersion().equals(dependency.getVersion()) && Objects.equals(existDependency.getHash(), dependency.getHash());
