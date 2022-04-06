@@ -119,5 +119,5 @@ Feature: Topology editor: Change version of a csar dependency
       | dependencyVersion | 0.5-SNAPSHOT                                                             |
     Then No exception should be thrown
     And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-types'].version" should return "0.5-SNAPSHOT"
-    And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-trans-types'].version" should return "0.1-SNAPSHOT"
+    And The SPEL expression "dependencies.^[name == 'test-topo-dependencies-trans-types'].version" should return "0.2-SNAPSHOT"
     And The dto SPEL expression "dependencyConflicts.size()" should return 0
