@@ -24,6 +24,9 @@ import alien4cloud.webconfiguration.RestDocumentationHandlerProvider;
 import alien4cloud.webconfiguration.RestDocumentationPluginsBootstrapper;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 /**
  * Manage the child context defined in {@link FullApplicationConfiguration}: this context is launched when the current alien instance is elected as leader and
  * eventually destroyed in case of banish.
@@ -44,14 +47,29 @@ public class ApplicationManager implements ApplicationListener<AlienEvent>, Hand
     private boolean apiDocDisabled;
 
     /**
+     * RW Lock for HA Switch
+     */
+    private ReentrantReadWriteLock switchLock = new ReentrantReadWriteLock();
+
+    /**
+     * Lock for event propagation
+     */
+    private ReentrantLock eventLock = new ReentrantLock();
+
+    /**
      * A synchronized method is enough since the boolean <code>childContextLaunched</code> is only read/write in it.
      */
     @Override
-    public synchronized void onApplicationEvent(AlienEvent event) {
+    public void onApplicationEvent(AlienEvent event) {
         if (event instanceof HALeaderElectionEvent) {
             handleHALeaderElectionEvent((HALeaderElectionEvent) event);
         } else {
-            handleAlienEvent(event);
+            try {
+                switchLock.readLock().lock();
+                handleAlienEvent(event);
+            } finally {
+                switchLock.readLock().unlock();
+            }
         }
     }
 
@@ -63,19 +81,26 @@ public class ApplicationManager implements ApplicationListener<AlienEvent>, Hand
      * @param event
      */
     private void handleAlienEvent(AlienEvent event) {
-        if (childContextLaunched) {
-            if (!event.isForwarded()) {
-                event.setForwarded(true);
-                // Avoid dispatching the same event twice to a context.
-                if (!SpringUtils.isSingletonOwnedByContex(fullApplicationContext, event.getSource())) {
-                    fullApplicationContext.publishEvent(event);
+            if (childContextLaunched) {
+                if (!event.isForwarded()) {
+                    event.setForwarded(true);
+                    // Avoid dispatching the same event twice to a context.
+
+                    try {
+                        eventLock.lock();
+
+                        if (!SpringUtils.isSingletonOwnedByContex(fullApplicationContext, event.getSource())) {
+                            fullApplicationContext.publishEvent(event);
+                        }
+                    } finally {
+                        eventLock.unlock();
+                    }
+                } else {
+                    log.debug("Event {} already forwarded to children", event);
                 }
             } else {
-                log.debug("Event {} already forwarded to children", event);
+                log.debug("This instance is a backup. It doesn't have to process events.");
             }
-        } else {
-            log.debug("This instance is a backup. It doesn't have to process events.");
-        }
     }
 
     /**
@@ -84,52 +109,77 @@ public class ApplicationManager implements ApplicationListener<AlienEvent>, Hand
      * @param event
      */
     private void handleHALeaderElectionEvent(HALeaderElectionEvent event) {
+        // Writes to childContextLaunched need a write lock
+        switchLock.writeLock().lock();
+
         if (event.isLeader()) {
             log.info("Leader Election event received, this instance is now known as the leader");
             if (!childContextLaunched) {
                 log.info("Launching the full application context");
 
-                fullApplicationContext = new AnnotationConfigApplicationContext();
-                fullApplicationContext.setParent(this.bootstrapContext);
-                fullApplicationContext.setId(this.bootstrapContext.getId() + ":full");
-                fullApplicationContext.register(FullApplicationConfiguration.class);
-                fullApplicationContext.refresh();
-                fullApplicationContext.start();
-
-                mapper = new RequestMappingHandlerMapping();
-                mapper.setApplicationContext(fullApplicationContext);
-                mapper.afterPropertiesSet();
-
-                refreshDocumentation();
-
-                AuditController auditController = fullApplicationContext.getBean(AuditController.class);
-                auditController.register(mapper);
-
                 childContextLaunched = true;
+
+                // Downgrade the lock
+                switchLock.readLock().lock();
+                switchLock.writeLock().unlock();
+
+                try {
+                    fullApplicationContext = new AnnotationConfigApplicationContext();
+                    fullApplicationContext.setParent(this.bootstrapContext);
+                    fullApplicationContext.setId(this.bootstrapContext.getId() + ":full");
+                    fullApplicationContext.register(FullApplicationConfiguration.class);
+                    fullApplicationContext.refresh();
+                    fullApplicationContext.start();
+
+                    mapper = new RequestMappingHandlerMapping();
+                    mapper.setApplicationContext(fullApplicationContext);
+                    mapper.afterPropertiesSet();
+
+                    refreshDocumentation();
+
+                    AuditController auditController = fullApplicationContext.getBean(AuditController.class);
+                    auditController.register(mapper);
+                } finally {
+                    switchLock.readLock().unlock();
+                }
+
             } else {
+                // Nothing to do, release the lock
+                switchLock.writeLock().unlock();
                 log.warn("The full application context is already launched, something seems wrong in the current state !");
             }
         } else {
             if (childContextLaunched) {
-                Object pluginManagerBean = fullApplicationContext.getBean("plugin-manager");
-                if (pluginManagerBean != null) {
-                    PluginManager pluginManager = (PluginManager)pluginManagerBean;
-                    log.info("Unloading all plugin before Destroying the full application context");
-                    try {
-                        pluginManager.unloadAllPlugins();
-                    } catch(Exception e) {
-                        log.error("Not able to unload plugins", e);
-                    }
-                } else {
-                    log.warn("plugin-manager can not be found");
-                }
-                log.info("Destroying the full application context");
-
-                mapper = null;
-                fullApplicationContext.destroy();
-
                 childContextLaunched = false;
+
+                // Downgrade the lock
+                switchLock.readLock().lock();
+                switchLock.writeLock().unlock();
+
+                try {
+                    Object pluginManagerBean = fullApplicationContext.getBean("plugin-manager");
+                    if (pluginManagerBean != null) {
+                        PluginManager pluginManager = (PluginManager) pluginManagerBean;
+                        log.info("Unloading all plugin before Destroying the full application context");
+                        try {
+                            pluginManager.unloadAllPlugins();
+                        } catch (Exception e) {
+                            log.error("Not able to unload plugins", e);
+                        }
+                    } else {
+                        log.warn("plugin-manager can not be found");
+                    }
+                    log.info("Destroying the full application context");
+
+                    mapper = null;
+                    fullApplicationContext.destroy();
+                } finally {
+                    switchLock.readLock().unlock();
+                }
             } else {
+                // Nothing to do, release the lock
+                switchLock.writeLock().unlock();
+
                 log.warn("The full application context is already destroyed, something seems wrong in the current state !");
             }
         }
