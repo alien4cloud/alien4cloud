@@ -66,7 +66,7 @@ public class UserController {
     }
 
     @ApiOperation("Update an user by merging the userUpdateRequest into the existing user")
-    @RequestMapping(value = "/{username}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{username:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit(bodyHiddenFields = { "password" } )
     public RestResponse<Void> update(@PathVariable String username, @RequestBody UpdateUserRequest userUpdateRequest) {
@@ -81,7 +81,7 @@ public class UserController {
      * @return The user matching the requested username.
      */
     @ApiOperation(value = "Get a user based on it's username.", notes = "Returns a rest response that contains the user's details.")
-    @RequestMapping(value = "/{username}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{username:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<User> getUser(@PathVariable String username) {
         if (username == null || username.isEmpty()) {
@@ -136,7 +136,7 @@ public class UserController {
      * @return an empty (void) rest {@link RestResponse}.
      */
     @ApiOperation(value = "Delete an existing user from the internal user's repository.")
-    @RequestMapping(value = "/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{username:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> deleteUser(@PathVariable String username, HttpServletResponse servletResponse) throws IOException, ClassNotFoundException {
