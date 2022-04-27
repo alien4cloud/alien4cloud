@@ -37,6 +37,16 @@ public abstract class WorkflowStep {
     /** The steps to trigger (in parallel if multiple) if the workflow step has failed. */
     private Set<String> onFailure = new HashSet<>();
 
+    public void setOnFailure(Set<String> onFailure) {
+        if (onFailure == null) {
+            // if topology has been created prior to 3.1.0, onFailure is null
+            // we init it with empty set to avoid NPEs
+            this.onFailure = new HashSet<>();
+        } else {
+            this.onFailure = onFailure;
+        }
+    }
+
     /*
      * ________________________________________________________________________________________________
      * Everything underneath is non tosca, it does exist to facilitate implementation in Alien4Cloud
@@ -48,6 +58,16 @@ public abstract class WorkflowStep {
     private Set<String> precedingSteps = new HashSet<>();
     /** The steps that precedes immediately this step with the onFailure link in the wf sequence */
     private Set<String> precedingFailSteps = new HashSet<>();
+
+    public void setPrecedingFailSteps(Set<String> precedingFailSteps) {
+        if (precedingFailSteps == null) {
+            // if topology has been created prior to 3.1.0, precedingFailSteps is null
+            // we init it with empty set to avoid NPEs
+            this.precedingFailSteps = new HashSet<>();
+        } else {
+            this.precedingFailSteps = precedingFailSteps;
+        }
+    }
 
     @JsonIgnore
     public AbstractWorkflowActivity getActivity() {
@@ -113,5 +133,7 @@ public abstract class WorkflowStep {
         this.onSuccess.removeAll(followings);
     }
 
-    public void addOnFailure(String name) {this.onFailure.add(name);}
+    public void addOnFailure(String name) {
+        this.onFailure.add(name);
+    }
 }
