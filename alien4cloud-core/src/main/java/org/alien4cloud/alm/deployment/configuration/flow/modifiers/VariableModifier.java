@@ -107,7 +107,7 @@ public class VariableModifier implements ITopologyModifier {
                 processComplex((ComplexPropertyValue) entry.getValue(), definition, path, context);
             } else if (entry.getValue() instanceof ListPropertyValue) {
                 log.debug("Processing {}[]", path);
-                processListComplex(((ListPropertyValue) entry.getValue()).getValue(), definition, path, context);
+                processListComplex(((ListPropertyValue) entry.getValue()).getValue(), definition.getEntrySchema(), path, context);
             }
         } else {
             log.warn("Cannot find PropertyDefinition %s",entry.getKey());
