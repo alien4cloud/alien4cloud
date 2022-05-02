@@ -1,8 +1,5 @@
 package alien4cloud.rest.application;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-
 import javax.inject.Inject;
 
 import org.alien4cloud.git.GitLocationDao;
@@ -67,7 +64,7 @@ public class ApplicationVariableController {
         GitLocation gitLocation = gitLocationDao.findApplicationVariablesLocation(applicationId);
         localGitManager.checkout(gitLocation);
 
-        quickFileStorageService.saveApplicationVariables(applicationId, new ByteArrayInputStream(request.getContent().getBytes(StandardCharsets.UTF_8)));
+        quickFileStorageService.saveApplicationVariables(applicationId, request.getContent());
         User user = AuthorizationUtil.getCurrentUser();
         localGitManager.commitAndPush(gitLocation, user.getUsername(), user.getEmail(), "Update application variables.");
         return new RestResponse<>();

@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.variable.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +15,7 @@ import org.alien4cloud.git.LocalGitRepositoryPathResolver;
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
 import org.alien4cloud.tosca.utils.PropertiesYamlParser;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -119,9 +121,13 @@ public class QuickFileStorageService {
      * @param data The content of the variable file.
      */
     @SneakyThrows
-    public void saveApplicationVariables(String applicationId, InputStream data) {
+    public void saveApplicationVariables(String applicationId, String data) {
+        // check syntax
+        Resource appVar = new ByteArrayResource(data.getBytes());
+        PropertiesYamlParser.ToProperties.from(appVar);
+
         Path ymlPath = getApplicationVariablesPath(applicationId);
-        Files.copy(data, ymlPath, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(new ByteArrayInputStream(data.getBytes()), ymlPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     @SneakyThrows
