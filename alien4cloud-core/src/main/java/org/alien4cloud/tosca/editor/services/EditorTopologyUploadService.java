@@ -138,6 +138,9 @@ public class EditorTopologyUploadService {
         
         // update casr description in the edition context
         EditionContextManager.get().getCsar().setDescription(parsingResult.getResult().getArchive().getDescription());
+
+        // update the csar dsl definition
+        EditionContextManager.get().getCsar().setToscaDefinitionsVersion(definitionVersion);
     }
 
     private ParsingResult toParsingResult(ParsingException exception) {
