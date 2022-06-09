@@ -123,8 +123,8 @@ define(function(require) {
       }
     ]);
 
-    alien4cloud.run(['$templateCache', '$rootScope', '$state', '$sce', '$translate', 'editableOptions', 'editableThemes', 'authService', 'restTechnicalErrorInterceptor', 'amMoment',
-      function($templateCache, $rootScope, $state, $sce, $translate, editableOptions, editableThemes, authService, restTechnicalErrorInterceptor, amMoment) {
+    alien4cloud.run(['$templateCache', '$rootScope', '$state', '$sce', '$translate', 'editableOptions', 'editableThemes', 'authService', 'restTechnicalErrorInterceptor', 'amMoment', 'featureService',
+      function($templateCache, $rootScope, $state, $sce, $translate, editableOptions, editableThemes, authService, restTechnicalErrorInterceptor, amMoment, featureService) {
         restTechnicalErrorInterceptor.$state = $state;
         templateInjector($templateCache);
         var statusFetched = false; // flag to know if we have fetched current user status (logged in and roles)
@@ -189,6 +189,10 @@ define(function(require) {
           const lang = $translate.use();
           amMoment.changeLocale(lang);
           moment.locale(lang);
+        });
+
+        featureService.displaySecretButton().then(function(data){
+          $rootScope.displaySecretButton=data;
         });
 
         /* angular-xeditable config */

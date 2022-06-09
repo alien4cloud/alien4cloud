@@ -10,7 +10,7 @@
         <tr ng-repeat="propEntry in template.properties">
           <td>
             <button
-               id="p_secret_pro_{{propEntry.key}}"
+               id="p_secret_pro_{{propEntry.key}}" ng-if="displaySecretButton"
                ng-click="secrets.toggleResourcePropertySecret(propEntry)"
                class="btn btn-default btn-xs"
                ng-disabled="!canEditProperty(propEntry.key) || !canEditSecretProperty(propEntry.key)"

@@ -46,7 +46,7 @@
         ng-if="_.isNotEmpty(deployerInputs)">
         <tr ng-repeat="(inputId, inputDefinition) in deployerInputs">
           <td>
-            <button id="p_secret_input_{{inputId}}"
+            <button id="p_secret_input_{{inputId}}" ng-if="displaySecretButton"
                ng-click="secrets.toggleInputSecret(deploymentTopologyDTO.topology, inputId)"
                class="btn btn-default btn-xs"
                ng-class="{'active' : properties.isSecretValue(deploymentTopologyDTO.topology.deployerInputProperties[inputId])}"

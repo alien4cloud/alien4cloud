@@ -7,8 +7,8 @@ define(function(require) {
   var _ = require('lodash');
   require('scripts/tosca/services/tosca_processor');
 
-  modules.get('a4c-tosca').controller('a4cTemplateEditCtrl', ['$scope', 'a4cToscaProcessor', 'topoEditSecrets', 'topoEditProperties',
-    function($scope, a4cToscaProcessor, topoEditSecrets, topoEditProperties) {
+  modules.get('a4c-tosca').controller('a4cTemplateEditCtrl', ['$scope', 'a4cToscaProcessor', 'topoEditSecrets', 'topoEditProperties', 'featureService',
+    function($scope, a4cToscaProcessor, topoEditSecrets, topoEditProperties, featureService) {
 
       topoEditSecrets($scope);
       topoEditProperties($scope);
@@ -18,6 +18,10 @@ define(function(require) {
       a4cToscaProcessor.processInheritableToscaTypes($scope.resourceDataTypes);
 
       $scope.isService = _.defined($scope.isService) ? $scope.isService : false;
+
+      featureService.displaySecretButton().then(function(data){
+        $scope.displaySecretButton=data;
+      });
 
       $scope.getPropertyDefinition = function(propertyName) {
         return $scope.type.propertiesMap[propertyName].value;

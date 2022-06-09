@@ -8,8 +8,8 @@ define(function(require) {
 
   require('scripts/tosca/controllers/template_edit_ctrl');
 
-  modules.get('a4c-tosca').controller('a4cNodeTemplateEditCtrl', ['$controller', '$scope', 'a4cToscaProcessor', 'relationshipTypeQuickSearchService', 'topoEditSecrets', 'topoEditProperties',
-    function($controller, $scope, a4cToscaProcessor, relationshipTypeQuickSearchService, topoEditSecrets, topoEditProperties) {
+  modules.get('a4c-tosca').controller('a4cNodeTemplateEditCtrl', ['$controller', '$scope', 'a4cToscaProcessor', 'relationshipTypeQuickSearchService', 'topoEditSecrets', 'topoEditProperties', 'featureService',
+    function($controller, $scope, a4cToscaProcessor, relationshipTypeQuickSearchService, topoEditSecrets, topoEditProperties, featureService) {
 
       topoEditSecrets($scope);
       topoEditProperties($scope);
@@ -18,6 +18,10 @@ define(function(require) {
       $controller('a4cTemplateEditCtrl', {
         $scope: $scope,
         a4cToscaProcessor: a4cToscaProcessor
+      });
+
+      featureService.displaySecretButton().then(function(data){
+        $scope.displaySecretButton=data;
       });
 
       a4cToscaProcessor.processInheritableToscaTypes($scope.nodeCapabilityTypes);

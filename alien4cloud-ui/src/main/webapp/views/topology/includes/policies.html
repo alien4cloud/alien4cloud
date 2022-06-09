@@ -88,7 +88,7 @@
                   inputs
                 </td> -->
                 <td>
-                  <button id="p_secret_pro_{{propEntry.key}}"
+                  <button id="p_secret_pro_{{propEntry.key}}" ng-if="displaySecretButton"
                      ng-click="secrets.togglePolicyPropertySecret(propEntry)"
                      class="btn btn-default btn-xs"
                      ng-class="{'active' : properties.isSecretValue(propEntry.value)}"

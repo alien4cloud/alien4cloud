@@ -25,6 +25,15 @@ define(function (require) {
                     return true;
                 }
             });
+        },
+        displaySecretButton: function() {
+          return features.then(function(result) {
+            if ('displaySecretButton' in result.data) {
+              return result.data.displaySecretButton;
+            } else {
+              return true;
+            }
+          });
         }
     };
   }]); // factory

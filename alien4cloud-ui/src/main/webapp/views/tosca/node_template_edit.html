@@ -12,7 +12,7 @@
     <table class="table table-condensed" id="nodeTemplateProperties">
       <tr ng-repeat="propEntry in template.properties">
         <td>
-          <button id="p_secret_pro_{{propEntry.key}}"
+          <button id="p_secret_pro_{{propEntry.key}}" ng-if="displaySecretButton"
              ng-click="secrets.toggleResourcePropertySecret(propEntry)"
              class="btn btn-default btn-xs"
              ng-disabled="!canEditProperty(propEntry.key) || !canEditSecretProperty(propEntry.key)"
@@ -81,7 +81,7 @@
         <table ng-if="!emptyProps" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
           <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
             <td>
-              <button id="p_secret_pro_{{propertyEntry.key}}"
+              <button id="p_secret_pro_{{propertyEntry.key}}" ng-if="displaySecretButton"
                  ng-click="secrets.toggleResourceCapabilitySecret(capabilityEntry.key, propertyEntry)"
                  class="btn btn-default btn-xs"
                  ng-disabled="!canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key) || !canEditSecretCapability(capabilityEntry.key, propertyEntry.key)"
