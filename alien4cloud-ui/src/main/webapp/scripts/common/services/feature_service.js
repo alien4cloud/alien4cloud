@@ -31,7 +31,7 @@ define(function (require) {
             if ('displaySecretButton' in result.data) {
               return result.data.displaySecretButton;
             } else {
-              return true;
+              return false;
             }
           });
         }
