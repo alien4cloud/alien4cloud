@@ -86,7 +86,7 @@
     <springfox-swagger2.version>2.3.1</springfox-swagger2.version>
 
     <!-- Tests -->
-    <junit.version>4.12</junit.version>
+    <junit.version>4.13.1</junit.version>
     <mockito.version>1.9.0</mockito.version>
     <springockito.version>1.0.4</springockito.version>
     <cucumber.version>1.2.2</cucumber.version>
