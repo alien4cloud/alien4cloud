@@ -299,6 +299,9 @@
 
 - node_type: org.alien4cloud.tosca.model.types.NodeType
   description: description
+  metadata:
+    reference: tags
+    type: tag
   derived_from:
     reference: derivedFrom
     type: string_list
