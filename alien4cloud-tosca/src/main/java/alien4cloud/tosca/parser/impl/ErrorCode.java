@@ -28,6 +28,8 @@ public enum ErrorCode {
     ENTRY_DEFINITION_NOT_FOUND,
     /** If the file cannot be opened as a zip or in case of any IO exception */
     ERRONEOUS_ARCHIVE_FILE,
+    /** Users upload file exceed allowed size **/
+    FILE_SIZE_EXCEEDED,
     /** Invalid syntax while parsing a type. */
     SYNTAX_ERROR,
     /** Tosca version cannot be found in a definition file. */

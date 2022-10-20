@@ -632,6 +632,7 @@
       "ERRONEOUS_ARCHIVE_FILE" : "无法加载工件文件。请检查该文件是否是有效的zip。",
       "FAILED_TO_READ_FILE" : "无法读取文件 {{note}}",
       "FILE_PATH" : "文件路径",
+      "FILE_SIZE_EXCEEDED" : "超出大小限制. {{problem}}",
       "INVALID_ARTIFACT_REFERENCE" : "无效的工件引用 {{note}}",
       "INVALID_ICON_FORMAT" : "图标文件不是支持的图像格式。",
       "INVALID_NAME" : "无效 {{context}} 问题名称： [{{problem}}]。 重命名到 [{{note}}]。",

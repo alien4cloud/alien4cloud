@@ -24,6 +24,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -70,6 +71,9 @@ import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 @RequestMapping({ "/rest/applications", "/rest/v1/applications", "/rest/latest/applications" })
 @Api(value = "", description = "Operations on Applications")
 public class ApplicationController {
+    @Value("${upload.max_image_size:102400}")
+    private int maxImageSize;
+
     @Resource
     private IImageDAO imageDAO;
     @Resource(name = "alien-es-dao")
@@ -247,6 +251,7 @@ public class ApplicationController {
 
         try {
             ServletFileUpload upload = new ServletFileUpload();
+            upload.setSizeMax(maxImageSize);
             FileItemIterator iter = upload.getItemIterator(request);
             if (iter.hasNext()) {
                FileItemStream item = iter.next();

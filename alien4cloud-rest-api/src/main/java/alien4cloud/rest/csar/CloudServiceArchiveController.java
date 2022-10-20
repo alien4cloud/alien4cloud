@@ -74,6 +74,9 @@ import lombok.extern.slf4j.Slf4j;
 @Api(value = "", description = "Operations on CSARs")
 @Slf4j
 public class CloudServiceArchiveController {
+    @Value("${upload.max_archive_size:10485760}")
+    private int maxArchiveSize;
+
     @Resource
     private ArchiveUploadService csarUploadService;
     @Resource(name = "alien-es-dao")
@@ -104,6 +107,7 @@ public class CloudServiceArchiveController {
         try {
             String workspace = AlienConstants.GLOBAL_WORKSPACE_ID;
             ServletFileUpload upload = new ServletFileUpload();
+            upload.setSizeMax(maxArchiveSize);
             FileItemIterator iter = upload.getItemIterator(request);
             while (iter.hasNext()) {
                FileItemStream item = iter.next();
@@ -164,6 +168,7 @@ public class CloudServiceArchiveController {
         try {
             String workspace = AlienConstants.GLOBAL_WORKSPACE_ID;
             ServletFileUpload upload = new ServletFileUpload();
+            upload.setSizeMax(maxArchiveSize);
             FileItemIterator iter = upload.getItemIterator(request);
             while (iter.hasNext()) {
                FileItemStream item = iter.next();
