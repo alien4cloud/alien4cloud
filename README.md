@@ -11,7 +11,8 @@
 ALIEN 4 Cloud stands for Application LIfecycle ENablement for Cloud.
 
 FastConnect started this project in order to help enterprises adopting the cloud for their new and existing applications in an Open way. A4C has an Open-Source model (Apache 2 License) and standardization support in mind.
-
+> #### Alien4Cloud is no longer maintained since December 2022. 
+> The last release 3.7.0 came out in July 2022.
 ## Building Alien4Cloud
 
 Alien4Cloud is written in java for the backend and requires a JDK 8 or newer (note that we test it using JDK 8 only for now).
