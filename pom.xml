@@ -46,7 +46,7 @@
     <commons-cli.version>1.2</commons-cli.version>
     <commons-lang.version>3.5</commons-lang.version>
     <commons-collections.version>4.1</commons-collections.version>
-    <commons-compress.version>1.9</commons-compress.version>
+    <commons-compress.version>1.21</commons-compress.version>
     <spring.fsm.version>2.0.3.RELEASE</spring.fsm.version>
     <rxjava.version>2.2.4</rxjava.version>
     <io.jsonwebtoken.jjwt.version>0.11.2</io.jsonwebtoken.jjwt.version>
