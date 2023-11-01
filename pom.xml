@@ -62,7 +62,7 @@
 
     <!-- Spring (DI / Rest / Security) -->
     <spring-boot.version>1.5.18.RELEASE</spring-boot.version>
-    <spring.version>4.3.15.RELEASE</spring.version>
+    <spring.version>6.0.0</spring.version>
     <spring.security.version>4.2.3.RELEASE</spring.security.version>
     <spring.ldap.version>2.0.1.RELEASE</spring.ldap.version>
     <aspectj.version>1.7.4</aspectj.version>
