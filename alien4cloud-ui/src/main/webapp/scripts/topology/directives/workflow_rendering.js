@@ -187,13 +187,14 @@ define(function (require) {
                    && (!step.precedingFailSteps || step.precedingFailSteps.length === 0)){
                     appendEdge(g, 'start', stepName);
                   }
-                  if ((!step.onSuccess || step.onSuccess.length === 0)
-                      && (!step.onFailure || step.onFailure.length === 0)) {
+                  if (!step.onSuccess || step.onSuccess.length === 0) {
                     appendEdge(g, stepName, 'end');
                   } else {
                     for (var j = 0; j < step.onSuccess.length; j++) {
                       appendEdge(g, stepName, step.onSuccess[j]);
                     }
+                  }
+                  if (step.onFailure && step.onFailure.length > 0) {
                     for (var j = 0; j < step.onFailure.length; j++) {
                       appendFailureEdge(g, stepName, step.onFailure[j]);
                     }
